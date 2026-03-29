@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Horse Race</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(34,197,94,.10), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(245,158,11,.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(139,92,246,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--green); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--gold); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    /* NAVBAR */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100; display: flex; align-items: center; padding: 0 24px; background: rgba(10,10,15,.6); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-bottom: 1px solid var(--border); transition: background .3s; }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: .9rem; font-weight: 600; color: var(--muted); border-radius: 10px; transition: color .2s, background .2s; cursor: pointer; border: none; background: transparent; font-family: var(--font); }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-credits { display: flex; align-items: center; gap: 6px; padding: 8px 16px; margin-left: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: background .2s, transform .15s; }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 14px; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; overflow: hidden; flex-shrink: 0; }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); flex-direction: column; padding: 24px; gap: 8px; animation: fadeSlideDown .3s ease; }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    /* MAIN */
+    .main { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 20px); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+    .page-header { text-align: center; padding: 28px 24px 10px; }
+    .page-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; animation: fadeSlideIn .5s ease both; }
+    .page-header h1 .grad { background: linear-gradient(135deg, var(--green), var(--gold), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradMove 4s ease-in-out infinite; }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p { color: var(--muted); font-size: .95rem; max-width: 520px; margin: 0 auto; animation: fadeSlideIn .5s ease .1s both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .game-container { width: 100%; max-width: 700px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; }
+
+    /* RESULT BANNER */
+    .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: bannerIn .4s ease; }
+    @keyframes bannerIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner .rb-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .rb-label { color: #4ade80; }
+    .result-banner.lose .rb-label { color: #f87171; }
+    .result-banner .rb-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .rb-amount { color: #22c55e; }
+    .result-banner.lose .rb-amount { color: #ef4444; }
+    .result-banner .rb-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* RACE TRACK */
+    .track-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 16px 16px;
+      margin-bottom: 16px;
+      position: relative; overflow: hidden;
+    }
+    .track-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .track-header .th-title {
+      font-size: .78rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .track-header .th-title .hl { color: var(--accent); }
+    .race-timer {
+      font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: .3px; display: none;
+    }
+    .race-timer.live { display: inline-block; color: var(--red); background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.15); animation: timerPulse 1s ease-in-out infinite alternate; }
+    .race-timer.finished { display: inline-block; color: var(--green); background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.15); animation: none; }
+    @keyframes timerPulse { 0% { opacity: 1; } 100% { opacity: .5; } }
+
+    .track-lanes { display: flex; flex-direction: column; gap: 6px; }
+
+    .lane {
+      display: flex; align-items: center; gap: 8px;
+      height: 44px; position: relative;
+    }
+    .lane-num {
+      width: 22px; text-align: center;
+      font-size: .65rem; font-weight: 800; color: var(--muted); flex-shrink: 0;
+    }
+    .lane-track {
+      flex: 1; height: 100%; position: relative;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .lane-track::after {
+      content: ''; position: absolute;
+      right: 0; top: 0; bottom: 0; width: 3px;
+      background: rgba(245,158,11,.25);
+    }
+    .lane-grass {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 30px,
+        rgba(255,255,255,.015) 30px, rgba(255,255,255,.015) 31px
+      );
+    }
+
+    .horse {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      left: 4px;
+      z-index: 2;
+      transition: left 80ms linear;
+    }
+
+    /* SVG horse icon */
+    .horse-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid;
+      position: relative;
+      box-shadow: 0 2px 8px -2px rgba(0,0,0,.4);
+    }
+    .horse-icon svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: currentColor;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .horse-trail {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      left: 0; height: 4px;
+      border-radius: 2px; opacity: .25;
+      transition: width 80ms linear;
+      z-index: 1;
+    }
+
+    .lane.selected .lane-track {
+      border-color: rgba(139,92,246,.3);
+      box-shadow: 0 0 12px -4px rgba(139,92,246,.2);
+    }
+    .lane.winner .lane-track {
+      border-color: rgba(34,197,94,.4);
+      box-shadow: 0 0 16px -4px rgba(34,197,94,.3);
+    }
+    .lane.winner .horse-icon { animation: horseWin .4s ease; }
+    @keyframes horseWin { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+    .lane-odds {
+      width: 42px; text-align: center;
+      font-size: .68rem; font-weight: 800; flex-shrink: 0;
+      padding: 4px 0; border-radius: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+    }
+
+    /* FINISH LINE */
+    .finish-positions {
+      display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap;
+      min-height: 28px;
+    }
+    .finish-pos {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 8px;
+      font-size: .7rem; font-weight: 700;
+      background: var(--surface2); border: 1px solid var(--border);
+      animation: bannerIn .3s ease both;
+    }
+    .finish-pos .fp-medal {
+      font-size: .65rem; font-weight: 900;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .finish-pos.first { border-color: rgba(245,158,11,.3); color: var(--gold); }
+    .finish-pos.first .fp-medal { background: var(--gold); }
+    .finish-pos.second { border-color: rgba(148,163,184,.2); color: #cbd5e1; }
+    .finish-pos.second .fp-medal { background: #94a3b8; }
+    .finish-pos.third { border-color: rgba(180,83,9,.2); color: #d97706; }
+    .finish-pos.third .fp-medal { background: #b45309; }
+    .finish-pos:not(.first):not(.second):not(.third) .fp-medal { background: rgba(255,255,255,.1); color: var(--muted); }
+
+    /* HORSE PICKER */
+    .picker-section { margin-bottom: 16px; }
+    .picker-title {
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; text-align: center;
+    }
+    .horse-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+    }
+    .horse-card {
+      padding: 14px 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+      position: relative;
+    }
+    .horse-card:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-3px); }
+    .horse-card.selected { transform: translateY(-4px); }
+
+    .horse-card .hc-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid;
+    }
+    .horse-card .hc-icon svg {
+      width: 20px; height: 20px;
+      fill: none; stroke: currentColor;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .horse-card .hc-name { font-size: .78rem; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+    .horse-card .hc-odds { font-size: .68rem; font-weight: 700; color: var(--gold); }
+    .horse-card .hc-stat { font-size: .58rem; color: var(--muted); margin-top: 2px; }
+    .horse-card .hc-bar-wrap { margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+    .horse-card .hc-bar-row { display: flex; align-items: center; gap: 4px; }
+    .horse-card .hc-bar-label { font-size: .52rem; font-weight: 700; color: var(--muted); width: 22px; text-align: right; text-transform: uppercase; }
+    .horse-card .hc-bar { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.06); overflow: hidden; }
+    .horse-card .hc-bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+
+    .horse-card .hc-check {
+      position: absolute; top: 6px; right: 6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; font-weight: 900;
+      opacity: 0; transform: scale(0);
+      transition: all .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .horse-card.selected .hc-check { opacity: 1; transform: scale(1); }
+
+    /* CONTROLS */
+    .controls-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .control-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .control-group label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .bet-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .bet-input-wrap button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-family: var(--font); }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input { flex: 1; text-align: center; padding: 8px; font-size: 1rem; font-weight: 700; color: var(--gold); background: transparent; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font); min-width: 0; }
+    .bet-input-wrap input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet { flex: 1; padding: 6px; font-size: .7rem; font-weight: 600; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .info-display { text-align: center; }
+    .info-multi { font-size: 1.4rem; font-weight: 900; color: var(--gold); }
+    .info-detail { font-size: .72rem; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+    .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-play { flex: 1; padding: 18px; font-size: 1rem; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-family: var(--font); transition: all .2s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-play.primary { background: linear-gradient(135deg, var(--green), var(--accent2)); color: #fff; box-shadow: 0 4px 20px -4px rgba(34,197,94,.3); }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(34,197,94,.4); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .history-section { margin-top: 8px; }
+    .history-section h3 { font-size: .82rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .history-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .history-item { padding: 6px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface); }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    .footer { position: relative; z-index: 10; text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; width: 100%; }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 20px 16px 8px; }
+      .game-container { padding: 0 12px 36px; }
+      .controls-panel { grid-template-columns: 1fr; }
+      .horse-cards { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+      .horse-card { padding: 10px 8px 8px; }
+      .horse-card .hc-icon { width: 34px; height: 34px; margin-bottom: 6px; }
+      .horse-card .hc-icon svg { width: 16px; height: 16px; }
+      .lane { height: 38px; }
+      .horse-icon { width: 24px; height: 24px; }
+      .horse-icon svg { width: 13px; height: 13px; }
+      .lane-odds { width: 36px; font-size: .6rem; }
+      .action-row { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet" /><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1><span class="grad">Horse Race</span></h1>
+      <p>Pick your horse, place your bet. Watch them run. Higher odds, bigger payout — if it wins.</p>
+    </section>
+
+    <div class="game-container">
+      <div class="result-banner" id="resultBanner">
+        <div class="rb-label" id="rbLabel"></div>
+        <div class="rb-amount" id="rbAmount"></div>
+        <div class="rb-detail" id="rbDetail"></div>
+      </div>
+
+      <!-- Track -->
+      <div class="track-area" id="trackArea">
+        <div class="track-header">
+          <span class="th-title" id="trackTitle">Pick a <span class="hl">horse</span> below</span>
+          <span class="race-timer" id="raceTimer"></span>
+        </div>
+        <div class="track-lanes" id="trackLanes"></div>
+        <div class="finish-positions" id="finishPositions"></div>
+      </div>
+
+      <!-- Horse Picker -->
+      <div class="picker-section">
+        <div class="picker-title">Select Your Horse</div>
+        <div class="horse-cards" id="horseCards"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">&frac12;</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2x</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="10">10</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Payout Info</label>
+          <div class="info-display">
+            <div class="info-multi" id="infoMulti">--</div>
+            <div class="info-detail" id="infoDetail">Select a horse to see payout</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-play primary" id="btnRace" disabled>SELECT A HORSE</button>
+      </div>
+
+      <div class="history-section">
+        <h3>Recent Races</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No races yet</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+<script src="checker.js"></script>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({ theme });
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+    rtdb.ref('users/' + u.uid).on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      document.getElementById('creditsCount').textContent = userCredits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent = userCredits.toLocaleString();
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+      applyTheme(data.theme || localStorage.getItem('aightbet-theme') || 'dark', false);
+    });
+  });
+
+  (() => { const n=document.getElementById('navbar'); let t=false; window.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{n.classList.toggle('scrolled',window.scrollY>20);t=false;});t=true;}}); })();
+  (() => { const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu'); h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');}); m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');})); })();
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ══════════ HORSE RACE GAME ══════════ */
+  (() => {
+    // SVG horse silhouette path
+    const HORSE_SVG = `<svg viewBox="0 0 24 24"><path d="M22 6c-2 0-3.5 1-4.5 2H14l-2-2H8L6 8H4L2 10v2h2l1-1 1 3v6h2v-4l4 4h2v-6l2-2v-1l2-1h4V6z"/><circle cx="19" cy="8" r="1" fill="currentColor" stroke="none"/></svg>`;
+
+    const HORSES = [
+      { id: 0, name: 'Thunder',   color: '#ef4444', odds: 2.0,  speed: 1.15, stamina: .90, desc: 'Fast starter' },
+      { id: 1, name: 'Lightning', color: '#f59e0b', odds: 3.2,  speed: 1.05, stamina: 1.00, desc: 'Balanced' },
+      { id: 2, name: 'Shadow',    color: '#8b5cf6', odds: 4.5,  speed: 0.95, stamina: 1.10, desc: 'Strong finisher' },
+      { id: 3, name: 'Blaze',     color: '#ec4899', odds: 6.0,  speed: 1.10, stamina: 0.80, desc: 'Explosive but fades' },
+      { id: 4, name: 'Storm',     color: '#06b6d4', odds: 8.0,  speed: 0.88, stamina: 1.20, desc: 'Slow start, huge kick' },
+      { id: 5, name: 'Ghost',     color: '#94a3b8', odds: 12.0, speed: 0.85, stamina: 1.05, desc: 'Wildcard longshot' },
+    ];
+
+    const FINISH_PERCENT = 100;
+    const TICK_MS = 60;
+
+    let state = 'idle';
+    let selectedHorse = -1;
+    let betAmount = 0;
+    let history = [];
+    let raceData = [];
+    let finishOrder = [];
+    let raceInterval = null;
+    let raceTime = 0;
+
+    const trackLanes = document.getElementById('trackLanes');
+    const trackTitle = document.getElementById('trackTitle');
+    const raceTimer = document.getElementById('raceTimer');
+    const finishPositions = document.getElementById('finishPositions');
+    const horseCards = document.getElementById('horseCards');
+    const betInput = document.getElementById('betInput');
+    const btnRace = document.getElementById('btnRace');
+    const infoMulti = document.getElementById('infoMulti');
+    const infoDetail = document.getElementById('infoDetail');
+    const resultBanner = document.getElementById('resultBanner');
+    const rbLabel = document.getElementById('rbLabel');
+    const rbAmount = document.getElementById('rbAmount');
+    const rbDetail = document.getElementById('rbDetail');
+    const historyList = document.getElementById('historyList');
+
+    function getBet() { return Math.max(1, Math.floor(Number(betInput.value) || 1)); }
+
+    function buildTrack() {
+      trackLanes.innerHTML = '';
+      HORSES.forEach((h, i) => {
+        const lane = document.createElement('div');
+        lane.className = 'lane';
+        lane.dataset.id = i;
+        lane.innerHTML = `
+          <div class="lane-num">#${i + 1}</div>
+          <div class="lane-track">
+            <div class="lane-grass"></div>
+            <div class="horse-trail" style="background:${h.color};width:0%"></div>
+            <div class="horse" style="left:4px">
+              <div class="horse-icon" style="color:${h.color};border-color:${h.color};background:rgba(0,0,0,.4);">
+                ${HORSE_SVG}
+              </div>
+            </div>
+          </div>
+          <div class="lane-odds" style="color:${h.color}">${h.odds}x</div>
+        `;
+        trackLanes.appendChild(lane);
+      });
+    }
+
+    function buildPicker() {
+      horseCards.innerHTML = '';
+      HORSES.forEach((h, i) => {
+        const spdPct = Math.round((h.speed / 1.2) * 100);
+        const staPct = Math.round((h.stamina / 1.25) * 100);
+        const card = document.createElement('div');
+        card.className = 'horse-card';
+        card.dataset.id = i;
+        card.innerHTML = `
+          <div class="hc-check">&check;</div>
+          <div class="hc-icon" style="color:${h.color};border-color:${h.color};background:rgba(0,0,0,.25);">
+            ${HORSE_SVG}
+          </div>
+          <div class="hc-name" style="color:${h.color}">${h.name}</div>
+          <div class="hc-odds">${h.odds}x</div>
+          <div class="hc-stat">${h.desc}</div>
+          <div class="hc-bar-wrap">
+            <div class="hc-bar-row">
+              <span class="hc-bar-label">Spd</span>
+              <div class="hc-bar"><div class="hc-bar-fill" style="width:${spdPct}%;background:${h.color}"></div></div>
+            </div>
+            <div class="hc-bar-row">
+              <span class="hc-bar-label">Sta</span>
+              <div class="hc-bar"><div class="hc-bar-fill" style="width:${staPct}%;background:${h.color};opacity:.6"></div></div>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          if (state !== 'idle') return;
+          selectHorse(i);
+        });
+        // Color selected state via inline custom prop
+        card.style.setProperty('--hc', h.color);
+        horseCards.appendChild(card);
+      });
+
+      // Dynamic selected style
+      const style = document.createElement('style');
+      style.textContent = HORSES.map((h, i) =>
+        `.horse-card[data-id="${i}"].selected { border-color: ${h.color}80; background: ${h.color}10; box-shadow: 0 4px 20px -6px ${h.color}40; }`
+      ).join('\n');
+      document.head.appendChild(style);
+    }
+
+    function selectHorse(idx) {
+      selectedHorse = idx;
+      horseCards.querySelectorAll('.horse-card').forEach((c, i) => c.classList.toggle('selected', i === idx));
+      trackLanes.querySelectorAll('.lane').forEach((l, i) => l.classList.toggle('selected', i === idx));
+
+      const h = HORSES[idx];
+      infoMulti.textContent = h.odds + 'x';
+      infoMulti.style.color = h.color;
+      const bet = getBet();
+      infoDetail.innerHTML = h.name + ' — ' + h.desc + '<br>Profit on win: +' + Math.floor(bet * h.odds - bet).toLocaleString();
+
+      btnRace.disabled = false;
+      btnRace.textContent = 'RACE — BET ON ' + h.name.toUpperCase();
+    }
+
+    function updateInfo() {
+      if (selectedHorse < 0) return;
+      const h = HORSES[selectedHorse];
+      const bet = getBet();
+      infoMulti.textContent = h.odds + 'x';
+      infoDetail.innerHTML = h.name + ' — ' + h.desc + '<br>Profit on win: +' + Math.floor(bet * h.odds - bet).toLocaleString();
+    }
+
+    function resetTrack() {
+      trackLanes.querySelectorAll('.lane').forEach(lane => {
+        lane.classList.remove('winner');
+        lane.querySelector('.horse').style.left = '4px';
+        lane.querySelector('.horse-trail').style.width = '0%';
+      });
+      finishPositions.innerHTML = '';
+      raceTimer.className = 'race-timer';
+      raceTimer.style.display = 'none';
+    }
+
+    function startRace() {
+      const bet = getBet();
+      if (selectedHorse < 0) return;
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        rbLabel.textContent = 'NOT ENOUGH CREDITS';
+        rbAmount.textContent = ''; rbDetail.textContent = '';
+        return;
+      }
+
+      betAmount = bet;
+      state = 'racing';
+      resultBanner.style.display = 'none';
+      btnRace.disabled = true;
+      btnRace.textContent = 'RACING...';
+      resetTrack();
+
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      trackTitle.innerHTML = 'Race <span class="hl">in progress!</span>';
+      raceTimer.className = 'race-timer live';
+      raceTimer.style.display = 'inline-block';
+      raceTime = 0;
+
+      raceData = HORSES.map(h => ({
+        progress: 0,
+        speed: h.speed,
+        stamina: h.stamina,
+        finished: false,
+        finishTime: 0,
+        form: 0.85 + Math.random() * 0.30,
+        burstChance: 0.02 + (1 / h.odds) * 0.03,
+      }));
+      finishOrder = [];
+
+      raceInterval = setInterval(raceTick, TICK_MS);
+    }
+
+    function raceTick() {
+      raceTime += TICK_MS;
+      const seconds = (raceTime / 1000).toFixed(1);
+      raceTimer.textContent = seconds + 's';
+
+      const lanes = trackLanes.querySelectorAll('.lane');
+      const trackWidth = lanes[0].querySelector('.lane-track').offsetWidth;
+      const maxLeft = trackWidth - 36;
+
+      raceData.forEach((rd, i) => {
+        if (rd.finished) return;
+
+        const racePhase = rd.progress / FINISH_PERCENT;
+        const earlyBoost = rd.speed * (1 - racePhase * 0.5);
+        const lateBoost = rd.stamina * racePhase;
+        const baseSpeed = (earlyBoost + lateBoost) * rd.form;
+        let tickSpeed = baseSpeed * (0.6 + Math.random() * 0.8);
+
+        if (Math.random() < rd.burstChance) tickSpeed *= 1.5 + Math.random();
+        if (racePhase > 0.7 && Math.random() < (1 - rd.stamina) * 0.15) tickSpeed *= 0.2;
+
+        rd.progress += tickSpeed * 0.45;
+
+        if (rd.progress >= FINISH_PERCENT) {
+          rd.progress = FINISH_PERCENT;
+          rd.finished = true;
+          rd.finishTime = raceTime;
+          finishOrder.push(i);
+          if (finishOrder.length === 1) lanes[i].classList.add('winner');
+          addFinishPos(i, finishOrder.length);
+        }
+
+        const pct = Math.min(rd.progress / FINISH_PERCENT, 1);
+        const lane = lanes[i];
+        lane.querySelector('.horse').style.left = (4 + pct * (maxLeft - 4)) + 'px';
+        lane.querySelector('.horse-trail').style.width = (pct * 100) + '%';
+      });
+
+      if (raceData.every(r => r.finished)) {
+        endRace();
+      }
+    }
+
+    function addFinishPos(horseIdx, position) {
+      const h = HORSES[horseIdx];
+      const classes = ['first', 'second', 'third'];
+      const el = document.createElement('div');
+      el.className = 'finish-pos ' + (classes[position - 1] || '');
+      el.style.animationDelay = (position * 0.1) + 's';
+      el.innerHTML = `<span class="fp-medal">${position}</span>
+        <span style="color:${h.color};font-weight:800;">${h.name}</span>`;
+      finishPositions.appendChild(el);
+    }
+
+    function endRace() {
+      clearInterval(raceInterval);
+      raceInterval = null;
+      state = 'idle';
+
+      // Finish any remaining
+      raceData.forEach((rd, i) => {
+        if (!rd.finished) {
+          rd.finished = true;
+          finishOrder.push(i);
+          addFinishPos(i, finishOrder.length);
+        }
+      });
+
+      raceTimer.className = 'race-timer finished';
+      raceTimer.textContent = 'FINISHED';
+
+      const winnerId = finishOrder[0];
+      const winnerHorse = HORSES[winnerId];
+      const myHorse = HORSES[selectedHorse];
+      const won = winnerId === selectedHorse;
+
+      if (won) {
+        const payout = Math.floor(betAmount * myHorse.odds);
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+
+        trackTitle.innerHTML = '<span class="hl">' + winnerHorse.name + '</span> wins! You picked correctly!';
+        resultBanner.className = 'result-banner win';
+        rbLabel.textContent = 'YOUR HORSE WON';
+        rbAmount.textContent = '+' + (payout - betAmount).toLocaleString() + ' credits';
+        rbDetail.textContent = winnerHorse.name + ' at ' + myHorse.odds + 'x odds';
+
+        addHistory('win', payout);
+        saveStats(true, payout);
+      } else {
+        const myPos = finishOrder.indexOf(selectedHorse) + 1;
+        trackTitle.innerHTML = '<span class="hl">' + winnerHorse.name + '</span> wins. Your ' + myHorse.name + ' came #' + myPos;
+        resultBanner.className = 'result-banner lose';
+        rbLabel.textContent = 'YOUR HORSE LOST';
+        rbAmount.textContent = '-' + betAmount.toLocaleString() + ' credits';
+        rbDetail.textContent = 'Winner: ' + winnerHorse.name + ' | You bet on ' + myHorse.name + ' (#' + myPos + ')';
+
+        addHistory('lose', 0);
+        saveStats(false, 0);
+      }
+
+      resultBanner.style.display = 'block';
+      btnRace.disabled = false;
+      btnRace.textContent = 'RACE AGAIN — BET ON ' + myHorse.name.toUpperCase();
+    }
+
+    btnRace.addEventListener('click', () => {
+      if (state !== 'idle' || selectedHorse < 0) return;
+      startRace();
+    });
+
+    // Bet controls
+    document.getElementById('betHalf').addEventListener('click', () => {
+      if (state !== 'idle') return;
+      betInput.value = Math.max(1, Math.floor(getBet() / 2)); updateInfo();
+    });
+    document.getElementById('betDouble').addEventListener('click', () => {
+      if (state !== 'idle') return;
+      betInput.value = Math.min(getBet() * 2, userCredits); updateInfo();
+    });
+    betInput.addEventListener('input', updateInfo);
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (state !== 'idle') return;
+        betInput.value = b.dataset.bet; updateInfo();
+      });
+    });
+
+    function addHistory(result, payout) {
+      const h = HORSES[selectedHorse];
+      const w = HORSES[finishOrder[0]];
+      history.unshift({ result, payout, bet: betAmount, horse: h.name, winner: w.name, odds: h.odds });
+      if (history.length > 20) history.pop();
+      historyList.innerHTML = '';
+      history.forEach(h => {
+        const el = document.createElement('div');
+        el.className = 'history-item ' + h.result;
+        if (h.result === 'win') el.textContent = h.horse + ' ' + h.odds + 'x | +' + (h.payout - h.bet).toLocaleString();
+        else el.textContent = h.horse + ' > ' + h.winner + ' won | -' + h.bet.toLocaleString();
+        historyList.appendChild(el);
+      });
+    }
+
+    function saveStats(won, payout) {
+      if (!currentUser) return;
+      const ref = rtdb.ref('users/' + currentUser.uid + '/games/horserace');
+      ref.child('totalPlayed').transaction(v => (v || 0) + 1);
+      ref.child('totalWagered').transaction(v => (v || 0) + betAmount);
+      if (won) {
+        ref.child('totalWon').transaction(v => (v || 0) + payout);
+        ref.child('wins').transaction(v => (v || 0) + 1);
+        ref.child('biggestWin').transaction(v => Math.max(v || 0, payout));
+      } else {
+        ref.child('losses').transaction(v => (v || 0) + 1);
+      }
+    }
+
+    buildTrack();
+    buildPicker();
+  })();
+
+  /* PARTICLES */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(34,197,94,', 'rgba(245,158,11,', 'rgba(139,92,246,'];
+    function resize() { const d=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; canvas.width=W*d; canvas.height=H*d; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.setTransform(d,0,0,d,0,0); }
+    function make() { return { x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a:Math.random()*.35+.15, c:COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+    init(); draw();
+  })();
+  </script>
+</body>
+</html>

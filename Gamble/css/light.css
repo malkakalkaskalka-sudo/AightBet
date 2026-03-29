@@ -1,0 +1,31 @@
+/* Light theme overrides */
+
+/* Light theme variables */
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(15,23,42,.04);
+  --surface2: rgba(15,23,42,.06);
+  --border: rgba(15,23,42,.1);
+  --border2: rgba(15,23,42,.2);
+  --accent: #8b5cf6;
+  --accent2: #06b6d4;
+  --accent3: #ec4899;
+  --glow: rgba(139,92,246,.25);
+  --text: #0f172a;
+  --muted: #475569;
+  --gold: #b45309;
+  --radius: 16px;
+}
+
+body[data-theme="light"],
+:root[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Keep navbar dark in light mode */
+:root[data-theme="light"] .navbar,
+:root[data-theme="light"] .navbar.scrolled {
+  background: rgba(10,10,15,0.85) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}

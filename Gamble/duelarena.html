@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Duel Arena</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --orange: #f97316;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(239,68,68,.10), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(59,130,246,.08), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(249,115,22,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--red); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--blue); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--orange); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    /* NAVBAR */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100; display: flex; align-items: center; padding: 0 24px; background: rgba(10,10,15,.6); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-bottom: 1px solid var(--border); transition: background .3s; }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: .9rem; font-weight: 600; color: var(--muted); border-radius: 10px; transition: color .2s, background .2s; cursor: pointer; border: none; background: transparent; font-family: var(--font); }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-credits { display: flex; align-items: center; gap: 6px; padding: 8px 16px; margin-left: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: background .2s, transform .15s; }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 14px; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; overflow: hidden; flex-shrink: 0; }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); flex-direction: column; padding: 24px; gap: 8px; animation: fadeSlideDown .3s ease; }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    /* MAIN */
+    .main { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 20px); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+    .page-header { text-align: center; padding: 28px 24px 10px; }
+    .page-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; animation: fadeSlideIn .5s ease both; }
+    .page-header h1 .grad { background: linear-gradient(135deg, var(--red), var(--orange), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradMove 4s ease-in-out infinite; }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p { color: var(--muted); font-size: .95rem; max-width: 540px; margin: 0 auto; animation: fadeSlideIn .5s ease .1s both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .game-container { width: 100%; max-width: 580px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; }
+
+    /* RESULT BANNER */
+    .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: bannerIn .4s ease; }
+    @keyframes bannerIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner.draw { display: block; background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2); }
+    .result-banner .rb-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .rb-label { color: #4ade80; }
+    .result-banner.lose .rb-label { color: #f87171; }
+    .result-banner.draw .rb-label { color: var(--gold); }
+    .result-banner .rb-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .rb-amount { color: #22c55e; }
+    .result-banner.lose .rb-amount { color: #ef4444; }
+    .result-banner.draw .rb-amount { color: var(--gold); }
+    .result-banner .rb-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* ARENA */
+    .arena {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 20px; margin-bottom: 16px;
+      position: relative; overflow: hidden;
+    }
+    .arena-status {
+      text-align: center; font-size: .75rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 16px; min-height: 20px;
+    }
+    .arena-status .hl { color: var(--orange); }
+    .arena-status .hl-r { color: var(--red); }
+    .arena-status .hl-b { color: var(--blue); }
+    .arena-status .hl-g { color: var(--green); }
+    .arena-status .hl-gold { color: var(--gold); }
+
+    /* Fighters */
+    .fighters {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin-bottom: 16px;
+    }
+    .fighter {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      flex: 1; max-width: 160px;
+    }
+    .fighter-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 900;
+      border: 3px solid;
+      position: relative;
+      transition: all .3s;
+    }
+    .fighter.you .fighter-avatar { border-color: var(--blue); background: rgba(59,130,246,.08); color: var(--blue); }
+    .fighter.opp .fighter-avatar { border-color: var(--red); background: rgba(239,68,68,.08); color: var(--red); }
+    .fighter-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .fighter-name { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .fighter.you .fighter-name { color: var(--blue); }
+    .fighter.opp .fighter-name { color: var(--red); }
+
+    /* HP Bars */
+    .hp-wrap { width: 100%; }
+    .hp-label { display: flex; justify-content: space-between; font-size: .55rem; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+    .hp-bar { height: 10px; border-radius: 5px; background: rgba(255,255,255,.04); overflow: hidden; border: 1px solid var(--border); }
+    .hp-fill { height: 100%; border-radius: 4px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+    .fighter.you .hp-fill { background: linear-gradient(90deg, var(--blue), var(--accent2)); }
+    .fighter.opp .hp-fill { background: linear-gradient(90deg, var(--red), var(--orange)); }
+
+    .fighter-avatar.hit { animation: hitShake .4s ease; }
+    @keyframes hitShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+    .fighter-avatar.dead { opacity: .3; filter: grayscale(1); }
+
+    /* VS badge */
+    .vs-badge {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 900; color: #fff;
+      box-shadow: 0 4px 16px -4px rgba(239,68,68,.3);
+      flex-shrink: 0;
+    }
+
+    /* Battle Log */
+    .battle-log {
+      background: rgba(0,0,0,.2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 14px;
+      max-height: 180px; overflow-y: auto;
+      margin-bottom: 14px;
+    }
+    .battle-log::-webkit-scrollbar { width: 4px; }
+    .battle-log::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    .log-entry {
+      font-size: .68rem; font-weight: 600; color: var(--muted);
+      padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.02);
+      animation: logSlide .25s ease;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    @keyframes logSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .log-entry .le-you { color: var(--blue); font-weight: 800; }
+    .log-entry .le-opp { color: var(--red); font-weight: 800; }
+    .log-entry .le-dmg { color: var(--orange); font-weight: 800; }
+    .log-entry .le-heal { color: var(--green); font-weight: 800; }
+    .log-entry .le-crit { color: var(--gold); font-weight: 800; }
+    .log-entry .le-miss { color: var(--muted); font-style: italic; }
+    .log-entry .le-shield { color: var(--accent2); font-weight: 800; }
+
+    /* Round counter */
+    .round-badge {
+      text-align: center; margin-bottom: 12px;
+    }
+    .round-badge span {
+      display: inline-block; padding: 4px 14px;
+      border-radius: 8px; font-size: .65rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .5px;
+      background: rgba(249,115,22,.08); border: 1px solid rgba(249,115,22,.15);
+      color: var(--orange);
+    }
+
+    /* Move Selection */
+    .move-section {
+      margin-bottom: 0;
+    }
+    .move-label {
+      text-align: center; font-size: .65rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 10px;
+    }
+    .moves-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .move-btn {
+      padding: 14px 6px; border-radius: 14px;
+      border: 2px solid var(--border); background: var(--surface2);
+      cursor: pointer; text-align: center;
+      transition: all .2s; font-family: var(--font);
+      position: relative; overflow: hidden;
+    }
+    .move-btn:hover:not(.disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px -6px rgba(0,0,0,.3);
+    }
+    .move-btn.disabled { opacity: .3; pointer-events: none; cursor: default; }
+    .move-btn .mv-icon { margin-bottom: 4px; }
+    .move-btn .mv-icon svg { width: 24px; height: 24px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .move-btn .mv-name { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
+    .move-btn .mv-desc { font-size: .48rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
+
+    .move-btn.attack { border-color: rgba(239,68,68,.15); }
+    .move-btn.attack:hover { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.06); }
+    .move-btn.attack .mv-icon svg { stroke: var(--red); }
+    .move-btn.attack .mv-name { color: var(--red); }
+
+    .move-btn.heavy { border-color: rgba(249,115,22,.15); }
+    .move-btn.heavy:hover { border-color: rgba(249,115,22,.4); background: rgba(249,115,22,.06); }
+    .move-btn.heavy .mv-icon svg { stroke: var(--orange); }
+    .move-btn.heavy .mv-name { color: var(--orange); }
+
+    .move-btn.defend { border-color: rgba(59,130,246,.15); }
+    .move-btn.defend:hover { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); }
+    .move-btn.defend .mv-icon svg { stroke: var(--blue); }
+    .move-btn.defend .mv-name { color: var(--blue); }
+
+    .move-btn.heal { border-color: rgba(34,197,94,.15); }
+    .move-btn.heal:hover { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.06); }
+    .move-btn.heal .mv-icon svg { stroke: var(--green); }
+    .move-btn.heal .mv-name { color: var(--green); }
+
+    /* Cooldown overlay */
+    .mv-cd {
+      position: absolute; top: 4px; right: 6px;
+      font-size: .48rem; font-weight: 800; color: var(--muted);
+      background: rgba(0,0,0,.4); padding: 1px 5px; border-radius: 4px;
+      display: none;
+    }
+    .move-btn.on-cd .mv-cd { display: block; }
+    .move-btn.on-cd { opacity: .35; pointer-events: none; }
+
+    /* CONTROLS */
+    .controls-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .control-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .control-group label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .bet-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .bet-input-wrap button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-family: var(--font); }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input, .bet-input-wrap select { flex: 1; text-align: center; padding: 8px; font-size: 1rem; font-weight: 700; color: var(--gold); background: transparent; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font); min-width: 0; }
+    .bet-input-wrap input:focus, .bet-input-wrap select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+    .bet-input-wrap select { color: var(--orange); appearance: none; cursor: pointer; }
+    .bet-input-wrap select option { background: #1a1a2e; color: var(--text); }
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet { flex: 1; padding: 6px; font-size: .7rem; font-weight: 600; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-play { flex: 1; padding: 18px; font-size: 1rem; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-family: var(--font); transition: all .2s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-play.primary { background: linear-gradient(135deg, var(--red), var(--orange)); color: #fff; box-shadow: 0 4px 20px -4px rgba(239,68,68,.3); }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(239,68,68,.4); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .history-section { margin-top: 8px; }
+    .history-section h3 { font-size: .82rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .history-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .history-item { padding: 6px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface); }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    .footer { position: relative; z-index: 10; text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; width: 100%; }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 20px 16px 8px; }
+      .game-container { padding: 0 12px 36px; }
+      .controls-panel { grid-template-columns: 1fr; }
+      .moves-grid { grid-template-columns: repeat(2, 1fr); }
+      .fighter-avatar { width: 52px; height: 52px; font-size: 1.3rem; }
+      .vs-badge { width: 36px; height: 36px; font-size: .6rem; }
+      .action-row { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet" /><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1><span class="grad">Duel Arena</span></h1>
+      <p>Turn-based combat against an AI opponent. Pick your moves wisely -- attack, defend, heal, or go for a heavy strike. Last one standing wins.</p>
+    </section>
+
+    <div class="game-container">
+      <div class="result-banner" id="resultBanner">
+        <div class="rb-label" id="rbLabel"></div>
+        <div class="rb-amount" id="rbAmount"></div>
+        <div class="rb-detail" id="rbDetail"></div>
+      </div>
+
+      <div class="arena" id="arena">
+        <div class="arena-status" id="arenaStatus">Press <span class="hl">ENTER ARENA</span> to fight</div>
+
+        <div class="round-badge" id="roundBadge"><span>--</span></div>
+
+        <div class="fighters">
+          <div class="fighter you">
+            <div class="fighter-avatar" id="youAvatar">Y</div>
+            <div class="fighter-name" id="youName">YOU</div>
+            <div class="hp-wrap">
+              <div class="hp-label"><span>HP</span><span id="youHpText">100/100</span></div>
+              <div class="hp-bar"><div class="hp-fill" id="youHpFill" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="fighter opp">
+            <div class="fighter-avatar" id="oppAvatar">?</div>
+            <div class="fighter-name" id="oppName">OPPONENT</div>
+            <div class="hp-wrap">
+              <div class="hp-label"><span>HP</span><span id="oppHpText">100/100</span></div>
+              <div class="hp-bar"><div class="hp-fill" id="oppHpFill" style="width:100%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-log" id="battleLog">
+          <div class="log-entry" style="opacity:.4">Waiting for battle to start...</div>
+        </div>
+
+        <div class="move-section" id="moveSection">
+          <div class="move-label">Choose Your Move</div>
+          <div class="moves-grid" id="movesGrid">
+            <div class="move-btn attack disabled" data-move="attack">
+              <span class="mv-cd"></span>
+              <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg></div>
+              <div class="mv-name">Attack</div>
+              <div class="mv-desc">8-14 dmg</div>
+            </div>
+            <div class="move-btn heavy disabled" data-move="heavy">
+              <span class="mv-cd"></span>
+              <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M6 2L2 6l4 4"/><path d="M2 6h6"/><circle cx="15" cy="15" r="7"/><path d="M12 12l6 6"/><path d="M18 12l-6 6"/></svg></div>
+              <div class="mv-name">Heavy</div>
+              <div class="mv-desc">18-28 / miss 35%</div>
+            </div>
+            <div class="move-btn defend disabled" data-move="defend">
+              <span class="mv-cd"></span>
+              <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+              <div class="mv-name">Defend</div>
+              <div class="mv-desc">Block 60-80%</div>
+            </div>
+            <div class="move-btn heal disabled" data-move="heal">
+              <span class="mv-cd"></span>
+              <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
+              <div class="mv-name">Heal</div>
+              <div class="mv-desc">+10-18 HP / 2 cd</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">&frac12;</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2x</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="10">10</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Difficulty</label>
+          <div class="bet-input-wrap">
+            <select id="diffSelect">
+              <option value="easy">Easy -- 1.5x</option>
+              <option value="normal" selected>Normal -- 2x</option>
+              <option value="hard">Hard -- 3x</option>
+              <option value="boss">Boss -- 5x</option>
+            </select>
+          </div>
+          <div class="quick-bets" style="margin-top:10px">
+            <div style="font-size:.6rem;color:var(--muted);text-align:center;width:100%;">Harder opponents deal more damage but pay more</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-play primary" id="btnStart">ENTER ARENA</button>
+      </div>
+
+      <div class="history-section">
+        <h3>Recent Duels</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No duels yet</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme,persist=true){document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('aightbet-theme',theme);if(persist&&currentUser)rtdb.ref('users/'+currentUser.uid).update({theme});}
+  let currentUser=null,userCredits=0;
+  applyTheme(localStorage.getItem('aightbet-theme')||'dark',false);
+
+  auth.onAuthStateChanged(async u=>{
+    if(!u){window.location.href='index.html';return;}
+    currentUser=u;
+    const avatar=document.getElementById('navAvatar');
+    const name=u.displayName||u.email||'?';
+    rtdb.ref('users/'+u.uid).on('value',snap=>{
+      const d=snap.val()||{};
+      userCredits=d.credits||0;
+      document.getElementById('creditsCount').textContent=userCredits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent=userCredits.toLocaleString();
+      const av=d.avatar||u.photoURL||null;
+      if(av) avatar.innerHTML=`<img src="${av}" alt="Avatar"/>`;
+      else avatar.textContent=name.charAt(0).toUpperCase();
+      // Set player avatar in arena
+      const ya=document.getElementById('youAvatar');
+      if(av) ya.innerHTML=`<img src="${av}" alt="You"/>`;
+      else ya.textContent=name.charAt(0).toUpperCase();
+      document.getElementById('youName').textContent=(u.displayName||'YOU').toUpperCase();
+      applyTheme(d.theme||localStorage.getItem('aightbet-theme')||'dark',false);
+    });
+  });
+
+  (()=>{const n=document.getElementById('navbar');let t=false;window.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{n.classList.toggle('scrolled',window.scrollY>20);t=false;});t=true;}});})();
+  (()=>{const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');});m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');}));})();
+  document.getElementById('navAvatar').addEventListener('click',()=>{window.location.href='profile.html';});
+
+  /* ══════════ DUEL ARENA ══════════ */
+  (()=>{
+    const OPP_NAMES=['Shadow Knight','Iron Golem','Flame Witch','Frost Giant','Dark Assassin','Thunder Lord','Bone Reaper','Storm Warden','Blood Fang','Void Walker'];
+    const OPP_LETTERS=['S','I','F','G','D','T','B','W','R','V'];
+
+    const DIFF={
+      easy:   {multi:1.5, oppHp:80,  oppMinDmg:5,  oppMaxDmg:10, oppHeavyMin:12, oppHeavyMax:20, oppHealMin:8,  oppHealMax:14, oppCritChance:.08, oppMissBonus:0,   label:'Easy'},
+      normal: {multi:2.0, oppHp:100, oppMinDmg:8,  oppMaxDmg:14, oppHeavyMin:16, oppHeavyMax:26, oppHealMin:10, oppHealMax:18, oppCritChance:.12, oppMissBonus:0,   label:'Normal'},
+      hard:   {multi:3.0, oppHp:130, oppMinDmg:10, oppMaxDmg:18, oppHeavyMin:20, oppHeavyMax:32, oppHealMin:12, oppHealMax:22, oppCritChance:.18, oppMissBonus:-.05, label:'Hard'},
+      boss:   {multi:5.0, oppHp:170, oppMinDmg:14, oppMaxDmg:22, oppHeavyMin:26, oppHeavyMax:40, oppHealMin:15, oppHealMax:26, oppCritChance:.22, oppMissBonus:-.10, label:'Boss'},
+    };
+
+    const PLAYER_HP=100;
+    const P_ATK_MIN=8, P_ATK_MAX=14;
+    const P_HEAVY_MIN=18, P_HEAVY_MAX=28, P_HEAVY_MISS=.35;
+    const P_DEF_MIN=.60, P_DEF_MAX=.80;
+    const P_HEAL_MIN=10, P_HEAL_MAX=18, P_HEAL_CD=2;
+    const P_CRIT_CHANCE=.15, CRIT_MULTI=1.8;
+
+    let state='idle';
+    let betAmount=0, difficulty='normal';
+    let youHp=0,youMaxHp=PLAYER_HP,oppHp=0,oppMaxHp=100;
+    let round=0;
+    let youDefending=false, oppDefending=false;
+    let healCooldown=0, oppHealCd=0;
+    let oppIdx=0;
+    let diff={};
+    let history=[];
+
+    const arenaStatus=document.getElementById('arenaStatus');
+    const roundBadge=document.getElementById('roundBadge');
+    const youHpFill=document.getElementById('youHpFill');
+    const youHpText=document.getElementById('youHpText');
+    const oppHpFill=document.getElementById('oppHpFill');
+    const oppHpText=document.getElementById('oppHpText');
+    const youAvatarEl=document.getElementById('youAvatar');
+    const oppAvatarEl=document.getElementById('oppAvatar');
+    const oppNameEl=document.getElementById('oppName');
+    const battleLog=document.getElementById('battleLog');
+    const movesGrid=document.getElementById('movesGrid');
+    const btnStart=document.getElementById('btnStart');
+    const betInput=document.getElementById('betInput');
+    const diffSelect=document.getElementById('diffSelect');
+    const resultBanner=document.getElementById('resultBanner');
+    const rbLabel=document.getElementById('rbLabel');
+    const rbAmount=document.getElementById('rbAmount');
+    const rbDetail=document.getElementById('rbDetail');
+    const historyList=document.getElementById('historyList');
+
+    function getBet(){return Math.max(1,Math.floor(Number(betInput.value)||1));}
+    function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+    function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    function updateHp(){
+      youHpFill.style.width=Math.max(0,(youHp/youMaxHp)*100)+'%';
+      youHpText.textContent=Math.max(0,youHp)+'/'+youMaxHp;
+      oppHpFill.style.width=Math.max(0,(oppHp/oppMaxHp)*100)+'%';
+      oppHpText.textContent=Math.max(0,oppHp)+'/'+oppMaxHp;
+    }
+
+    function log(html){
+      const e=document.createElement('div');
+      e.className='log-entry';
+      e.innerHTML='[R'+round+'] '+html;
+      battleLog.insertBefore(e,battleLog.firstChild);
+      while(battleLog.children.length>50) battleLog.removeChild(battleLog.lastChild);
+    }
+
+    function enableMoves(on){
+      movesGrid.querySelectorAll('.move-btn').forEach(b=>{
+        if(on){
+          b.classList.remove('disabled');
+          // Check heal cooldown
+          if(b.dataset.move==='heal'&&healCooldown>0){
+            b.classList.add('on-cd');
+            b.querySelector('.mv-cd').textContent=healCooldown+'t';
+          } else {
+            b.classList.remove('on-cd');
+          }
+        } else {
+          b.classList.add('disabled');
+        }
+      });
+    }
+
+    function hitAnim(el){
+      el.classList.remove('hit');
+      void el.offsetWidth;
+      el.classList.add('hit');
+    }
+
+    function calcDmg(min,max,crit,defPct){
+      let dmg=rand(min,max);
+      let isCrit=Math.random()<crit;
+      if(isCrit) dmg=Math.floor(dmg*CRIT_MULTI);
+      if(defPct>0) dmg=Math.max(1,Math.floor(dmg*(1-defPct)));
+      return {dmg,isCrit};
+    }
+
+    // ---- OPPONENT AI ----
+    function oppChooseMove(){
+      const hpPct=oppHp/oppMaxHp;
+      // Heal if low and not on CD
+      if(hpPct<.35 && oppHealCd<=0 && Math.random()<.7) return 'heal';
+      // Defend sometimes
+      if(Math.random()<.18) return 'defend';
+      // Heavy sometimes
+      if(Math.random()<.28) return 'heavy';
+      return 'attack';
+    }
+
+    // ---- PLAYER MOVE ----
+    async function doPlayerMove(move){
+      state='animating';
+      enableMoves(false);
+      youDefending=false;
+
+      if(move==='attack'){
+        const defPct=oppDefending?(P_DEF_MIN+Math.random()*(P_DEF_MAX-P_DEF_MIN)):0;
+        const {dmg,isCrit}=calcDmg(P_ATK_MIN,P_ATK_MAX,P_CRIT_CHANCE,defPct);
+        oppHp-=dmg;
+        hitAnim(oppAvatarEl);
+        if(isCrit){
+          log('<span class="le-you">You</span> land a <span class="le-crit">CRITICAL</span> strike for <span class="le-dmg">'+dmg+'</span> damage!'+(oppDefending?' (blocked)':''));
+        } else {
+          log('<span class="le-you">You</span> attack for <span class="le-dmg">'+dmg+'</span> damage'+(oppDefending?' (partially blocked)':''));
+        }
+      } else if(move==='heavy'){
+        const miss=Math.random()<P_HEAVY_MISS;
+        if(miss){
+          log('<span class="le-you">You</span> swing heavy but <span class="le-miss">MISS!</span>');
+        } else {
+          const defPct=oppDefending?(P_DEF_MIN+Math.random()*(P_DEF_MAX-P_DEF_MIN)):0;
+          const {dmg,isCrit}=calcDmg(P_HEAVY_MIN,P_HEAVY_MAX,P_CRIT_CHANCE*.8,defPct);
+          oppHp-=dmg;
+          hitAnim(oppAvatarEl);
+          if(isCrit){
+            log('<span class="le-you">You</span> land a <span class="le-crit">DEVASTATING CRIT</span> for <span class="le-dmg">'+dmg+'</span>!'+(oppDefending?' (blocked)':''));
+          } else {
+            log('<span class="le-you">You</span> heavy strike for <span class="le-dmg">'+dmg+'</span>'+(oppDefending?' (partially blocked)':''));
+          }
+        }
+      } else if(move==='defend'){
+        youDefending=true;
+        log('<span class="le-you">You</span> raise your <span class="le-shield">shield</span> and brace for impact');
+      } else if(move==='heal'){
+        const amt=rand(P_HEAL_MIN,P_HEAL_MAX);
+        youHp=Math.min(youMaxHp,youHp+amt);
+        healCooldown=P_HEAL_CD;
+        log('<span class="le-you">You</span> heal for <span class="le-heal">+'+amt+'</span> HP');
+      }
+
+      if(healCooldown>0&&move!=='heal') healCooldown--;
+      updateHp();
+
+      await wait(600);
+
+      if(oppHp<=0){endDuel(true);return;}
+
+      // OPP TURN
+      await doOppMove();
+    }
+
+    async function doOppMove(){
+      oppDefending=false;
+      const move=oppChooseMove();
+      const name=OPP_NAMES[oppIdx];
+
+      if(move==='attack'){
+        const defPct=youDefending?(P_DEF_MIN+Math.random()*(P_DEF_MAX-P_DEF_MIN)):0;
+        const {dmg,isCrit}=calcDmg(diff.oppMinDmg,diff.oppMaxDmg,diff.oppCritChance,defPct);
+        youHp-=dmg;
+        hitAnim(youAvatarEl);
+        if(isCrit){
+          log('<span class="le-opp">'+name+'</span> lands a <span class="le-crit">CRITICAL</span> for <span class="le-dmg">'+dmg+'</span>!'+(youDefending?' (you blocked)':''));
+        } else {
+          log('<span class="le-opp">'+name+'</span> attacks for <span class="le-dmg">'+dmg+'</span>'+(youDefending?' (you blocked)':''));
+        }
+      } else if(move==='heavy'){
+        const missChance=.35+diff.oppMissBonus;
+        const miss=Math.random()<missChance;
+        if(miss){
+          log('<span class="le-opp">'+name+'</span> swings heavy but <span class="le-miss">MISSES!</span>');
+        } else {
+          const defPct=youDefending?(P_DEF_MIN+Math.random()*(P_DEF_MAX-P_DEF_MIN)):0;
+          const {dmg,isCrit}=calcDmg(diff.oppHeavyMin,diff.oppHeavyMax,diff.oppCritChance*.8,defPct);
+          youHp-=dmg;
+          hitAnim(youAvatarEl);
+          if(isCrit){
+            log('<span class="le-opp">'+name+'</span> <span class="le-crit">CRIT HEAVY</span> for <span class="le-dmg">'+dmg+'</span>!'+(youDefending?' (blocked)':''));
+          } else {
+            log('<span class="le-opp">'+name+'</span> heavy strike for <span class="le-dmg">'+dmg+'</span>'+(youDefending?' (blocked)':''));
+          }
+        }
+      } else if(move==='defend'){
+        oppDefending=true;
+        log('<span class="le-opp">'+name+'</span> raises <span class="le-shield">shield</span>');
+      } else if(move==='heal'){
+        const amt=rand(diff.oppHealMin,diff.oppHealMax);
+        oppHp=Math.min(oppMaxHp,oppHp+amt);
+        oppHealCd=P_HEAL_CD;
+        log('<span class="le-opp">'+name+'</span> heals for <span class="le-heal">+'+amt+'</span> HP');
+      }
+
+      if(oppHealCd>0&&move!=='heal') oppHealCd--;
+      updateHp();
+
+      await wait(500);
+
+      if(youHp<=0){endDuel(false);return;}
+
+      // Next round
+      round++;
+      roundBadge.innerHTML='<span>Round '+round+'</span>';
+      arenaStatus.innerHTML='Round '+round+' -- <span class="hl">choose your move</span>';
+      state='playing';
+      enableMoves(true);
+    }
+
+    function endDuel(won){
+      state='done';
+      enableMoves(false);
+
+      if(won){
+        oppAvatarEl.classList.add('dead');
+        const payout=Math.floor(betAmount*diff.multi);
+        rtdb.ref('users/'+currentUser.uid+'/credits').set(userCredits-betAmount+payout);
+        arenaStatus.innerHTML='<span class="hl-g">VICTORY!</span> '+OPP_NAMES[oppIdx]+' has fallen!';
+        resultBanner.className='result-banner win';
+        rbLabel.textContent='VICTORY -- '+diff.label.toUpperCase();
+        rbAmount.textContent='+'+(payout-betAmount).toLocaleString()+' credits';
+        rbDetail.textContent=round+' rounds | '+diff.multi+'x payout | '+Math.max(0,youHp)+' HP remaining';
+        resultBanner.style.display='block';
+        log('<span class="le-you">You</span> defeated <span class="le-opp">'+OPP_NAMES[oppIdx]+'</span>!');
+        addHistory('win',payout);
+        saveStats(true,payout);
+      } else {
+        youAvatarEl.classList.add('dead');
+        arenaStatus.innerHTML='<span class="hl-r">DEFEATED!</span> '+OPP_NAMES[oppIdx]+' wins.';
+        resultBanner.className='result-banner lose';
+        rbLabel.textContent='DEFEATED -- '+diff.label.toUpperCase();
+        rbAmount.textContent='-'+betAmount.toLocaleString()+' credits';
+        rbDetail.textContent=round+' rounds | '+OPP_NAMES[oppIdx]+' had '+Math.max(0,oppHp)+' HP left';
+        resultBanner.style.display='block';
+        log('<span class="le-opp">'+OPP_NAMES[oppIdx]+'</span> defeated <span class="le-you">you</span>.');
+        addHistory('lose',0);
+        saveStats(false,0);
+      }
+
+      btnStart.disabled=false;
+      btnStart.textContent='FIGHT AGAIN';
+    }
+
+    function startDuel(){
+      const bet=getBet();
+      if(bet>userCredits){
+        resultBanner.className='result-banner lose';resultBanner.style.display='block';
+        rbLabel.textContent='NOT ENOUGH CREDITS';rbAmount.textContent='';rbDetail.textContent='';
+        return;
+      }
+
+      betAmount=bet;
+      difficulty=diffSelect.value;
+      diff=DIFF[difficulty];
+      state='playing';
+      round=1;
+      youHp=PLAYER_HP; youMaxHp=PLAYER_HP;
+      oppMaxHp=diff.oppHp; oppHp=oppMaxHp;
+      youDefending=false; oppDefending=false;
+      healCooldown=0; oppHealCd=0;
+
+      oppIdx=Math.floor(Math.random()*OPP_NAMES.length);
+      oppNameEl.textContent=OPP_NAMES[oppIdx];
+      oppAvatarEl.textContent=OPP_LETTERS[oppIdx];
+      oppAvatarEl.classList.remove('dead');
+      youAvatarEl.classList.remove('dead');
+
+      resultBanner.style.display='none';
+      btnStart.disabled=true;
+      btnStart.textContent='FIGHTING...';
+      battleLog.innerHTML='';
+
+      rtdb.ref('users/'+currentUser.uid+'/credits').set(userCredits-bet);
+
+      updateHp();
+      roundBadge.innerHTML='<span>Round 1</span>';
+      arenaStatus.innerHTML='Round 1 -- <span class="hl">choose your move</span>';
+
+      log('The duel against <span class="le-opp">'+OPP_NAMES[oppIdx]+'</span> begins! ('+diff.label+' -- '+diff.multi+'x)');
+
+      enableMoves(true);
+    }
+
+    btnStart.addEventListener('click',()=>{if(state==='idle'||state==='done'){state='idle';startDuel();}});
+
+    movesGrid.addEventListener('click',e=>{
+      const btn=e.target.closest('.move-btn');
+      if(!btn||state!=='playing'||btn.classList.contains('disabled')||btn.classList.contains('on-cd')) return;
+      doPlayerMove(btn.dataset.move);
+    });
+
+    document.getElementById('betHalf').addEventListener('click',()=>{if(state!=='playing')betInput.value=Math.max(1,Math.floor(getBet()/2));});
+    document.getElementById('betDouble').addEventListener('click',()=>{if(state!=='playing')betInput.value=Math.min(getBet()*2,userCredits);});
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b=>{b.addEventListener('click',()=>{if(state!=='playing')betInput.value=b.dataset.bet;});});
+
+    function addHistory(result,payout){
+      history.unshift({result,payout,bet:betAmount,rounds:round,opp:OPP_NAMES[oppIdx],diff:diff.label});
+      if(history.length>20)history.pop();
+      historyList.innerHTML='';
+      history.forEach(h=>{
+        const el=document.createElement('div');
+        el.className='history-item '+(h.result==='win'?'win':'lose');
+        if(h.result==='win') el.textContent=h.diff[0]+' vs '+h.opp.split(' ')[1]+' | +'+(h.payout-h.bet).toLocaleString()+' | R'+h.rounds;
+        else el.textContent=h.diff[0]+' vs '+h.opp.split(' ')[1]+' | -'+h.bet.toLocaleString()+' | R'+h.rounds;
+        historyList.appendChild(el);
+      });
+    }
+
+    function saveStats(won,payout){
+      if(!currentUser)return;
+      const ref=rtdb.ref('users/'+currentUser.uid+'/games/duelarena');
+      ref.child('totalPlayed').transaction(v=>(v||0)+1);
+      ref.child('totalWagered').transaction(v=>(v||0)+betAmount);
+      if(won){
+        ref.child('totalWon').transaction(v=>(v||0)+payout);
+        ref.child('wins').transaction(v=>(v||0)+1);
+        ref.child('biggestWin').transaction(v=>Math.max(v||0,payout));
+      } else {
+        ref.child('losses').transaction(v=>(v||0)+1);
+      }
+    }
+  })();
+
+  /* PARTICLES */
+  (()=>{
+    const canvas=document.getElementById('particles');
+    const ctx=canvas.getContext('2d');
+    let W,H,particles=[],mouse={x:-9999,y:-9999};
+    const COUNT=Math.min(40,Math.round(window.innerWidth*0.03));
+    const COLORS=['rgba(239,68,68,','rgba(249,115,22,','rgba(59,130,246,'];
+    function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}
+    function make(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,a:Math.random()*.35+.15,c:COLORS[Math.random()*3|0]};}
+    function init(){resize();particles=[];for(let i=0;i<COUNT;i++)particles.push(make());}
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i];p.x+=p.vx;p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+    init();draw();
+  })();
+  </script>
+</body>
+</html>

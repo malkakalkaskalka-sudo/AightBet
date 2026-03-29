@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Limbo</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ───────── BACKGROUND ───────── */
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(239,68,68,.10), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(124,58,237,.12), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(236,72,153,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--red); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent3); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    /* ───────── NAVBAR ───────── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h); z-index: 100;
+      display: flex; align-items: center; padding: 0 24px;
+      background: rgba(10,10,15,.6);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      transition: background .3s;
+    }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 18px; font-size: .9rem; font-weight: 600;
+      color: var(--muted); border-radius: 10px;
+      transition: color .2s, background .2s;
+      cursor: pointer; border: none; background: transparent; font-family: var(--font);
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    .nav-credits {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; margin-left: 12px;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2);
+      border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold);
+      cursor: pointer; transition: background .2s, transform .15s;
+    }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%; margin-left: 14px;
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer;
+      border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px);
+      flex-direction: column; padding: 24px; gap: 8px;
+      animation: fadeSlideDown .3s ease;
+    }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    /* ───────── MAIN ───────── */
+    .main {
+      position: relative; z-index: 10;
+      padding-top: calc(var(--nav-h) + 20px);
+      min-height: 100dvh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .page-header { text-align: center; padding: 36px 24px 16px; }
+    .page-header h1 {
+      font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+      font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px;
+      animation: fadeSlideIn .5s ease both;
+    }
+    .page-header h1 .grad {
+      background: linear-gradient(135deg, var(--red), #7c3aed, var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; background-size: 200% 200%;
+      animation: gradMove 4s ease-in-out infinite;
+    }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p {
+      color: var(--muted); font-size: .95rem; max-width: 460px; margin: 0 auto;
+      animation: fadeSlideIn .5s ease .1s both;
+    }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ───────── GAME CONTAINER ───────── */
+    .game-container {
+      width: 100%; max-width: 560px;
+      padding: 0 20px 48px;
+      animation: fadeSlideIn .5s ease .15s both;
+    }
+
+    /* ───────── MULTIPLIER DISPLAY ───────── */
+    .multiplier-stage {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      height: 260px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .multiplier-bg {
+      position: absolute; inset: 0;
+      opacity: 0; transition: opacity .4s;
+    }
+    .multiplier-bg.win { background: radial-gradient(circle at center, rgba(34,197,94,.12), transparent 70%); opacity: 1; }
+    .multiplier-bg.lose { background: radial-gradient(circle at center, rgba(239,68,68,.12), transparent 70%); opacity: 1; }
+
+    /* graph lines behind */
+    .stage-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* target line */
+    .target-line {
+      position: absolute; left: 16px; right: 16px;
+      height: 2px;
+      background: rgba(245,158,11,.3);
+      border-radius: 1px;
+      transition: bottom .3s ease;
+      z-index: 2;
+    }
+    .target-line::after {
+      content: attr(data-label);
+      position: absolute; right: 0; top: -22px;
+      font-size: .7rem; font-weight: 700;
+      color: var(--gold);
+      background: rgba(245,158,11,.12);
+      padding: 2px 8px; border-radius: 4px;
+    }
+
+    .multiplier-value {
+      position: relative; z-index: 3;
+      font-size: clamp(3rem, 10vw, 5rem);
+      font-weight: 900; letter-spacing: -2px;
+      transition: color .3s;
+      color: var(--muted);
+      text-shadow: none;
+    }
+    .multiplier-value.rolling {
+      color: var(--text);
+    }
+    .multiplier-value.win {
+      color: var(--green);
+      text-shadow: 0 0 40px rgba(34,197,94,.3);
+    }
+    .multiplier-value.lose {
+      color: var(--red);
+      text-shadow: 0 0 40px rgba(239,68,68,.3);
+    }
+
+    .multiplier-sub {
+      position: absolute; bottom: 16px; left: 0; right: 0;
+      text-align: center;
+      font-size: .8rem; font-weight: 600;
+      color: var(--muted);
+      z-index: 3;
+      opacity: 0; transition: opacity .3s;
+    }
+    .multiplier-sub.show { opacity: 1; }
+
+    /* ───────── CONTROLS ───────── */
+    .controls-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .control-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .control-group.full { grid-column: 1 / -1; }
+
+    .control-group label {
+      display: block;
+      font-size: .72rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px;
+    }
+
+    .bet-input-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .bet-input-wrap button {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text); font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font);
+    }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input {
+      flex: 1; text-align: center;
+      padding: 8px; font-size: 1rem; font-weight: 700;
+      color: var(--gold); background: transparent;
+      border: 1px solid var(--border); border-radius: 8px;
+      outline: none; font-family: var(--font); min-width: 0;
+    }
+    .bet-input-wrap input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet {
+      flex: 1; padding: 6px; font-size: .7rem; font-weight: 600;
+      text-align: center;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted); cursor: pointer;
+      transition: all .15s; font-family: var(--font);
+    }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    /* Target multiplier */
+    .target-input-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .target-input-wrap button {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text); font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font);
+    }
+    .target-input-wrap button:hover { border-color: var(--red); background: rgba(239,68,68,.08); }
+    .target-input-wrap input {
+      flex: 1; text-align: center;
+      padding: 8px; font-size: 1.1rem; font-weight: 800;
+      color: var(--red); background: transparent;
+      border: 1px solid var(--border); border-radius: 8px;
+      outline: none; font-family: var(--font); min-width: 0;
+    }
+    .target-input-wrap input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(239,68,68,.1); }
+
+    .target-presets { display: flex; gap: 4px; margin-top: 8px; }
+    .target-preset {
+      flex: 1; padding: 6px; font-size: .7rem; font-weight: 600;
+      text-align: center;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted); cursor: pointer;
+      transition: all .15s; font-family: var(--font);
+    }
+    .target-preset:hover { color: var(--text); border-color: var(--border2); }
+
+    /* Win chance & profit display */
+    .stats-row {
+      display: flex; gap: 10px; margin-bottom: 16px;
+    }
+    .stat-box {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+    .stat-box .stat-label {
+      font-size: .68rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 4px;
+    }
+    .stat-box .stat-value {
+      font-size: 1.1rem; font-weight: 800;
+    }
+    .stat-box .stat-value.chance { color: var(--accent2); }
+    .stat-box .stat-value.profit { color: var(--green); }
+    .stat-box .stat-value.edge { color: var(--muted); }
+
+    /* ───────── ACTION BUTTONS ───────── */
+    .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+
+    .btn-play {
+      flex: 1; padding: 18px;
+      font-size: 1.05rem; font-weight: 800;
+      border: none; border-radius: 14px;
+      cursor: pointer; font-family: var(--font);
+      transition: all .2s;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .btn-play.primary {
+      background: linear-gradient(135deg, var(--red), #7c3aed);
+      color: #fff;
+      box-shadow: 0 4px 20px -4px rgba(239,68,68,.35);
+    }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(239,68,68,.45); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .btn-play.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      flex: 0 0 auto; padding: 18px 24px;
+    }
+    .btn-play.secondary:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ───────── RESULT BANNER ───────── */
+    .result-banner {
+      display: none;
+      text-align: center;
+      padding: 18px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      animation: fadeSlideIn .4s ease;
+    }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner .r-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .r-label { color: #4ade80; }
+    .result-banner.lose .r-label { color: #f87171; }
+    .result-banner .r-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .r-amount { color: #22c55e; }
+    .result-banner.lose .r-amount { color: #ef4444; }
+    .result-banner .r-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* ───────── HISTORY ───────── */
+    .history-section { margin-top: 8px; }
+    .history-section h3 {
+      font-size: .82rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .history-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .history-item {
+      padding: 6px 12px; border-radius: 8px;
+      font-size: .75rem; font-weight: 700;
+      border: 1px solid var(--border); background: var(--surface);
+    }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    /* ───────── FOOTER ───────── */
+    .footer {
+      position: relative; z-index: 10;
+      text-align: center; padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: .8rem; width: 100%;
+    }
+
+    /* ───────── RESPONSIVE ───────── */
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 24px 16px 10px; }
+      .game-container { padding: 0 12px 36px; }
+      .controls-panel { grid-template-columns: 1fr; }
+      .multiplier-stage { height: 200px; border-radius: 16px; }
+      .action-row { flex-direction: column; }
+      .stats-row { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <!-- ════════ NAVBAR ════════ -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html">
+      <img src="Images/logo.png" alt="AightBet" />
+      <span>AightBet</span>
+    </a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Store
+      </a>
+      <a href="games.html" class="nav-link active">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+        Games
+      </a>
+      <a href="social.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Social
+      </a>
+      <a href="profile.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCount">0</span>
+    </a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Store
+    </a>
+    <a href="games.html" class="nav-link active">
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+      Games
+    </a>
+    <a href="social.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Social
+    </a>
+    <a href="profile.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+    <a href="credits.html" class="nav-credits">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCountMobile">0</span>
+    </a>
+  </div>
+
+  <!-- ════════ MAIN ════════ -->
+  <main class="main">
+
+    <section class="page-header">
+      <h1>🚀 <span class="grad">Limbo</span></h1>
+      <p>Set a target multiplier. If the result goes above it, you win. How high do you dare aim?</p>
+    </section>
+
+    <div class="game-container">
+
+      <!-- Result Banner -->
+      <div class="result-banner" id="resultBanner">
+        <div class="r-label" id="rLabel"></div>
+        <div class="r-amount" id="rAmount"></div>
+        <div class="r-detail" id="rDetail"></div>
+      </div>
+
+      <!-- Multiplier Stage -->
+      <div class="multiplier-stage" id="multiStage">
+        <div class="stage-grid"></div>
+        <div class="multiplier-bg" id="multiBg"></div>
+        <div class="target-line" id="targetLine" data-label="2.00×" style="bottom:40%"></div>
+        <div class="multiplier-value" id="multiValue">1.00×</div>
+        <div class="multiplier-sub" id="multiSub"></div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">Win Chance</div>
+          <div class="stat-value chance" id="winChance">49.50%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Profit on Win</div>
+          <div class="stat-value profit" id="profitOnWin">+10</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">House Edge</div>
+          <div class="stat-value edge">1%</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">½</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2×</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="10">10</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Target Multiplier</label>
+          <div class="target-input-wrap">
+            <button id="targetDown">−</button>
+            <input type="number" id="targetInput" value="2.00" min="1.01" max="1000" step="0.01" />
+            <button id="targetUp">+</button>
+          </div>
+          <div class="target-presets">
+            <button class="target-preset" data-target="1.10">1.1×</button>
+            <button class="target-preset" data-target="1.50">1.5×</button>
+            <button class="target-preset" data-target="2.00">2×</button>
+            <button class="target-preset" data-target="5.00">5×</button>
+            <button class="target-preset" data-target="10.00">10×</button>
+            <button class="target-preset" data-target="100.00">100×</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-row">
+        <button class="btn-play primary" id="btnPlay">BET</button>
+        <button class="btn-play secondary" id="btnAuto">Auto ×10</button>
+      </div>
+
+      <!-- History -->
+      <div class="history-section">
+        <h3>Recent Results</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No games yet</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2026 AightBet. Fake casino – no real money. Play responsibly (or don't, it's fake).
+  </footer>
+
+  <!-- ═══════════ SCRIPTS ═══════════ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) {
+      rtdb.ref('users/'+currentUser.uid).update({ theme });
+    }
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+
+    const userRef = rtdb.ref('users/' + u.uid);
+    userRef.on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      const c = userCredits.toLocaleString();
+      document.getElementById('creditsCount').textContent = c;
+      document.getElementById('creditsCountMobile').textContent = c;
+
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+
+      const theme = data.theme || localStorage.getItem('aightbet-theme') || 'dark';
+      applyTheme(theme, false);
+    });
+  });
+
+  /* ══════════ NAVBAR ══════════ */
+  (() => {
+    const nav = document.getElementById('navbar');
+    let t = false;
+    window.addEventListener('scroll', () => {
+      if (!t) { requestAnimationFrame(() => { nav.classList.toggle('scrolled', window.scrollY > 20); t = false; }); t = true; }
+    });
+  })();
+
+  (() => {
+    const h = document.getElementById('hamburger'), m = document.getElementById('mobileMenu');
+    h.addEventListener('click', () => { h.classList.toggle('open'); m.classList.toggle('open'); });
+    m.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => { h.classList.remove('open'); m.classList.remove('open'); }));
+  })();
+
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ══════════ LIMBO GAME LOGIC ══════════ */
+  (() => {
+    const HOUSE_EDGE = 0.01; // 1%
+    const ROLL_DURATION = 1200; // ms
+    const ROLL_TICKS = 30;
+
+    let isPlaying = false;
+    let autoPlays = 0;
+    let history = [];
+
+    const betInput = document.getElementById('betInput');
+    const targetInput = document.getElementById('targetInput');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnAuto = document.getElementById('btnAuto');
+    const multiValue = document.getElementById('multiValue');
+    const multiBg = document.getElementById('multiBg');
+    const multiSub = document.getElementById('multiSub');
+    const targetLine = document.getElementById('targetLine');
+    const winChanceEl = document.getElementById('winChance');
+    const profitOnWinEl = document.getElementById('profitOnWin');
+    const resultBanner = document.getElementById('resultBanner');
+    const rLabel = document.getElementById('rLabel');
+    const rAmount = document.getElementById('rAmount');
+    const rDetail = document.getElementById('rDetail');
+    const historyList = document.getElementById('historyList');
+
+    function getBet() { return Math.max(1, Math.floor(Number(betInput.value) || 1)); }
+
+    function getTarget() {
+      let v = parseFloat(targetInput.value);
+      if (isNaN(v) || v < 1.01) v = 1.01;
+      if (v > 1000) v = 1000;
+      return Math.round(v * 100) / 100;
+    }
+
+    function updateStats() {
+      const target = getTarget();
+      const chance = ((1 - HOUSE_EDGE) / target) * 100;
+      winChanceEl.textContent = chance.toFixed(2) + '%';
+
+      const bet = getBet();
+      const profit = Math.floor(bet * target) - bet;
+      profitOnWinEl.textContent = '+' + profit.toLocaleString();
+
+      // Update target line position (logarithmic scale)
+      const minT = 1.01, maxT = 100;
+      const logMin = Math.log(minT), logMax = Math.log(maxT);
+      const logT = Math.log(Math.min(target, maxT));
+      const pct = ((logT - logMin) / (logMax - logMin)) * 80 + 10; // 10% to 90%
+      targetLine.style.bottom = pct + '%';
+      targetLine.dataset.label = target.toFixed(2) + '×';
+
+      btnPlay.textContent = `BET ${bet.toLocaleString()}`;
+    }
+
+    // Bet controls
+    document.getElementById('betHalf').addEventListener('click', () => {
+      betInput.value = Math.max(1, Math.floor(getBet() / 2)); updateStats();
+    });
+    document.getElementById('betDouble').addEventListener('click', () => {
+      betInput.value = Math.min(getBet() * 2, userCredits); updateStats();
+    });
+    betInput.addEventListener('input', updateStats);
+
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => { betInput.value = b.dataset.bet; updateStats(); });
+    });
+
+    // Target controls
+    document.getElementById('targetDown').addEventListener('click', () => {
+      targetInput.value = Math.max(1.01, getTarget() - 0.10).toFixed(2); updateStats();
+    });
+    document.getElementById('targetUp').addEventListener('click', () => {
+      targetInput.value = Math.min(1000, getTarget() + 0.10).toFixed(2); updateStats();
+    });
+    targetInput.addEventListener('input', updateStats);
+
+    document.querySelectorAll('.target-preset').forEach(b => {
+      b.addEventListener('click', () => { targetInput.value = b.dataset.target; updateStats(); });
+    });
+
+    // Generate result: provably fair-ish using house edge
+    // Result is drawn from an exponential-like distribution where P(result >= x) = (1 - edge) / x for x >= 1
+    function generateResult() {
+      const r = Math.random();
+      if (r === 0) return 1000;
+      const result = (1 - HOUSE_EDGE) / r;
+      return Math.max(1.00, Math.floor(result * 100) / 100);
+    }
+
+    // Play
+    btnPlay.addEventListener('click', () => {
+      if (isPlaying) return;
+      autoPlays = 0;
+      playRound();
+    });
+
+    btnAuto.addEventListener('click', () => {
+      if (isPlaying) return;
+      autoPlays = 10;
+      playRound();
+    });
+
+    function playRound() {
+      const bet = getBet();
+      const target = getTarget();
+
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        rLabel.textContent = 'NOT ENOUGH CREDITS';
+        rAmount.textContent = '';
+        rDetail.textContent = '';
+        autoPlays = 0;
+        return;
+      }
+
+      isPlaying = true;
+      btnPlay.disabled = true;
+      resultBanner.style.display = 'none';
+      multiBg.className = 'multiplier-bg';
+      multiValue.className = 'multiplier-value rolling';
+      multiSub.className = 'multiplier-sub';
+      multiSub.textContent = '';
+
+      // Deduct bet
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      const result = generateResult();
+      const won = result >= target;
+
+      // Rolling animation
+      let tick = 0;
+      const interval = setInterval(() => {
+        tick++;
+        if (tick >= ROLL_TICKS) {
+          clearInterval(interval);
+          showResult(result, target, bet, won);
+          return;
+        }
+
+        // Show random intermediate values that build towards the result
+        const progress = tick / ROLL_TICKS;
+        const eased = progress * progress; // ease-in
+        let fakeVal;
+
+        if (tick < ROLL_TICKS * 0.7) {
+          // Random bouncing values
+          fakeVal = 1 + Math.random() * Math.max(result, target) * 1.5;
+        } else {
+          // Converge towards result
+          const remaining = 1 - ((tick - ROLL_TICKS * 0.7) / (ROLL_TICKS * 0.3));
+          fakeVal = result + (Math.random() - 0.5) * remaining * result * 0.5;
+        }
+        fakeVal = Math.max(1.00, fakeVal);
+        multiValue.textContent = fakeVal.toFixed(2) + '×';
+      }, ROLL_DURATION / ROLL_TICKS);
+    }
+
+    function showResult(result, target, bet, won) {
+      multiValue.textContent = result.toFixed(2) + '×';
+
+      if (won) {
+        const payout = Math.floor(bet * target);
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet + payout);
+
+        multiValue.className = 'multiplier-value win';
+        multiBg.className = 'multiplier-bg win';
+        multiSub.className = 'multiplier-sub show';
+        multiSub.textContent = `Target ${target.toFixed(2)}× — YOU WIN!`;
+
+        resultBanner.className = 'result-banner win';
+        rLabel.textContent = 'YOU WON!';
+        rAmount.textContent = '+' + (payout - bet).toLocaleString() + ' credits';
+        rDetail.textContent = `Result: ${result.toFixed(2)}× ≥ Target: ${target.toFixed(2)}× (${target.toFixed(2)}× payout)`;
+      } else {
+        multiValue.className = 'multiplier-value lose';
+        multiBg.className = 'multiplier-bg lose';
+        multiSub.className = 'multiplier-sub show';
+        multiSub.textContent = `Target ${target.toFixed(2)}× — BUST`;
+
+        resultBanner.className = 'result-banner lose';
+        rLabel.textContent = 'BUST';
+        rAmount.textContent = '-' + bet.toLocaleString() + ' credits';
+        rDetail.textContent = `Result: ${result.toFixed(2)}× < Target: ${target.toFixed(2)}×`;
+      }
+      resultBanner.style.display = 'block';
+
+      // History
+      addHistory(result, target, bet, won);
+
+      // Save stats
+      if (currentUser) {
+        const ref = rtdb.ref('users/' + currentUser.uid + '/games/limbo');
+        ref.child('totalPlayed').transaction(v => (v || 0) + 1);
+        ref.child('totalWagered').transaction(v => (v || 0) + bet);
+        if (won) {
+          const payout = Math.floor(bet * target);
+          ref.child('totalWon').transaction(v => (v || 0) + payout);
+          ref.child('wins').transaction(v => (v || 0) + 1);
+          ref.child('biggestWin').transaction(v => Math.max(v || 0, payout));
+        } else {
+          ref.child('losses').transaction(v => (v || 0) + 1);
+        }
+        ref.child('highestMulti').transaction(v => Math.max(v || 0, result));
+      }
+
+      isPlaying = false;
+      btnPlay.disabled = false;
+      updateStats();
+
+      // Auto play
+      if (autoPlays > 1) {
+        autoPlays--;
+        btnAuto.textContent = `Auto ×${autoPlays}`;
+        setTimeout(() => {
+          if (autoPlays > 0) playRound();
+        }, 1000);
+      } else {
+        autoPlays = 0;
+        btnAuto.textContent = 'Auto ×10';
+      }
+    }
+
+    function addHistory(result, target, bet, won) {
+      history.unshift({ result, target, bet, won });
+      if (history.length > 30) history.pop();
+
+      historyList.innerHTML = '';
+      history.forEach(h => {
+        const el = document.createElement('div');
+        el.className = `history-item ${h.won ? 'win' : 'lose'}`;
+        el.textContent = h.result.toFixed(2) + '×';
+        el.title = h.won
+          ? `Target ${h.target.toFixed(2)}× — Won +${(Math.floor(h.bet * h.target) - h.bet).toLocaleString()}`
+          : `Target ${h.target.toFixed(2)}× — Lost ${h.bet.toLocaleString()}`;
+        historyList.appendChild(el);
+      });
+    }
+
+    // Init
+    updateStats();
+  })();
+
+  /* ══════════ PARTICLES ══════════ */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(239,68,68,', 'rgba(124,58,237,', 'rgba(236,72,153,'];
+    function resize() {
+      const d = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      canvas.width = W * d; canvas.height = H * d;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function make() { return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a: Math.random()*.35+.15, c: COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++) {
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize', resize);
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
+    init(); draw();
+  })();
+  </script>
+</body>
+</html>

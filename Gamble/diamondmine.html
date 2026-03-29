@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Diamond Mine</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --diamond: #38bdf8;
+      --diamond-glow: rgba(56,189,248,.35);
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(56,189,248,.10), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(139,92,246,.08), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6,182,212,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--diamond); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent2); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    /* NAVBAR */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100; display: flex; align-items: center; padding: 0 24px; background: rgba(10,10,15,.6); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-bottom: 1px solid var(--border); transition: background .3s; }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: .9rem; font-weight: 600; color: var(--muted); border-radius: 10px; transition: color .2s, background .2s; cursor: pointer; border: none; background: transparent; font-family: var(--font); }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-credits { display: flex; align-items: center; gap: 6px; padding: 8px 16px; margin-left: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: background .2s, transform .15s; }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 14px; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; overflow: hidden; flex-shrink: 0; }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); flex-direction: column; padding: 24px; gap: 8px; animation: fadeSlideDown .3s ease; }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    /* MAIN */
+    .main { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 20px); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+    .page-header { text-align: center; padding: 28px 24px 10px; }
+    .page-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; animation: fadeSlideIn .5s ease both; }
+    .page-header h1 .grad { background: linear-gradient(135deg, var(--diamond), var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradMove 4s ease-in-out infinite; }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p { color: var(--muted); font-size: .95rem; max-width: 540px; margin: 0 auto; animation: fadeSlideIn .5s ease .1s both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .game-container { width: 100%; max-width: 580px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; }
+
+    /* RESULT BANNER */
+    .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: bannerIn .4s ease; }
+    @keyframes bannerIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner .rb-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .rb-label { color: #4ade80; }
+    .result-banner.lose .rb-label { color: #f87171; }
+    .result-banner .rb-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .rb-amount { color: #22c55e; }
+    .result-banner.lose .rb-amount { color: #ef4444; }
+    .result-banner .rb-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* DEPTH SECTION */
+    .depth-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .depth-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .depth-header .dh-label { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .depth-header .dh-label .hl { color: var(--diamond); }
+    .depth-header .dh-multi { font-size: .85rem; font-weight: 900; color: var(--diamond); }
+    .depth-bar-wrap { position: relative; height: 28px; border-radius: 8px; background: rgba(255,255,255,.03); overflow: hidden; border: 1px solid var(--border); }
+    .depth-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: linear-gradient(90deg, var(--diamond), var(--accent)); transition: width .5s cubic-bezier(.4,0,.2,1); width: 0%; }
+    .depth-bar-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 800; color: #fff; z-index: 2; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+    .depth-markers {
+      display: flex; justify-content: space-between;
+      margin-top: 6px; padding: 0 2px;
+    }
+    .depth-marker {
+      text-align: center; position: relative;
+    }
+    .depth-marker .dm-line { width: 1px; height: 6px; background: var(--border); margin: 0 auto 2px; }
+    .depth-marker .dm-label { font-size: .48rem; font-weight: 700; color: var(--muted); }
+    .depth-marker.active .dm-label { color: var(--diamond); }
+    .depth-marker.active .dm-line { background: var(--diamond); }
+    .depth-marker.bonus .dm-label { color: var(--gold); }
+    .depth-marker.bonus .dm-line { background: var(--gold); }
+
+    /* MINE SHAFT */
+    .shaft-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .shaft-status {
+      text-align: center; font-size: .75rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .4px;
+      margin-bottom: 12px; min-height: 20px;
+    }
+    .shaft-status .hl { color: var(--diamond); }
+    .shaft-status .hl-green { color: var(--green); }
+    .shaft-status .hl-red { color: var(--red); }
+    .shaft-status .hl-gold { color: var(--gold); }
+
+    /* Current row */
+    .shaft-row {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .shaft-cell {
+      width: 72px; height: 72px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .shaft-cell:hover:not(.revealed):not(.disabled) {
+      border-color: rgba(56,189,248,.3);
+      background: rgba(56,189,248,.06);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px -4px rgba(0,0,0,.3);
+    }
+    .shaft-cell.disabled { cursor: default; pointer-events: none; }
+    .shaft-cell.revealed { cursor: default; }
+
+    .shaft-cell .sc-hidden svg { width: 28px; height: 28px; stroke: rgba(255,255,255,.07); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .shaft-cell.diamond-hit { background: rgba(56,189,248,.1); border-color: rgba(56,189,248,.35); box-shadow: 0 0 20px -4px var(--diamond-glow); animation: cellPop .5s cubic-bezier(.34,1.56,.64,1); }
+    .shaft-cell.gold-hit { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.3); box-shadow: 0 0 20px -4px rgba(245,158,11,.3); animation: cellPop .5s cubic-bezier(.34,1.56,.64,1); }
+    .shaft-cell.rock-hit { background: rgba(148,163,184,.03); border-color: rgba(148,163,184,.12); animation: cellShake .3s ease; }
+    .shaft-cell.collapse-hit { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.35); box-shadow: 0 0 24px -4px rgba(239,68,68,.3); animation: cellBoom .5s ease; }
+
+    @keyframes cellPop { 0% { transform: scale(.5) rotateY(90deg); } 100% { transform: scale(1) rotateY(0); } }
+    @keyframes cellShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    @keyframes cellBoom { 0% { transform: scale(.4); background: rgba(239,68,68,.4); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+    .sc-icon { display: flex; align-items: center; justify-content: center; }
+    .sc-icon svg { width: 30px; height: 30px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sc-icon.diamond-i svg { stroke: var(--diamond); fill: rgba(56,189,248,.12); filter: drop-shadow(0 0 6px var(--diamond-glow)); }
+    .sc-icon.gold-i svg { stroke: var(--gold); fill: rgba(245,158,11,.1); filter: drop-shadow(0 0 6px rgba(245,158,11,.25)); }
+    .sc-icon.rock-i svg { stroke: var(--muted); fill: rgba(148,163,184,.06); opacity: .5; }
+    .sc-icon.collapse-i svg { stroke: var(--red); fill: rgba(239,68,68,.1); }
+
+    .sc-value {
+      position: absolute; bottom: 3px;
+      font-size: .52rem; font-weight: 800;
+    }
+    .sc-value.diamond-v { color: var(--diamond); }
+    .sc-value.gold-v { color: var(--gold); }
+    .sc-value.rock-v { color: var(--muted); }
+    .sc-value.collapse-v { color: var(--red); }
+
+    /* Past rows (trail) */
+    .shaft-trail {
+      display: flex; flex-direction: column; gap: 4px;
+      max-height: 200px; overflow-y: auto;
+    }
+    .trail-row {
+      display: flex; gap: 4px; justify-content: center;
+      animation: trailSlide .3s ease;
+    }
+    @keyframes trailSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+    .trail-cell {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      opacity: .6;
+    }
+    .trail-cell svg { width: 16px; height: 16px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .trail-cell.t-diamond { border-color: rgba(56,189,248,.15); }
+    .trail-cell.t-diamond svg { stroke: var(--diamond); fill: rgba(56,189,248,.08); }
+    .trail-cell.t-gold { border-color: rgba(245,158,11,.15); }
+    .trail-cell.t-gold svg { stroke: var(--gold); fill: rgba(245,158,11,.08); }
+    .trail-cell.t-rock { border-color: var(--border); }
+    .trail-cell.t-rock svg { stroke: var(--muted); fill: none; opacity: .3; }
+    .trail-cell.t-collapse { border-color: rgba(239,68,68,.2); }
+    .trail-cell.t-collapse svg { stroke: var(--red); fill: rgba(239,68,68,.08); }
+    .trail-cell.t-picked { opacity: 1; box-shadow: 0 0 8px -2px rgba(56,189,248,.2); }
+
+    /* STATS */
+    .stats-bar {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-item .si-val { font-size: 1.05rem; font-weight: 900; }
+    .stat-item .si-val.cyan { color: var(--diamond); }
+    .stat-item .si-val.green { color: var(--green); }
+    .stat-item .si-val.gold { color: var(--gold); }
+    .stat-item .si-label { font-size: .55rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+    .stat-divider { width: 1px; height: 24px; background: var(--border); }
+
+    /* CASHOUT */
+    .cashout-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-cashout {
+      flex: 1; padding: 16px; font-size: .95rem; font-weight: 800;
+      border: none; border-radius: 14px; cursor: pointer;
+      font-family: var(--font); transition: all .2s;
+      text-transform: uppercase; letter-spacing: .5px;
+      background: linear-gradient(135deg, var(--diamond), var(--accent));
+      color: #fff; box-shadow: 0 4px 20px -4px var(--diamond-glow);
+    }
+    .btn-cashout:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px var(--diamond-glow); }
+    .btn-cashout:disabled { opacity: .3; cursor: default; transform: none; box-shadow: none; }
+    .cashout-info {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-width: 90px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 8px 14px;
+    }
+    .cashout-info .ci-label { font-size: .55rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+    .cashout-info .ci-val { font-size: 1rem; font-weight: 900; color: var(--green); }
+
+    /* CONTROLS */
+    .controls-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .control-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .control-group label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .bet-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .bet-input-wrap button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-family: var(--font); }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input, .bet-input-wrap select { flex: 1; text-align: center; padding: 8px; font-size: 1rem; font-weight: 700; color: var(--gold); background: transparent; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font); min-width: 0; }
+    .bet-input-wrap input:focus, .bet-input-wrap select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+    .bet-input-wrap select { color: var(--diamond); appearance: none; cursor: pointer; }
+    .bet-input-wrap select option { background: #1a1a2e; color: var(--text); }
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet { flex: 1; padding: 6px; font-size: .7rem; font-weight: 600; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-play { flex: 1; padding: 18px; font-size: 1rem; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-family: var(--font); transition: all .2s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-play.primary { background: linear-gradient(135deg, var(--diamond), var(--accent2)); color: #fff; box-shadow: 0 4px 20px -4px rgba(56,189,248,.3); }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(56,189,248,.4); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .history-section { margin-top: 8px; }
+    .history-section h3 { font-size: .82rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .history-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .history-item { padding: 6px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface); }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    .footer { position: relative; z-index: 10; text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; width: 100%; }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 20px 16px 8px; }
+      .game-container { padding: 0 12px 36px; }
+      .controls-panel { grid-template-columns: 1fr; }
+      .shaft-cell { width: 60px; height: 60px; border-radius: 12px; }
+      .shaft-cell .sc-hidden svg { width: 22px; height: 22px; }
+      .sc-icon svg { width: 24px !important; height: 24px !important; }
+      .trail-cell { width: 28px; height: 28px; }
+      .trail-cell svg { width: 12px; height: 12px; }
+      .action-row, .cashout-bar { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet" /><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1><span class="grad">Diamond Mine</span></h1>
+      <p>Dig deeper into the mine, layer by layer. Each level has 3 tunnels -- only some are safe. Find diamonds and gold to multiply your bet. Hit a collapse and it's over.</p>
+    </section>
+
+    <div class="game-container">
+      <div class="result-banner" id="resultBanner">
+        <div class="rb-label" id="rbLabel"></div>
+        <div class="rb-amount" id="rbAmount"></div>
+        <div class="rb-detail" id="rbDetail"></div>
+      </div>
+
+      <!-- Depth Progress -->
+      <div class="depth-section">
+        <div class="depth-header">
+          <span class="dh-label">Depth Level <span class="hl" id="depthLevel">0</span> / <span id="depthMax">10</span></span>
+          <span class="dh-multi" id="depthMulti">1.00x</span>
+        </div>
+        <div class="depth-bar-wrap">
+          <div class="depth-bar-fill" id="depthFill"></div>
+          <div class="depth-bar-text" id="depthText">Surface</div>
+        </div>
+        <div class="depth-markers" id="depthMarkers"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat-item"><div class="si-val cyan" id="statGems">0</div><div class="si-label">Gems Found</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><div class="si-val green" id="statPayout">0</div><div class="si-label">Payout</div></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><div class="si-val gold" id="statStreak">0</div><div class="si-label">Depth Streak</div></div>
+      </div>
+
+      <!-- Mine Shaft -->
+      <div class="shaft-area" id="shaftArea">
+        <div class="shaft-status" id="shaftStatus">Press <span class="hl">START</span> to begin mining</div>
+        <div class="shaft-row" id="shaftRow"></div>
+        <div class="shaft-trail" id="shaftTrail"></div>
+      </div>
+
+      <!-- Cash Out -->
+      <div class="cashout-bar">
+        <button class="btn-cashout" id="btnCashout" disabled>CASH OUT</button>
+        <div class="cashout-info">
+          <div class="ci-label">Payout</div>
+          <div class="ci-val" id="cashoutVal">0</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">&frac12;</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2x</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="10">10</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Mine Depth (Difficulty)</label>
+          <div class="bet-input-wrap">
+            <select id="depthSelect">
+              <option value="8">8 Levels -- Shallow</option>
+              <option value="10" selected>10 Levels -- Normal</option>
+              <option value="14">14 Levels -- Deep</option>
+              <option value="20">20 Levels -- Abyss</option>
+            </select>
+          </div>
+          <div class="quick-bets" style="margin-top:10px">
+            <div style="font-size:.6rem;color:var(--muted);text-align:center;width:100%">Deeper mines = higher max multiplier</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-play primary" id="btnStart">START MINING</button>
+      </div>
+
+      <div class="history-section">
+        <h3>Recent Mines</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No mines yet</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({ theme });
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+    rtdb.ref('users/' + u.uid).on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      document.getElementById('creditsCount').textContent = userCredits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent = userCredits.toLocaleString();
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+      applyTheme(data.theme || localStorage.getItem('aightbet-theme') || 'dark', false);
+    });
+  });
+
+  (() => { const n=document.getElementById('navbar'); let t=false; window.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{n.classList.toggle('scrolled',window.scrollY>20);t=false;});t=true;}}); })();
+  (() => { const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu'); h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');}); m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');})); })();
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ══════════ DIAMOND MINE ══════════ */
+  (() => {
+    const SVG = {
+      rock:     `<svg viewBox="0 0 24 24"><path d="M4 18L8 6h8l4 12"/><path d="M8 6l4-4 4 4"/><path d="M4 18h16"/><path d="M8 6l-1 6 5 6 5-6-1-6"/></svg>`,
+      diamond:  `<svg viewBox="0 0 24 24"><path d="M6 3h12l4 7-10 11L2 10z"/><path d="M2 10h20"/><path d="M12 21L6 10l6-7 6 7z"/></svg>`,
+      gold:     `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M9 10.5c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2s-.9 2-2 2h-2c-1.1 0-2 .9-2 2s.9 2 2 2h2c1.1 0 2-.9 2-2"/></svg>`,
+      collapse: `<svg viewBox="0 0 24 24"><path d="M12 2L4 7v10l8 5 8-5V7z"/><path d="M12 22V12"/><path d="M20 7l-8 5-8-5"/><line x1="7" y1="4" x2="17" y2="20" opacity=".4"/><line x1="17" y1="4" x2="7" y2="20" opacity=".4"/></svg>`,
+      hidden:   `<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9l6 6M15 9l-6 6" opacity=".3"/></svg>`,
+    };
+
+    // Tunnels per level, collapse chance scales with depth
+    const TUNNELS = 3;
+
+    let state = 'idle';
+    let betAmount = 0;
+    let maxDepth = 10;
+    let currentDepth = 0;
+    let currentMulti = 1.0;
+    let gemsFound = 0;
+    let levelData = []; // per-level: array of { type, value }
+    let trailHistory = []; // past picks: { cells, picked }
+    let history = [];
+
+    const shaftRow = document.getElementById('shaftRow');
+    const shaftTrail = document.getElementById('shaftTrail');
+    const shaftStatus = document.getElementById('shaftStatus');
+    const depthFill = document.getElementById('depthFill');
+    const depthText = document.getElementById('depthText');
+    const depthLevel = document.getElementById('depthLevel');
+    const depthMax = document.getElementById('depthMax');
+    const depthMulti = document.getElementById('depthMulti');
+    const depthMarkers = document.getElementById('depthMarkers');
+    const btnStart = document.getElementById('btnStart');
+    const btnCashout = document.getElementById('btnCashout');
+    const cashoutVal = document.getElementById('cashoutVal');
+    const betInput = document.getElementById('betInput');
+    const depthSelect = document.getElementById('depthSelect');
+    const resultBanner = document.getElementById('resultBanner');
+    const rbLabel = document.getElementById('rbLabel');
+    const rbAmount = document.getElementById('rbAmount');
+    const rbDetail = document.getElementById('rbDetail');
+    const historyList = document.getElementById('historyList');
+    const statGems = document.getElementById('statGems');
+    const statPayout = document.getElementById('statPayout');
+    const statStreak = document.getElementById('statStreak');
+
+    function getBet() { return Math.max(1, Math.floor(Number(betInput.value) || 1)); }
+
+    // Generate one level's tunnels
+    function generateLevel(depth) {
+      // Collapse chance: starts ~20%, grows with depth
+      // At depth 1: ~18%, at max: ~45%
+      const baseCollapse = 0.18;
+      const maxCollapse = 0.48;
+      const progress = depth / maxDepth;
+      const collapseChance = baseCollapse + (maxCollapse - baseCollapse) * progress;
+
+      // Guarantee at least 1 safe tunnel
+      const cells = [];
+      for (let i = 0; i < TUNNELS; i++) cells.push(null);
+
+      // Place at least 1 safe
+      const safeIdx = Math.floor(Math.random() * TUNNELS);
+
+      for (let i = 0; i < TUNNELS; i++) {
+        if (i === safeIdx) {
+          cells[i] = genSafeTile(depth);
+        } else {
+          cells[i] = Math.random() < collapseChance ? { type: 'collapse' } : genSafeTile(depth);
+        }
+      }
+      return cells;
+    }
+
+    function genSafeTile(depth) {
+      const r = Math.random();
+      // Diamond: 25%, Gold: 10%, Rock: 65%
+      // Deeper = slightly higher diamond/gold chance
+      const dBonus = depth * 0.012;
+      if (r < 0.25 + dBonus) return { type: 'diamond' };
+      if (r < 0.35 + dBonus * 0.5) return { type: 'gold' };
+      return { type: 'rock' };
+    }
+
+    // Multiplier per level survived (not per tile)
+    function calcLevelMulti(depth) {
+      // Deeper levels give bigger multi boost
+      // Level 1: ~1.3x, Level 5: ~1.5x, Level 10: ~1.8x, plus gem bonuses
+      return 1.0 + 0.25 + depth * 0.06;
+    }
+
+    function gemMultiBonus(type) {
+      if (type === 'diamond') return 0.15;
+      if (type === 'gold') return 0.35;
+      return 0;
+    }
+
+    function buildDepthMarkers() {
+      depthMarkers.innerHTML = '';
+      const bonusLevels = new Set();
+      // Bonus at 25%, 50%, 75%, 100%
+      [0.25, 0.5, 0.75, 1.0].forEach(f => bonusLevels.add(Math.round(f * maxDepth)));
+
+      for (let i = 1; i <= maxDepth; i++) {
+        const m = document.createElement('div');
+        const isBonus = bonusLevels.has(i);
+        m.className = 'depth-marker' + (isBonus ? ' bonus' : '');
+        m.id = 'dm-' + i;
+        m.innerHTML = `<div class="dm-line"></div><div class="dm-label">${i}${isBonus ? '*' : ''}</div>`;
+        depthMarkers.appendChild(m);
+      }
+    }
+
+    function updateDepthBar() {
+      const pct = (currentDepth / maxDepth) * 100;
+      depthFill.style.width = pct + '%';
+      depthLevel.textContent = currentDepth;
+      depthMax.textContent = maxDepth;
+
+      if (currentDepth === 0) depthText.textContent = 'Surface';
+      else if (currentDepth <= maxDepth * 0.25) depthText.textContent = 'Shallow -- Depth ' + currentDepth;
+      else if (currentDepth <= maxDepth * 0.5) depthText.textContent = 'Underground -- Depth ' + currentDepth;
+      else if (currentDepth <= maxDepth * 0.75) depthText.textContent = 'Deep -- Depth ' + currentDepth;
+      else depthText.textContent = 'Abyss -- Depth ' + currentDepth;
+
+      // Mark active
+      for (let i = 1; i <= maxDepth; i++) {
+        const el = document.getElementById('dm-' + i);
+        if (el) el.classList.toggle('active', i <= currentDepth);
+      }
+    }
+
+    function updateStats() {
+      const payout = Math.floor(betAmount * currentMulti);
+      statGems.textContent = gemsFound;
+      statPayout.textContent = payout.toLocaleString();
+      statStreak.textContent = currentDepth;
+      depthMulti.textContent = currentMulti.toFixed(2) + 'x';
+      cashoutVal.textContent = payout.toLocaleString();
+    }
+
+    function renderCurrentRow() {
+      shaftRow.innerHTML = '';
+      levelData.forEach((cell, i) => {
+        const el = document.createElement('div');
+        el.className = 'shaft-cell';
+        el.dataset.idx = i;
+        el.innerHTML = `<div class="sc-hidden">${SVG.hidden}</div>`;
+        el.addEventListener('click', () => onCellClick(i));
+        shaftRow.appendChild(el);
+      });
+    }
+
+    function revealCell(el, type) {
+      el.classList.add('revealed', 'disabled');
+      let iconClass, svg, valClass, valText;
+      if (type === 'diamond') {
+        el.classList.add('diamond-hit');
+        iconClass = 'diamond-i'; svg = SVG.diamond;
+        valClass = 'diamond-v'; valText = 'DIAMOND';
+      } else if (type === 'gold') {
+        el.classList.add('gold-hit');
+        iconClass = 'gold-i'; svg = SVG.gold;
+        valClass = 'gold-v'; valText = 'GOLD';
+      } else if (type === 'rock') {
+        el.classList.add('rock-hit');
+        iconClass = 'rock-i'; svg = SVG.rock;
+        valClass = 'rock-v'; valText = 'ROCK';
+      } else {
+        el.classList.add('collapse-hit');
+        iconClass = 'collapse-i'; svg = SVG.collapse;
+        valClass = 'collapse-v'; valText = 'COLLAPSE';
+      }
+      el.innerHTML = `<div class="sc-icon ${iconClass}">${svg}</div><span class="sc-value ${valClass}">${valText}</span>`;
+    }
+
+    function revealAllCurrent() {
+      const cells = shaftRow.querySelectorAll('.shaft-cell');
+      cells.forEach((el, i) => {
+        if (!el.classList.contains('revealed')) {
+          revealCell(el, levelData[i].type);
+        }
+      });
+    }
+
+    function addTrailRow(pickedIdx) {
+      const row = document.createElement('div');
+      row.className = 'trail-row';
+      levelData.forEach((cell, i) => {
+        const tc = document.createElement('div');
+        const tClass = 't-' + cell.type + (i === pickedIdx ? ' t-picked' : '');
+        tc.className = 'trail-cell ' + tClass;
+        tc.innerHTML = SVG[cell.type] || SVG.rock;
+        row.appendChild(tc);
+      });
+      shaftTrail.insertBefore(row, shaftTrail.firstChild);
+      // Limit visible
+      while (shaftTrail.children.length > 12) shaftTrail.removeChild(shaftTrail.lastChild);
+    }
+
+    async function onCellClick(idx) {
+      if (state !== 'playing') return;
+      state = 'animating';
+
+      const cell = shaftRow.children[idx];
+      const type = levelData[idx].type;
+
+      // Disable all
+      shaftRow.querySelectorAll('.shaft-cell').forEach(c => c.classList.add('disabled'));
+
+      // Reveal picked
+      revealCell(cell, type);
+
+      // Small delay then reveal others
+      await new Promise(r => setTimeout(r, 300));
+      revealAllCurrent();
+      await new Promise(r => setTimeout(r, 400));
+
+      if (type === 'collapse') {
+        // BUST
+        state = 'done';
+        btnCashout.disabled = true;
+        addTrailRow(idx);
+
+        shaftStatus.innerHTML = 'The tunnel <span class="hl-red">COLLAPSED!</span> You lost everything.';
+        resultBanner.className = 'result-banner lose';
+        rbLabel.textContent = 'MINE COLLAPSED';
+        rbAmount.textContent = '-' + betAmount.toLocaleString() + ' credits';
+        rbDetail.textContent = 'Reached depth ' + currentDepth + ' | ' + gemsFound + ' gems found';
+        resultBanner.style.display = 'block';
+
+        addHistory('lose', 0);
+        saveStats(false, 0);
+
+        btnStart.disabled = false;
+        btnStart.textContent = 'MINE AGAIN';
+        return;
+      }
+
+      // Safe!
+      currentDepth++;
+      if (type === 'diamond' || type === 'gold') gemsFound++;
+
+      // Calculate multiplier
+      currentMulti *= calcLevelMulti(currentDepth);
+      currentMulti += gemMultiBonus(type);
+      currentMulti = Math.floor(currentMulti * 100) / 100;
+
+      addTrailRow(idx);
+      updateDepthBar();
+      updateStats();
+
+      // Check max depth
+      if (currentDepth >= maxDepth) {
+        doCashout(true);
+        return;
+      }
+
+      // Bonus level messages
+      const bonusLevels = [0.25, 0.5, 0.75].map(f => Math.round(f * maxDepth));
+      if (bonusLevels.includes(currentDepth)) {
+        shaftStatus.innerHTML = 'Bonus depth reached! <span class="hl-gold">' + currentMulti.toFixed(2) + 'x</span> -- keep going or cash out';
+      } else if (type === 'diamond') {
+        shaftStatus.innerHTML = '<span class="hl">Diamond</span> found! Multiplier boosted. Depth ' + currentDepth;
+      } else if (type === 'gold') {
+        shaftStatus.innerHTML = '<span class="hl-gold">Gold nugget!</span> Big multiplier boost. Depth ' + currentDepth;
+      } else {
+        shaftStatus.innerHTML = 'Just rock. Safe but no bonus. Depth ' + currentDepth;
+      }
+
+      btnCashout.disabled = false;
+
+      // Next level
+      levelData = generateLevel(currentDepth + 1);
+      renderCurrentRow();
+      state = 'playing';
+    }
+
+    function doCashout(perfect) {
+      state = 'done';
+      btnCashout.disabled = true;
+      shaftRow.querySelectorAll('.shaft-cell').forEach(c => c.classList.add('disabled'));
+
+      const payout = Math.floor(betAmount * currentMulti);
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+
+      const label = perfect ? 'REACHED THE BOTTOM!' : 'CASHED OUT';
+      shaftStatus.innerHTML = '<span class="hl-green">' + label + '</span> at ' + currentMulti.toFixed(2) + 'x | Depth ' + currentDepth;
+      resultBanner.className = 'result-banner win';
+      rbLabel.textContent = label;
+      rbAmount.textContent = '+' + (payout - betAmount).toLocaleString() + ' credits';
+      rbDetail.textContent = 'Depth ' + currentDepth + '/' + maxDepth + ' | ' + gemsFound + ' gems | ' + currentMulti.toFixed(2) + 'x';
+      resultBanner.style.display = 'block';
+
+      addHistory('win', payout);
+      saveStats(true, payout);
+
+      btnStart.disabled = false;
+      btnStart.textContent = 'MINE AGAIN';
+    }
+
+    function startGame() {
+      const bet = getBet();
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        rbLabel.textContent = 'NOT ENOUGH CREDITS';
+        rbAmount.textContent = ''; rbDetail.textContent = '';
+        return;
+      }
+
+      betAmount = bet;
+      maxDepth = parseInt(depthSelect.value);
+      currentDepth = 0;
+      currentMulti = 1.0;
+      gemsFound = 0;
+      trailHistory = [];
+      state = 'playing';
+
+      resultBanner.style.display = 'none';
+      btnStart.disabled = true;
+      btnStart.textContent = 'MINING...';
+      btnCashout.disabled = true;
+
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      shaftTrail.innerHTML = '';
+      buildDepthMarkers();
+      updateDepthBar();
+      updateStats();
+
+      levelData = generateLevel(1);
+      renderCurrentRow();
+
+      shaftStatus.innerHTML = 'Depth 0 -- Choose a <span class="hl">tunnel</span> to dig into';
+    }
+
+    btnStart.addEventListener('click', () => { if (state === 'idle' || state === 'done') { state = 'idle'; startGame(); } });
+    btnCashout.addEventListener('click', () => { if (state === 'playing') doCashout(false); });
+
+    document.getElementById('betHalf').addEventListener('click', () => { if (state === 'idle' || state === 'done') betInput.value = Math.max(1, Math.floor(getBet() / 2)); });
+    document.getElementById('betDouble').addEventListener('click', () => { if (state === 'idle' || state === 'done') betInput.value = Math.min(getBet() * 2, userCredits); });
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => { if (state === 'idle' || state === 'done') betInput.value = b.dataset.bet; });
+    });
+
+    function addHistory(result, payout) {
+      history.unshift({ result, payout, bet: betAmount, depth: currentDepth, gems: gemsFound, multi: currentMulti, max: maxDepth });
+      if (history.length > 20) history.pop();
+      historyList.innerHTML = '';
+      history.forEach(h => {
+        const el = document.createElement('div');
+        el.className = 'history-item ' + (h.result === 'win' ? 'win' : 'lose');
+        if (h.result === 'win') el.textContent = 'D' + h.depth + '/' + h.max + ' ' + h.multi.toFixed(2) + 'x | +' + (h.payout - h.bet).toLocaleString();
+        else el.textContent = 'D' + h.depth + '/' + h.max + ' collapse | -' + h.bet.toLocaleString();
+        historyList.appendChild(el);
+      });
+    }
+
+    function saveStats(won, payout) {
+      if (!currentUser) return;
+      const ref = rtdb.ref('users/' + currentUser.uid + '/games/diamondmine');
+      ref.child('totalPlayed').transaction(v => (v || 0) + 1);
+      ref.child('totalWagered').transaction(v => (v || 0) + betAmount);
+      if (won) {
+        ref.child('totalWon').transaction(v => (v || 0) + payout);
+        ref.child('wins').transaction(v => (v || 0) + 1);
+        ref.child('biggestWin').transaction(v => Math.max(v || 0, payout));
+        ref.child('deepestMine').transaction(v => Math.max(v || 0, currentDepth));
+        ref.child('biggestMulti').transaction(v => Math.max(v || 0, currentMulti));
+      } else {
+        ref.child('losses').transaction(v => (v || 0) + 1);
+      }
+    }
+
+    buildDepthMarkers();
+    updateDepthBar();
+    updateStats();
+  })();
+
+  /* PARTICLES */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(56,189,248,', 'rgba(139,92,246,', 'rgba(6,182,212,'];
+    function resize() { const d=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; canvas.width=W*d; canvas.height=H*d; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.setTransform(d,0,0,d,0,0); }
+    function make() { return { x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a:Math.random()*.35+.15, c:COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+    init(); draw();
+  })();
+  </script>
+</body>
+</html>

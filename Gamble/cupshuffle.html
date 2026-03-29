@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Cup Shuffle</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(139,92,246,.12), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(236,72,153,.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6,182,212,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--accent); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent3); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent2); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100; display: flex; align-items: center; padding: 0 24px; background: rgba(10,10,15,.6); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-bottom: 1px solid var(--border); transition: background .3s; }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: .9rem; font-weight: 600; color: var(--muted); border-radius: 10px; transition: color .2s, background .2s; cursor: pointer; border: none; background: transparent; font-family: var(--font); }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-credits { display: flex; align-items: center; gap: 6px; padding: 8px 16px; margin-left: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: background .2s, transform .15s; }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 14px; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; overflow: hidden; flex-shrink: 0; }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); flex-direction: column; padding: 24px; gap: 8px; animation: fadeSlideDown .3s ease; }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    .main { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 20px); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+    .page-header { text-align: center; padding: 32px 24px 14px; }
+    .page-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; animation: fadeSlideIn .5s ease both; }
+    .page-header h1 .grad { background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradMove 4s ease-in-out infinite; }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p { color: var(--muted); font-size: .95rem; max-width: 520px; margin: 0 auto; animation: fadeSlideIn .5s ease .1s both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .game-container { width: 100%; max-width: 620px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; }
+
+    .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: fadeSlideIn .4s ease; }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner .rb-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .rb-label { color: #4ade80; }
+    .result-banner.lose .rb-label { color: #f87171; }
+    .result-banner .rb-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .rb-amount { color: #22c55e; }
+    .result-banner.lose .rb-amount { color: #ef4444; }
+    .result-banner .rb-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    /* DIFFICULTY INDICATOR */
+    .difficulty-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .diff-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .diff-header .diff-title {
+      font-size: .75rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .diff-header .diff-level {
+      font-size: .82rem; font-weight: 800;
+      padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: .3px;
+    }
+    .diff-level.easy { color: #4ade80; background: rgba(34,197,94,.1); }
+    .diff-level.medium { color: #facc15; background: rgba(250,204,21,.1); }
+    .diff-level.hard { color: #fb923c; background: rgba(251,146,60,.1); }
+    .diff-level.extreme { color: #f87171; background: rgba(248,113,113,.1); }
+    .diff-level.nightmare { color: #e879f9; background: rgba(232,121,249,.1); }
+
+    .diff-track {
+      width: 100%; height: 6px;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .diff-fill {
+      height: 100%; border-radius: 3px;
+      transition: width .4s ease, background .4s ease;
+    }
+    .diff-fill.easy { width: 20%; background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .diff-fill.medium { width: 40%; background: linear-gradient(90deg, #eab308, #facc15); }
+    .diff-fill.hard { width: 60%; background: linear-gradient(90deg, #f97316, #fb923c); }
+    .diff-fill.extreme { width: 80%; background: linear-gradient(90deg, #ef4444, #f87171); }
+    .diff-fill.nightmare { width: 100%; background: linear-gradient(90deg, #c026d3, #e879f9); }
+
+    .diff-stats {
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .diff-stat {
+      font-size: .7rem; color: var(--muted); font-weight: 500;
+    }
+    .diff-stat span { font-weight: 700; color: var(--text); }
+
+    /* CUP STAGE */
+    .cup-stage {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 20px 28px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage-label {
+      position: absolute; top: 16px; left: 0; right: 0;
+      text-align: center; font-size: .8rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .5px; z-index: 5;
+    }
+    .stage-label .hl { color: var(--accent); }
+
+    .shuffle-badge {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(139,92,246,.12); border: 1px solid rgba(139,92,246,.2);
+      border-radius: 8px; padding: 4px 10px;
+      font-size: .7rem; font-weight: 700; color: var(--accent); z-index: 5;
+      display: none;
+    }
+
+    .table-surface {
+      width: 92%; height: 4px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+      border-radius: 2px; margin-top: 6px;
+    }
+
+    .cup-row {
+      display: flex; justify-content: center;
+      gap: 28px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .cup-slot {
+      display: flex; flex-direction: column; align-items: center;
+      position: relative; cursor: default;
+      will-change: transform;
+    }
+    .cup-slot.clickable { cursor: pointer; }
+    .cup-slot.clickable:hover .cup-el { transform: translateY(-10px); }
+    .cup-slot.clickable:hover .cup-el .cup-shadow { opacity: .15; transform: scaleX(1.15); }
+
+    .cup-el {
+      width: 82px; height: 106px;
+      position: relative; z-index: 2;
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .cup-el.lifted { transform: translateY(-74px); }
+    .cup-shadow {
+      position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 10px;
+      background: radial-gradient(ellipse, rgba(0,0,0,.3), transparent);
+      border-radius: 50%; transition: opacity .3s, transform .3s; opacity: .25;
+    }
+    .cup-el.lifted .cup-shadow { opacity: .08; transform: translateX(-50%) scaleX(1.4); }
+    .cup-el svg { width: 100%; height: 100%; }
+
+    .ball-zone {
+      width: 82px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .ball {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fef3c7, #fbbf24, #f59e0b, #d97706);
+      box-shadow: 0 3px 12px rgba(245,158,11,.5), 0 1px 3px rgba(0,0,0,.2), inset 0 -3px 6px rgba(146,64,14,.3);
+      opacity: 0; transform: scale(0);
+      transition: opacity .35s, transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .ball.visible { opacity: 1; transform: scale(1); }
+
+    .cup-number {
+      margin-top: 6px; font-size: .7rem; font-weight: 700;
+      color: var(--muted); opacity: 0; transition: opacity .3s;
+    }
+    .cup-number.show { opacity: 1; }
+
+    .cup-slot.correct .cup-el svg .cup-body-fill { fill: #16a34a; }
+    .cup-slot.correct .cup-el svg .cup-rim-fill { fill: #22c55e; }
+    .cup-slot.correct .cup-el svg .cup-inner-fill { fill: #15803d; }
+    .cup-slot.correct .cup-el svg .cup-highlight { stroke: rgba(255,255,255,.2); }
+    .cup-slot.correct .cup-el { filter: drop-shadow(0 0 20px rgba(34,197,94,.4)); }
+
+    .cup-slot.wrong .cup-el svg .cup-body-fill { fill: #dc2626; }
+    .cup-slot.wrong .cup-el svg .cup-rim-fill { fill: #ef4444; }
+    .cup-slot.wrong .cup-el svg .cup-inner-fill { fill: #b91c1c; }
+    .cup-slot.wrong .cup-el svg .cup-highlight { stroke: rgba(255,255,255,.15); }
+    .cup-slot.wrong .cup-el { filter: drop-shadow(0 0 20px rgba(239,68,68,.35)); }
+
+    .cup-slot.wrong-dim .cup-el svg .cup-body-fill { fill: #991b1b; }
+    .cup-slot.wrong-dim .cup-el svg .cup-rim-fill { fill: #b91c1c; }
+    .cup-slot.wrong-dim .cup-el svg .cup-inner-fill { fill: #7f1d1d; }
+    .cup-slot.wrong-dim .cup-el { filter: brightness(.6) drop-shadow(0 0 10px rgba(239,68,68,.15)); opacity: .6; }
+
+    /* CONTROLS */
+    .controls-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .control-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .control-group label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .bet-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .bet-input-wrap button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-family: var(--font); }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input { flex: 1; text-align: center; padding: 8px; font-size: 1rem; font-weight: 700; color: var(--gold); background: transparent; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font); min-width: 0; }
+    .bet-input-wrap input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet { flex: 1; padding: 6px; font-size: .7rem; font-weight: 600; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .info-display { text-align: center; }
+    .info-multi { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+    .info-chance { font-size: .8rem; color: var(--accent2); font-weight: 600; margin-top: 4px; }
+    .info-profit { font-size: .78rem; color: var(--green); font-weight: 600; margin-top: 2px; }
+
+    .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .btn-play { flex: 1; padding: 18px; font-size: 1rem; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-family: var(--font); transition: all .2s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-play.primary { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; box-shadow: 0 4px 20px -4px rgba(139,92,246,.35); }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(139,92,246,.45); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .history-section { margin-top: 8px; }
+    .history-section h3 { font-size: .82rem; font-weight: 700; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    .history-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .history-item { padding: 6px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface); }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    .footer { position: relative; z-index: 10; text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; width: 100%; }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 24px 16px 10px; }
+      .game-container { padding: 0 12px 36px; }
+      .controls-panel { grid-template-columns: 1fr; }
+      .cup-stage { padding: 40px 12px 22px; min-height: 270px; }
+      .cup-row { gap: 14px; }
+      .cup-el { width: 60px; height: 78px; }
+      .cup-el.lifted { transform: translateY(-56px); }
+      .ball-zone { width: 60px; height: 22px; }
+      .ball { width: 17px; height: 17px; }
+      .action-row { flex-direction: column; }
+      .diff-stats { gap: 10px; }
+    }
+    @media (max-width: 400px) {
+      .cup-el { width: 48px; height: 64px; }
+      .cup-el.lifted { transform: translateY(-46px); }
+      .cup-row { gap: 8px; }
+      .ball-zone { width: 48px; }
+      .ball { width: 14px; height: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet" /><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1>Pick Your <span class="grad">Cup</span></h1>
+      <p>The higher you bet, the harder it gets. More cups, faster shuffles, bigger payout.</p>
+    </section>
+
+    <div class="game-container">
+      <div class="result-banner" id="resultBanner">
+        <div class="rb-label" id="rbLabel"></div>
+        <div class="rb-amount" id="rbAmount"></div>
+        <div class="rb-detail" id="rbDetail"></div>
+      </div>
+
+      <!-- Dynamic Difficulty Indicator -->
+      <div class="difficulty-bar" id="diffBar">
+        <div class="diff-header">
+          <span class="diff-title">Difficulty</span>
+          <span class="diff-level easy" id="diffLevel">Easy</span>
+        </div>
+        <div class="diff-track"><div class="diff-fill easy" id="diffFill"></div></div>
+        <div class="diff-stats">
+          <div class="diff-stat">Cups: <span id="diffCups">3</span></div>
+          <div class="diff-stat">Shuffles: <span id="diffShuffles">5</span></div>
+          <div class="diff-stat">Speed: <span id="diffSpeed">Slow</span></div>
+          <div class="diff-stat">Payout: <span id="diffPayout">2.88x</span></div>
+        </div>
+      </div>
+
+      <!-- Cup Stage -->
+      <div class="cup-stage" id="cupStage">
+        <div class="stage-label" id="stageLabel">Press <span class="hl">START</span> to play</div>
+        <div class="shuffle-badge" id="shuffleBadge">0 / 0</div>
+        <div class="cup-row" id="cupRow"></div>
+        <div class="table-surface"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">½</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2x</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="250">250</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Game Info</label>
+          <div class="info-display">
+            <div class="info-multi" id="infoMulti">2.88x</div>
+            <div class="info-chance" id="infoChance">Win chance: 33.3%</div>
+            <div class="info-profit" id="infoProfit">Profit on win: +19</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-play primary" id="btnStart">START SHUFFLE</button>
+      </div>
+
+      <div class="history-section">
+        <h3>Recent Games</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No games yet</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({ theme });
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+    rtdb.ref('users/' + u.uid).on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      document.getElementById('creditsCount').textContent = userCredits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent = userCredits.toLocaleString();
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+      applyTheme(data.theme || localStorage.getItem('aightbet-theme') || 'dark', false);
+    });
+  });
+
+  (() => { const n=document.getElementById('navbar'); let t=false; window.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{n.classList.toggle('scrolled',window.scrollY>20);t=false;});t=true;}}); })();
+  (() => { const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu'); h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');}); m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');})); })();
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ═���════════ CUP SHUFFLE GAME ══════════ */
+  (() => {
+    /*
+     * BET-BASED DIFFICULTY SCALING
+     * ─────────────────────────────
+     * Bet 1-15      → Easy       : 3 cups, 5 shuffles,  500ms delay,  2.88x
+     * Bet 16-50     → Medium     : 3 cups, 12 shuffles, 300ms delay,  2.88x
+     * Bet 51-150    → Hard       : 4 cups, 18 shuffles, 200ms delay,  3.84x
+     * Bet 151-400   → Extreme    : 5 cups, 26 shuffles, 120ms delay,  4.80x
+     * Bet 401+      → Nightmare  : 5 cups, 40 shuffles, 70ms delay,   4.80x
+     */
+
+    const TIERS = [
+      { name: 'easy',      label: 'Easy',      minBet: 1,   cups: 3, shuffles: 5,  delay: 500, multi: 2.88, chance: 33.3 },
+      { name: 'medium',    label: 'Medium',    minBet: 16,  cups: 3, shuffles: 12, delay: 300, multi: 2.88, chance: 33.3 },
+      { name: 'hard',      label: 'Hard',      minBet: 51,  cups: 4, shuffles: 18, delay: 200, multi: 3.84, chance: 25.0 },
+      { name: 'extreme',   label: 'Extreme',   minBet: 151, cups: 5, shuffles: 26, delay: 120, multi: 4.80, chance: 20.0 },
+      { name: 'nightmare', label: 'Nightmare', minBet: 401, cups: 5, shuffles: 40, delay: 70,  multi: 4.80, chance: 20.0 },
+    ];
+
+    const CUP_SVG = `<svg viewBox="0 0 82 106" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cupBG" x1="0" y1="0" x2=".8" y2="1">
+          <stop offset="0%" stop-color="#a855f7"/>
+          <stop offset="40%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#5b21b6"/>
+        </linearGradient>
+        <linearGradient id="cupRG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c084fc"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </linearGradient>
+        <linearGradient id="cupIG" x1=".5" y1="0" x2=".5" y2="1">
+          <stop offset="0%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#4c1d95"/>
+        </linearGradient>
+      </defs>
+      <path class="cup-body-fill" d="M10,16 L17,88 C17,95 28,100 41,100 C54,100 65,95 65,88 L72,16 Z" fill="url(#cupBG)"/>
+      <ellipse class="cup-inner-fill" cx="41" cy="16" rx="28" ry="9" fill="url(#cupIG)"/>
+      <ellipse class="cup-rim-fill" cx="41" cy="14" rx="31" ry="10" fill="url(#cupRG)"/>
+      <path class="cup-highlight" d="M20,18 Q22,36 26,44" stroke="rgba(255,255,255,.14)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path class="cup-highlight" d="M24,22 Q26,38 30,46" stroke="rgba(255,255,255,.07)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="41" cy="94" rx="20" ry="4" fill="rgba(0,0,0,.1)"/>
+      <path d="M18,55 Q41,60 64,55" stroke="rgba(255,255,255,.04)" stroke-width="1.5" fill="none"/>
+    </svg>`;
+
+    let state = 'idle';
+    let ballCupId = -1;
+    let betAmount = 0;
+    let currentTier = TIERS[0];
+    let history = [];
+
+    const cupRow = document.getElementById('cupRow');
+    const stageLabel = document.getElementById('stageLabel');
+    const shuffleBadge = document.getElementById('shuffleBadge');
+    const betInput = document.getElementById('betInput');
+    const btnStart = document.getElementById('btnStart');
+    const infoMulti = document.getElementById('infoMulti');
+    const infoChance = document.getElementById('infoChance');
+    const infoProfit = document.getElementById('infoProfit');
+    const resultBanner = document.getElementById('resultBanner');
+    const rbLabel = document.getElementById('rbLabel');
+    const rbAmount = document.getElementById('rbAmount');
+    const rbDetail = document.getElementById('rbDetail');
+    const historyList = document.getElementById('historyList');
+    const diffLevel = document.getElementById('diffLevel');
+    const diffFill = document.getElementById('diffFill');
+    const diffCups = document.getElementById('diffCups');
+    const diffShuffles = document.getElementById('diffShuffles');
+    const diffSpeed = document.getElementById('diffSpeed');
+    const diffPayout = document.getElementById('diffPayout');
+
+    function getBet() { return Math.max(1, Math.floor(Number(betInput.value) || 1)); }
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function getSlots() { return Array.from(cupRow.querySelectorAll('.cup-slot')); }
+    function getSlotById(id) { return cupRow.querySelector(`.cup-slot[data-id="${id}"]`); }
+
+    function getTier(bet) {
+      let tier = TIERS[0];
+      for (const t of TIERS) {
+        if (bet >= t.minBet) tier = t;
+      }
+      return tier;
+    }
+
+    function getSpeedLabel(delay) {
+      if (delay >= 400) return 'Slow';
+      if (delay >= 250) return 'Medium';
+      if (delay >= 150) return 'Fast';
+      if (delay >= 90) return 'Very Fast';
+      return 'Insane';
+    }
+
+    function updateDifficulty() {
+      const bet = getBet();
+      const tier = getTier(bet);
+      currentTier = tier;
+
+      diffLevel.textContent = tier.label;
+      diffLevel.className = 'diff-level ' + tier.name;
+      diffFill.className = 'diff-fill ' + tier.name;
+      diffCups.textContent = tier.cups;
+      diffShuffles.textContent = tier.shuffles;
+      diffSpeed.textContent = getSpeedLabel(tier.delay);
+      diffPayout.textContent = tier.multi.toFixed(2) + 'x';
+
+      infoMulti.textContent = tier.multi.toFixed(2) + 'x';
+      infoChance.textContent = 'Win chance: ' + tier.chance + '%';
+      infoProfit.textContent = 'Profit on win: +' + Math.floor(bet * tier.multi - bet).toLocaleString();
+
+      // Rebuild cups preview if not playing
+      if (state === 'idle' || state === 'ended') {
+        buildCups(tier.cups);
+      }
+    }
+
+    function buildCups(num) {
+      cupRow.innerHTML = '';
+      for (let i = 0; i < num; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'cup-slot';
+        slot.dataset.id = i;
+
+        const cupEl = document.createElement('div');
+        cupEl.className = 'cup-el';
+        cupEl.innerHTML = CUP_SVG + '<div class="cup-shadow"></div>';
+
+        const ballZone = document.createElement('div');
+        ballZone.className = 'ball-zone';
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        ballZone.appendChild(ball);
+
+        const num2 = document.createElement('div');
+        num2.className = 'cup-number';
+
+        slot.appendChild(cupEl);
+        slot.appendChild(ballZone);
+        slot.appendChild(num2);
+        slot.addEventListener('click', () => onPick(slot));
+        cupRow.appendChild(slot);
+      }
+      updateNumbers();
+    }
+
+    function updateNumbers() {
+      getSlots().forEach((s, i) => {
+        s.querySelector('.cup-number').textContent = '#' + (i + 1);
+      });
+    }
+
+    function liftSlot(slot) { slot.querySelector('.cup-el').classList.add('lifted'); }
+    function lowerSlot(slot) { slot.querySelector('.cup-el').classList.remove('lifted'); }
+    function showBallInSlot(slot) { slot.querySelector('.ball').classList.add('visible'); }
+    function hideBallInSlot(slot) { slot.querySelector('.ball').classList.remove('visible'); }
+    function setClickable(on) { getSlots().forEach(s => s.classList.toggle('clickable', on)); }
+    function showNumbers(on) { cupRow.querySelectorAll('.cup-number').forEach(n => n.classList.toggle('show', on)); }
+
+    function swapSlots(posA, posB) {
+      return new Promise(resolve => {
+        const slots = getSlots();
+        const slotA = slots[posA];
+        const slotB = slots[posB];
+        const rectA = slotA.getBoundingClientRect();
+        const rectB = slotB.getBoundingClientRect();
+        const dx = rectB.left - rectA.left;
+        const dur = currentTier.delay * 0.72;
+
+        slotA.style.transition = `transform ${dur}ms cubic-bezier(.45,.05,.55,.95)`;
+        slotB.style.transition = `transform ${dur}ms cubic-bezier(.45,.05,.55,.95)`;
+        slotA.style.transform = `translateX(${dx}px)`;
+        slotB.style.transform = `translateX(${-dx}px)`;
+
+        setTimeout(() => {
+          slotA.style.transition = 'none';
+          slotB.style.transition = 'none';
+          slotA.style.transform = '';
+          slotB.style.transform = '';
+
+          const placeholder = document.createElement('div');
+          cupRow.insertBefore(placeholder, slotA);
+          cupRow.insertBefore(slotA, slotB);
+          cupRow.insertBefore(slotB, placeholder);
+          cupRow.removeChild(placeholder);
+
+          resolve();
+        }, dur + 15);
+      });
+    }
+
+    async function startGame() {
+      const bet = getBet();
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        rbLabel.textContent = 'NOT ENOUGH CREDITS';
+        rbAmount.textContent = '';
+        rbDetail.textContent = '';
+        return;
+      }
+
+      betAmount = bet;
+      currentTier = getTier(bet);
+      updateDifficulty();
+
+      state = 'showing';
+      resultBanner.style.display = 'none';
+      btnStart.disabled = true;
+      btnStart.textContent = 'WATCHING...';
+      shuffleBadge.style.display = 'none';
+
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      buildCups(currentTier.cups);
+      showNumbers(false);
+
+      ballCupId = Math.floor(Math.random() * currentTier.cups);
+      const ballSlot = getSlotById(ballCupId);
+
+      // Show phase — shorter peek for harder tiers
+      const peekTime = Math.max(600, 1500 - (TIERS.indexOf(currentTier) * 200));
+      stageLabel.innerHTML = 'Watch the <span class="hl">ball</span>';
+      await wait(350);
+      liftSlot(ballSlot);
+      await wait(400);
+      showBallInSlot(ballSlot);
+      await wait(peekTime);
+      hideBallInSlot(ballSlot);
+      await wait(250);
+      lowerSlot(ballSlot);
+      await wait(500);
+
+      // Shuffle phase
+      state = 'shuffling';
+      stageLabel.innerHTML = '<span class="hl">Shuffling...</span>';
+      btnStart.textContent = 'SHUFFLING...';
+      shuffleBadge.style.display = 'block';
+
+      const total = currentTier.shuffles;
+      for (let s = 0; s < total; s++) {
+        shuffleBadge.textContent = (s + 1) + ' / ' + total;
+        const slotsNow = getSlots();
+        let posA = Math.floor(Math.random() * slotsNow.length);
+        let posB;
+        do { posB = Math.floor(Math.random() * slotsNow.length); } while (posB === posA);
+        await swapSlots(posA, posB);
+        await wait(currentTier.delay * 0.18);
+      }
+
+      await wait(250);
+
+      state = 'picking';
+      shuffleBadge.style.display = 'none';
+      stageLabel.innerHTML = 'Pick a <span class="hl">cup</span>';
+      updateNumbers();
+      showNumbers(true);
+      setClickable(true);
+    }
+
+    async function onPick(slot) {
+      if (state !== 'picking') return;
+      state = 'revealing';
+      setClickable(false);
+      showNumbers(false);
+
+      const pickedId = parseInt(slot.dataset.id);
+      const won = (pickedId === ballCupId);
+      const ballSlot = getSlotById(ballCupId);
+      const slots = getSlots();
+      const ballPos = slots.indexOf(ballSlot) + 1;
+
+      stageLabel.innerHTML = '<span class="hl">Revealing...</span>';
+
+      liftSlot(slot);
+      await wait(450);
+      if (won) showBallInSlot(slot);
+      await wait(500);
+
+      for (const s of slots) {
+        if (s === slot) continue;
+        liftSlot(s);
+        await wait(120);
+      }
+
+      showBallInSlot(ballSlot);
+      await wait(400);
+
+      for (const s of slots) {
+        const id = parseInt(s.dataset.id);
+        if (id === ballCupId) {
+          s.classList.add('correct');
+        } else if (s === slot && !won) {
+          s.classList.add('wrong');
+        } else if (id !== ballCupId) {
+          s.classList.add('wrong-dim');
+        }
+      }
+
+      await wait(900);
+      state = 'ended';
+
+      if (won) {
+        const payout = Math.floor(betAmount * currentTier.multi);
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+
+        stageLabel.innerHTML = '<span class="hl">Correct!</span> You found it';
+        resultBanner.className = 'result-banner win';
+        rbLabel.textContent = 'CORRECT';
+        rbAmount.textContent = '+' + (payout - betAmount).toLocaleString() + ' credits';
+        rbDetail.textContent = currentTier.multi + 'x payout | ' + currentTier.label + ' difficulty | ' + currentTier.cups + ' cups, ' + currentTier.shuffles + ' shuffles';
+
+        addHistory(true, payout);
+        saveStats(true, payout);
+      } else {
+        stageLabel.innerHTML = 'Wrong -- ball was under cup <span class="hl">#' + ballPos + '</span>';
+        resultBanner.className = 'result-banner lose';
+        rbLabel.textContent = 'WRONG CUP';
+        rbAmount.textContent = '-' + betAmount.toLocaleString() + ' credits';
+        rbDetail.textContent = 'Ball was cup #' + ballPos + ' | ' + currentTier.label + ' difficulty | ' + currentTier.cups + ' cups, ' + currentTier.shuffles + ' shuffles';
+
+        addHistory(false, 0);
+        saveStats(false, 0);
+      }
+
+      resultBanner.style.display = 'block';
+      btnStart.disabled = false;
+      btnStart.textContent = 'PLAY AGAIN';
+    }
+
+    // Bet controls
+    document.getElementById('betHalf').addEventListener('click', () => {
+      if (state === 'shuffling' || state === 'showing' || state === 'revealing') return;
+      betInput.value = Math.max(1, Math.floor(getBet() / 2));
+      updateDifficulty();
+    });
+    document.getElementById('betDouble').addEventListener('click', () => {
+      if (state === 'shuffling' || state === 'showing' || state === 'revealing') return;
+      betInput.value = Math.min(getBet() * 2, userCredits);
+      updateDifficulty();
+    });
+    betInput.addEventListener('input', () => {
+      if (state === 'shuffling' || state === 'showing' || state === 'revealing' || state === 'picking') return;
+      updateDifficulty();
+    });
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (state === 'shuffling' || state === 'showing' || state === 'revealing' || state === 'picking') return;
+        betInput.value = b.dataset.bet;
+        updateDifficulty();
+      });
+    });
+
+    btnStart.addEventListener('click', () => {
+      if (state === 'shuffling' || state === 'showing' || state === 'picking' || state === 'revealing') return;
+      state = 'idle';
+      startGame();
+    });
+
+    function addHistory(won, payout) {
+      history.unshift({ won, payout, bet: betAmount, tier: currentTier.label });
+      if (history.length > 20) history.pop();
+      historyList.innerHTML = '';
+      history.forEach(h => {
+        const el = document.createElement('div');
+        el.className = 'history-item ' + (h.won ? 'win' : 'lose');
+        el.textContent = h.won
+          ? h.tier + ' | +' + (h.payout - h.bet).toLocaleString()
+          : h.tier + ' | -' + h.bet.toLocaleString();
+        el.title = h.tier + ' | Bet: ' + h.bet + ' | ' + (h.won ? 'Won' : 'Lost');
+        historyList.appendChild(el);
+      });
+    }
+
+    function saveStats(won, payout) {
+      if (!currentUser) return;
+      const ref = rtdb.ref('users/' + currentUser.uid + '/games/cupshuffle');
+      ref.child('totalPlayed').transaction(v => (v || 0) + 1);
+      ref.child('totalWagered').transaction(v => (v || 0) + betAmount);
+      if (won) {
+        ref.child('totalWon').transaction(v => (v || 0) + payout);
+        ref.child('wins').transaction(v => (v || 0) + 1);
+        ref.child('biggestWin').transaction(v => Math.max(v || 0, payout));
+      } else {
+        ref.child('losses').transaction(v => (v || 0) + 1);
+      }
+    }
+
+    buildCups(3);
+    updateDifficulty();
+  })();
+
+  /* PARTICLES */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(139,92,246,', 'rgba(236,72,153,', 'rgba(6,182,212,'];
+    function resize() { const d=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; canvas.width=W*d; canvas.height=H*d; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.setTransform(d,0,0,d,0,0); }
+    function make() { return { x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a:Math.random()*.35+.15, c:COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+    init(); draw();
+  })();
+  </script>
+</body>
+</html>

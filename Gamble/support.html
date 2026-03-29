@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AightBet – Support Panel</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--font:'Segoe UI',system-ui,-apple-system,sans-serif}
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+
+    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.08),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.06),transparent)}
+    .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+
+    /* LOGIN */
+    .login-overlay{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+    .login-overlay.hidden{opacity:0;pointer-events:none}
+    .login-card{background:var(--surface);backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:16px;padding:40px 32px;max-width:400px;width:90%;text-align:center}
+    .login-card h1{font-size:1.6rem;font-weight:900;margin-bottom:6px}
+    .login-card h1 .grad{background:linear-gradient(135deg,var(--red),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .login-card p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+    .login-card .lock-icon{width:48px;height:48px;margin:0 auto 16px;background:rgba(239,68,68,.1);border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .login-card .lock-icon svg{width:24px;height:24px;stroke:var(--red);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .login-input{width:100%;padding:12px 16px;font-size:.9rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;outline:none;margin-bottom:12px;font-family:var(--font);transition:border-color .2s}
+    .login-input::placeholder{color:var(--muted)}
+    .login-input:focus{border-color:var(--accent)}
+    .login-btn{width:100%;padding:12px;font-size:.95rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--red),#b91c1c);border:none;border-radius:10px;cursor:pointer;font-family:var(--font);transition:transform .15s,box-shadow .25s;margin-top:4px}
+    .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px -6px rgba(239,68,68,.4)}
+    .login-error{color:#fca5a5;font-size:.8rem;margin-top:10px;min-height:20px}
+
+    /* TOAST */
+    .toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-120px);padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:9999;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s;opacity:0;pointer-events:none;backdrop-filter:blur(12px);max-width:90vw;text-align:center}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+    .toast.error{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+    .toast.success{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);color:#86efac}
+
+    /* DASHBOARD */
+    .dashboard{position:relative;z-index:10;display:none;min-height:100dvh}
+    .dashboard.active{display:block}
+
+    .dash-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 24px;height:64px;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .dash-nav h2{font-size:1.1rem;font-weight:800;display:flex;align-items:center;gap:8px;margin-right:auto}
+    .dash-nav h2 .grad{background:linear-gradient(135deg,var(--red),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .dash-nav h2 svg{width:22px;height:22px;stroke:var(--red);fill:none;stroke-width:2}
+    .dash-nav .dash-logout{padding:8px 16px;font-size:.78rem;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .2s}
+    .dash-nav .dash-logout:hover{color:var(--red);border-color:rgba(239,68,68,.3)}
+
+    .dash-stats{display:flex;gap:12px;padding:20px 24px;flex-wrap:wrap}
+    .dash-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;min-width:120px;flex:1}
+    .dash-stat .ds-num{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .dash-stat .ds-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+
+    .dash-tabs{display:flex;gap:4px;padding:0 24px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .dash-tab{padding:10px 18px;font-size:.8rem;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:var(--font);transition:all .2s;white-space:nowrap;flex-shrink:0;position:relative}
+    .dash-tab:hover{color:var(--text)}
+    .dash-tab.active{color:#fff;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25)}
+    .dash-tab .tab-badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;background:var(--red);color:#fff;font-size:.6rem;font-weight:800;border-radius:9px;display:flex;align-items:center;justify-content:center}
+
+    .dash-content{padding:0 24px 60px}
+
+    /* TABLE */
+    .report-table{width:100%;border-collapse:collapse}
+    .report-table th{text-align:left;padding:10px 12px;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border);position:sticky;top:64px;background:var(--bg)}
+    .report-table td{padding:12px;font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+    .report-table tr:hover td{background:rgba(255,255,255,.02)}
+    .r-type{display:inline-block;padding:3px 8px;border-radius:5px;font-size:.65rem;font-weight:700;text-transform:uppercase}
+    .r-type.post{background:rgba(59,130,246,.12);color:#60a5fa}
+    .r-type.comment{background:rgba(245,158,11,.12);color:#fbbf24}
+    .r-type.user{background:rgba(236,72,153,.12);color:#f472b6}
+    .r-reason{color:var(--muted);font-size:.75rem}
+    .r-time{color:var(--muted);font-size:.7rem;white-space:nowrap}
+    .r-actions{display:flex;gap:4px;flex-wrap:wrap}
+    .r-btn{padding:5px 10px;font-size:.65rem;font-weight:700;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:var(--font);transition:all .15s;background:var(--surface);color:var(--muted)}
+    .r-btn:hover{color:var(--text);border-color:var(--border2)}
+    .r-btn.resolve{color:var(--green);border-color:rgba(34,197,94,.2)}.r-btn.resolve:hover{background:rgba(34,197,94,.1)}
+    .r-btn.ban{color:var(--red);border-color:rgba(239,68,68,.2)}.r-btn.ban:hover{background:rgba(239,68,68,.1)}
+    .r-btn.delete{color:var(--red);border-color:rgba(239,68,68,.2)}.r-btn.delete:hover{background:rgba(239,68,68,.1)}
+    .r-btn.view{color:var(--accent);border-color:rgba(139,92,246,.2)}.r-btn.view:hover{background:rgba(139,92,246,.1)}
+    .r-btn.approve{color:var(--green);border-color:rgba(34,197,94,.2)}.r-btn.approve:hover{background:rgba(34,197,94,.1)}
+    .r-btn.deny{color:var(--red);border-color:rgba(239,68,68,.2)}.r-btn.deny:hover{background:rgba(239,68,68,.1)}
+
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+    .empty-state svg{width:48px;height:48px;stroke:var(--muted);fill:none;stroke-width:1.5;margin-bottom:12px;display:block;margin:0 auto 12px}
+    .empty-state .es-title{font-weight:700;margin-bottom:4px;color:var(--text)}
+
+    /* USERS */
+    .user-row{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+    .user-row:hover{background:rgba(255,255,255,.02)}
+    .user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;overflow:hidden;flex-shrink:0}
+    .user-av img{width:100%;height:100%;object-fit:cover}
+    .user-info{flex:1;min-width:0}
+    .user-name{font-size:.85rem;font-weight:700}
+    .user-email{font-size:.7rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .user-uid{font-size:.6rem;color:rgba(255,255,255,.2);font-family:monospace}
+    .user-credits{font-size:.8rem;font-weight:700;color:var(--gold);margin-right:8px}
+    .user-actions{display:flex;gap:4px;flex-wrap:wrap}
+
+    /* APPEAL CARDS */
+    .appeal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;transition:border-color .2s}
+    .appeal-card:hover{border-color:var(--border2)}
+    .appeal-card.pending-card{border-left:3px solid var(--gold)}
+    .appeal-card.approved-card{border-left:3px solid var(--green)}
+    .appeal-card.denied-card{border-left:3px solid var(--red)}
+    .ac-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .ac-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;overflow:hidden;flex-shrink:0}
+    .ac-av img{width:100%;height:100%;object-fit:cover}
+    .ac-info{flex:1}
+    .ac-name{font-size:.85rem;font-weight:700}
+    .ac-meta{font-size:.7rem;color:var(--muted)}
+    .ac-status{padding:3px 8px;border-radius:5px;font-size:.65rem;font-weight:700;text-transform:uppercase}
+    .ac-status.pending{background:rgba(245,158,11,.12);color:var(--gold)}
+    .ac-status.approved{background:rgba(34,197,94,.12);color:var(--green)}
+    .ac-status.denied{background:rgba(239,68,68,.12);color:var(--red)}
+    .ac-text{font-size:.82rem;line-height:1.5;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:10px}
+    .ac-ban-info{font-size:.75rem;color:var(--muted);margin-bottom:10px}
+    .ac-response-input{width:100%;padding:10px;font-size:.82rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:var(--font);resize:vertical;min-height:60px;margin-bottom:8px}
+    .ac-response-input::placeholder{color:var(--muted)}
+    .ac-response-input:focus{border-color:var(--accent)}
+    .ac-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+    /* SETTINGS */
+    .setting-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px}
+    .setting-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .setting-title{font-size:.9rem;font-weight:700;display:flex;align-items:center;gap:8px}
+    .setting-title svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .setting-desc{font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.4}
+    .toggle-wrap{position:relative;width:48px;height:26px;flex-shrink:0}
+    .toggle-wrap input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:13px;transition:background .2s}
+    .toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .2s}
+    .toggle-wrap input:checked+.toggle-slider{background:var(--green)}
+    .toggle-wrap input:checked+.toggle-slider::before{transform:translateX(22px)}
+    .maint-input{width:100%;padding:10px 14px;font-size:.85rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:var(--font);margin-top:8px;transition:border-color .2s}
+    .maint-input:focus{border-color:var(--accent)}
+    .maint-save{margin-top:8px;padding:8px 18px;font-size:.78rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:8px;cursor:pointer;font-family:var(--font);transition:transform .15s}
+    .maint-save:hover{transform:translateY(-1px)}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:var(--bg);border:1px solid var(--border);border-radius:16px;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:24px}
+    .modal-box h3{font-size:1.1rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .modal-close{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px}
+    .modal-close svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+    .modal-close:hover{color:var(--text)}
+    .detail-row{display:flex;gap:8px;margin-bottom:8px;font-size:.82rem}
+    .detail-label{color:var(--muted);min-width:80px;font-weight:600}
+    .detail-val{word-break:break-all}
+    .detail-content{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;font-size:.82rem;line-height:1.5;max-height:200px;overflow-y:auto}
+    .detail-img{max-width:100%;border-radius:8px;margin-top:8px}
+
+    @media(max-width:768px){
+      .dash-stats{padding:12px 16px;gap:8px}
+      .dash-stat{min-width:90px;padding:12px}
+      .dash-stat .ds-num{font-size:1.2rem}
+      .dash-content{padding:0 16px 48px}
+      .dash-tabs{padding:0 16px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- LOGIN -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="lock-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h1><span class="grad">Support Panel</span></h1>
+      <p>Authorized personnel only.</p>
+      <input type="email" class="login-input" id="suppEmail" placeholder="Support email" autocomplete="off"/>
+      <input type="password" class="login-input" id="suppPass" placeholder="Password" autocomplete="off"/>
+      <button class="login-btn" id="suppLoginBtn">Authenticate</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <nav class="dash-nav">
+      <h2><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="grad">AightBet Support</span></h2>
+      <button class="dash-logout" id="logoutBtn">Logout</button>
+    </nav>
+    <div class="dash-stats" id="dashStats"></div>
+    <div class="dash-tabs" id="dashTabs">
+      <button class="dash-tab active" data-tab="reports">Reports</button>
+      <button class="dash-tab" data-tab="appeals">Appeals <span class="tab-badge" id="appealBadge" style="display:none">0</span></button>
+      <button class="dash-tab" data-tab="users">Users</button>
+      <button class="dash-tab" data-tab="resolved">Resolved</button>
+      <button class="dash-tab" data-tab="settings">Settings</button>
+    </div>
+    <div class="dash-content" id="dashContent"></div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
+  const auth=firebase.auth(),rtdb=firebase.database();
+
+  const SUPPORT_EMAIL='support@support.com',SUPPORT_PASS='adminADMIN';
+  let authed=false,allUsers={},allReports={},allPosts={},allAppeals={},activeTab='reports';
+
+  function toast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3500);}
+  function timeAgo(ts){if(!ts)return'—';const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
+  function escapeHTML(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+  /* ═══ LOGIN ═══ */
+  document.getElementById('suppLoginBtn').addEventListener('click',async()=>{
+    const email=document.getElementById('suppEmail').value.trim(),pass=document.getElementById('suppPass').value,err=document.getElementById('loginError');
+    err.textContent='';
+    if(email!==SUPPORT_EMAIL||pass!==SUPPORT_PASS){err.textContent='Invalid credentials. Access denied.';return;}
+    try{
+      try{await auth.signInWithEmailAndPassword(email,pass);}
+      catch(e){if(e.code==='auth/user-not-found')await auth.createUserWithEmailAndPassword(email,pass);else if(e.code==='auth/invalid-credential'){err.textContent='Support account password mismatch.';return;}else throw e;}
+      authed=true;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('dashboard').classList.add('active');loadDashboard();
+    }catch(e){err.textContent='Error: '+e.message;}
+  });
+  document.getElementById('suppPass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('suppLoginBtn').click();});
+  document.getElementById('suppEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('suppPass').focus();});
+  document.getElementById('logoutBtn').addEventListener('click',()=>{auth.signOut();authed=false;document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('dashboard').classList.remove('active');});
+
+  /* ═══ TABS ═══ */
+  document.getElementById('dashTabs').addEventListener('click',e=>{const t=e.target.closest('.dash-tab');if(!t)return;document.querySelectorAll('.dash-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeTab=t.dataset.tab;renderContent();});
+
+  /* ═══ LOAD ═══ */
+  function loadDashboard(){
+    rtdb.ref('users').on('value',s=>{allUsers=s.val()||{};renderStats();renderContent();});
+    rtdb.ref('reports').on('value',s=>{allReports=s.val()||{};renderStats();renderContent();});
+    rtdb.ref('posts').on('value',s=>{allPosts=s.val()||{};});
+    rtdb.ref('appeals').on('value',s=>{
+      allAppeals=s.val()||{};
+      const pending=Object.values(allAppeals).filter(a=>a.status==='pending').length;
+      const badge=document.getElementById('appealBadge');
+      if(pending>0){badge.textContent=pending;badge.style.display='flex';}else{badge.style.display='none';}
+      renderStats();renderContent();
+    });
+  }
+
+  function getUserName(uid){const d=allUsers[uid]||{};return d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
+
+  /* ═══ STATS ═══ */
+  function renderStats(){
+    const reps=Object.values(allReports),pend=reps.filter(r=>!r.resolved),res=reps.filter(r=>r.resolved);
+    const apps=Object.values(allAppeals),pendAppeals=apps.filter(a=>a.status==='pending');
+    document.getElementById('dashStats').innerHTML=`
+      <div class="dash-stat"><div class="ds-num">${pend.length}</div><div class="ds-label">Pending Reports</div></div>
+      <div class="dash-stat"><div class="ds-num">${pendAppeals.length}</div><div class="ds-label">Pending Appeals</div></div>
+      <div class="dash-stat"><div class="ds-num">${res.length}</div><div class="ds-label">Resolved</div></div>
+      <div class="dash-stat"><div class="ds-num">${Object.keys(allUsers).length}</div><div class="ds-label">Users</div></div>
+      <div class="dash-stat"><div class="ds-num">${Object.keys(allPosts).length}</div><div class="ds-label">Posts</div></div>
+    `;
+  }
+
+  /* ═══ RENDER ═══ */
+  function renderContent(){
+    const c=document.getElementById('dashContent');
+    if(activeTab==='reports')renderReports(c,false);
+    else if(activeTab==='resolved')renderReports(c,true);
+    else if(activeTab==='users')renderUsers(c);
+    else if(activeTab==='appeals')renderAppeals(c);
+    else if(activeTab==='settings')renderSettings(c);
+  }
+
+  /* ═══ REPORTS ═══ */
+  function renderReports(c,showResolved){
+    const reports=Object.entries(allReports).map(([id,r])=>({id,...r})).filter(r=>showResolved?r.resolved:!r.resolved).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    if(!reports.length){c.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/></svg><div class="es-title">${showResolved?'No resolved reports':'No pending reports'}</div><div style="font-size:.8rem">${showResolved?'Resolved reports appear here.':'All clear!'}</div></div>`;return;}
+    let h=`<table class="report-table"><thead><tr><th>Type</th><th>Reason</th><th>Reporter</th><th>Target</th><th>Time</th><th>Actions</th></tr></thead><tbody>`;
+    reports.forEach(r=>{h+=`<tr><td><span class="r-type ${r.targetType||'post'}">${r.targetType||'post'}</span></td><td class="r-reason">${escapeHTML(r.reason)}</td><td>${escapeHTML(getUserName(r.reporterUid))}</td><td>${escapeHTML(getUserName(r.targetAuthorUid||r.targetId))}<br><span style="font-size:.6rem;color:var(--muted)">${r.targetId?(r.targetId).substring(0,12)+'…':''}</span></td><td class="r-time">${timeAgo(r.timestamp)}</td><td><div class="r-actions"><button class="r-btn view" onclick="viewReport('${r.id}')">View</button>${!showResolved?`<button class="r-btn resolve" onclick="resolveReport('${r.id}')">Resolve</button><button class="r-btn delete" onclick="deleteContent('${r.id}')">Del</button>${r.targetAuthorUid?`<button class="r-btn ban" onclick="banUser('${r.targetAuthorUid}')">Ban</button>`:''}`:`<button class="r-btn delete" onclick="deleteReport('${r.id}')">Remove</button>`}</div></td></tr>`;});
+    h+='</tbody></table>';c.innerHTML=h;
+  }
+
+  /* ═══ USERS ═══ */
+  function renderUsers(c){
+    const users=Object.entries(allUsers).sort((a,b)=>(b[1].credits||0)-(a[1].credits||0));
+    if(!users.length){c.innerHTML=`<div class="empty-state"><div class="es-title">No users</div></div>`;return;}
+    let h='';
+    users.forEach(([uid,u])=>{const av=u.avatar||u.photoURL,nm=u.nickname||u.displayName||u.email||uid.substring(0,8),banned=!!u.banned;
+    h+=`<div class="user-row"><div class="user-av">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div><div class="user-info"><div class="user-name">${escapeHTML(nm)} ${banned?'<span style="color:var(--red);font-size:.65rem">BANNED</span>':''}</div><div class="user-email">${escapeHTML(u.email||'')}</div><div class="user-uid">${uid}</div></div><div class="user-credits">🪙 ${(u.credits||0).toLocaleString()}</div><div class="user-actions"><button class="r-btn view" onclick="viewUser('${uid}')">View</button><button class="r-btn ${banned?'resolve':'ban'}" onclick="${banned?`unbanUser('${uid}')`:`banUser('${uid}')`}">${banned?'Unban':'Ban'}</button><button class="r-btn" onclick="resetCredits('${uid}')">Reset₵</button><button class="r-btn" onclick="giveCredits('${uid}')">Give₵</button></div></div>`;});
+    c.innerHTML=h;
+  }
+
+  /* ═══ APPEALS ═══ */
+  function renderAppeals(c){
+    const appeals=Object.entries(allAppeals).map(([uid,a])=>({uid,...a})).sort((a,b)=>{
+      const order={pending:0,denied:1,approved:2};
+      if(order[a.status]!==order[b.status])return order[a.status]-order[b.status];
+      return(b.timestamp||0)-(a.timestamp||0);
+    });
+
+    if(!appeals.length){
+      c.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="es-title">No appeals</div><div style="font-size:.8rem">No ban appeals submitted yet.</div></div>`;
+      return;
+    }
+
+    let h='';
+    appeals.forEach(a=>{
+      const u=allUsers[a.uid]||{};
+      const nm=u.nickname||u.displayName||u.email||a.uid.substring(0,8);
+      const av=u.avatar||u.photoURL;
+      const isPending=a.status==='pending';
+
+      h+=`<div class="appeal-card ${a.status}-card">
+        <div class="ac-header">
+          <div class="ac-av">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div>
+          <div class="ac-info">
+            <div class="ac-name">${escapeHTML(nm)}</div>
+            <div class="ac-meta">${a.uid.substring(0,12)}… · ${timeAgo(a.timestamp)}</div>
+          </div>
+          <span class="ac-status ${a.status}">${a.status}</span>
+        </div>
+        <div class="ac-ban-info">Ban reason: <strong>${escapeHTML(u.banReason||'Not specified')}</strong></div>
+        <div class="ac-text">${escapeHTML(a.text)}</div>
+        ${a.response?`<div style="font-size:.75rem;color:var(--accent);margin-bottom:6px">Your response: "${escapeHTML(a.response)}" · ${a.respondedAt?timeAgo(a.respondedAt):''}</div>`:''}
+        ${isPending?`
+        <textarea class="ac-response-input" id="resp_${a.uid}" placeholder="Write a response to the user (optional)..."></textarea>
+        <div class="ac-actions">
+          <button class="r-btn approve" onclick="handleAppeal('${a.uid}','approved')">Approve & Unban</button>
+          <button class="r-btn deny" onclick="handleAppeal('${a.uid}','denied')">Deny Appeal</button>
+          <button class="r-btn view" onclick="viewUser('${a.uid}')">View User</button>
+        </div>
+        `:`
+        <div class="ac-actions">
+          <button class="r-btn delete" onclick="deleteAppeal('${a.uid}')">Remove Appeal</button>
+          <button class="r-btn view" onclick="viewUser('${a.uid}')">View User</button>
+        </div>
+        `}
+      </div>`;
+    });
+    c.innerHTML=h;
+  }
+
+  /* ═══ HANDLE APPEAL — fixed: per-path writes instead of root update ═══ */
+  async function handleAppeal(uid,status){
+    const respEl=document.getElementById('resp_'+uid);
+    const response=respEl?respEl.value.trim():'';
+
+    if(status==='denied'&&!response){
+      toast('Please write a response explaining the denial');
+      respEl.focus();
+      return;
+    }
+
+    try{
+      await rtdb.ref('appeals/'+uid+'/status').set(status);
+      await rtdb.ref('appeals/'+uid+'/response').set(response||null);
+      await rtdb.ref('appeals/'+uid+'/respondedAt').set(Date.now());
+
+      if(status==='approved'){
+        await rtdb.ref('users/'+uid+'/banned').remove();
+        await rtdb.ref('users/'+uid+'/banReason').remove();
+        await rtdb.ref('users/'+uid+'/bannedAt').remove();
+      }
+
+      toast(status==='approved'?'Appeal approved — user unbanned!':'Appeal denied',status==='approved'?'success':'error');
+    }catch(e){toast('Error: '+e.message);}
+  }
+
+  async function deleteAppeal(uid){
+    if(!confirm('Remove this appeal?'))return;
+    await rtdb.ref('appeals/'+uid).remove();
+    toast('Appeal removed','success');
+  }
+
+  /* ═══ SETTINGS ═══ */
+  function renderSettings(c){
+    rtdb.ref('settings').once('value',snap=>{
+      const s=snap.val()||{};const maintOn=s.maintenance===true;const maintMsg=s.maintenanceMessage||'';
+      c.innerHTML=`
+        <div class="setting-card">
+          <div class="setting-header">
+            <div class="setting-title"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Maintenance Mode</div>
+            <label class="toggle-wrap"><input type="checkbox" id="maintToggle" ${maintOn?'checked':''}/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-desc">Redirects ALL users to maintenance page.</div>
+          <div style="font-size:.8rem;font-weight:600;color:${maintOn?'var(--red)':'var(--green)'}" id="maintStatus">${maintOn?'⚠️ MAINTENANCE ON':'✅ Site is live'}</div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-title" style="margin-bottom:8px"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Maintenance Message</div>
+          <div class="setting-desc">Custom message on the maintenance page.</div>
+          <input class="maint-input" id="maintMsgInput" placeholder="e.g. Back in 30 minutes..." value="${(maintMsg||'').replace(/"/g,'&quot;')}"/>
+          <button class="maint-save" id="maintMsgSave">Save Message</button>
+        </div>
+        <div class="setting-card">
+          <div class="setting-title" style="margin-bottom:8px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>Global Credits</div>
+          <div class="setting-desc">Give credits to ALL users at once.</div>
+          <div style="display:flex;gap:8px;margin-top:8px"><input class="maint-input" id="globalCreditsInput" placeholder="Amount" type="number" style="width:120px"/><button class="maint-save" id="globalCreditsBtn">Give to All</button></div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-title" style="margin-bottom:8px;color:var(--red)"><svg viewBox="0 0 24 24" style="stroke:var(--red)"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Danger Zone</div>
+          <div class="setting-desc">Irreversible actions.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="r-btn delete" id="clearReportsBtn">Clear All Reports</button><button class="r-btn delete" id="clearPostsBtn">Delete All Posts</button><button class="r-btn delete" id="clearAppealsBtn">Clear All Appeals</button></div>
+        </div>
+      `;
+      document.getElementById('maintToggle').addEventListener('change',async function(){await rtdb.ref('settings/maintenance').set(this.checked);const s2=document.getElementById('maintStatus');s2.style.color=this.checked?'var(--red)':'var(--green)';s2.textContent=this.checked?'⚠️ MAINTENANCE ON':'✅ Site is live';toast(this.checked?'Maintenance ON':'Maintenance OFF','success');});
+      document.getElementById('maintMsgSave').addEventListener('click',async()=>{await rtdb.ref('settings/maintenanceMessage').set(document.getElementById('maintMsgInput').value.trim());toast('Message saved','success');});
+      /* ═══ GLOBAL CREDITS — fixed: per-user writes instead of root update ═══ */
+      document.getElementById('globalCreditsBtn').addEventListener('click',async()=>{
+        const n=parseInt(document.getElementById('globalCreditsInput').value);
+        if(isNaN(n)||n<=0){toast('Invalid amount');return;}
+        if(!confirm('Give '+n.toLocaleString()+' credits to ALL '+Object.keys(allUsers).length+' users?'))return;
+        try{
+          const promises=Object.keys(allUsers).map(uid=>
+            rtdb.ref('users/'+uid+'/credits').transaction(v=>(v||0)+n)
+          );
+          await Promise.all(promises);
+          toast('Done! Gave '+n.toLocaleString()+' to all','success');
+        }catch(e){toast('Error: '+e.message);}
+      });
+      document.getElementById('clearReportsBtn').addEventListener('click',async()=>{if(!confirm('DELETE all reports?'))return;await rtdb.ref('reports').remove();toast('Reports cleared','success');});
+      document.getElementById('clearPostsBtn').addEventListener('click',async()=>{if(!confirm('DELETE ALL POSTS?'))return;if(!confirm('REALLY sure?'))return;await rtdb.ref('posts').remove();toast('Posts deleted','success');});
+      document.getElementById('clearAppealsBtn').addEventListener('click',async()=>{if(!confirm('DELETE all appeals?'))return;await rtdb.ref('appeals').remove();toast('Appeals cleared','success');});
+    });
+  }
+
+  /* ═══ ACTIONS — fixed: per-path writes instead of root update ═══ */
+  async function resolveReport(id){await rtdb.ref('reports/'+id+'/resolved').set(true);await rtdb.ref('reports/'+id+'/resolvedAt').set(Date.now());toast('Resolved','success');}
+  async function deleteReport(id){if(!confirm('Delete report?'))return;await rtdb.ref('reports/'+id).remove();toast('Removed','success');}
+  async function deleteContent(rid){
+    const r=allReports[rid];if(!r)return;if(!confirm('Delete reported content?'))return;
+    try{if(r.targetType==='post'&&r.targetId){await rtdb.ref('posts/'+r.targetId).remove();toast('Post deleted','success');}
+    else if(r.targetType==='comment'&&r.postId&&r.targetId){await rtdb.ref('posts/'+r.postId+'/comments/'+r.targetId).remove();toast('Comment deleted','success');}
+    else{toast('Cannot determine content');return;}
+    await resolveReport(rid);}catch(e){toast('Error: '+e.message);}
+  }
+
+  /* ═══ BAN/UNBAN — fixed: per-path writes instead of root update ═══ */
+  async function banUser(uid){
+    const reason=prompt('Ban reason for '+getUserName(uid)+':','Violation of community guidelines');
+    if(reason===null)return;
+    try{
+      await rtdb.ref('users/'+uid+'/banned').set(true);
+      await rtdb.ref('users/'+uid+'/banReason').set(reason||'Violation of community guidelines');
+      await rtdb.ref('users/'+uid+'/bannedAt').set(Date.now());
+      toast('User banned','success');
+    }catch(e){toast('Error: '+e.message);}
+  }
+  async function unbanUser(uid){
+    try{
+      await rtdb.ref('users/'+uid+'/banned').remove();
+      await rtdb.ref('users/'+uid+'/banReason').remove();
+      await rtdb.ref('users/'+uid+'/bannedAt').remove();
+      toast('Unbanned','success');
+    }catch(e){toast('Error: '+e.message);}
+  }
+  async function resetCredits(uid){if(!confirm('Reset credits to 0?'))return;await rtdb.ref('users/'+uid+'/credits').set(0);toast('Reset','success');}
+  async function giveCredits(uid){const a=prompt('Credits to give:');if(!a)return;const n=parseInt(a);if(isNaN(n)||n<=0){toast('Invalid');return;}await rtdb.ref('users/'+uid+'/credits').transaction(v=>(v||0)+n);toast('Gave '+n.toLocaleString(),'success');}
+
+  /* ═══ VIEW MODALS ═══ */
+  function openModal(html){const o=document.getElementById('modalOverlay'),b=document.getElementById('modalBox');b.innerHTML=html;o.classList.add('open');b.querySelector('.modal-close').addEventListener('click',()=>o.classList.remove('open'));o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});}
+
+  function viewReport(id){
+    const r=allReports[id];if(!r)return;let ch='';
+    if(r.targetType==='post'&&r.targetId){const p=allPosts[r.targetId];ch=p?`<div class="detail-content">${escapeHTML(p.text||'(no text)')}</div>${p.image?`<img class="detail-img" src="${p.image}"/>`:''}`:'<div style="color:var(--muted)">Post deleted.</div>';}
+    else if(r.targetType==='comment'&&r.postId&&r.targetId){const p=allPosts[r.postId],cm=p&&p.comments&&p.comments[r.targetId];ch=cm?`<div class="detail-content">${escapeHTML(cm.text)}</div>`:'<div style="color:var(--muted)">Comment deleted.</div>';}
+    else if(r.targetType==='user'){const u=allUsers[r.targetId]||{};ch=`<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.nickname||u.displayName||'?')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'?')}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'YES':'No'}</span></div>`;}
+    openModal(`<h3>Report Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">Type:</span><span class="detail-val"><span class="r-type ${r.targetType||'post'}">${r.targetType||'post'}</span></span></div><div class="detail-row"><span class="detail-label">Reason:</span><span class="detail-val">${escapeHTML(r.reason)}</span></div><div class="detail-row"><span class="detail-label">Reporter:</span><span class="detail-val">${escapeHTML(getUserName(r.reporterUid))}</span></div><div class="detail-row"><span class="detail-label">Target:</span><span class="detail-val">${escapeHTML(getUserName(r.targetAuthorUid||r.targetId))}</span></div><div class="detail-row"><span class="detail-label">Time:</span><span class="detail-val">${r.timestamp?new Date(r.timestamp).toLocaleString():'—'}</span></div><div class="detail-row"><span class="detail-label">Status:</span><span class="detail-val">${r.resolved?'<span style="color:var(--green)">Resolved</span>':'<span style="color:var(--red)">Pending</span>'}</span></div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Content</div>${ch}`);
+  }
+
+  function viewUser(uid){
+    const u=allUsers[uid]||{};const up=Object.entries(allPosts).filter(([,p])=>p.authorUid===uid);const ur=Object.entries(allReports).filter(([,r])=>r.targetAuthorUid===uid||r.targetId===uid);const ua=allAppeals[uid];
+    openModal(`<h3>User Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">UID:</span><span class="detail-val" style="font-family:monospace;font-size:.75rem">${uid}</span></div><div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.nickname||u.displayName||'—')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'—')}</span></div><div class="detail-row"><span class="detail-label">Credits:</span><span class="detail-val" style="color:var(--gold)">${(u.credits||0).toLocaleString()}</span></div><div class="detail-row"><span class="detail-label">Bio:</span><span class="detail-val">${escapeHTML(u.bio||'(none)')}</span></div><div class="detail-row"><span class="detail-label">Private:</span><span class="detail-val">${u.privateProfile?'Yes':'No'}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'<span style="color:var(--red);font-weight:700">YES</span> — '+escapeHTML(u.banReason||''):'No'}</span></div><div class="detail-row"><span class="detail-label">Created:</span><span class="detail-val">${u.createdAt?new Date(u.createdAt).toLocaleString():'—'}</span></div><div class="detail-row"><span class="detail-label">Posts:</span><span class="detail-val">${up.length}</span></div><div class="detail-row"><span class="detail-label">Reports:</span><span class="detail-val">${ur.length}</span></div>${ua?`<div class="detail-row"><span class="detail-label">Appeal:</span><span class="detail-val"><span class="ac-status ${ua.status}">${ua.status}</span></span></div>`:''}<hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Inventory (${Object.keys(u.inventory||{}).length})</div><div class="detail-content" style="font-size:.7rem">${Object.keys(u.inventory||{}).join(', ')||'(empty)'}</div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Recent Posts</div><div class="detail-content">${up.slice(0,5).map(([,p])=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)"><strong>${timeAgo(p.timestamp)}</strong>: ${escapeHTML((p.text||'').substring(0,150))}${p.image?' [img]':''}</div>`).join('')||'(none)'}</div>`);
+  }
+  </script>
+</body>
+</html>

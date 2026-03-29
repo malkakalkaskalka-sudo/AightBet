@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AightBet – Crash</title>
+  <link rel="stylesheet" href="css/light.css"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.10),transparent)}
+    #particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.2;z-index:0;animation:orbF 8s ease-in-out infinite alternate}
+    .orb-1{width:320px;height:320px;background:var(--accent);top:-80px;left:-60px}
+    .orb-2{width:260px;height:260px;background:var(--accent2);bottom:-60px;right:-40px;animation-delay:-3s}
+    @keyframes orbF{0%{transform:translate(0,0)}100%{transform:translate(25px,-35px)}}
+
+    .navbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:100;display:flex;align-items:center;padding:0 24px;background:rgba(10,10,15,.6);backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border)}
+    .navbar.scrolled{background:rgba(10,10,15,.85)}
+    .nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+    .nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:8px}
+    .nav-logo span{font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-link{display:flex;align-items:center;gap:7px;padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--muted);border-radius:10px;transition:color .2s,background .2s;cursor:pointer;border:none;background:transparent;font-family:var(--font)}
+    .nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.06)}
+    .nav-link.active{color:var(--accent);background:rgba(139,92,246,.1)}
+    .nav-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .nav-credits{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:.85rem;font-weight:700;color:var(--gold);cursor:pointer}
+    .nav-credits svg{width:16px;height:16px;fill:var(--gold);stroke:none}
+    .nav-avatar{width:36px;height:36px;border-radius:50%;margin-left:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.1);overflow:hidden;flex-shrink:0}
+    .nav-avatar img{width:100%;height:100%;object-fit:cover}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:10px}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:99;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:8px}
+    .mobile-menu.open{display:flex}
+    .mobile-menu .nav-link{padding:16px 20px;font-size:1.05rem;border-radius:12px}
+    .mobile-menu .nav-credits{margin:8px 0 0;padding:14px 20px;font-size:1rem;border-radius:12px;justify-content:center}
+
+    .main{position:relative;z-index:10;padding-top:calc(var(--nav-h)+60px);min-height:100dvh}
+    .page-header{text-align:center;padding:88px 24px 20px}
+    .page-header h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px}
+    .page-header h1 .grad{background:linear-gradient(135deg,var(--red),var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradMove 4s ease-in-out infinite}
+    @keyframes gradMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .page-header p{color:var(--muted);font-size:1.05rem;max-width:520px;margin:0 auto}
+    .game-wrapper{max-width:1000px;margin:0 auto;padding:24px;display:grid;gap:18px}
+    .game-panel{background:rgba(30,30,40,.85);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(16px)}
+
+    /* ═══ CRASH CHART ═══ */
+    .crash-area{display:flex;gap:18px;padding:24px;flex-wrap:wrap}
+    .chart-wrap{flex:1;min-width:320px}
+
+    /* Canvas container */
+    .chart-box{position:relative;width:100%;aspect-ratio:16/9;background:linear-gradient(180deg,rgba(10,10,20,.9),rgba(15,15,25,.95));border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;box-shadow:inset 0 2px 20px rgba(0,0,0,.4)}
+
+    /* Grid lines drawn on canvas */
+    #crashCanvas{width:100%;height:100%;display:block}
+
+    /* Big multiplier overlay */
+    .mult-display{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-3px;pointer-events:none;z-index:5;text-shadow:0 4px 20px rgba(0,0,0,.5);transition:color .2s}
+    .mult-display.rising{color:var(--green)}
+    .mult-display.crashed{color:var(--red);animation:crashShake .5s ease}
+    .mult-display.cashed{color:var(--gold)}
+    .mult-display.waiting{color:var(--muted);font-size:clamp(1.5rem,4vw,2.5rem);letter-spacing:0}
+    @keyframes crashShake{0%{transform:translate(-50%,-50%)}15%{transform:translate(-46%,-52%)}30%{transform:translate(-54%,-48%)}45%{transform:translate(-48%,-52%)}60%{transform:translate(-52%,-50%)}75%{transform:translate(-49%,-51%)}100%{transform:translate(-50%,-50%)}}
+
+    /* Crashed text behind */
+    .crash-overlay{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(ellipse at center,rgba(239,68,68,.08),transparent 70%)}
+    .crash-overlay.show{opacity:1}
+
+    /* Rocket / trail on canvas is drawn via JS */
+
+    /* ═══ SIDE PANEL ═══ */
+    .side-panel{flex:0 0 280px;display:flex;flex-direction:column;gap:10px}
+    .sp-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+    .sp-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+    .sp-value{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .sp-value.gold{background:linear-gradient(135deg,var(--gold),#d97706);-webkit-background-clip:text;background-clip:text}
+    .sp-value.green{background:linear-gradient(135deg,var(--green),#16a34a);-webkit-background-clip:text;background-clip:text}
+    .sp-value.red{background:linear-gradient(135deg,var(--red),#b91c1c);-webkit-background-clip:text;background-clip:text}
+
+    /* Auto cashout */
+    .auto-row{display:flex;gap:6px;align-items:center;margin-top:4px}
+    .auto-row input[type=number]{width:70px;padding:6px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);font-weight:700;text-align:center;font-size:.85rem;font-family:var(--font)}
+    .auto-toggle{padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:var(--muted);font-weight:700;cursor:pointer;font-family:var(--font);font-size:.78rem;transition:all .15s}
+    .auto-toggle.on{border-color:var(--gold);color:var(--gold);background:rgba(245,158,11,.1)}
+
+    /* History pills */
+    .history-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .h-pill{padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:800;border:1px solid}
+    .h-pill.h-green{color:var(--green);border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.06)}
+    .h-pill.h-red{color:var(--red);border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.06)}
+    .h-pill.h-gold{color:var(--gold);border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.06)}
+
+    #betInput{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);font-weight:800;text-align:center;font-size:1rem;font-family:var(--font)}
+    .bet-btns{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+    .cb{padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:var(--text);font-weight:700;cursor:pointer;font-family:var(--font);font-size:.78rem;transition:background .15s;flex:1;text-align:center}
+    .cb:hover{background:rgba(255,255,255,.1)}
+
+    .btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 24px;border:none;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer;transition:transform .12s,box-shadow .2s;color:#fff;font-family:var(--font);width:100%}
+    .btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.97)}
+    .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+    .btn-go{background:linear-gradient(135deg,var(--green),#16a34a);box-shadow:0 4px 16px -6px rgba(34,197,94,.5)}
+    .btn-cash{background:linear-gradient(135deg,var(--gold),#d97706);box-shadow:0 4px 16px -6px rgba(245,158,11,.5);margin-top:4px}
+    .btn-cash .cash-sub{font-size:.7rem;font-weight:600;opacity:.8}
+
+    #result{text-align:center;font-weight:900;font-size:1rem;min-height:28px;padding:8px 16px}
+    .result-win{color:var(--green)}.result-lose{color:var(--red)}.result-cash{color:var(--gold)}
+
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:16px 20px}
+    .stat-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+    .stat-label{font-size:.7rem;color:var(--muted)}.stat-value{font-size:1.1rem;font-weight:800;margin-top:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .rule-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:.85rem;line-height:1.5}
+    .rule-item strong{color:var(--accent)}
+    .info-panel{padding:24px}
+    .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+
+    @media(max-width:768px){
+      .nav-links,.nav-credits-desktop{display:none!important}
+      .hamburger{display:flex}
+      .navbar{height:var(--nav-h-mobile);padding:0 16px}
+      .main{padding-top:calc(var(--nav-h-mobile)+60px)}
+      .page-header{padding:70px 24px 20px}
+      .mobile-menu{top:var(--nav-h-mobile)}
+      .game-wrapper{padding:12px}
+      .crash-area{flex-direction:column;padding:16px}
+      .side-panel{flex:none;width:100%}
+      .stats-row{grid-template-columns:repeat(2,1fr);padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div><div class="orb orb-1"></div><div class="orb orb-2"></div><canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet"/><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1><span class="grad">Crash</span></h1>
+      <p>Watch the multiplier rise. Cash out before it crashes. How far will you push it?</p>
+    </section>
+    <section class="game-wrapper">
+      <div class="game-panel">
+        <div class="crash-area">
+          <div class="chart-wrap">
+            <div class="chart-box" id="chartBox">
+              <canvas id="crashCanvas"></canvas>
+              <div class="mult-display waiting" id="multDisplay">Place your bet</div>
+              <div class="crash-overlay" id="crashOverlay"></div>
+            </div>
+            <div id="result"></div>
+            <div class="sp-card" style="margin-top:10px">
+              <div class="sp-label">History</div>
+              <div class="history-strip" id="historyStrip"></div>
+            </div>
+          </div>
+          <div class="side-panel">
+            <div class="sp-card">
+              <div class="sp-label">Balance</div>
+              <div class="sp-value" id="statBalance">0</div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Bet</div>
+              <input type="number" id="betInput" value="10" min="1">
+              <div class="bet-btns">
+                <button class="cb" onclick="nudgeBet(-10)">-10</button>
+                <button class="cb" onclick="nudgeBet(-1)">-1</button>
+                <button class="cb" onclick="nudgeBet(+1)">+1</button>
+                <button class="cb" onclick="nudgeBet(+10)">+10</button>
+                <button class="cb" onclick="setHalf()">½</button>
+                <button class="cb" onclick="setDouble()">2×</button>
+                <button class="cb" onclick="setMaxBet()">MAX</button>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Auto Cash Out</div>
+              <div class="auto-row">
+                <input type="number" id="autoInput" value="2" min="1.01" step="0.1">
+                <span style="color:var(--muted);font-size:.8rem;font-weight:700">×</span>
+                <button class="auto-toggle" id="autoToggle">OFF</button>
+              </div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Current Mult</div>
+              <div class="sp-value green" id="curMult">1.00x</div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Potential Win</div>
+              <div class="sp-value gold" id="potWin">0</div>
+            </div>
+            <button class="btn btn-go" id="goBtn">BET</button>
+            <button class="btn btn-cash" id="cashBtn" disabled>
+              <div><div>CASH OUT</div><div class="cash-sub" id="cashSub">0 credits</div></div>
+            </button>
+            <div class="sp-card">
+              <div class="sp-label">Games</div><div class="sp-value" id="sGames">0</div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Best Mult</div><div class="sp-value" id="sBest">0x</div>
+            </div>
+            <div class="sp-card">
+              <div class="sp-label">Biggest Win</div><div class="sp-value" id="sBiggest">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="game-panel info-panel">
+        <h3 style="margin-bottom:12px">How To Play</h3>
+        <div class="rules-grid">
+          <div class="rule-item"><strong>Bet:</strong> Set your wager and click BET to join the round.</div>
+          <div class="rule-item"><strong>Watch:</strong> The multiplier starts at 1.00× and climbs.</div>
+          <div class="rule-item"><strong>Cash Out:</strong> Click Cash Out before it crashes to lock in profit.</div>
+          <div class="rule-item"><strong>Crash:</strong> If the rocket explodes before you cash out, you lose.</div>
+          <div class="rule-item"><strong>Auto:</strong> Set an auto cash-out multiplier to automatically collect.</div>
+          <div class="rule-item"><strong>Risk:</strong> It can crash at any time — even at 1.00×!</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">&copy; 2026 AightBet. Fake casino -- no real money.</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="checker.js"></script>
+
+    <script>
+  var firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
+  firebase.initializeApp(firebaseConfig);
+  var auth=firebase.auth(),rtdb=firebase.database();
+  var currentUser=null;
+  function applyTheme(t){document.documentElement.setAttribute('data-theme',t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);localStorage.setItem('aightbet-theme',t);}
+  applyTheme(localStorage.getItem('aightbet-theme')||'dark');
+  auth.onAuthStateChanged(function(u){
+    if(!u){location.href='index.html';return;}currentUser=u;
+    rtdb.ref('users/'+u.uid).on('value',function(snap){
+      var d=snap.val()||{};var cr=d.credits||0;
+      document.getElementById('statBalance').textContent=cr.toLocaleString();
+      document.getElementById('creditsCount').textContent=cr.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent=cr.toLocaleString();
+      applyTheme(d.theme||localStorage.getItem('aightbet-theme')||'dark');
+      var av=document.getElementById('navAvatar');var url=d.avatar||u.photoURL||null;
+      if(url)av.innerHTML='<img src="'+url+'" alt=""/>';
+      else av.textContent=(u.displayName||u.email||'?').charAt(0).toUpperCase();
+    });
+  });
+  (function(){var nav=document.getElementById('navbar');var t=false;addEventListener('scroll',function(){if(!t){requestAnimationFrame(function(){nav.classList.toggle('scrolled',scrollY>20);t=false;});t=true;}});})();
+  (function(){var h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',function(){h.classList.toggle('open');m.classList.toggle('open');});m.querySelectorAll('.nav-link').forEach(function(l){l.addEventListener('click',function(){h.classList.remove('open');m.classList.remove('open');});});})();
+  document.getElementById('navAvatar').addEventListener('click',function(){location.href='profile.html';});
+  function getCredits(){return parseInt((document.getElementById('statBalance').textContent||'0').replace(/,/g,''))||0;}
+  async function adjustCredits(v){if(!currentUser)return;await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(function(c){return(c||0)+v;});}
+  function dly(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function nudgeBet(n){document.getElementById('betInput').value=Math.max(1,(parseInt(document.getElementById('betInput').value)||1)+n);}
+  function setMaxBet(){document.getElementById('betInput').value=Math.max(1,getCredits());}
+  function setHalf(){document.getElementById('betInput').value=Math.max(1,Math.floor(getCredits()/2));}
+  function setDouble(){document.getElementById('betInput').value=Math.min(getCredits(),Math.max(1,(parseInt(document.getElementById('betInput').value)||1)*2));}
+  window.nudgeBet=nudgeBet;window.setMaxBet=setMaxBet;window.setHalf=setHalf;window.setDouble=setDouble;
+
+  /* ═══ AUTO TOGGLE ═══ */
+  var autoEnabled=false;
+  var autoToggle=document.getElementById('autoToggle');
+  var autoInput=document.getElementById('autoInput');
+  autoToggle.addEventListener('click',function(){
+    autoEnabled=!autoEnabled;
+    autoToggle.textContent=autoEnabled?'ON':'OFF';
+    autoToggle.classList.toggle('on',autoEnabled);
+  });
+
+  /* ═══ CANVAS SETUP ═══ */
+  var chartBox=document.getElementById('chartBox');
+  var canvas=document.getElementById('crashCanvas');
+  var ctx=canvas.getContext('2d');
+  var W,H;
+
+  function resizeCanvas(){
+    var r=Math.min(devicePixelRatio||1,2);
+    var rect=chartBox.getBoundingClientRect();
+    W=rect.width;H=rect.height;
+    canvas.width=W*r;canvas.height=H*r;
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    ctx.setTransform(r,0,0,r,0,0);
+  }
+  resizeCanvas();
+  addEventListener('resize',function(){resizeCanvas();if(!roundActive)drawIdle();});
+
+  /* ═══ CRASH POINT GENERATOR ═══ */
+  function genCrashPoint(){
+    var r=Math.random();
+    if(r<0.04)return 1.00;
+    return Math.floor(100/(1-r))/100;
+  }
+
+  /* ═══ CHART DRAWING ═══ */
+  var pathPoints=[];
+  var trailParticles=[];
+  var PADDING={top:30,right:20,bottom:40,left:55};
+
+  function drawChart(currentMult,maxMult,elapsed,crashed){
+    ctx.clearRect(0,0,W,H);
+
+    var gW=W-PADDING.left-PADDING.right;
+    var gH=H-PADDING.top-PADDING.bottom;
+    var maxY=Math.max(maxMult,2);
+    var maxX=Math.max(elapsed,3);
+
+    /* Grid */
+    ctx.strokeStyle='rgba(255,255,255,.04)';
+    ctx.lineWidth=1;
+    var yStep=maxY<5?0.5:maxY<20?2:maxY<50?5:10;
+    for(var y=1;y<=maxY;y+=yStep){
+      var py=PADDING.top+gH-(y/maxY)*gH;
+      ctx.beginPath();ctx.moveTo(PADDING.left,py);ctx.lineTo(W-PADDING.right,py);ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,.2)';ctx.font='600 11px '+getComputedStyle(document.body).fontFamily;
+      ctx.textAlign='right';ctx.fillText(y.toFixed(y<10?1:0)+'×',PADDING.left-8,py+4);
+    }
+    var xStep=maxX<5?1:maxX<15?2:maxX<30?5:10;
+    for(var x=0;x<=maxX;x+=xStep){
+      var px=PADDING.left+(x/maxX)*gW;
+      ctx.beginPath();ctx.moveTo(px,PADDING.top);ctx.lineTo(px,H-PADDING.bottom);ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,.2)';ctx.textAlign='center';
+      ctx.fillText(x.toFixed(0)+'s',px,H-PADDING.bottom+16);
+    }
+
+    /* Axes */
+    ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(PADDING.left,PADDING.top);ctx.lineTo(PADDING.left,H-PADDING.bottom);ctx.lineTo(W-PADDING.right,H-PADDING.bottom);ctx.stroke();
+
+    if(pathPoints.length<2)return;
+
+    /* Gradient fill */
+    var grad=ctx.createLinearGradient(0,PADDING.top,0,H-PADDING.bottom);
+    if(crashed){
+      grad.addColorStop(0,'rgba(239,68,68,.2)');
+      grad.addColorStop(1,'rgba(239,68,68,.0)');
+    }else{
+      grad.addColorStop(0,'rgba(34,197,94,.2)');
+      grad.addColorStop(1,'rgba(34,197,94,.0)');
+    }
+
+    ctx.beginPath();
+    var firstPt=pathPoints[0];
+    var fx=PADDING.left+(firstPt.t/maxX)*gW;
+    var fy=PADDING.top+gH-((firstPt.m-1)/(maxY-1))*gH;
+    ctx.moveTo(fx,H-PADDING.bottom);
+    ctx.lineTo(fx,fy);
+    for(var i=1;i<pathPoints.length;i++){
+      var pt=pathPoints[i];
+      var ppx=PADDING.left+(pt.t/maxX)*gW;
+      var ppy=PADDING.top+gH-((pt.m-1)/(maxY-1))*gH;
+      ctx.lineTo(ppx,ppy);
+    }
+    var lastPt=pathPoints[pathPoints.length-1];
+    var lx=PADDING.left+(lastPt.t/maxX)*gW;
+    ctx.lineTo(lx,H-PADDING.bottom);
+    ctx.closePath();
+    ctx.fillStyle=grad;ctx.fill();
+
+    /* Curve line */
+    ctx.beginPath();ctx.moveTo(fx,fy);
+    for(var j=1;j<pathPoints.length;j++){
+      var pt2=pathPoints[j];
+      var px2=PADDING.left+(pt2.t/maxX)*gW;
+      var py2=PADDING.top+gH-((pt2.m-1)/(maxY-1))*gH;
+      ctx.lineTo(px2,py2);
+    }
+    ctx.strokeStyle=crashed?'#ef4444':'#22c55e';
+    ctx.lineWidth=3;ctx.shadowColor=crashed?'rgba(239,68,68,.4)':'rgba(34,197,94,.4)';
+    ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0;
+
+    /* Rocket at tip */
+    var tipX=PADDING.left+(lastPt.t/maxX)*gW;
+    var tipY=PADDING.top+gH-((lastPt.m-1)/(maxY-1))*gH;
+
+    if(!crashed){
+      /* Glow */
+      ctx.beginPath();ctx.arc(tipX,tipY,16,0,Math.PI*2);
+      var rGrad=ctx.createRadialGradient(tipX,tipY,0,tipX,tipY,16);
+      rGrad.addColorStop(0,'rgba(34,197,94,.3)');rGrad.addColorStop(1,'rgba(34,197,94,0)');
+      ctx.fillStyle=rGrad;ctx.fill();
+
+      /* Rocket body */
+      ctx.save();
+      var angle=-Math.PI/4;
+      if(pathPoints.length>=2){
+        var prev=pathPoints[pathPoints.length-2];
+        var prevX=PADDING.left+(prev.t/maxX)*gW;
+        var prevY=PADDING.top+gH-((prev.m-1)/(maxY-1))*gH;
+        angle=Math.atan2(tipY-prevY,tipX-prevX);
+      }
+      ctx.translate(tipX,tipY);ctx.rotate(angle);
+
+      /* Flame */
+      var flicker=Math.random()*4;
+      ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(-22-flicker,-6);ctx.lineTo(-16-flicker,0);ctx.lineTo(-22-flicker,6);ctx.closePath();
+      var fGrad=ctx.createLinearGradient(-12,0,-24,0);
+      fGrad.addColorStop(0,'#f59e0b');fGrad.addColorStop(0.5,'#ef4444');fGrad.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=fGrad;ctx.fill();
+
+      /* Body */
+      ctx.beginPath();ctx.ellipse(0,0,12,6,0,0,Math.PI*2);
+      ctx.fillStyle='#e2e8f0';ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,.15)';ctx.lineWidth=1;ctx.stroke();
+
+      /* Nose */
+      ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(8,-5);ctx.lineTo(8,5);ctx.closePath();
+      ctx.fillStyle='#ef4444';ctx.fill();
+
+      /* Window */
+      ctx.beginPath();ctx.arc(2,0,3,0,Math.PI*2);
+      ctx.fillStyle='rgba(100,180,255,.6)';ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=0.5;ctx.stroke();
+
+      /* Fins */
+      ctx.beginPath();ctx.moveTo(-8,-6);ctx.lineTo(-12,-10);ctx.lineTo(-6,-6);ctx.closePath();
+      ctx.fillStyle='#8b5cf6';ctx.fill();
+      ctx.beginPath();ctx.moveTo(-8,6);ctx.lineTo(-12,10);ctx.lineTo(-6,6);ctx.closePath();
+      ctx.fillStyle='#8b5cf6';ctx.fill();
+
+      ctx.restore();
+
+      /* Trail particles */
+      for(var tp=0;tp<2;tp++){
+        trailParticles.push({
+          x:tipX-Math.cos(angle)*14+Math.random()*8-4,
+          y:tipY-Math.sin(angle)*14+Math.random()*8-4,
+          r:Math.random()*3+1,
+          vx:(Math.random()-0.5)*1.5,
+          vy:Math.random()*1+0.5,
+          life:1,
+          decay:0.02+Math.random()*0.02,
+          color:Math.random()>0.5?'255,160,50':'239,68,68'
+        });
+      }
+    }else{
+      /* Explosion */
+      ctx.beginPath();ctx.arc(tipX,tipY,24,0,Math.PI*2);
+      var eGrad=ctx.createRadialGradient(tipX,tipY,0,tipX,tipY,24);
+      eGrad.addColorStop(0,'rgba(239,68,68,.5)');eGrad.addColorStop(0.5,'rgba(245,158,11,.2)');eGrad.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.fillStyle=eGrad;ctx.fill();
+
+      ctx.font='900 16px '+getComputedStyle(document.body).fontFamily;
+      ctx.fillStyle='#ef4444';ctx.textAlign='center';ctx.fillText('💥',tipX,tipY+6);
+    }
+
+    /* Draw trail particles */
+    for(var k=trailParticles.length-1;k>=0;k--){
+      var p=trailParticles[k];
+      p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;p.r*=0.98;
+      if(p.life<=0){trailParticles.splice(k,1);continue;}
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.color+','+p.life+')';ctx.fill();
+    }
+  }
+
+  /* ═══ GAME STATE ═══ */
+  var playing=false,roundActive=false,cashedOut=false;
+  var bet=0,crashPoint=1,currentMult=1,elapsed=0;
+  var startTime=0,gameRAF=null;
+  var totalGames=0,bestMult=0,biggestWin=0;
+  var crashHistory=[];
+
+  var goBtn=document.getElementById('goBtn');
+  var cashBtn=document.getElementById('cashBtn');
+  var cashSub=document.getElementById('cashSub');
+  var multDisplay=document.getElementById('multDisplay');
+  var crashOverlay=document.getElementById('crashOverlay');
+  var curMultEl=document.getElementById('curMult');
+  var potWinEl=document.getElementById('potWin');
+  var resultEl=document.getElementById('result');
+  var betInput=document.getElementById('betInput');
+  var historyStrip=document.getElementById('historyStrip');
+
+  function updateSideUI(){
+    curMultEl.textContent=currentMult.toFixed(2)+'x';
+    var w=Math.round(bet*currentMult);
+    potWinEl.textContent=w.toLocaleString()+' credits';
+    cashSub.textContent=w.toLocaleString()+' credits';
+  }
+
+  function addHistory(mult,won){
+    crashHistory.unshift({mult:mult,won:won});
+    if(crashHistory.length>20)crashHistory.pop();
+    historyStrip.innerHTML='';
+    crashHistory.forEach(function(h){
+      var pill=document.createElement('span');
+      pill.className='h-pill '+(h.won==='cash'?'h-gold':h.won?'h-green':'h-red');
+      pill.textContent=h.mult.toFixed(2)+'×';
+      historyStrip.appendChild(pill);
+    });
+  }
+
+  /* Draw idle state */
+  function drawIdle(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(PADDING.left,PADDING.top);ctx.lineTo(PADDING.left,H-PADDING.bottom);ctx.lineTo(W-PADDING.right,H-PADDING.bottom);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='600 11px '+getComputedStyle(document.body).fontFamily;
+    ctx.textAlign='right';
+    for(var y=1;y<=2;y+=0.5){
+      var py=PADDING.top+(H-PADDING.top-PADDING.bottom)-(y/2)*(H-PADDING.top-PADDING.bottom);
+      ctx.fillText(y.toFixed(1)+'×',PADDING.left-8,py+4);
+      ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(PADDING.left,py);ctx.lineTo(W-PADDING.right,py);ctx.stroke();
+    }
+  }
+  drawIdle();
+
+  /* ═══ GAME LOOP ═══ */
+  function gameLoop(){
+    var now=performance.now();
+    elapsed=(now-startTime)/1000;
+
+    var speed=0.06+elapsed*0.003;
+    currentMult=Math.round(Math.exp(speed*elapsed*1.6)*100)/100;
+    if(currentMult<1)currentMult=1;
+
+    pathPoints.push({t:elapsed,m:currentMult});
+
+    /* Check crash */
+    if(currentMult>=crashPoint){
+      currentMult=crashPoint;
+      pathPoints[pathPoints.length-1].m=crashPoint;
+      onCrashed();
+      return;
+    }
+
+    /* Auto cash out */
+    if(autoEnabled&&!cashedOut){
+      var autoVal=parseFloat(autoInput.value)||2;
+      if(currentMult>=autoVal){
+        doCashOut();
+      }
+    }
+
+    /* Update display */
+    multDisplay.textContent=currentMult.toFixed(2)+'×';
+    updateSideUI();
+
+    var maxM=Math.max.apply(null,pathPoints.map(function(p){return p.m;}))+0.5;
+    drawChart(currentMult,maxM,elapsed,false);
+
+    gameRAF=requestAnimationFrame(gameLoop);
+  }
+
+  /* ═══ CRASHED ═══ */
+  function onCrashed(){
+    if(gameRAF){cancelAnimationFrame(gameRAF);gameRAF=null;}
+    roundActive=false;
+
+    multDisplay.textContent=crashPoint.toFixed(2)+'×';
+    multDisplay.className='mult-display crashed';
+    crashOverlay.classList.add('show');
+
+    var maxM=Math.max.apply(null,pathPoints.map(function(p){return p.m;}))+0.5;
+    drawChart(crashPoint,maxM,elapsed,true);
+
+    if(!cashedOut){
+      totalGames++;
+      resultEl.innerHTML='<span class="result-lose">CRASHED at '+crashPoint.toFixed(2)+'×! Lost '+bet.toLocaleString()+' credits.</span>';
+      addHistory(crashPoint,false);
+    }
+
+    /* Full state reset */
+    playing=false;
+    roundActive=false;
+    goBtn.disabled=false;
+    goBtn.textContent='BET';
+    cashBtn.disabled=true;
+    betInput.disabled=false;
+    document.getElementById('sGames').textContent=totalGames;
+    document.getElementById('sBest').textContent=bestMult.toFixed(2)+'x';
+    document.getElementById('sBiggest').textContent=biggestWin.toLocaleString();
+  }
+
+  /* ═══ CASH OUT ═══ */
+  async function doCashOut(){
+    if(cashedOut)return;
+    cashedOut=true;
+    cashBtn.disabled=true;
+
+    var m=currentMult;
+    var w=Math.round(bet*m);
+    await adjustCredits(w);
+    totalGames++;
+    if(m>bestMult)bestMult=m;
+    if(w>biggestWin)biggestWin=w;
+
+    multDisplay.className='mult-display cashed';
+    resultEl.innerHTML='<span class="result-cash">CASHED OUT at '+m.toFixed(2)+'×! +'+w.toLocaleString()+' credits</span>';
+    document.getElementById('sGames').textContent=totalGames;
+    document.getElementById('sBest').textContent=bestMult.toFixed(2)+'x';
+    document.getElementById('sBiggest').textContent=biggestWin.toLocaleString();
+    addHistory(m,'cash');
+  }
+  cashBtn.addEventListener('click',function(){
+    if(!roundActive||cashedOut)return;
+    doCashOut();
+  });
+
+  /* ═══ START ═══ */
+  goBtn.addEventListener('click',async function(){
+    if(roundActive)return;
+    bet=Math.max(1,parseInt(betInput.value)||1);
+    if(bet>getCredits()){resultEl.innerHTML='<span class="result-lose">Not enough credits!</span>';return;}
+    await adjustCredits(-bet);
+
+    playing=true;roundActive=true;cashedOut=false;
+    currentMult=1;elapsed=0;
+    pathPoints=[{t:0,m:1}];
+    trailParticles=[];
+    crashPoint=genCrashPoint();
+
+    resultEl.textContent='';
+    multDisplay.textContent='1.00×';
+    multDisplay.className='mult-display rising';
+    crashOverlay.classList.remove('show');
+
+    goBtn.disabled=true;cashBtn.disabled=false;
+    betInput.disabled=true;
+
+    startTime=performance.now();
+    gameRAF=requestAnimationFrame(gameLoop);
+  });
+
+  /* ═══ PARTICLES ═══ */
+  (function(){
+    var pCanvas=document.getElementById('particles');var pCtx=pCanvas.getContext('2d');
+    var pW=0,pH=0,pts=[],ms={x:-9999,y:-9999};
+    var COUNT=Math.min(45,Math.round(window.innerWidth*0.03));
+    var COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];
+    function resize(){var d=Math.min(devicePixelRatio||1,2);pW=innerWidth;pH=innerHeight;pCanvas.width=pW*d;pCanvas.height=pH*d;pCanvas.style.width=pW+'px';pCanvas.style.height=pH+'px';pCtx.setTransform(d,0,0,d,0,0);}
+    function mk(){return{x:Math.random()*pW,y:Math.random()*pH,r:Math.random()*1.6+0.3,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,a:Math.random()*0.35+0.1,c:COLORS[Math.floor(Math.random()*COLORS.length)]};}
+    function init(){resize();pts=[];for(var i=0;i<COUNT;i++)pts.push(mk());}
+    function draw(){
+      pCtx.clearRect(0,0,pW,pH);
+      for(var i=0;i<pts.length;i++){
+        var a=pts[i];a.x+=a.vx;a.y+=a.vy;
+        var dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;
+        if(d<10000){var dist=Math.sqrt(d);a.vx+=dx*0.012/dist;a.vy+=dy*0.012/dist;}
+        a.vx*=0.99;a.vy*=0.99;
+        if(a.x<-10)a.x=pW+10;if(a.x>pW+10)a.x=-10;
+        if(a.y<-10)a.y=pH+10;if(a.y>pH+10)a.y=-10;
+        pCtx.beginPath();pCtx.arc(a.x,a.y,a.r,0,Math.PI*2);
+        pCtx.fillStyle=a.c+a.a+')';pCtx.fill();
+        for(var j=i+1;j<pts.length;j++){
+          var b=pts[j];var ld=Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2);
+          if(ld<14000){pCtx.beginPath();pCtx.moveTo(a.x,a.y);pCtx.lineTo(b.x,b.y);
+            pCtx.strokeStyle=a.c+(0.05*(1-ld/14000))+')';pCtx.lineWidth=0.4;pCtx.stroke();}
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',function(){resize();resizeCanvas();if(!roundActive)drawIdle();});
+    addEventListener('mousemove',function(e){ms.x=e.clientX;ms.y=e.clientY;});
+    addEventListener('touchmove',function(e){ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});
+    init();draw();
+  })();
+  </script>
+</body>
+</html>
