@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Durak</title>
+  <link rel="stylesheet" href="css/light.css" />
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+
+    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.10),transparent),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(236,72,153,.06),transparent);animation:bgShift 14s ease-in-out infinite alternate;will-change:transform}
+    @keyframes bgShift{0%{transform:scale(1)}100%{transform:scale(1.08) translate(-2%,1%)}}
+    #particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+    .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.3;z-index:0;will-change:transform;animation:orbFloat 8s ease-in-out infinite alternate}
+    .orb-1{width:320px;height:320px;background:var(--accent);top:-80px;left:-60px}
+    .orb-2{width:260px;height:260px;background:var(--accent2);bottom:-60px;right:-40px;animation-delay:-3s;animation-duration:10s}
+    .orb-3{width:180px;height:180px;background:var(--accent3);top:40%;left:55%;animation-delay:-5s;animation-duration:14s}
+    @keyframes orbFloat{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(25px,-35px) rotate(4deg)}}
+
+    /* NAVBAR */
+    .navbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:100;display:flex;align-items:center;padding:0 24px;background:rgba(10,10,15,.6);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border);transition:background .3s}
+    .navbar.scrolled{background:rgba(10,10,15,.85)}
+    .nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+    .nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:8px;filter:drop-shadow(0 0 6px rgba(139,92,246,.3))}
+    .nav-logo span{font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-link{display:flex;align-items:center;gap:7px;padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--muted);border-radius:10px;transition:color .2s,background .2s;cursor:pointer;border:none;background:transparent;font-family:var(--font)}
+    .nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.06)}
+    .nav-link.active{color:var(--accent);background:rgba(139,92,246,.1)}
+    .nav-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .nav-credits{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:.85rem;font-weight:700;color:var(--gold);cursor:pointer;transition:background .2s,transform .15s}
+    .nav-credits:hover{background:rgba(245,158,11,.18);transform:translateY(-1px)}
+    .nav-credits svg{width:16px;height:16px;fill:var(--gold);stroke:none}
+    .nav-avatar{width:36px;height:36px;border-radius:50%;margin-left:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.1);transition:border-color .2s,box-shadow .2s;overflow:hidden;flex-shrink:0}
+    .nav-avatar:hover{border-color:var(--accent);box-shadow:0 0 16px -4px var(--glow)}
+    .nav-avatar img{width:100%;height:100%;object-fit:cover}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:10px}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:99;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:8px;animation:fadeSlideDown .3s ease}
+    .mobile-menu.open{display:flex}
+    @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    .mobile-menu .nav-link{padding:16px 20px;font-size:1.05rem;border-radius:12px}
+    .mobile-menu .nav-credits{margin:8px 0 0;padding:14px 20px;font-size:1rem;border-radius:12px;justify-content:center}
+
+    /* MAIN */
+    .main{position:relative;z-index:10;padding-top:calc(var(--nav-h)+60px);min-height:100dvh}
+    .page-header{text-align:center;padding:88px 24px 20px}
+    .page-header h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px}
+    .page-header h1 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradMove 4s ease-in-out infinite}
+    @keyframes gradMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .page-header p{color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto}
+
+    /* GAME LAYOUT */
+    .game-wrapper{max-width:960px;margin:0 auto;padding:24px;display:grid;gap:18px}
+    .game-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;backdrop-filter:blur(16px)}
+    .game-top{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start}
+    @media(max-width:900px){.game-top{grid-template-columns:1fr}}
+
+    /* TABLE */
+    .table-area{display:flex;flex-direction:column;gap:16px;align-items:center}
+    .hand-section{width:100%;text-align:center}
+    .hand-label{font-size:.85rem;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+    .hand-label .count{color:var(--accent);font-size:1rem;margin-left:6px}
+    .cards-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:120px;align-items:center}
+
+    /* CARDS */
+    .card-item{width:80px;height:116px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,.1);display:flex;flex-direction:column;justify-content:space-between;padding:8px;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:dealCard .4s ease both;font-family:'Segoe UI',sans-serif;transition:transform .2s,box-shadow .2s;cursor:default;user-select:none}
+    .card-item:hover{transform:translateY(-4px)}
+    .card-item.clickable{cursor:pointer;border:2px solid transparent}
+    .card-item.clickable:hover{border-color:var(--accent);box-shadow:0 0 20px -4px var(--glow),0 4px 16px rgba(0,0,0,.2);transform:translateY(-8px)}
+    .card-item.clickable.valid{border-color:var(--green);box-shadow:0 0 16px -4px rgba(34,197,94,.5)}
+    .card-item.facedown{background:linear-gradient(135deg,var(--accent),#7c3aed);border:2px solid rgba(139,92,246,.5);justify-content:center;align-items:center;cursor:default}
+    .card-item.facedown:hover{transform:none}
+    .card-item.facedown::after{content:'?';font-size:2rem;font-weight:900;color:rgba(255,255,255,.4)}
+    @keyframes dealCard{from{opacity:0;transform:translateY(-30px) rotateY(90deg)}to{opacity:1;transform:translateY(0) rotateY(0)}}
+    .card-top{display:flex;align-items:center;gap:2px;font-size:.95rem;font-weight:800}
+    .card-bottom{display:flex;align-items:center;gap:2px;font-size:.95rem;font-weight:800;align-self:flex-end;transform:rotate(180deg)}
+    .card-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+    .suit-red{color:#ef4444}
+    .suit-black{color:#1a1a2e}
+
+    /* Trump indicator */
+    .trump-indicator{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);font-weight:800;font-size:1rem;color:var(--gold)}
+    .trump-indicator .trump-suit{font-size:1.6rem}
+
+    /* Table field */
+    .table-field{width:100%;min-height:140px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:16px;background:rgba(34,197,94,.04);border:1px dashed rgba(34,197,94,.15);border-radius:16px;align-items:center}
+    .table-pair{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+    .table-pair .card-item{width:70px;height:102px;font-size:.85rem}
+    .table-pair .card-item .card-top,.table-pair .card-item .card-bottom{font-size:.82rem}
+    .table-pair .card-item .card-center{font-size:1.8rem}
+    .table-pair .defense-card{margin-top:-60px;margin-left:18px}
+
+    /* Deck / discard */
+    .deck-area{display:flex;gap:20px;align-items:center;justify-content:center}
+    .deck-pile{position:relative;width:80px;height:116px}
+    .deck-pile .card-item.facedown{position:absolute;top:0;left:0}
+    .deck-count{font-size:.85rem;font-weight:700;color:var(--muted);text-align:center;margin-top:4px}
+    .discard-pile{width:80px;height:116px;border-radius:10px;border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);font-weight:700;text-align:center;line-height:1.3}
+
+    /* Divider */
+    .table-divider{width:80%;height:2px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:4px 0}
+
+    /* Status */
+    .game-status{text-align:center;font-size:.95rem;font-weight:700;color:var(--accent2);min-height:28px;margin-top:4px;transition:opacity .3s}
+
+    /* CONTROLS */
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;font-size:.95rem;cursor:pointer;transition:transform .15s,box-shadow .25s;color:#fff;font-family:var(--font)}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:translateY(0) scale(.98)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .btn-take{background:linear-gradient(135deg,var(--red),#dc2626);box-shadow:0 8px 26px -10px rgba(239,68,68,.4)}
+    .btn-done{background:linear-gradient(135deg,var(--accent2),#0891b2);box-shadow:0 8px 26px -10px rgba(6,182,212,.4)}
+    .btn-deal{background:linear-gradient(135deg,var(--green),#16a34a);box-shadow:0 8px 26px -10px rgba(34,197,94,.4)}
+
+    /* Bet area */
+    .bet-area{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;transition:opacity .3s}
+    .pill{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);font-weight:800;color:var(--muted)}
+    #betInput{width:100px;padding:10px;border-radius:12px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);font-weight:800;text-align:center;font-size:1rem}
+    #betInput:disabled{opacity:.4;cursor:not-allowed}
+    .quick button{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-weight:800;cursor:pointer;font-family:var(--font);transition:background .2s}
+    .quick button:hover{background:rgba(255,255,255,.12)}
+    .quick button:disabled{opacity:.4;cursor:not-allowed}
+
+    /* Result */
+    #result{text-align:center;font-weight:900;font-size:1.2rem;min-height:32px;margin-top:8px;letter-spacing:-.01em}
+    .result-win{color:var(--green)}
+    .result-lose{color:var(--red)}
+    .result-draw{color:var(--gold)}
+
+    /* Stats */
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+    .stat-label{font-size:.8rem;color:var(--muted)}
+    .stat-value{font-size:1.3rem;font-weight:800;margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    /* Rules */
+    .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .rule-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:.85rem;line-height:1.5}
+    .rule-item strong{color:var(--accent)}
+
+    .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+
+    @media(max-width:768px){
+      .nav-links,.nav-credits-desktop{display:none!important}
+      .hamburger{display:flex}
+      .navbar{height:var(--nav-h-mobile);padding:0 16px}
+      .main{padding-top:calc(var(--nav-h-mobile)+50px)}
+      .mobile-menu{top:var(--nav-h-mobile)}
+      .game-wrapper{padding:16px}
+      .card-item{width:65px;height:95px;padding:6px}
+      .card-top,.card-bottom{font-size:.8rem}
+      .card-center{font-size:1.6rem}
+      .table-pair .card-item{width:58px;height:84px}
+      .table-pair .card-item .card-center{font-size:1.4rem}
+      .table-pair .defense-card{margin-top:-50px;margin-left:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div><div class="grid-overlay"></div><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div><canvas id="particles"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet"/><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+    <section class="page-header">
+      <h1>Du<span class="grad">rak</span></h1>
+      <p>Classic Russian card game. Defend or take – don't be the last one holding cards. Bet credits against the AI.</p>
+    </section>
+
+    <section class="game-wrapper">
+      <div class="game-top">
+        <div class="game-panel">
+          <div class="table-area">
+            <!-- Opponent hand -->
+            <div class="hand-section">
+              <div class="hand-label">Opponent <span class="count" id="oppCount"></span></div>
+              <div class="cards-row" id="oppCards"></div>
+            </div>
+
+            <div class="table-divider"></div>
+
+            <!-- Deck + Trump + Discard -->
+            <div class="deck-area">
+              <div>
+                <div class="deck-pile" id="deckPile"></div>
+                <div class="deck-count" id="deckCount"></div>
+              </div>
+              <div class="trump-indicator" id="trumpIndicator">
+                <span>Trump:</span>
+                <span class="trump-suit" id="trumpSuit"></span>
+              </div>
+              <div>
+                <div class="discard-pile" id="discardPile">Discard</div>
+              </div>
+            </div>
+
+            <div class="table-divider"></div>
+
+            <!-- Table field -->
+            <div class="hand-label" style="margin-top:4px">Table</div>
+            <div class="table-field" id="tableField">
+              <span style="color:var(--muted);font-size:.85rem">No cards on table</span>
+            </div>
+
+            <div class="table-divider"></div>
+
+            <!-- Player hand -->
+            <div class="hand-section">
+              <div class="hand-label">Your Hand <span class="count" id="playerCount"></span></div>
+              <div class="cards-row" id="playerCards"></div>
+            </div>
+
+            <!-- Status -->
+            <div class="game-status" id="gameStatus"></div>
+
+            <!-- Result -->
+            <div id="result"></div>
+
+            <!-- Bet area -->
+            <div class="bet-area" id="betArea">
+              <span class="pill">Bet</span>
+              <input type="number" id="betInput" value="10" min="1" step="1">
+              <div class="quick" id="quickBets">
+                <button onclick="nudgeBet(-5)">-5</button>
+                <button onclick="nudgeBet(-1)">-1</button>
+                <button onclick="nudgeBet(+1)">+1</button>
+                <button onclick="nudgeBet(+5)">+5</button>
+                <button onclick="nudgeBet(+25)">+25</button>
+                <button onclick="setMaxBet()">Max</button>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="controls" id="controls">
+              <button class="btn btn-deal" id="dealBtn">New Game</button>
+              <button class="btn btn-done" id="doneBtn" disabled>Done / Pass</button>
+              <button class="btn btn-take" id="takeBtn" disabled>Take Cards</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats sidebar -->
+        <div class="game-panel">
+          <div class="stat-card">
+            <div class="stat-label">Current Balance</div>
+            <div class="stat-value" id="statBalance">0</div>
+          </div>
+          <div class="stat-card" style="margin-top:12px">
+            <div class="stat-label">Current Bet</div>
+            <div class="stat-value" id="statBet">0</div>
+          </div>
+          <div class="stat-card" style="margin-top:12px">
+            <div class="stat-label">Last Win</div>
+            <div class="stat-value" id="statWin">0</div>
+          </div>
+          <div class="stat-card" style="margin-top:12px">
+            <div class="stat-label">Games Played</div>
+            <div class="stat-value" id="statHands">0</div>
+          </div>
+          <div class="stat-card" style="margin-top:12px">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value" id="statWinRate">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rules -->
+      <div class="game-panel">
+        <h3 style="margin-bottom:12px">Rules</h3>
+        <div class="rules-grid">
+          <div class="rule-item"><strong>Deck:</strong> 36 cards (6–A in four suits). One suit is trump.</div>
+          <div class="rule-item"><strong>Goal:</strong> Get rid of all your cards. The last player with cards is the "durak" (fool).</div>
+          <div class="rule-item"><strong>Attack:</strong> Play a card to attack. Additional attacks must match a rank already on the table.</div>
+          <div class="rule-item"><strong>Defend:</strong> Beat each attack card with a higher card of the same suit, or any trump card (if attack isn't trump).</div>
+          <div class="rule-item"><strong>Take:</strong> If you can't or won't defend, take all cards from the table into your hand.</div>
+          <div class="rule-item"><strong>Done:</strong> Once all attacks are defended, press Done to clear the table and draw back to 6.</div>
+          <div class="rule-item"><strong>Drawing:</strong> After each bout both players draw from the deck back up to 6. Attacker draws first.</div>
+          <div class="rule-item"><strong>Betting:</strong> Win = 2× your bet. Draw (both empty) = bet returned.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2026 AightBet. Fake casino – no real money.</footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  /* ═══════════════════════════════════════════
+     FIREBASE + AUTH + THEME
+     ═══════════════════════════════════════════ */
+  const firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
+  firebase.initializeApp(firebaseConfig);
+  const auth=firebase.auth(),rtdb=firebase.database();
+  let currentUser=null;
+
+  function applyTheme(t){document.documentElement.setAttribute('data-theme',t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);localStorage.setItem('aightbet-theme',t);}
+  applyTheme(localStorage.getItem('aightbet-theme')||'dark');
+
+  auth.onAuthStateChanged(u=>{
+    if(!u){location.href='index.html';return;}
+    currentUser=u;
+    rtdb.ref('users/'+u.uid).on('value',snap=>{
+      const data=snap.val()||{};
+      const credits=data.credits||0;
+      document.getElementById('statBalance').textContent=credits.toLocaleString();
+      document.getElementById('creditsCount').textContent=credits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent=credits.toLocaleString();
+      const theme=data.theme||localStorage.getItem('aightbet-theme')||'dark';
+      applyTheme(theme);
+      const av=document.getElementById('navAvatar');
+      const avatarUrl=data.avatar||u.photoURL||null;
+      if(avatarUrl) av.innerHTML=`<img src="${avatarUrl}" alt="Avatar"/>`;
+      else av.textContent=(u.displayName||u.email||'?').charAt(0).toUpperCase();
+    });
+  });
+
+  /* Navbar scroll */
+  (()=>{const nav=document.getElementById('navbar');let t=false;addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{nav.classList.toggle('scrolled',scrollY>20);t=false;});t=true;}});})();
+  (()=>{const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');});m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');}));})();
+  document.getElementById('navAvatar').addEventListener('click',()=>location.href='profile.html');
+
+  /* ═══════════════════════════════════════════
+     DURAK ENGINE
+     ═══════════════════════════════════════════ */
+
+  const SUITS = ['♠','♥','♦','♣'];
+  const RANKS = ['6','7','8','9','10','J','Q','K','A'];
+  const RANK_VALUE = {'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+  let deck = [];
+  let trumpSuit = '';
+  let trumpCard = null;
+  let playerHand = [];
+  let oppHand = [];
+  let table = [];          // [{ attack: card, defense: card|null }, …]
+  let discardCount = 0;
+  let gameActive = false;
+  let currentBet = 0;
+  let gamesPlayed = 0;
+  let gamesWon = 0;
+  let attacker = 'player'; // 'player' | 'opp'
+  let phase = 'attack';    // 'attack' | 'defend'
+  let oppThinking = false;
+
+  /* DOM refs */
+  const playerCardsEl  = document.getElementById('playerCards');
+  const oppCardsEl     = document.getElementById('oppCards');
+  const tableFieldEl   = document.getElementById('tableField');
+  const deckPileEl     = document.getElementById('deckPile');
+  const deckCountEl    = document.getElementById('deckCount');
+  const trumpSuitEl    = document.getElementById('trumpSuit');
+  const discardPileEl  = document.getElementById('discardPile');
+  const playerCountEl  = document.getElementById('playerCount');
+  const oppCountEl     = document.getElementById('oppCount');
+  const gameStatusEl   = document.getElementById('gameStatus');
+  const resultEl       = document.getElementById('result');
+  const betArea        = document.getElementById('betArea');
+  const betInput       = document.getElementById('betInput');
+  const dealBtn        = document.getElementById('dealBtn');
+  const doneBtn        = document.getElementById('doneBtn');
+  const takeBtn        = document.getElementById('takeBtn');
+  const statBet        = document.getElementById('statBet');
+  const statWin        = document.getElementById('statWin');
+  const statHands      = document.getElementById('statHands');
+  const statWinRate    = document.getElementById('statWinRate');
+
+  /* ── Credits helpers ── */
+  function getCredits(){
+    return parseInt((document.getElementById('statBalance').textContent||'0').replace(/,/g,''))||0;
+  }
+  async function adjustCredits(delta){
+    if(!currentUser) return;
+    await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c=>(c||0)+delta);
+  }
+
+  /* ── Bet controls ── */
+  function nudgeBet(n){ betInput.value=Math.max(1,(parseInt(betInput.value)||1)+n); }
+  function setMaxBet(){ betInput.value=Math.max(1,getCredits()); }
+  window.nudgeBet=nudgeBet;
+  window.setMaxBet=setMaxBet;
+
+  function lockBetControls(locked){
+    betInput.disabled=locked;
+    betArea.style.opacity=locked?'.5':'1';
+    document.getElementById('quickBets').querySelectorAll('button').forEach(b=>b.disabled=locked);
+  }
+
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  /* ═══ Deck ═══ */
+  function createDeck(){
+    const d=[];
+    for(const suit of SUITS) for(const rank of RANKS) d.push({rank,suit});
+    for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+    return d;
+  }
+
+  function suitColor(suit){return(suit==='♥'||suit==='♦')?'suit-red':'suit-black';}
+
+  function createCardEl(card,facedown=false,clickable=false){
+    const div=document.createElement('div');
+    div.className='card-item'+(facedown?' facedown':'')+(clickable?' clickable':'');
+    if(!facedown&&card){
+      const cc=suitColor(card.suit);
+      div.innerHTML=`
+        <div class="card-top ${cc}">${card.rank}${card.suit}</div>
+        <div class="card-center ${cc}">${card.suit}</div>
+        <div class="card-bottom ${cc}">${card.rank}${card.suit}</div>`;
+    }
+    if(card) div._card=card;
+    return div;
+  }
+
+  /* ═══ Game logic helpers ═══ */
+  function canBeat(atk,def){
+    if(def.suit===atk.suit) return RANK_VALUE[def.rank]>RANK_VALUE[atk.rank];
+    if(def.suit===trumpSuit&&atk.suit!==trumpSuit) return true;
+    return false;
+  }
+
+  function tableRanks(){
+    const s=new Set();
+    for(const p of table){s.add(p.attack.rank);if(p.defense)s.add(p.defense.rank);}
+    return s;
+  }
+
+  function canAttackWith(card){
+    if(table.length===0) return true;
+    return tableRanks().has(card.rank);
+  }
+
+  function maxAttacks(){
+    const defSize=attacker==='player'?oppHand.length:playerHand.length;
+    return Math.min(6,defSize>0?defSize:6);
+  }
+
+  function undefendedCount(){return table.filter(p=>!p.defense).length;}
+
+  function sortHand(hand){
+    hand.sort((a,b)=>{
+      const at=a.suit===trumpSuit?1:0,bt=b.suit===trumpSuit?1:0;
+      if(at!==bt) return at-bt;
+      if(a.suit!==b.suit) return SUITS.indexOf(a.suit)-SUITS.indexOf(b.suit);
+      return RANK_VALUE[a.rank]-RANK_VALUE[b.rank];
+    });
+  }
+
+  function drawToSix(hand){
+    while(hand.length<6&&deck.length>0) hand.push(deck.pop());
+    sortHand(hand);
+  }
+
+  /* ═══ Rendering ═══ */
+  function renderDeck(){
+    deckPileEl.innerHTML='';
+    if(deck.length>0){
+      const fd=document.createElement('div');
+      fd.className='card-item facedown';fd.style.animation='none';
+      deckPileEl.appendChild(fd);
+    }
+    deckCountEl.textContent=deck.length+' left';
+  }
+
+  function renderOppHand(){
+    oppCardsEl.innerHTML='';
+    for(let i=0;i<oppHand.length;i++){
+      const el=createCardEl(null,true);el.style.animationDelay=(i*.05)+'s';
+      oppCardsEl.appendChild(el);
+    }
+    oppCountEl.textContent=`(${oppHand.length})`;
+  }
+
+  function renderPlayerHand(){
+    playerCardsEl.innerHTML='';
+    const isAtk=attacker==='player'&&phase==='attack';
+    const isDef=attacker==='opp'&&phase==='defend';
+    const clickable=gameActive&&!oppThinking&&(isAtk||isDef);
+
+    for(let i=0;i<playerHand.length;i++){
+      const card=playerHand[i];
+      const el=createCardEl(card,false,clickable);
+      el.style.animationDelay=(i*.05)+'s';
+
+      if(clickable){
+        if(isAtk){
+          if(canAttackWith(card)&&table.length<maxAttacks()) el.classList.add('valid');
+        }else if(isDef){
+          const ud=table.filter(p=>!p.defense);
+          if(ud.some(p=>canBeat(p.attack,card))) el.classList.add('valid');
+        }
+        el.addEventListener('click',()=>onPlayerCardClick(card,i));
+      }
+      playerCardsEl.appendChild(el);
+    }
+    playerCountEl.textContent=`(${playerHand.length})`;
+  }
+
+  function renderTable(){
+    tableFieldEl.innerHTML='';
+    if(table.length===0){
+      tableFieldEl.innerHTML='<span style="color:var(--muted);font-size:.85rem">No cards on table</span>';
+      return;
+    }
+    for(const pair of table){
+      const pd=document.createElement('div');pd.className='table-pair';
+      const ae=createCardEl(pair.attack);ae.style.animation='none';pd.appendChild(ae);
+      if(pair.defense){const de=createCardEl(pair.defense);de.className+=' defense-card';de.style.animation='none';pd.appendChild(de);}
+      tableFieldEl.appendChild(pd);
+    }
+  }
+
+  function renderAll(){renderDeck();renderOppHand();renderPlayerHand();renderTable();}
+  function setStatus(msg){gameStatusEl.textContent=msg;}
+
+  function updateButtons(){
+    if(!gameActive){doneBtn.disabled=true;takeBtn.disabled=true;return;}
+    const isAtk=attacker==='player'&&phase==='attack';
+    const isDef=attacker==='opp'&&phase==='defend';
+    doneBtn.disabled=!(isAtk&&table.length>0&&undefendedCount()===0);
+    takeBtn.disabled=!(isDef&&table.length>0);
+  }
+
+  /* ═══ Player clicks a card ═══ */
+  async function onPlayerCardClick(card,index){
+    if(!gameActive||oppThinking) return;
+    const isAtk=attacker==='player'&&phase==='attack';
+    const isDef=attacker==='opp'&&phase==='defend';
+
+    if(isAtk){
+      if(!canAttackWith(card)||table.length>=maxAttacks()) return;
+      playerHand.splice(index,1);
+      table.push({attack:card,defense:null});
+      phase='defend';
+      renderAll();updateButtons();
+      setStatus('Opponent is defending…');
+      await delay(800);
+      await oppDefend();
+    }else if(isDef){
+      const undefended=table.filter(p=>!p.defense);
+      let target=null;
+      for(const p of undefended){
+        if(canBeat(p.attack,card)){
+          if(!target||RANK_VALUE[p.attack.rank]<RANK_VALUE[target.attack.rank]) target=p;
+        }
+      }
+      if(!target) return;
+      playerHand.splice(index,1);
+      target.defense=card;
+      renderAll();
+      if(undefendedCount()===0){
+        setStatus('Opponent is thinking…');
+        await delay(800);
+        await oppContinueAttack();
+      }else{
+        updateButtons();
+        setStatus('Defend the remaining cards or Take.');
+      }
+    }
+  }
+
+  /* ═══════════════════════════════════
+     OPPONENT AI
+     ═══════════════════════════════════ */
+
+  function pickCheapest(hand,filter){
+    let best=-1,bestVal=Infinity;
+    for(let i=0;i<hand.length;i++){
+      const c=hand[i];
+      if(filter&&!filter(c)) continue;
+      const val=(c.suit===trumpSuit?100:0)+RANK_VALUE[c.rank];
+      if(val<bestVal){bestVal=val;best=i;}
+    }
+    return best;
+  }
+
+  async function oppDefend(){
+    oppThinking=true;
+    const undefended=table.filter(p=>!p.defense);
+    for(const pair of undefended){
+      const idx=pickCheapest(oppHand,c=>canBeat(pair.attack,c));
+      if(idx!==-1){
+        pair.defense=oppHand.splice(idx,1)[0];
+        renderAll();await delay(500);
+      }else{
+        setStatus('Opponent takes the cards!');
+        await delay(600);
+        await oppTakesCards();
+        oppThinking=false;return;
+      }
+    }
+    oppThinking=false;
+    phase='attack';
+    if(playerHand.length===0&&deck.length===0){await endBout();return;}
+    setStatus('All defended. Attack again or press Done.');
+    renderPlayerHand();updateButtons();
+  }
+
+  async function oppTakesCards(){
+    for(const p of table){oppHand.push(p.attack);if(p.defense)oppHand.push(p.defense);}
+    table=[];sortHand(oppHand);
+    drawToSix(playerHand);drawToSix(oppHand);
+    renderAll();await delay(400);
+    if(checkGameEnd()) return;
+    phase='attack';
+    setStatus('Opponent took cards. Your attack!');
+    renderPlayerHand();updateButtons();
+  }
+
+  async function oppContinueAttack(){
+    oppThinking=true;
+    let added=false;
+    if(table.length<maxAttacks()&&playerHand.length>0){
+      const ranks=tableRanks();
+      const idx=pickCheapest(oppHand,c=>ranks.has(c.rank));
+      if(idx!==-1){
+        const card=oppHand.splice(idx,1)[0];
+        table.push({attack:card,defense:null});
+        renderAll();await delay(500);added=true;
+      }
+    }
+    oppThinking=false;
+    if(added){
+      phase='defend';
+      setStatus('Opponent attacks again! Defend or Take.');
+      renderPlayerHand();updateButtons();
+    }else{
+      await endBout();
+    }
+  }
+
+  async function oppAttack(){
+    oppThinking=true;
+    setStatus('Opponent is attacking…');
+    await delay(800);
+    if(oppHand.length===0){
+      oppThinking=false;
+      if(checkGameEnd()) return;
+      attacker='player';phase='attack';
+      setStatus('Your turn to attack!');renderPlayerHand();updateButtons();return;
+    }
+    const idx=pickCheapest(oppHand);
+    const card=oppHand.splice(idx,1)[0];
+    table.push({attack:card,defense:null});
+    oppThinking=false;phase='defend';
+    renderAll();
+    setStatus('Defend or Take the cards!');
+    renderPlayerHand();updateButtons();
+  }
+
+  /* ── Player: Take Cards ── */
+  takeBtn.addEventListener('click',async()=>{
+    if(!gameActive||oppThinking) return;
+    if(!(attacker==='opp'&&phase==='defend')) return;
+    setStatus('You take the cards…');
+    doneBtn.disabled=true;takeBtn.disabled=true;
+    oppThinking=true;
+    let canAdd=true;
+    while(canAdd&&table.length<6&&oppHand.length>0){
+      const ranks=tableRanks();
+      const idx=pickCheapest(oppHand,c=>ranks.has(c.rank));
+      if(idx!==-1){
+        const card=oppHand.splice(idx,1)[0];
+        table.push({attack:card,defense:null});
+        renderAll();await delay(400);
+      }else canAdd=false;
+    }
+    oppThinking=false;
+    for(const p of table){playerHand.push(p.attack);if(p.defense)playerHand.push(p.defense);}
+    table=[];sortHand(playerHand);
+    drawToSix(oppHand);drawToSix(playerHand);
+    renderAll();await delay(400);
+    if(checkGameEnd()) return;
+    // Same attacker continues after take
+    await oppAttack();
+  });
+
+  /* ── Player: Done / Pass ── */
+  doneBtn.addEventListener('click',async()=>{
+    if(!gameActive||oppThinking) return;
+    if(attacker==='player'&&phase==='attack'&&table.length>0&&undefendedCount()===0){
+      await endBout();
+    }
+  });
+
+  /* ── End bout (all defended, attacker done) ── */
+  async function endBout(){
+    for(const p of table){discardCount++;if(p.defense)discardCount++;}
+    table=[];
+    discardPileEl.textContent=discardCount+' cards';
+    if(attacker==='player'){drawToSix(playerHand);drawToSix(oppHand);}
+    else{drawToSix(oppHand);drawToSix(playerHand);}
+    renderAll();await delay(400);
+    if(checkGameEnd()) return;
+    // Defender becomes attacker
+    attacker=attacker==='player'?'opp':'player';
+    phase='attack';
+    if(attacker==='player'){
+      setStatus('Your turn to attack!');renderPlayerHand();updateButtons();
+    }else{
+      await oppAttack();
+    }
+  }
+
+  /* ── Check game end ── */
+  function checkGameEnd(){
+    if(deck.length>0) return false;
+    const pe=playerHand.length===0,oe=oppHand.length===0;
+    if(pe&&oe){endGame('draw');return true;}
+    if(pe){endGame('win');return true;}
+    if(oe){endGame('lose');return true;}
+    return false;
+  }
+
+  /* ── End game ── */
+  async function endGame(result){
+    gameActive=false;oppThinking=false;
+    let winAmount=0;
+    if(result==='win'){
+      winAmount=currentBet*2;
+      await adjustCredits(winAmount);
+      resultEl.innerHTML=`<span class="result-win">🎉 You win! Opponent is the Durak! +${winAmount.toLocaleString()}</span>`;
+      gamesWon++;
+    }else if(result==='lose'){
+      resultEl.innerHTML=`<span class="result-lose">💀 You are the Durak! -${currentBet.toLocaleString()}</span>`;
+    }else{
+      await adjustCredits(currentBet);
+      resultEl.innerHTML=`<span class="result-draw">🤝 Draw – bet returned</span>`;
+    }
+    statWin.textContent=winAmount>0?winAmount.toLocaleString():'0';
+    gamesPlayed++;
+    statHands.textContent=gamesPlayed;
+    statWinRate.textContent=gamesPlayed>0?Math.round((gamesWon/gamesPlayed)*100)+'%':'0%';
+    dealBtn.disabled=false;
+    lockBetControls(false);
+    doneBtn.disabled=true;takeBtn.disabled=true;
+    setStatus('Game over!');
+  }
+
+  /* ── Determine first attacker (lowest trump) ── */
+  function determineFirstAttacker(){
+    let pLow=null,oLow=null;
+    for(const c of playerHand) if(c.suit===trumpSuit&&(!pLow||RANK_VALUE[c.rank]<RANK_VALUE[pLow.rank])) pLow=c;
+    for(const c of oppHand) if(c.suit===trumpSuit&&(!oLow||RANK_VALUE[c.rank]<RANK_VALUE[oLow.rank])) oLow=c;
+    if(pLow&&oLow) return RANK_VALUE[pLow.rank]<=RANK_VALUE[oLow.rank]?'player':'opp';
+    if(pLow) return 'player';
+    if(oLow) return 'opp';
+    return 'player';
+  }
+
+  /* ══════════════════════════════════
+     NEW GAME
+     ═════════���════════════════════════ */
+  dealBtn.addEventListener('click',async()=>{
+    const bet=Math.max(1,parseInt(betInput.value)||1);
+    const credits=getCredits();
+    if(bet>credits){resultEl.innerHTML='<span class="result-lose">Not enough credits!</span>';return;}
+
+    currentBet=bet;
+    statBet.textContent=bet.toLocaleString();
+    resultEl.textContent='';
+    gameActive=true;
+
+    await adjustCredits(-bet);
+
+    // Setup deck
+    deck=createDeck();
+    playerHand=[];oppHand=[];table=[];discardCount=0;
+    discardPileEl.textContent='Discard';
+
+    // Deal 6 each
+    for(let i=0;i<6;i++){playerHand.push(deck.pop());oppHand.push(deck.pop());}
+
+    // Trump = bottom card of deck
+    trumpCard=deck[0];
+    trumpSuit=trumpCard.suit;
+    const tc=suitColor(trumpSuit);
+    trumpSuitEl.innerHTML=`<span class="${tc}">${trumpCard.rank}${trumpCard.suit}</span>`;
+
+    sortHand(playerHand);sortHand(oppHand);
+
+    // Lock bet controls during game
+    dealBtn.disabled=true;
+    lockBetControls(true);
+
+    renderAll();
+
+    // Determine attacker
+    attacker=determineFirstAttacker();
+    phase='attack';
+
+    if(attacker==='player'){
+      setStatus('Your turn to attack!');
+      renderPlayerHand();updateButtons();
+    }else{
+      updateButtons();
+      await oppAttack();
+    }
+  });
+
+  /* Init state */
+  dealBtn.disabled=false;
+  doneBtn.disabled=true;
+  takeBtn.disabled=true;
+  lockBetControls(false);
+
+  /* ═══ Particles (same as blackjack) ═══ */
+  (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
+  </script>
+</body>
+</html>

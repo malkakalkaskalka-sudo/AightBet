@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Case Battles</title>
+  <link rel="stylesheet" href="css/light.css" />
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px;
+      --rarity-common:#94a3b8;--rarity-uncommon:#22c55e;--rarity-rare:#3b82f6;--rarity-epic:#8b5cf6;--rarity-legendary:#f59e0b;--rarity-mythic:#ef4444}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+
+    .bg-gradient,.orb{pointer-events:none}
+    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.10),transparent),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(236,72,153,.06),transparent);animation:bgShift 14s ease-in-out infinite alternate;will-change:transform}
+    @keyframes bgShift{0%{transform:scale(1)}100%{transform:scale(1.08) translate(-2%,1%)}}
+    #particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+    .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.3;z-index:0;will-change:transform;animation:orbFloat 8s ease-in-out infinite alternate}
+    .orb-1{width:320px;height:320px;background:var(--accent);top:-80px;left:-60px}
+    .orb-2{width:260px;height:260px;background:var(--accent2);bottom:-60px;right:-40px;animation-delay:-3s;animation-duration:10s}
+    .orb-3{width:180px;height:180px;background:var(--accent3);top:40%;left:55%;animation-delay:-5s;animation-duration:14s}
+    @keyframes orbFloat{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(25px,-35px) rotate(4deg)}}
+
+    /* NAVBAR */
+    .navbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:100;display:flex;align-items:center;padding:0 24px;background:rgba(10,10,15,.6);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border);transition:background .3s}
+    .navbar.scrolled{background:rgba(10,10,15,.85)}
+    .nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+    .nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:8px;filter:drop-shadow(0 0 6px rgba(139,92,246,.3))}
+    .nav-logo span{font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-link{display:flex;align-items:center;gap:7px;padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--muted);border-radius:10px;transition:color .2s,background .2s;cursor:pointer;border:none;background:transparent;font-family:var(--font)}
+    .nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.06)}
+    .nav-link.active{color:var(--accent);background:rgba(139,92,246,.1)}
+    .nav-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .nav-credits{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:.85rem;font-weight:700;color:var(--gold);cursor:pointer;transition:background .2s,transform .15s}
+    .nav-credits:hover{background:rgba(245,158,11,.18);transform:translateY(-1px)}
+    .nav-credits svg{width:16px;height:16px;fill:var(--gold);stroke:none}
+    .nav-avatar{width:36px;height:36px;border-radius:50%;margin-left:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.1);transition:border-color .2s,box-shadow .2s;overflow:hidden;flex-shrink:0}
+    .nav-avatar:hover{border-color:var(--accent);box-shadow:0 0 16px -4px var(--glow)}
+    .nav-avatar img{width:100%;height:100%;object-fit:cover}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:10px}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:99;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:8px;animation:fadeSlideDown .3s ease}
+    .mobile-menu.open{display:flex}
+    @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    .mobile-menu .nav-link{padding:16px 20px;font-size:1.05rem;border-radius:12px}
+    .mobile-menu .nav-credits{margin:8px 0 0;padding:14px 20px;font-size:1rem;border-radius:12px;justify-content:center}
+
+    .main{position:relative;z-index:10;padding-top:calc(var(--nav-h)+60px);min-height:100dvh}
+    .page-header{text-align:center;padding:88px 24px 20px}
+    .page-header h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px}
+    .page-header h1 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradMove 4s ease-in-out infinite}
+    @keyframes gradMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .page-header p{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;font-size:.95rem;cursor:pointer;transition:transform .15s,box-shadow .25s;color:#fff;font-family:var(--font)}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:translateY(0) scale(.98)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#7c3aed);box-shadow:0 8px 26px -10px var(--glow)}
+    .btn-green{background:linear-gradient(135deg,var(--green),#16a34a);box-shadow:0 8px 26px -10px rgba(34,197,94,.4)}
+    .btn-red{background:linear-gradient(135deg,var(--red),#dc2626);box-shadow:0 8px 26px -10px rgba(239,68,68,.4)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);box-shadow:0 8px 26px -10px rgba(245,158,11,.4)}
+    .btn-secondary{background:var(--surface2);color:var(--text);box-shadow:none;border:1px solid var(--border2)}
+    .btn-cyan{background:linear-gradient(135deg,var(--accent2),#0891b2);box-shadow:0 8px 26px -10px rgba(6,182,212,.4)}
+    .btn-pink{background:linear-gradient(135deg,var(--accent3),#be185d);box-shadow:0 8px 26px -10px rgba(236,72,153,.4)}
+
+    .content-wrapper{max-width:1100px;margin:0 auto;padding:0 24px 48px}
+
+    /* LOBBY */
+    .lobby-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .lobby-header h2{font-size:1.3rem;font-weight:800}
+
+    .battle-list{display:grid;gap:12px}
+    .battle-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;transition:border-color .2s,transform .2s}
+    .battle-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+    .battle-card-info h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+    .battle-card-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+    .battle-card-meta span{display:flex;align-items:center;gap:4px}
+    .battle-card-cases{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .battle-card-cases img{width:36px;height:36px;border-radius:6px;object-fit:contain;background:rgba(255,255,255,.06);padding:2px}
+    .battle-card-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    .battle-cost{font-size:.9rem;font-weight:800;color:var(--gold)}
+    .no-battles{text-align:center;padding:60px 20px;color:var(--muted);font-size:1rem}
+
+    /* CREATE OVERLAY */
+    .overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:16px}
+    .overlay.open{display:flex}
+    .overlay-panel{background:rgba(15,15,25,.97);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;animation:overlayIn .35s ease}
+    @keyframes overlayIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .overlay-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:1.2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;z-index:5}
+    .overlay-close:hover{background:rgba(255,255,255,.12)}
+
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:.85rem;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .form-input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);font-weight:700;font-size:1rem;font-family:var(--font)}
+    .form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+
+    .case-selector{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;max-height:300px;overflow-y:auto;padding:4px}
+    .case-selector::-webkit-scrollbar{width:6px}
+    .case-selector::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    .case-select-item{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+    .case-select-item:hover{border-color:var(--border2);background:rgba(255,255,255,.08)}
+    .case-select-item img{width:48px;height:48px;object-fit:contain;display:block;margin:0 auto 4px;border-radius:6px}
+    .case-select-item .cs-name{font-size:.7rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .case-select-item .cs-price{font-size:.65rem;color:var(--gold);font-weight:700}
+
+    .selected-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;min-height:40px;align-items:center}
+    .selected-list .sl-empty{color:var(--muted);font-size:.85rem}
+    .selected-tag{display:flex;align-items:center;gap:5px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:5px 10px;font-size:.8rem;font-weight:700;animation:tagIn .2s ease}
+    @keyframes tagIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+    .selected-tag img{width:22px;height:22px;border-radius:4px;object-fit:contain}
+    .selected-tag .st-remove{cursor:pointer;color:var(--red);font-weight:900;margin-left:2px;font-size:.9rem;line-height:1}
+    .selected-tag .st-remove:hover{color:#fff}
+
+    .create-summary{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:14px;padding:16px;margin:20px 0}
+    .cs-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.9rem}
+    .cs-label{color:var(--muted);font-weight:600}
+    .cs-val{font-weight:800;color:var(--gold)}
+    .cs-total{border-top:1px solid var(--border);padding-top:8px;margin-top:4px}
+
+    .create-error{text-align:center;color:var(--red);font-weight:700;min-height:24px;margin-top:8px}
+
+    /* BATTLE OVERLAY */
+    .battle-overlay{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto}
+    .battle-overlay.open{display:block}
+    .battle-inner{max-width:960px;margin:0 auto;padding:24px;min-height:100vh}
+
+    .battle-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .battle-topbar h2{font-size:1.3rem;font-weight:800}
+    .battle-topbar .bt-info{display:flex;gap:16px;font-size:.85rem;color:var(--muted);font-weight:600}
+    .battle-topbar .bt-info span{color:var(--gold);font-weight:800}
+
+    .waiting-screen{text-align:center;padding:80px 20px}
+    .waiting-screen h2{font-size:1.8rem;font-weight:900;margin-bottom:12px}
+    .waiting-screen p{color:var(--muted);font-size:1.05rem;margin-bottom:24px}
+    .waiting-dots{display:inline-flex;gap:6px}
+    .waiting-dots span{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite}
+    .waiting-dots span:nth-child(2){animation-delay:.2s}
+    .waiting-dots span:nth-child(3){animation-delay:.4s}
+    @keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}}
+    .waiting-id{margin-top:20px;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:inline-block;font-size:.85rem;color:var(--muted)}
+    .waiting-id code{color:var(--accent);font-weight:800;font-size:.9rem}
+
+    .round-header{text-align:center;margin-bottom:16px}
+    .round-header h3{font-size:1.1rem;font-weight:800;color:var(--accent)}
+    .round-header p{color:var(--muted);font-size:.85rem}
+
+    .round-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+    .round-chip{padding:6px 14px;border-radius:8px;font-size:.8rem;font-weight:700;background:var(--surface);border:1px solid var(--border);color:var(--muted);transition:all .2s}
+    .round-chip.active{background:rgba(139,92,246,.15);border-color:var(--accent);color:var(--accent)}
+    .round-chip.done{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green)}
+
+    .versus-area{display:grid;grid-template-columns:1fr 60px 1fr;gap:12px;align-items:start;margin-bottom:20px}
+    @media(max-width:700px){.versus-area{grid-template-columns:1fr;gap:16px}}
+    .vs-divider{display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:var(--accent3);align-self:center}
+    @media(max-width:700px){.vs-divider{order:0}}
+
+    .player-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .4s,box-shadow .4s}
+    .player-panel.winner{border-color:var(--gold);box-shadow:0 0 40px -10px rgba(245,158,11,.3)}
+    .player-panel.loser{opacity:.7}
+    .pp-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .pp-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+    .pp-avatar img{width:100%;height:100%;object-fit:cover}
+    .pp-name{font-weight:800;font-size:1rem;flex:1}
+    .pp-total{font-weight:900;color:var(--gold);font-size:1.2rem}
+
+    /* Battle spinner */
+    .b-spinner{position:relative;width:100%;height:100px;overflow:hidden;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--border);margin-bottom:12px}
+    .b-spinner-pointer{position:absolute;top:0;bottom:0;left:50%;width:3px;background:var(--gold);z-index:10;transform:translateX(-50%);box-shadow:0 0 10px rgba(245,158,11,.5)}
+    .b-spinner-pointer::before,.b-spinner-pointer::after{content:'';position:absolute;left:50%;transform:translateX(-50%);border-left:7px solid transparent;border-right:7px solid transparent}
+    .b-spinner-pointer::before{top:-1px;border-top:8px solid var(--gold)}
+    .b-spinner-pointer::after{bottom:-1px;border-bottom:8px solid var(--gold)}
+    .b-track{display:flex;position:absolute;top:0;bottom:0;left:0;will-change:transform}
+    .b-track-item{width:90px;height:100px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-right:1px solid rgba(255,255,255,.05);padding:4px}
+    .b-track-item img{width:40px;height:40px;object-fit:contain;border-radius:6px}
+    .b-track-item .bti-name{font-size:.58rem;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:82px}
+    .b-track-item .bti-val{font-size:.52rem;color:var(--muted);font-weight:600}
+
+    .pp-items{display:grid;gap:6px}
+    .pp-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;animation:ppItemIn .35s ease both}
+    @keyframes ppItemIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .pp-item img{width:36px;height:36px;object-fit:contain;border-radius:6px}
+    .pp-item-name{font-weight:700;font-size:.82rem;flex:1}
+    .pp-item-val{font-weight:800;color:var(--gold);font-size:.85rem}
+    .pp-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+    /* Final result */
+    .final-result{text-align:center;padding:32px 20px;animation:resultPop .5s ease}
+    @keyframes resultPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    .final-result h2{font-size:1.8rem;font-weight:900;margin-bottom:8px}
+    .final-result .fr-amount{font-size:2rem;font-weight:900;color:var(--gold);margin:12px 0}
+    .final-result p{color:var(--muted);font-size:1rem}
+
+    .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+
+    @media(max-width:768px){
+      .nav-links,.nav-credits-desktop{display:none!important}
+      .hamburger{display:flex}
+      .navbar{height:var(--nav-h-mobile);padding:0 16px}
+      .main{padding-top:calc(var(--nav-h-mobile)+50px)}
+      .mobile-menu{top:var(--nav-h-mobile)}
+      .content-wrapper{padding:0 16px 36px}
+      .overlay-panel{padding:20px;max-width:95vw}
+      .case-selector{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+      .battle-inner{padding:16px}
+      .b-track-item{width:75px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div><div class="grid-overlay"></div><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div><canvas id="particles"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet"/><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link">Store</a>
+    <a href="games.html" class="nav-link active">Games</a>
+    <a href="social.html" class="nav-link">Social</a>
+    <a href="profile.html" class="nav-link">Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <!-- CREATE OVERLAY -->
+  <div class="overlay" id="createOverlay">
+    <div class="overlay-panel">
+      <button class="overlay-close" id="createClose">✕</button>
+      <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:20px">⚔️ Create Case Battle</h2>
+
+      <div class="form-group">
+        <label>Side Bet (credits)</label>
+        <input type="number" class="form-input" id="createBet" value="50" min="0" step="1"/>
+      </div>
+
+      <div class="form-group">
+        <label>Select Cases (click to add – same case allowed multiple times)</label>
+        <div class="case-selector" id="caseSelector"></div>
+        <div class="selected-list" id="selectedList"><span class="sl-empty">Click cases above to add them to the battle</span></div>
+      </div>
+
+      <div class="create-summary">
+        <div class="cs-row"><span class="cs-label">Rounds</span><span class="cs-val" id="sumRounds">0</span></div>
+        <div class="cs-row"><span class="cs-label">Case cost</span><span class="cs-val" id="sumCaseCost">🪙 0</span></div>
+        <div class="cs-row"><span class="cs-label">Side bet</span><span class="cs-val" id="sumBet">🪙 50</span></div>
+        <div class="cs-row cs-total"><span class="cs-label">Total entry cost</span><span class="cs-val" id="sumTotal">🪙 50</span></div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-green" id="createBtn">🎮 Create Battle</button>
+        <button class="btn btn-secondary" id="createCancel">Cancel</button>
+      </div>
+      <div class="create-error" id="createError"></div>
+    </div>
+  </div>
+
+  <!-- BATTLE OVERLAY (full-screen game room) -->
+  <div class="battle-overlay" id="battleOverlay">
+    <div class="battle-inner" id="battleInner"></div>
+  </div>
+
+  <!-- MAIN LOBBY -->
+  <main class="main" id="mainLobby">
+    <section class="page-header">
+      <h1>Case <span class="grad">Battles</span></h1>
+      <p>Open the same cases head-to-head. Highest total value wins the bet + all skin value!</p>
+    </section>
+    <section class="content-wrapper">
+      <div class="lobby-header">
+        <h2>⚔️ Open Battles</h2>
+        <button class="btn btn-pink" id="openCreateBtn">+ Create Battle</button>
+      </div>
+      <div class="battle-list" id="battleList">
+        <div class="no-battles" id="noBattles">No open battles right now. Create one!</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2026 AightBet. Fake casino – no real money.</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  /* ═══════════════════════════════════════════
+     FIREBASE
+     ═══════════════════════════════════════════ */
+  const firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
+  firebase.initializeApp(firebaseConfig);
+  const auth=firebase.auth(), rtdb=firebase.database();
+  let currentUser=null, myUid=null, myName='', myAvatar='';
+
+  function applyTheme(t){document.documentElement.setAttribute('data-theme',t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);localStorage.setItem('aightbet-theme',t);}
+  applyTheme(localStorage.getItem('aightbet-theme')||'dark');
+
+  auth.onAuthStateChanged(u=>{
+    if(!u){location.href='index.html';return;}
+    currentUser=u; myUid=u.uid;
+    rtdb.ref('users/'+u.uid).on('value',snap=>{
+      const d=snap.val()||{};
+      document.getElementById('creditsCount').textContent=(d.credits||0).toLocaleString();
+      document.getElementById('creditsCountMobile').textContent=(d.credits||0).toLocaleString();
+      applyTheme(d.theme||localStorage.getItem('aightbet-theme')||'dark');
+      myName=d.username||u.displayName||u.email||'Player';
+      myAvatar=d.avatar||u.photoURL||'';
+      const av=document.getElementById('navAvatar');
+      if(myAvatar) av.innerHTML=`<img src="${myAvatar}" alt=""/>`;
+      else av.textContent=myName.charAt(0).toUpperCase();
+    });
+  });
+
+  function getCredits(){return parseInt((document.getElementById('creditsCount').textContent||'0').replace(/,/g,''))||0;}
+  async function adjCredits(uid,delta){await rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+delta);}
+
+  /* Navbar */
+  (()=>{const nav=document.getElementById('navbar');let t=false;addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{nav.classList.toggle('scrolled',scrollY>20);t=false;});t=true;}});})();
+  (()=>{const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');});m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');}));})();
+  document.getElementById('navAvatar').addEventListener('click',()=>location.href='profile.html');
+
+  /* ═══════════════════════════════════════════
+     CASE DATA
+     ═══════════════════════════════════════════ */
+  const RARITIES={common:{label:'Common',color:'#94a3b8',bg:'rgba(148,163,184,.15)'},uncommon:{label:'Uncommon',color:'#22c55e',bg:'rgba(34,197,94,.15)'},rare:{label:'Rare',color:'#3b82f6',bg:'rgba(59,130,246,.15)'},epic:{label:'Epic',color:'#8b5cf6',bg:'rgba(139,92,246,.15)'},legendary:{label:'Legendary',color:'#f59e0b',bg:'rgba(245,158,11,.15)'},mythic:{label:'Mythic',color:'#ef4444',bg:'rgba(239,68,68,.15)'}};
+
+  const CASES=[{id:'starter',name:'Starter Case',img:'Images/cases/1.png',price:50,items:[{name:'Worn Knife',img:'Images/skins/starter/basic2.png',value:20,rarity:'common',weight:30},{name:'Rusty Pistol',img:'Images/skins/starter/basic3.png',value:30,rarity:'common',weight:28},{name:'Old Revolver',img:'Images/skins/starter/basic4.png',value:40,rarity:'common',weight:22},{name:'Basic Shield',img:'Images/skins/starter/basic5.png',value:60,rarity:'uncommon',weight:18},{name:'Silver Ring',img:'Images/skins/starter/basic6.png',value:80,rarity:'uncommon',weight:14},{name:'Iron Blade',img:'Images/skins/starter/basic1.png',value:120,rarity:'rare',weight:10},{name:'Gold Coin',img:'Images/skins/starter/basic7.png',value:200,rarity:'epic',weight:5},{name:'Diamond Shard',img:'Images/skins/starter/basic8.png',value:500,rarity:'legendary',weight:2}]},{id:'neon',name:'Neon Case',img:'Images/cases/2.png',price:100,items:[{name:'Neon Stick',img:'Images/skins/neon/neon1.png',value:40,rarity:'common',weight:28},{name:'Glow Glasses',img:'Images/skins/neon/neon2.png',value:60,rarity:'common',weight:25},{name:'UV Blade',img:'Images/skins/neon/neon3.png',value:80,rarity:'common',weight:20},{name:'Laser Blade',img:'Images/skins/neon/neon4.png',value:120,rarity:'uncommon',weight:18},{name:'Neon Katana',img:'Images/skins/neon/neon5.png',value:150,rarity:'uncommon',weight:15},{name:'Plasma Gun',img:'Images/skins/neon/neon6.png',value:200,rarity:'rare',weight:12},{name:'Neon Crown',img:'Images/skins/neon/neon7.png',value:400,rarity:'epic',weight:7},{name:'Aurora Aura',img:'Images/skins/neon/neon8.png',value:800,rarity:'legendary',weight:3},{name:'Supernova',img:'Images/skins/neon/neon9.png',value:2000,rarity:'mythic',weight:0.5}]},{id:'dragon',name:'Dragon Case',img:'Images/cases/3.png',price:200,items:[{name:'Dragon Scale',img:'Images/skins/dragon/dragon1.png',value:80,rarity:'common',weight:25},{name:'Fire Scroll',img:'Images/skins/dragon/dragon2.png',value:120,rarity:'common',weight:22},{name:'Dragon Fang',img:'Images/skins/dragon/dragon3.png',value:180,rarity:'uncommon',weight:18},{name:'Flame Dagger',img:'Images/skins/dragon/dragon4.png',value:250,rarity:'uncommon',weight:15},{name:'Flame Sword',img:'Images/skins/dragon/dragon5.png',value:400,rarity:'rare',weight:12},{name:'Dragon Egg',img:'Images/skins/dragon/dragon6.png',value:800,rarity:'epic',weight:8},{name:'Dragon Wing',img:'Images/skins/dragon/dragon7.png',value:1200,rarity:'epic',weight:5},{name:'Dragon Armor',img:'Images/skins/dragon/dragon8.png',value:2000,rarity:'legendary',weight:3},{name:'Fire Crown',img:'Images/skins/dragon/dragon9.png',value:3000,rarity:'legendary',weight:1.5},{name:'Elder Dragon',img:'Images/skins/dragon/dragon10.png',value:6000,rarity:'mythic',weight:0.8}]},{id:'cosmic',name:'Cosmic Case',img:'Images/cases/4.png',price:150,items:[{name:'Star Dust',img:'Images/skins/cosmic/cosmic2.png',value:60,rarity:'common',weight:28},{name:'Moon Rock',img:'Images/skins/cosmic/cosmic1.png',value:90,rarity:'common',weight:24},{name:'Asteroid',img:'Images/skins/cosmic/cosmic3.png',value:130,rarity:'uncommon',weight:18},{name:'Comet Trail',img:'Images/skins/cosmic/cosmic4.png',value:180,rarity:'uncommon',weight:15},{name:'Space Blaster',img:'Images/skins/cosmic/cosmic8.png',value:300,rarity:'rare',weight:12},{name:'Nebula Cloak',img:'Images/skins/cosmic/cosmic5.png',value:600,rarity:'epic',weight:7},{name:'Black Hole',img:'Images/skins/cosmic/cosmic6.png',value:1200,rarity:'legendary',weight:3},{name:'Universe Orb',img:'Images/skins/cosmic/cosmic7.png',value:3000,rarity:'mythic',weight:0.8}]},{id:'pirate',name:'Pirate Case',img:'Images/cases/5.png',price:120,items:[{name:'Wooden Plank',img:'Images/skins/pirate/pirate1-removebg-preview.png',value:40,rarity:'common',weight:28},{name:'Compass',img:'Images/skins/pirate/pirate2-removebg-preview.png',value:70,rarity:'common',weight:24},{name:'Rum Bottle',img:'Images/skins/pirate/pirate3-removebg-preview.png',value:90,rarity:'common',weight:20},{name:'Pirate Hat',img:'Images/skins/pirate/pirate4-removebg-preview.png',value:140,rarity:'uncommon',weight:16},{name:'Anchor Blade',img:'Images/skins/pirate/pirate5-removebg-preview.png',value:180,rarity:'uncommon',weight:14},{name:'Cutlass',img:'Images/skins/pirate/pirate6-removebg-preview.png',value:250,rarity:'rare',weight:12},{name:'Treasure Map',img:'Images/skins/pirate/pirate7-removebg-preview.png',value:500,rarity:'epic',weight:7},{name:'Gold Chest',img:'Images/skins/pirate/pirate8-removebg-preview.png',value:1000,rarity:'legendary',weight:3},{name:'Kraken Pearl',img:'Images/skins/pirate/pirate9-removebg-preview.png',value:2500,rarity:'mythic',weight:0.8}]},{id:'cyber',name:'Cyber Case',img:'Images/cases/6.png',price:175,items:[{name:'USB Drive',img:'Images/skins/cyber/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Circuit Board',img:'Images/skins/cyber/download__5_-removebg-preview.png',value:90,rarity:'common',weight:22},{name:'Data Chip',img:'Images/skins/cyber/download__6_-removebg-preview.png',value:120,rarity:'common',weight:18},{name:'Cyber Visor',img:'Images/skins/cyber/download__7_-removebg-preview.png',value:175,rarity:'uncommon',weight:16},{name:'Nano Blade',img:'Images/skins/cyber/download__8_-removebg-preview.png',value:250,rarity:'uncommon',weight:14},{name:'Holo Watch',img:'Images/skins/cyber/download__9_-removebg-preview.png',value:350,rarity:'rare',weight:12},{name:'Firewall Shield',img:'Images/skins/cyber/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Mech Arm',img:'Images/skins/cyber/download__11_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'AI Core',img:'Images/skins/cyber/download__12_-removebg-preview.png',value:1400,rarity:'legendary',weight:4},{name:'Singularity',img:'Images/skins/cyber/download__13_-removebg-preview.png',value:4000,rarity:'mythic',weight:1}]},{id:'royal',name:'Royal Case',img:'Images/cases/7.png',price:250,items:[{name:'Silk Cloth',img:'Images/skins/royal/download__4_-removebg-preview.png',value:100,rarity:'common',weight:25},{name:'Silver Goblet',img:'Images/skins/royal/download__5_-removebg-preview.png',value:140,rarity:'common',weight:22},{name:'Ruby Ring',img:'Images/skins/royal/download__6_-removebg-preview.png',value:200,rarity:'uncommon',weight:18},{name:'Royal Cape',img:'Images/skins/royal/download__7_-removebg-preview.png',value:300,rarity:'uncommon',weight:14},{name:'Royal Sword',img:'Images/skins/royal/download__8_-removebg-preview.png',value:400,rarity:'rare',weight:12},{name:'Gold Scepter',img:'Images/skins/royal/download__9_-removebg-preview.png',value:500,rarity:'rare',weight:11},{name:'Crown Jewel',img:'Images/skins/royal/download__10_-removebg-preview.png',value:750,rarity:'epic',weight:8},{name:'Diamond Tiara',img:'Images/skins/royal/download__11_-removebg-preview.png',value:1000,rarity:'epic',weight:7},{name:'Throne',img:'Images/skins/royal/download__12_-removebg-preview.png',value:2000,rarity:'legendary',weight:3.5},{name:'Excalibur',img:'Images/skins/royal/download__13_-removebg-preview.png',value:6000,rarity:'mythic',weight:1}]},{id:'shadow',name:'Shadow Case',img:'Images/cases/8.png',price:180,items:[{name:'Shadow Dust',img:'Images/skins/shadow/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Dark Potion',img:'Images/skins/shadow/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Night Dagger',img:'Images/skins/shadow/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Phantom Mask',img:'Images/skins/shadow/download__7_-removebg-preview.png',value:280,rarity:'rare',weight:14},{name:'Shadow Blade',img:'Images/skins/shadow/download__8_-removebg-preview.png',value:450,rarity:'rare',weight:10},{name:'Void Cloak',img:'Images/skins/shadow/download__9_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'Death Scythe',img:'Images/skins/shadow/download__10_-removebg-preview.png',value:1500,rarity:'legendary',weight:3},{name:'Eclipse',img:'Images/skins/shadow/download__11_-removebg-preview.png',value:4500,rarity:'mythic',weight:1}]},{id:'lucky',name:'Lucky Case',img:'Images/cases/9.png',price:300,items:[{name:'Lucky Penny',img:'Images/skins/lucky/download__4_-removebg-preview.png',value:100,rarity:'common',weight:18},{name:'Four Leaf Clover',img:'Images/skins/lucky/download__5_-removebg-preview.png',value:180,rarity:'uncommon',weight:18},{name:'Horseshoe',img:'Images/skins/lucky/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Lucky Dice',img:'Images/skins/lucky/download__7_-removebg-preview.png',value:400,rarity:'rare',weight:14},{name:'Rainbow',img:'Images/skins/lucky/download__8_-removebg-preview.png',value:600,rarity:'rare',weight:12},{name:'Pot of Gold',img:'Images/skins/lucky/download__9_-removebg-preview.png',value:1000,rarity:'epic',weight:10},{name:'Golden Horseshoe',img:'Images/skins/lucky/download__10_-removebg-preview.png',value:1500,rarity:'epic',weight:7},{name:'Leprechaun Hat',img:'Images/skins/lucky/download__11_-removebg-preview.png',value:2500,rarity:'legendary',weight:5},{name:'Lucky Katana',img:'Images/skins/lucky/download__12_-removebg-preview.png',value:4000,rarity:'legendary',weight:3},{name:'Jackpot Star',img:'Images/skins/lucky/download__13_-removebg-preview.png',value:7000,rarity:'mythic',weight:2}]},{id:'inferno',name:'Inferno Case',img:'Images/cases/10.png',price:500,items:[{name:'Fire',img:'Images/skins/inferno/download__4_-removebg-preview.png',value:150,rarity:'common',weight:20},{name:'Lava Rock',img:'Images/skins/inferno/download__5_-removebg-preview.png',value:250,rarity:'common',weight:18},{name:'Fire Whip',img:'Images/skins/inferno/download__6_-removebg-preview.png',value:400,rarity:'uncommon',weight:16},{name:'Magma Blade',img:'Images/skins/inferno/download__7_-removebg-preview.png',value:700,rarity:'rare',weight:13},{name:'Inferno Pistol',img:'Images/skins/inferno/download__8_-removebg-preview.png',value:1000,rarity:'rare',weight:10},{name:'Phoenix Feather',img:'Images/skins/inferno/download__9_-removebg-preview.png',value:1800,rarity:'epic',weight:8},{name:'Molten Shield',img:'Images/skins/inferno/download__10_-removebg-preview.png',value:2500,rarity:'epic',weight:6},{name:'Inferno Armor',img:'Images/skins/inferno/download__11_-removebg-preview.png',value:4000,rarity:'legendary',weight:4},{name:'Hell Blade',img:'Images/skins/inferno/download__12_-removebg-preview.png',value:7000,rarity:'legendary',weight:2},{name:'Phoenix',img:'Images/skins/inferno/download__13_-removebg-preview.png',value:15000,rarity:'mythic',weight:1}]},{id:'arctic',name:'Arctic Case',img:'Images/cases/11.png',price:160,items:[{name:'Snowball',img:'Images/skins/arctic/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Ice Shard',img:'Images/skins/arctic/download__5_-removebg-preview.png',value:80,rarity:'common',weight:24},{name:'Frost Dagger',img:'Images/skins/arctic/download__6_-removebg-preview.png',value:130,rarity:'uncommon',weight:18},{name:'Frozen Shield',img:'Images/skins/arctic/download__7_-removebg-preview.png',value:220,rarity:'uncommon',weight:14},{name:'Blizzard Staff',img:'Images/skins/arctic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ice Crown',img:'Images/skins/arctic/download__9_-removebg-preview.png',value:650,rarity:'epic',weight:7},{name:'Glacier Blade',img:'Images/skins/arctic/download__10_-removebg-preview.png',value:1100,rarity:'legendary',weight:3},{name:'Yeti',img:'Images/skins/arctic/download__11_-removebg-preview.png',value:3000,rarity:'mythic',weight:1}]},{id:'samurai',name:'Samurai Case',img:'Images/cases/12.png',price:220,items:[{name:'Bamboo Stick',img:'Images/skins/samurai/download__4_-removebg-preview.png',value:80,rarity:'common',weight:25},{name:'Paper Fan',img:'Images/skins/samurai/download__5_-removebg-preview.png',value:110,rarity:'common',weight:22},{name:'Shuriken',img:'Images/skins/samurai/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Cherry Blossom',img:'Images/skins/samurai/download__7_-removebg-preview.png',value:180,rarity:'uncommon',weight:16},{name:'Samurai Mask',img:'Images/skins/samurai/download__8_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Tanto Blade',img:'Images/skins/samurai/download__9_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ninja Star',img:'Images/skins/samurai/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Katana',img:'Images/skins/samurai/download__11_-removebg-preview.png',value:650,rarity:'rare',weight:8},{name:'Shogun Armor',img:'Images/skins/samurai/download__12_-removebg-preview.png',value:1100,rarity:'epic',weight:6},{name:'Dragon Katana',img:'Images/skins/samurai/download__13_-removebg-preview.png',value:2000,rarity:'legendary',weight:3},{name:'Spirit Blade',img:'Images/skins/samurai/download__14_-removebg-preview.png',value:3500,rarity:'legendary',weight:1.5},{name:'Oni Demon',img:'Images/skins/samurai/download__15_-removebg-preview.png',value:5500,rarity:'mythic',weight:0.8}]},{id:'ocean',name:'Ocean Case',img:'Images/cases/13.png',price:140,items:[{name:'Seashell',img:'Images/skins/ocean/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Coral Piece',img:'Images/skins/ocean/download__5_-removebg-preview.png',value:75,rarity:'common',weight:24},{name:'Starfish',img:'Images/skins/ocean/download__6_-removebg-preview.png',value:100,rarity:'common',weight:20},{name:'Pearl Necklace',img:'Images/skins/ocean/download__7_-removebg-preview.png',value:160,rarity:'uncommon',weight:16},{name:'Trident Shard',img:'Images/skins/ocean/download__8_-removebg-preview.png',value:280,rarity:'rare',weight:12},{name:'Shark Tooth',img:'Images/skins/ocean/download__9_-removebg-preview.png',value:450,rarity:'rare',weight:9},{name:'Mermaid Scale',img:'Images/skins/ocean/download__10_-removebg-preview.png',value:700,rarity:'epic',weight:6},{name:'Poseidon Trident',img:'Images/skins/ocean/download__11_-removebg-preview.png',value:1200,rarity:'legendary',weight:3},{name:'Leviathan',img:'Images/skins/ocean/download__12_-removebg-preview.png',value:3500,rarity:'mythic',weight:0.8}]},{id:'toxic',name:'Toxic Case',img:'Images/cases/14.png',price:190,items:[{name:'Slime Ball',img:'Images/skins/toxic/download__4_-removebg-preview.png',value:70,rarity:'common',weight:26},{name:'Gas Mask',img:'Images/skins/toxic/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Acid Flask',img:'Images/skins/toxic/download__6_-removebg-preview.png',value:150,rarity:'uncommon',weight:18},{name:'Toxic Blade',img:'Images/skins/toxic/download__7_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Radiation Gun',img:'Images/skins/toxic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Mutant Claw',img:'Images/skins/toxic/download__9_-removebg-preview.png',value:600,rarity:'rare',weight:8},{name:'Bio Armor',img:'Images/skins/toxic/download__10_-removebg-preview.png',value:900,rarity:'epic',weight:6},{name:'Nuclear Core',img:'Images/skins/toxic/download__11_-removebg-preview.png',value:1600,rarity:'legendary',weight:3},{name:'Toxic Katana',img:'Images/skins/toxic/download__12_-removebg-preview.png',value:2800,rarity:'legendary',weight:1.5},{name:'Chernobyl',img:'Images/skins/toxic/download__13_-removebg-preview.png',value:5000,rarity:'mythic',weight:0.8}]},{id:'galaxy',name:'Galaxy Case',img:'Images/cases/16.png',price:350,items:[{name:'Stardust Ring',img:'Images/skins/galaxy/download__4_-removebg-preview.png',value:120,rarity:'common',weight:22},{name:'Meteor Shard',img:'Images/skins/galaxy/download__5_-removebg-preview.png',value:180,rarity:'common',weight:20},{name:'Pulsar Blade',img:'Images/skins/galaxy/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Quasar Gun',img:'Images/skins/galaxy/download__7_-removebg-preview.png',value:420,rarity:'uncommon',weight:13},{name:'Warp Drive',img:'Images/skins/galaxy/download__8_-removebg-preview.png',value:650,rarity:'rare',weight:10},{name:'Galaxy Shield',img:'Images/skins/galaxy/download__9_-removebg-preview.png',value:1000,rarity:'rare',weight:8},{name:'Dark Matter',img:'Images/skins/galaxy/download__10_-removebg-preview.png',value:1800,rarity:'epic',weight:6},{name:'Dimension Rift',img:'Images/skins/galaxy/download__11_-removebg-preview.png',value:3000,rarity:'epic',weight:4},{name:'Infinity Blade',img:'Images/skins/galaxy/download__12_-removebg-preview.png',value:5000,rarity:'legendary',weight:2.5},{name:'Galaxy Core',img:'Images/skins/galaxy/download__13_-removebg-preview.png',value:8000,rarity:'legendary',weight:1.5},{name:'Big Bang',img:'Images/skins/galaxy/download__14_-removebg-preview.png',value:15000,rarity:'mythic',weight:0.5}]},{id:'void',name:'Void Case',img:'Images/cases/15.png',price:750,items:[{name:'Void Fragment',img:'Images/skins/void/download__4_-removebg-preview.png',value:200,rarity:'common',weight:20},{name:'Dark Crystal',img:'Images/skins/void/download__5_-removebg-preview.png',value:350,rarity:'common',weight:18},{name:'Void Dagger',img:'Images/skins/void/download__6_-removebg-preview.png',value:550,rarity:'uncommon',weight:15},{name:'Abyssal Ring',img:'Images/skins/void/download__7_-removebg-preview.png',value:800,rarity:'uncommon',weight:12},{name:'Void Pistol',img:'Images/skins/void/download__8_-removebg-preview.png',value:1200,rarity:'rare',weight:10},{name:'Null Blade',img:'Images/skins/void/download__9_-removebg-preview.png',value:1500,rarity:'rare',weight:9},{name:'Entropy Blade',img:'Images/skins/void/download__10_-removebg-preview.png',value:2000,rarity:'rare',weight:8},{name:'Void Armor',img:'Images/skins/void/download__11_-removebg-preview.png',value:3500,rarity:'epic',weight:6},{name:'Reality Breaker',img:'Images/skins/void/download__12_-removebg-preview.png',value:6000,rarity:'epic',weight:4},{name:'Oblivion Scythe',img:'Images/skins/void/download__13_-removebg-preview.png',value:10000,rarity:'legendary',weight:3},{name:'Void Emperor Set',img:'Images/skins/void/download__14_-removebg-preview.png',value:18000,rarity:'legendary',weight:1.5},{name:'The Void',img:'Images/skins/void/download (15).jpg',value:30000,rarity:'mythic',weight:0.5}]},{id:'roj',name:'Rojs Case',img:'Images/cases/17.png',price:1000,items:[{name:'HandBall Roj',img:'Images/skins/roj2.png',value:300,rarity:'common',weight:52},{name:'Like Roj',img:'Images/skins/roj1.png',value:500,rarity:'uncommon',weight:25},{name:'Winner Roj',img:'Images/skins/roj3.png',value:800,rarity:'rare',weight:15},{name:'Tuff Roj',img:'Images/skins/roj4.png',value:1000,rarity:'epic',weight:5.9},{name:'Smoking Roj',img:'Images/skins/roj6.png',value:1800,rarity:'legendary',weight:2},{name:'Falling Roj',img:'Images/skins/roj5.png',value:3000,rarity:'mythic',weight:0.1}]}];
+
+  const CASE_MAP={};
+  CASES.forEach(c=>CASE_MAP[c.id]=c);
+
+  /* ═══════════════════════════════════════════
+     CREATE OVERLAY
+     ═══════════════════════════════════════════ */
+  const createOverlay=document.getElementById('createOverlay');
+  const caseSelectorEl=document.getElementById('caseSelector');
+  const selectedListEl=document.getElementById('selectedList');
+  const createBetInput=document.getElementById('createBet');
+  let selectedCases=[]; // array of case IDs, can repeat
+
+  document.getElementById('openCreateBtn').addEventListener('click',()=>createOverlay.classList.add('open'));
+  document.getElementById('createClose').addEventListener('click',()=>createOverlay.classList.remove('open'));
+  document.getElementById('createCancel').addEventListener('click',()=>createOverlay.classList.remove('open'));
+  createOverlay.addEventListener('click',e=>{if(e.target===createOverlay)createOverlay.classList.remove('open');});
+
+  CASES.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='case-select-item';
+    div.innerHTML=`<img src="${c.img}" alt="${c.name}" onerror="this.style.display='none'"/><div class="cs-name">${c.name}</div><div class="cs-price">🪙 ${c.price}</div>`;
+    div.addEventListener('click',()=>{
+      if(selectedCases.length>=10)return;
+      selectedCases.push(c.id);
+      refreshCreateUI();
+    });
+    caseSelectorEl.appendChild(div);
+  });
+
+  createBetInput.addEventListener('input',refreshCreateUI);
+
+  function refreshCreateUI(){
+    const bet=Math.max(0,parseInt(createBetInput.value)||0);
+    let caseCost=0;
+    selectedCases.forEach(id=>caseCost+=CASE_MAP[id].price);
+
+    document.getElementById('sumRounds').textContent=selectedCases.length;
+    document.getElementById('sumCaseCost').textContent='🪙 '+caseCost.toLocaleString();
+    document.getElementById('sumBet').textContent='🪙 '+bet.toLocaleString();
+    document.getElementById('sumTotal').textContent='🪙 '+(caseCost+bet).toLocaleString();
+
+    selectedListEl.innerHTML='';
+    if(selectedCases.length===0){
+      selectedListEl.innerHTML='<span class="sl-empty">Click cases above to add them to the battle</span>';
+      return;
+    }
+    selectedCases.forEach((id,i)=>{
+      const c=CASE_MAP[id];
+      const tag=document.createElement('div');
+      tag.className='selected-tag';
+      tag.innerHTML=`<img src="${c.img}"/>${c.name}<span class="st-remove" data-i="${i}">✕</span>`;
+      tag.querySelector('.st-remove').addEventListener('click',e=>{
+        e.stopPropagation();
+        selectedCases.splice(i,1);
+        refreshCreateUI();
+      });
+      selectedListEl.appendChild(tag);
+    });
+  }
+
+    /* ── Create battle ── */
+  document.getElementById('createBtn').addEventListener('click',async()=>{
+    const errEl=document.getElementById('createError');
+    errEl.textContent='';
+    if(!myUid){errEl.textContent='Not logged in!';return;}
+    if(selectedCases.length===0){errEl.textContent='Add at least one case!';return;}
+
+    const bet=Math.max(0,parseInt(createBetInput.value)||0);
+    let caseCost=0;
+    selectedCases.forEach(id=>caseCost+=CASE_MAP[id].price);
+    const total=caseCost+bet;
+
+    if(getCredits()<total){errEl.textContent='Not enough credits! Need '+total.toLocaleString();return;}
+
+    // Always fetch the latest nickname from the database
+    const userSnap=await rtdb.ref('users/'+myUid).once('value');
+    const userData=userSnap.val()||{};
+    const nickname=userData.username||currentUser.displayName||currentUser.email||'Player';
+    const avatar=userData.avatar||currentUser.photoURL||'';
+
+    await adjCredits(myUid,-total);
+
+    const ref=rtdb.ref('battles').push();
+    await ref.set({
+      id:ref.key,
+      creator:myUid,
+      cases:selectedCases.slice(),
+      bet,caseCost,totalCost:total,
+      status:'waiting',
+      createdAt:firebase.database.ServerValue.TIMESTAMP,
+      players:{
+        [myUid]:{uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false}
+      },
+      currentRound:0,
+      rounds:{},
+      winner:null,
+      playersLeft:{}
+    });
+
+    selectedCases=[];
+    refreshCreateUI();
+    createOverlay.classList.remove('open');
+
+    openBattleRoom(ref.key);
+  });
+
+  /* ═══════════════════════════════════════════
+     LOBBY LIST
+     ═══════════════════════════════════════════ */
+  const battleListEl=document.getElementById('battleList');
+
+  rtdb.ref('battles').orderByChild('status').equalTo('waiting').on('value',snap=>{
+    const battles=snap.val()||{};
+    const entries=Object.entries(battles);
+    battleListEl.innerHTML='';
+
+    if(entries.length===0){
+      battleListEl.innerHTML='<div class="no-battles">No open battles right now. Create one!</div>';
+      return;
+    }
+
+    entries.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+
+    entries.forEach(([id,b])=>{
+      const card=document.createElement('div');
+      card.className='battle-card';
+      const counts={};
+      (b.cases||[]).forEach(cid=>counts[cid]=(counts[cid]||0)+1);
+      let caseImgs='';
+      Object.entries(counts).forEach(([cid,cnt])=>{
+        const c=CASE_MAP[cid];
+        if(c) caseImgs+=`<img src="${c.img}" alt="${c.name}" title="${c.name}${cnt>1?' x'+cnt:''}"/>`;
+      });
+
+      const isCreator=b.creator===myUid;
+      const creatorData=b.players?.[b.creator]||{};
+
+      card.innerHTML=`
+        <div class="battle-card-info">
+          <h3>⚔️ ${creatorData.name||'Unknown'}'s Battle</h3>
+          <div class="battle-card-meta">
+            <span>📦 ${(b.cases||[]).length} round${(b.cases||[]).length!==1?'s':''}</span>
+            <span>🪙 Bet: ${(b.bet||0).toLocaleString()}</span>
+            <span>💰 Entry: ${(b.totalCost||0).toLocaleString()}</span>
+          </div>
+          <div class="battle-card-cases">${caseImgs}</div>
+        </div>
+        <div class="battle-card-actions">
+          <div class="battle-cost">🪙 ${(b.totalCost||0).toLocaleString()}</div>
+          <button class="btn ${isCreator?'btn-gold':'btn-green'}" style="font-size:.8rem;padding:8px 16px">${isCreator?'View':'Join Battle'}</button>
+        </div>
+      `;
+
+      const btn=card.querySelector('button');
+      btn.addEventListener('click',e=>{e.stopPropagation();isCreator?openBattleRoom(id):joinBattle(id,b);});
+      card.addEventListener('click',()=>isCreator?openBattleRoom(id):joinBattle(id,b));
+      battleListEl.appendChild(card);
+    });
+  });
+
+    async function joinBattle(battleId,battleData){
+    if(!myUid)return;
+    const total=battleData.totalCost||0;
+    if(getCredits()<total){alert('Not enough credits! Need '+total.toLocaleString());return;}
+
+    const snap=await rtdb.ref('battles/'+battleId).once('value');
+    const b=snap.val();
+    if(!b||b.status!=='waiting'){alert('Battle no longer available.');return;}
+    if(Object.keys(b.players||{}).length>=2){alert('Battle is full.');return;}
+
+    // Always fetch the latest nickname from the database
+    const userSnap=await rtdb.ref('users/'+myUid).once('value');
+    const userData=userSnap.val()||{};
+    const nickname=userData.username||currentUser.displayName||currentUser.email||'Player';
+    const avatar=userData.avatar||currentUser.photoURL||'';
+
+    await adjCredits(myUid,-total);
+
+    await rtdb.ref('battles/'+battleId+'/players/'+myUid).set({
+      uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false
+    });
+    await rtdb.ref('battles/'+battleId+'/status').set('playing');
+
+    openBattleRoom(battleId);
+  }
+
+  /* ═══════════════════════════════════════════
+     BATTLE ROOM
+     ═══════════════════════════════════════════ */
+  let activeBattle=null;
+  let battleRef=null;
+  let battleUnsub=null;
+  let spinning=false;
+  let roundsAnimated=new Set();
+
+  function openBattleRoom(battleId){
+    closeBattleRoom();
+    activeBattle=battleId;
+    roundsAnimated=new Set();
+    spinning=false;
+
+    document.getElementById('battleOverlay').classList.add('open');
+    document.getElementById('mainLobby').style.display='none';
+
+    battleRef=rtdb.ref('battles/'+battleId);
+       battleUnsub=battleRef.on('value',snap=>{
+      const data=snap.val();
+      if(!data){closeBattleRoom();return;}
+      battleState=data;
+      renderBattle(data);
+    });
+    // Track presence
+    battleRef.child('playersLeft/'+myUid).set(false);
+    window.addEventListener('beforeunload',markLeft);
+  }
+
+   function markLeft(){
+    if(activeBattle&&myUid){
+      // Use sendBeacon-style sync write for beforeunload
+      rtdb.ref('battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
+
+      // If game is still playing, mark forfeit
+      if(battleState&&battleState.status==='playing'&&!battleState.winner){
+        const pids=Object.keys(battleState.players||{});
+        const opponentId=pids.find(id=>id!==myUid);
+        rtdb.ref('battles/'+activeBattle+'/winner').set(opponentId||'none');
+        rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+        rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
+        if(opponentId){
+          const bet=battleState.bet||0;
+          adjCredits(opponentId,bet*2);
+        }
+        trackForfeit(myUid);
+      }
+    }
+  }
+
+    function closeBattleRoom(){
+    if(battleRef&&battleUnsub){
+      battleRef.off('value',battleUnsub);
+    }
+
+    // If battle is still playing and I leave = forfeit
+    if(activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner){
+      const pids=Object.keys(battleState.players||{});
+      const opponentId=pids.find(id=>id!==myUid);
+
+      // Mark me as forfeited
+      rtdb.ref('battles/'+activeBattle+'/winner').set(opponentId||'none');
+      rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+      rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
+
+      // Opponent gets both bets (no refund for forfeiter)
+      if(opponentId){
+        const bet=battleState.bet||0;
+        adjCredits(opponentId, bet*2);
+      }
+
+      // Track daily forfeits
+      trackForfeit(myUid);
+    }
+
+    if(activeBattle&&myUid){
+      rtdb.ref('battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
+      rtdb.ref('battles/'+activeBattle+'/playersLeft').once('value').then(snap=>{
+        const left=snap.val()||{};
+        const allLeft=Object.values(left).every(v=>v===true)&&Object.keys(left).length>=2;
+        if(allLeft) rtdb.ref('battles/'+activeBattle).remove();
+      });
+    }
+
+    window.removeEventListener('beforeunload',markLeft);
+    activeBattle=null;battleRef=null;battleUnsub=null;battleState=null;spinning=false;roundsAnimated=new Set();
+    document.getElementById('battleOverlay').classList.remove('open');
+    document.getElementById('mainLobby').style.display='';
+  }
+
+    async function trackForfeit(uid){
+    const today=new Date().toISOString().slice(0,10); // "2026-03-30"
+    const ref=rtdb.ref('users/'+uid+'/forfeits/'+today);
+    const snap=await ref.once('value');
+    const count=(snap.val()||0)+1;
+    await ref.set(count);
+
+    // 3+ forfeits in a day → flag to support
+    if(count>=3){
+      const userName=myName||uid;
+      await rtdb.ref('reports').push().set({
+        targetType:'user',
+        targetId:uid,
+        targetAuthorUid:uid,
+        reporterUid:'system',
+        reason:`Auto-flag: ${userName} forfeited ${count} case battles today (${today}). Possible abuse.`,
+        timestamp:Date.now(),
+        resolved:false,
+        autoGenerated:true
+      });
+    }
+  }
+
+  /* ── Render ── */
+    /* ── Render ── */
+  function renderBattle(data){
+    // Don't re-render the whole DOM while a spin animation is in progress
+    if(spinning) return;
+
+    const inner=document.getElementById('battleInner');
+    const players=data.players||{};
+    const pids=Object.keys(players);
+    const p1id=data.creator;
+    const p2id=pids.find(id=>id!==data.creator)||null;
+    const p1=players[p1id]||{};
+    const p2=p2id?players[p2id]:null;
+    const cases=data.cases||[];
+    const totalRounds=cases.length;
+    const curRound=data.currentRound||0;
+    const isFinished=data.status==='finished';
+
+    // Waiting screen
+    if(data.status==='waiting'){
+      inner.innerHTML=`
+        <div class="battle-topbar">
+          <h2>⚔️ Case Battle</h2>
+          <button class="btn btn-red" id="cancelBattleBtn" style="font-size:.8rem;padding:8px 16px">Cancel & Refund</button>
+        </div>
+        <div class="waiting-screen">
+          <h2>Waiting for Opponent</h2>
+          <p>Share this battle or wait for someone to join from the lobby.</p>
+          <div class="waiting-dots"><span></span><span></span><span></span></div>
+          <div class="waiting-id">Battle ID: <code>${data.id}</code></div>
+          <div style="margin-top:20px">
+            <div style="color:var(--muted);font-size:.9rem;margin-bottom:8px">Selected Cases:</div>
+            <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+              ${cases.map(cid=>{const c=CASE_MAP[cid];return c?`<img src="${c.img}" alt="${c.name}" style="width:40px;height:40px;border-radius:6px;background:rgba(255,255,255,.06);padding:2px" title="${c.name}"/>`:''}).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('cancelBattleBtn')?.addEventListener('click',async()=>{
+        if(data.creator!==myUid)return;
+        await adjCredits(myUid,data.totalCost||0);
+        await rtdb.ref('battles/'+activeBattle).remove();
+        closeBattleRoom();
+      });
+      return;
+    }
+
+    // Playing / Finished
+    let roundChips='';
+    for(let i=0;i<totalRounds;i++){
+      const c=CASE_MAP[cases[i]];
+      const cls=i<curRound?'done':i===curRound&&!isFinished?'active':'';
+      roundChips+=`<div class="round-chip ${cls}">${c?c.name:'Case'}</div>`;
+    }
+
+    const buildPlayerPanel=(pid,pdata,prefix)=>{
+      if(!pdata) return `<div class="player-panel"><div class="player-waiting">No opponent</div></div>`;
+      const isWinner=data.winner===pid;
+      const isLoser=data.winner&&data.winner!=='draw'&&data.winner!==pid&&isFinished;
+      let itemsHtml='';
+      const items=pdata.items||{};
+      for(let r=0;r<curRound;r++){
+        const it=items[r];
+        if(!it)continue;
+        const rar=RARITIES[it.rarity]||RARITIES.common;
+        itemsHtml+=`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${it.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${it.name}</span><span class="pp-item-val">🪙 ${(it.value||0).toLocaleString()}</span></div>`;
+      }
+      return `
+        <div class="player-panel ${isWinner?'winner':''} ${isLoser?'loser':''}" id="${prefix}Panel">
+          <div class="pp-header">
+            <div class="pp-avatar">${pdata.avatar?`<img src="${pdata.avatar}"/>`:((pdata.name||'?').charAt(0).toUpperCase())}</div>
+            <div class="pp-name">${pdata.name||'Player'}</div>
+            <div class="pp-total">🪙 ${(pdata.total||0).toLocaleString()}</div>
+          </div>
+          <div class="b-spinner" id="${prefix}Spinner" style="display:none">
+            <div class="b-spinner-pointer"></div>
+            <div class="b-track" id="${prefix}Track"></div>
+          </div>
+          <div class="pp-items" id="${prefix}Items">${itemsHtml}</div>
+        </div>
+      `;
+    };
+
+     let resultHtml='';
+    if(isFinished&&data.winner){
+      const winnerData=players[data.winner];
+      const wasForfeit=!!data.forfeitedBy;
+
+      if(data.winner==='draw'){
+        resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players got the same total value. Bets returned.</p></div>`;
+      }else{
+        const isMe=data.winner===myUid;
+        const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
+        resultHtml=`<div class="final-result">
+          <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won the Battle!':'💀 You Lost the Battle!'}</h2>
+          <p>${winnerData?.name||'Winner'} wins${forfeitText}!</p>
+          ${!wasForfeit?`<p style="color:var(--muted)">Total: 🪙 ${(winnerData?.total||0).toLocaleString()}</p>`:''}
+          ${isMe?`<div class="fr-amount">+${((data.bet||0)*2).toLocaleString()} bet winnings</div>`:''}
+        </div>`;
+      }
+    }
+
+    inner.innerHTML=`
+      <div class="battle-topbar">
+        <h2>⚔️ Case Battle</h2>
+        <div class="bt-info">
+          <div>Bet: <span>🪙 ${(data.bet||0).toLocaleString()}</span></div>
+          <div>Round: <span>${Math.min(curRound+1,totalRounds)} / ${totalRounds}</span></div>
+        </div>
+      </div>
+      <div class="round-chips">${roundChips}</div>
+      <div class="versus-area">
+        ${buildPlayerPanel(p1id,p1,'p1')}
+        <div class="vs-divider">VS</div>
+        ${buildPlayerPanel(p2id,p2,'p2')}
+      </div>
+      ${resultHtml}
+      <div style="display:flex;justify-content:center;margin-top:16px">
+        <button class="btn btn-secondary" id="leaveBtn">${isFinished?'← Back to Lobby':'Leave Battle'}</button>
+      </div>
+    `;
+
+       document.getElementById('leaveBtn').addEventListener('click',closeBattleRoom);
+
+    // Trigger round spin if playing and results exist
+    if(data.status==='playing'&&!isFinished&&curRound<totalRounds&&!spinning){
+      const roundData=(data.rounds||{})[curRound];
+      if(!roundData&&myUid===data.creator){
+        // Creator generates this round's results
+        setTimeout(()=>{
+          if(!spinning) generateRound(data,curRound);
+        },200);
+      }else if(roundData&&!roundsAnimated.has(curRound)){
+        // Both clients animate when round data exists
+        setTimeout(()=>{
+          if(!spinning) playRound(curRound);
+        },300);
+      }
+    }
+  } // close renderBattle
+
+   /* ═══════════════════════════════════════════
+     GENERATE ROUND (CREATOR ONLY – used for round 0)
+     ═══════════════════════════════════════════ */
+  function pickItem(items){
+    const tw=items.reduce((s,i)=>s+i.weight,0);
+    let r=Math.random()*tw;
+    for(const it of items){r-=it.weight;if(r<=0)return it;}
+    return items[items.length-1];
+  }
+
+  async function generateRound(data,round){
+    if(spinning)return;
+    const caseId=data.cases[round];
+    const cd=CASE_MAP[caseId];
+    if(!cd)return;
+
+    const pids=Object.keys(data.players);
+    const results={};
+    pids.forEach(pid=>{
+      const won=pickItem(cd.items);
+      results[pid]={name:won.name,img:won.img,value:won.value,rarity:won.rarity};
+    });
+
+    await rtdb.ref('battles/'+activeBattle+'/rounds/'+round).set(results);
+    // Don't advance currentRound here — it stays the same, the on('value') listener
+    // will re-fire and both clients will see the round data and start animating
+  }
+
+   /* ═══════════════════════════════════════════
+     PLAY ROUND ANIMATION
+     ═���═════════════════════════════════════════ */
+  async function playRound(round){
+    if(spinning)return;
+    spinning=true;
+    roundsAnimated.add(round);
+
+    // Always read fresh state from Firebase
+    const snap=await rtdb.ref('battles/'+activeBattle).once('value');
+    const data=snap.val();
+    if(!data||data.status!=='playing'){spinning=false;return;}
+
+    const caseId=data.cases[round];
+    const cd=CASE_MAP[caseId];
+    if(!cd){spinning=false;return;}
+
+    const roundData=(data.rounds||{})[round];
+    if(!roundData){spinning=false;return;}
+
+    const pids=Object.keys(data.players);
+    const p1id=data.creator;
+    const p2id=pids.find(id=>id!==data.creator);
+
+    const p1Win=roundData[p1id];
+    const p2Win=roundData[p2id];
+    if(!p1Win||!p2Win){spinning=false;return;}
+
+    const p1Spinner=document.getElementById('p1Spinner');
+    const p2Spinner=document.getElementById('p2Spinner');
+    const p1Track=document.getElementById('p1Track');
+    const p2Track=document.getElementById('p2Track');
+
+    if(!p1Spinner||!p2Spinner){spinning=false;return;}
+
+    p1Spinner.style.display='block';
+    p2Spinner.style.display='block';
+
+    buildTrack(p1Track,cd,p1Win);
+    buildTrack(p2Track,cd,p2Win);
+
+    await Promise.all([
+      animateTrack(p1Spinner,p1Track),
+      animateTrack(p2Spinner,p2Track)
+    ]);
+
+    await delay(600);
+
+    // Show won items in the list for both clients
+    const p1Items=document.getElementById('p1Items');
+    const p2Items=document.getElementById('p2Items');
+    if(p1Items&&p1Win){
+      const rar=RARITIES[p1Win.rarity]||RARITIES.common;
+      p1Items.insertAdjacentHTML('beforeend',`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${p1Win.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${p1Win.name}</span><span class="pp-item-val">🪙 ${(p1Win.value||0).toLocaleString()}</span></div>`);
+    }
+    if(p2Items&&p2Win){
+      const rar=RARITIES[p2Win.rarity]||RARITIES.common;
+      p2Items.insertAdjacentHTML('beforeend',`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${p2Win.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${p2Win.name}</span><span class="pp-item-val">🪙 ${(p2Win.value||0).toLocaleString()}</span></div>`);
+    }
+
+    // Update totals visually
+    const p1Total=(data.players[p1id]?.total||0)+p1Win.value;
+    const p2Total=(data.players[p2id]?.total||0)+(p2Win?p2Win.value:0);
+    const p1TotalEl=document.querySelector('#p1Panel .pp-total');
+    const p2TotalEl=document.querySelector('#p2Panel .pp-total');
+    if(p1TotalEl) p1TotalEl.textContent='🪙 '+p1Total.toLocaleString();
+    if(p2TotalEl) p2TotalEl.textContent='🪙 '+p2Total.toLocaleString();
+
+    // Hide spinners
+    p1Spinner.style.display='none';
+    p2Spinner.style.display='none';
+
+       // Only the creator advances the game state in the database
+    if(myUid===data.creator){
+      // Write player items and totals
+      for(const pid of pids){
+        const item=roundData[pid];
+        const curTotal=(data.players[pid]?.total||0);
+        await rtdb.ref('battles/'+activeBattle+'/players/'+pid+'/items/'+round).set(item);
+        await rtdb.ref('battles/'+activeBattle+'/players/'+pid+'/total').set(curTotal+item.value);
+      }
+
+      const nextRound=round+1;
+
+      if(nextRound>=data.cases.length){
+        // Last round — finish the battle, then set currentRound
+        await rtdb.ref('battles/'+activeBattle+'/currentRound').set(nextRound);
+        await finishBattle(data,nextRound);
+        // Small delay to let Firebase propagate the winner/status writes
+        await delay(300);
+      }else{
+        // Generate next round's results FIRST, then advance currentRound
+        const nextCaseId=data.cases[nextRound];
+        const nextCd=CASE_MAP[nextCaseId];
+        if(nextCd){
+          const nextResults={};
+          pids.forEach(pid=>{
+            const won=pickItem(nextCd.items);
+            nextResults[pid]={name:won.name,img:won.img,value:won.value,rarity:won.rarity};
+          });
+          await rtdb.ref('battles/'+activeBattle+'/rounds/'+nextRound).set(nextResults);
+        }
+        await rtdb.ref('battles/'+activeBattle+'/currentRound').set(nextRound);
+      }
+    }
+
+    spinning=false;
+
+    // Both clients: poll until we get a definitive next state
+    // This handles the case where on('value') fired while spinning was true
+    const pollForNext=async(retries)=>{
+      for(let i=0;i<retries;i++){
+        await delay(500);
+        if(!activeBattle)return;
+        const freshSnap=await rtdb.ref('battles/'+activeBattle).once('value');
+        const freshData=freshSnap.val();
+        if(!freshData)return;
+
+        // Game finished — re-render to show results
+        if(freshData.status==='finished'||freshData.winner){
+          renderBattle(freshData);
+          return;
+        }
+
+        // Next round is ready — play it
+        if(freshData.status==='playing'){
+          const nextR=freshData.currentRound||0;
+          const nextRoundData=(freshData.rounds||{})[nextR];
+          if(nextR<freshData.cases.length&&nextRoundData&&!roundsAnimated.has(nextR)){
+            await delay(300);
+            playRound(nextR);
+            return;
+          }
+          // If all rounds are done but status isn't finished yet, the creator
+          // is still writing — keep polling
+          if(nextR>=freshData.cases.length){
+            continue; // retry, finishBattle hasn't completed yet
+          }
+        }
+      }
+      // Final fallback: force a re-read and render whatever we have
+      if(!activeBattle)return;
+      const finalSnap=await rtdb.ref('battles/'+activeBattle).once('value');
+      const finalData=finalSnap.val();
+      if(finalData) renderBattle(finalData);
+    };
+
+    await pollForNext(10);
+  }
+
+  function buildTrack(trackEl,caseData,winItem){
+    trackEl.innerHTML='';
+    trackEl.style.transition='none';
+    trackEl.style.transform='translateX(0)';
+    const ITEM_W=window.innerWidth<=768?75:90;
+    const TOTAL=55;
+    const WIN_POS=45;
+
+    for(let i=0;i<TOTAL;i++){
+      const item=i===WIN_POS?winItem:caseData.items[Math.floor(Math.random()*caseData.items.length)];
+      const r=RARITIES[item.rarity]||RARITIES.common;
+      const el=document.createElement('div');
+      el.className='b-track-item';
+      el.style.width=ITEM_W+'px';
+      el.innerHTML=`<img src="${item.img}" alt="" onerror="this.style.display='none'" style="filter:drop-shadow(0 0 5px ${r.color})"/><div class="bti-name">${item.name}</div><div class="bti-val">🪙 ${item.value}</div><div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:${r.color};opacity:.5"></div>`;
+      trackEl.appendChild(el);
+    }
+  }
+
+  async function animateTrack(spinnerEl,trackEl){
+    const ITEM_W=window.innerWidth<=768?75:90;
+    const WIN_POS=45;
+    void trackEl.offsetHeight;
+    const areaW=spinnerEl.offsetWidth;
+    const targetX=(WIN_POS*ITEM_W)+(ITEM_W/2)-(areaW/2);
+    const offset=(Math.random()-0.5)*(ITEM_W*0.35);
+    trackEl.style.transition='transform 4.5s cubic-bezier(0.12, 0.87, 0.22, 1)';
+    trackEl.style.transform=`translateX(-${targetX+offset}px)`;
+    await delay(4800);
+  }
+
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  /* ═══════════════════════════════════════════
+     FINISH BATTLE
+     ═══════════════════════════════════════════ */
+  async function finishBattle(data,totalRoundsDone){
+    // Re-read latest
+    const snap=await rtdb.ref('battles/'+activeBattle+'/players').once('value');
+    const ps=snap.val()||{};
+    const pids=Object.keys(ps);
+    const totals={};
+    pids.forEach(pid=>totals[pid]=ps[pid].total||0);
+
+    const sorted=pids.sort((a,b)=>totals[b]-totals[a]);
+    const bet=data.bet||0;
+    let winner;
+
+    if(pids.length===2&&totals[sorted[0]]===totals[sorted[1]]){
+      winner='draw';
+      // Return bets
+      for(const pid of pids) await adjCredits(pid,bet);
+    }else{
+      winner=sorted[0];
+      // Winner gets both bets
+      await adjCredits(winner,bet*2);
+    }
+
+    await rtdb.ref('battles/'+activeBattle+'/winner').set(winner);
+    await rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+  }
+
+  /* ═══════════════════════════════════════════
+     CLEANUP — check on page load for leftover battles
+     ═══════════════════════════════════════════ */
+  // Also clean up battles where both left
+  setInterval(async()=>{
+    if(!myUid)return;
+    const snap=await rtdb.ref('battles').once('value');
+    const all=snap.val()||{};
+    for(const[id,b]of Object.entries(all)){
+      // Delete if both players left
+      const left=b.playersLeft||{};
+      const playerCount=Object.keys(b.players||{}).length;
+      const leftCount=Object.values(left).filter(v=>v===true).length;
+      if(playerCount>=2&&leftCount>=2){
+        await rtdb.ref('battles/'+id).remove();
+      }
+      // Delete stale waiting battles >30min, refund creator
+      if(b.status==='waiting'&&b.createdAt&&Date.now()-b.createdAt>1800000){
+        await adjCredits(b.creator,b.totalCost||0);
+        await rtdb.ref('battles/'+id).remove();
+      }
+    }
+  },30000);
+
+  /* ── Particles ── */
+  (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
+  </script>
+</body>
+</html>

@@ -505,7 +505,8 @@
     }
 
     totalGames++;
-    addHist(currentFloor,false);
+       addHist(currentFloor,false);
+    await saveGameStats('tower', bet, 0, false);
 
     resultEl.innerHTML='<span class="rr-lose">BOOM on floor '+(f+1)+'! Lost '+bet.toLocaleString()+' credits.</span>';
     endGame();
@@ -523,7 +524,8 @@
     if(m>bestMult)bestMult=m;
     if(w>biggestWin)biggestWin=w;
 
-    addHist(currentFloor,true);
+        addHist(currentFloor,true);
+    await saveGameStats('tower', bet, w, true);
 
     resultEl.innerHTML='<span class="rr-win">REACHED THE TOP! +'+w.toLocaleString()+' credits ('+m.toFixed(2)+'x)</span>';
     endGame();
@@ -599,7 +601,8 @@
       floorEls[f].classList.remove('dimmed','current-floor');
     }
 
-    addHist(currentFloor,'cash');
+       addHist(currentFloor,'cash');
+    await saveGameStats('tower', bet, w, true);
     resultEl.innerHTML='<span class="rr-cash">CASHED OUT at floor '+currentFloor+' ('+m.toFixed(2)+'x)! +'+w.toLocaleString()+' credits</span>';
     endGame();
   });
@@ -617,7 +620,37 @@
     document.getElementById('sBest').textContent=bestMult>0?bestMult.toFixed(2)+'x':'0x';
     document.getElementById('sBiggest').textContent=biggestWin.toLocaleString();
   }
-
+  /* ═══ SAVE STATS TO FIREBASE ═══ */
+  async function saveGameStats(gameName, betAmount, winAmount, won) {
+    if (!currentUser) return;
+    var uid = currentUser.uid;
+    var statsRef = rtdb.ref('users/' + uid + '/stats/' + gameName);
+    await statsRef.transaction(function(current) {
+      if (!current) {
+        current = {
+          totalBet: 0, totalWon: 0, totalLost: 0,
+          gamesPlayed: 0, gamesWon: 0,
+          biggestWin: 0, biggestBet: 0,
+          currentStreak: 0, bestStreak: 0, lastPlayed: 0
+        };
+      }
+      current.gamesPlayed = (current.gamesPlayed || 0) + 1;
+      current.totalBet = (current.totalBet || 0) + betAmount;
+      current.lastPlayed = Date.now();
+      if (betAmount > (current.biggestBet || 0)) current.biggestBet = betAmount;
+      if (won) {
+        current.gamesWon = (current.gamesWon || 0) + 1;
+        current.totalWon = (current.totalWon || 0) + winAmount;
+        current.currentStreak = (current.currentStreak || 0) + 1;
+        if (current.currentStreak > (current.bestStreak || 0)) current.bestStreak = current.currentStreak;
+        if (winAmount > (current.biggestWin || 0)) current.biggestWin = winAmount;
+      } else {
+        current.totalLost = (current.totalLost || 0) + betAmount;
+        current.currentStreak = 0;
+      }
+      return current;
+    });
+  }
   /* ═══ PARTICLES ═══ */
   (function(){
     var pCanvas=document.getElementById('particles');var pCtx=pCanvas.getContext('2d');

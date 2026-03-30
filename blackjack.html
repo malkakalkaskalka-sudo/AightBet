@@ -215,11 +215,14 @@
 
             <!-- Action buttons -->
             <div class="controls" id="controls">
-              <button class="btn btn-deal" id="dealBtn">Deal</button>
-              <button class="btn btn-hit" id="hitBtn" disabled>Hit</button>
-              <button class="btn btn-stand" id="standBtn" disabled>Stand</button>
-              <button class="btn btn-double" id="doubleBtn" disabled>Double</button>
-            </div>
+  <button class="btn btn-deal" id="dealBtn">Deal</button>
+  <button class="btn btn-hit" id="hitBtn" disabled>Hit</button>
+  <button class="btn btn-stand" id="standBtn" disabled>Stand</button>
+  <button class="btn btn-double" id="doubleBtn" disabled>Double</button>
+  <a href="online-blackjack.html" class="btn btn-secondary" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;color:#fff;box-shadow:0 8px 26px -10px rgba(236,72,153,.4);text-decoration:none;">
+    🌐 Play Online
+  </a>
+</div>
           </div>
         </div>
 
@@ -489,6 +492,13 @@
       updateStats(true);
     }
 
+    // ═══ SAVE TO FIREBASE ═══
+    const isWin = (result === 'blackjack' || result === 'win' || result === 'dealer-bust');
+    const isPush = (result === 'push');
+    if (!isPush) {
+      await saveGameStats('blackjack', currentBet, winAmount, isWin);
+    }
+
     setButtons('done');
   }
 
@@ -671,6 +681,54 @@
   // Init
   setButtons('bet');
 
+
+  async function saveGameStats(gameName, betAmount, winAmount, won) {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  const statsRef = rtdb.ref('users/' + uid + '/stats/' + gameName);
+
+  await statsRef.transaction(function(current) {
+    if (!current) {
+      current = {
+        totalBet: 0,
+        totalWon: 0,
+        totalLost: 0,
+        gamesPlayed: 0,
+        gamesWon: 0,
+        biggestWin: 0,
+        biggestBet: 0,
+        currentStreak: 0,
+        bestStreak: 0,
+        lastPlayed: 0
+      };
+    }
+
+    current.gamesPlayed = (current.gamesPlayed || 0) + 1;
+    current.totalBet = (current.totalBet || 0) + betAmount;
+    current.lastPlayed = Date.now();
+
+    if (betAmount > (current.biggestBet || 0)) {
+      current.biggestBet = betAmount;
+    }
+
+    if (won) {
+      current.gamesWon = (current.gamesWon || 0) + 1;
+      current.totalWon = (current.totalWon || 0) + winAmount;
+      current.currentStreak = (current.currentStreak || 0) + 1;
+      if (current.currentStreak > (current.bestStreak || 0)) {
+        current.bestStreak = current.currentStreak;
+      }
+      if (winAmount > (current.biggestWin || 0)) {
+        current.biggestWin = winAmount;
+      }
+    } else {
+      current.totalLost = (current.totalLost || 0) + betAmount;
+      current.currentStreak = 0;
+    }
+
+    return current;
+  });
+}
   /* ── Particles ── */
   (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
   </script>

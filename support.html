@@ -120,6 +120,23 @@
     .ac-response-input:focus{border-color:var(--accent)}
     .ac-actions{display:flex;gap:6px;flex-wrap:wrap}
 
+    /* MESSAGES */
+    .msg-compose{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+    .msg-compose h3{font-size:.95rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .msg-compose h3 svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:2}
+    .msg-textarea{width:100%;padding:12px;font-size:.85rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;outline:none;font-family:var(--font);resize:vertical;min-height:80px;transition:border-color .2s}
+    .msg-textarea:focus{border-color:var(--accent)}
+    .msg-send{margin-top:10px;padding:10px 22px;font-size:.82rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:10px;cursor:pointer;font-family:var(--font);transition:transform .15s}
+    .msg-send:hover{transform:translateY(-1px)}
+    .msg-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:border-color .2s}
+    .msg-card:hover{border-color:var(--border2)}
+    .msg-icon{width:36px;height:36px;border-radius:50%;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+    .msg-body{flex:1;min-width:0}
+    .msg-text{font-size:.85rem;line-height:1.5;margin-bottom:4px;word-break:break-word}
+    .msg-meta{font-size:.68rem;color:var(--muted)}
+    .msg-del{padding:5px 10px;font-size:.65rem;font-weight:700;color:var(--red);background:none;border:1px solid rgba(239,68,68,.2);border-radius:6px;cursor:pointer;font-family:var(--font);transition:all .15s;flex-shrink:0;align-self:center}
+    .msg-del:hover{background:rgba(239,68,68,.1)}
+
     /* SETTINGS */
     .setting-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px}
     .setting-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -189,6 +206,7 @@
       <button class="dash-tab active" data-tab="reports">Reports</button>
       <button class="dash-tab" data-tab="appeals">Appeals <span class="tab-badge" id="appealBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="users">Users</button>
+      <button class="dash-tab" data-tab="messages">Messages</button>
       <button class="dash-tab" data-tab="resolved">Resolved</button>
       <button class="dash-tab" data-tab="settings">Settings</button>
     </div>
@@ -206,7 +224,8 @@
   const auth=firebase.auth(),rtdb=firebase.database();
 
   const SUPPORT_EMAIL='support@support.com',SUPPORT_PASS='adminADMIN';
-  let authed=false,allUsers={},allReports={},allPosts={},allAppeals={},activeTab='reports';
+  let authed=false,allUsers={},allReports={},allPosts={},allAppeals={},allMessages={},activeTab='reports';
+  let settingsLoaded=false;
 
   function toast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3500);}
   function timeAgo(ts){if(!ts)return'—';const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
@@ -228,7 +247,16 @@
   document.getElementById('logoutBtn').addEventListener('click',()=>{auth.signOut();authed=false;document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('dashboard').classList.remove('active');});
 
   /* ═══ TABS ═══ */
-  document.getElementById('dashTabs').addEventListener('click',e=>{const t=e.target.closest('.dash-tab');if(!t)return;document.querySelectorAll('.dash-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeTab=t.dataset.tab;renderContent();});
+  document.getElementById('dashTabs').addEventListener('click',e=>{
+    const t=e.target.closest('.dash-tab');
+    if(!t)return;
+    document.querySelectorAll('.dash-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const prev=activeTab;
+    activeTab=t.dataset.tab;
+    if(prev==='settings')settingsLoaded=false;
+    renderContent();
+  });
 
   /* ═══ LOAD ═══ */
   function loadDashboard(){
@@ -242,9 +270,10 @@
       if(pending>0){badge.textContent=pending;badge.style.display='flex';}else{badge.style.display='none';}
       renderStats();renderContent();
     });
+    loadMessages();
   }
 
-  function getUserName(uid){const d=allUsers[uid]||{};return d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
+  function getUserName(uid){const d=allUsers[uid]||{};return d.username||d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
 
   /* ═══ STATS ═══ */
   function renderStats(){
@@ -260,14 +289,37 @@
   }
 
   /* ═══ RENDER ═══ */
-  function renderContent(){
-    const c=document.getElementById('dashContent');
-    if(activeTab==='reports')renderReports(c,false);
-    else if(activeTab==='resolved')renderReports(c,true);
-    else if(activeTab==='users')renderUsers(c);
-    else if(activeTab==='appeals')renderAppeals(c);
-    else if(activeTab==='settings')renderSettings(c);
+  
+
+// Add a flag to prevent re-renders while user is focused on an input
+let isUserTyping = false;
+
+// Listen for focus/blur on the content area to detect typing
+document.getElementById('dashContent').addEventListener('focusin', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    isUserTyping = true;
   }
+});
+
+document.getElementById('dashContent').addEventListener('focusout', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    // Small delay so the blur fires before any render
+    setTimeout(() => { isUserTyping = false; }, 200);
+  }
+});
+
+// Then modify renderContent to skip re-render while typing:
+function renderContent() {
+  if (isUserTyping) return; // ← ADD THIS LINE
+
+  const c = document.getElementById('dashContent');
+  if (activeTab === 'reports') renderReports(c, false);
+  else if (activeTab === 'resolved') renderReports(c, true);
+  else if (activeTab === 'users') renderUsers(c);
+  else if (activeTab === 'appeals') renderAppeals(c);
+  else if (activeTab === 'messages') renderMessages(c);
+  else if (activeTab === 'settings') renderSettings(c);
+}
 
   /* ═══ REPORTS ═══ */
   function renderReports(c,showResolved){
@@ -283,13 +335,17 @@
     const users=Object.entries(allUsers).sort((a,b)=>(b[1].credits||0)-(a[1].credits||0));
     if(!users.length){c.innerHTML=`<div class="empty-state"><div class="es-title">No users</div></div>`;return;}
     let h='';
-    users.forEach(([uid,u])=>{const av=u.avatar||u.photoURL,nm=u.nickname||u.displayName||u.email||uid.substring(0,8),banned=!!u.banned;
+    users.forEach(([uid,u])=>{const av=u.avatar||u.photoURL,nm=u.username||u.nickname||u.displayName||u.email||uid.substring(0,8),banned=!!u.banned;
     h+=`<div class="user-row"><div class="user-av">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div><div class="user-info"><div class="user-name">${escapeHTML(nm)} ${banned?'<span style="color:var(--red);font-size:.65rem">BANNED</span>':''}</div><div class="user-email">${escapeHTML(u.email||'')}</div><div class="user-uid">${uid}</div></div><div class="user-credits">🪙 ${(u.credits||0).toLocaleString()}</div><div class="user-actions"><button class="r-btn view" onclick="viewUser('${uid}')">View</button><button class="r-btn ${banned?'resolve':'ban'}" onclick="${banned?`unbanUser('${uid}')`:`banUser('${uid}')`}">${banned?'Unban':'Ban'}</button><button class="r-btn" onclick="resetCredits('${uid}')">Reset₵</button><button class="r-btn" onclick="giveCredits('${uid}')">Give₵</button></div></div>`;});
     c.innerHTML=h;
   }
 
   /* ═══ APPEALS ═══ */
   function renderAppeals(c){
+    // Don't re-render if user is typing in a response input
+    const activeEl=document.activeElement;
+    if(activeEl&&activeEl.classList.contains('ac-response-input')&&activeEl.value.trim().length>0)return;
+
     const appeals=Object.entries(allAppeals).map(([uid,a])=>({uid,...a})).sort((a,b)=>{
       const order={pending:0,denied:1,approved:2};
       if(order[a.status]!==order[b.status])return order[a.status]-order[b.status];
@@ -304,7 +360,7 @@
     let h='';
     appeals.forEach(a=>{
       const u=allUsers[a.uid]||{};
-      const nm=u.nickname||u.displayName||u.email||a.uid.substring(0,8);
+      const nm=u.username||u.nickname||u.displayName||u.email||a.uid.substring(0,8);
       const av=u.avatar||u.photoURL;
       const isPending=a.status==='pending';
 
@@ -338,7 +394,7 @@
     c.innerHTML=h;
   }
 
-  /* ═══ HANDLE APPEAL — fixed: per-path writes instead of root update ═══ */
+  /* ═══ HANDLE APPEAL ═══ */
   async function handleAppeal(uid,status){
     const respEl=document.getElementById('resp_'+uid);
     const response=respEl?respEl.value.trim():'';
@@ -370,10 +426,91 @@
     toast('Appeal removed','success');
   }
 
+  /* ═══ MESSAGES ═══ */
+  function loadMessages(){
+    rtdb.ref('globalMessages').orderByChild('createdAt').on('value',s=>{
+      allMessages=s.val()||{};
+      // Don't re-render if user is actively typing in the compose box
+      if(activeTab==='messages'){
+        const ta=document.getElementById('globalMsgText');
+        if(ta&&ta===document.activeElement&&ta.value.trim().length>0)return;
+        renderMessages(document.getElementById('dashContent'));
+      }
+    });
+  }
+
+  function renderMessages(c){
+    const msgs=Object.entries(allMessages).map(([id,m])=>({id,...m})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+    let h=`<div class="msg-compose">
+      <h3><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Send Global Message</h3>
+      <textarea class="msg-textarea" id="globalMsgText" placeholder="Type a message that will be shown to all users..."></textarea>
+      <button class="msg-send" id="globalMsgSend">📢 Send to Everyone</button>
+    </div>`;
+
+    if(!msgs.length){
+      h+=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="es-title">No messages sent</div><div style="font-size:.8rem">Global messages you send will appear here.</div></div>`;
+    }else{
+      h+=`<div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px">Sent Messages (${msgs.length})</div>`;
+      msgs.forEach(m=>{
+        h+=`<div class="msg-card">
+          <div class="msg-icon">📢</div>
+          <div class="msg-body">
+            <div class="msg-text">${escapeHTML(m.text)}</div>
+            <div class="msg-meta">${m.createdAt?new Date(m.createdAt).toLocaleString():'—'} · Seen by ~${Object.keys(m.seenBy||{}).length} users</div>
+          </div>
+          <button class="msg-del" onclick="deleteGlobalMsg('${m.id}')">Delete</button>
+        </div>`;
+      });
+    }
+
+    c.innerHTML=h;
+
+    const sendBtn=document.getElementById('globalMsgSend');
+    const textArea=document.getElementById('globalMsgText');
+    let sending=false;
+
+    sendBtn.addEventListener('click',async()=>{
+      if(sending)return;
+      const text=textArea.value.trim();
+      if(!text){toast('Write a message first');return;}
+      sending=true;
+      sendBtn.textContent='Sending...';
+      sendBtn.disabled=true;
+      try{
+        const ref=rtdb.ref('globalMessages').push();
+        await ref.set({
+          id:ref.key,
+          text:text,
+          createdAt:Date.now(),
+          seenBy:{}
+        });
+        textArea.value='';
+        toast('Message sent to everyone!','success');
+      }catch(e){toast('Error: '+e.message);}
+      sending=false;
+      sendBtn.textContent='📢 Send to Everyone';
+      sendBtn.disabled=false;
+    });
+  }
+
+  async function deleteGlobalMsg(id){
+    if(!confirm('Delete this message? Users who haven\'t seen it yet won\'t see it.'))return;
+    await rtdb.ref('globalMessages/'+id).remove();
+    toast('Message deleted','success');
+  }
+
   /* ═══ SETTINGS ═══ */
   function renderSettings(c){
+    // Only build the DOM once — don't rebuild on every Firebase update
+    if(settingsLoaded&&activeTab==='settings'&&document.getElementById('maintToggle')){
+      return;
+    }
+
     rtdb.ref('settings').once('value',snap=>{
-      const s=snap.val()||{};const maintOn=s.maintenance===true;const maintMsg=s.maintenanceMessage||'';
+      const s=snap.val()||{};
+      settingsLoaded=true;
+      const maintOn=s.maintenance===true;const maintMsg=s.maintenanceMessage||'';
       c.innerHTML=`
         <div class="setting-card">
           <div class="setting-header">
@@ -402,7 +539,6 @@
       `;
       document.getElementById('maintToggle').addEventListener('change',async function(){await rtdb.ref('settings/maintenance').set(this.checked);const s2=document.getElementById('maintStatus');s2.style.color=this.checked?'var(--red)':'var(--green)';s2.textContent=this.checked?'⚠️ MAINTENANCE ON':'✅ Site is live';toast(this.checked?'Maintenance ON':'Maintenance OFF','success');});
       document.getElementById('maintMsgSave').addEventListener('click',async()=>{await rtdb.ref('settings/maintenanceMessage').set(document.getElementById('maintMsgInput').value.trim());toast('Message saved','success');});
-      /* ═══ GLOBAL CREDITS — fixed: per-user writes instead of root update ═══ */
       document.getElementById('globalCreditsBtn').addEventListener('click',async()=>{
         const n=parseInt(document.getElementById('globalCreditsInput').value);
         if(isNaN(n)||n<=0){toast('Invalid amount');return;}
@@ -421,7 +557,7 @@
     });
   }
 
-  /* ═══ ACTIONS — fixed: per-path writes instead of root update ═══ */
+  /* ═══ ACTIONS ═══ */
   async function resolveReport(id){await rtdb.ref('reports/'+id+'/resolved').set(true);await rtdb.ref('reports/'+id+'/resolvedAt').set(Date.now());toast('Resolved','success');}
   async function deleteReport(id){if(!confirm('Delete report?'))return;await rtdb.ref('reports/'+id).remove();toast('Removed','success');}
   async function deleteContent(rid){
@@ -432,7 +568,7 @@
     await resolveReport(rid);}catch(e){toast('Error: '+e.message);}
   }
 
-  /* ═══ BAN/UNBAN — fixed: per-path writes instead of root update ═══ */
+  /* ═══ BAN/UNBAN ═══ */
   async function banUser(uid){
     const reason=prompt('Ban reason for '+getUserName(uid)+':','Violation of community guidelines');
     if(reason===null)return;
@@ -443,7 +579,7 @@
       toast('User banned','success');
     }catch(e){toast('Error: '+e.message);}
   }
-  async function unbanUser(uid){
+    async function unbanUser(uid){
     try{
       await rtdb.ref('users/'+uid+'/banned').remove();
       await rtdb.ref('users/'+uid+'/banReason').remove();
@@ -461,13 +597,13 @@
     const r=allReports[id];if(!r)return;let ch='';
     if(r.targetType==='post'&&r.targetId){const p=allPosts[r.targetId];ch=p?`<div class="detail-content">${escapeHTML(p.text||'(no text)')}</div>${p.image?`<img class="detail-img" src="${p.image}"/>`:''}`:'<div style="color:var(--muted)">Post deleted.</div>';}
     else if(r.targetType==='comment'&&r.postId&&r.targetId){const p=allPosts[r.postId],cm=p&&p.comments&&p.comments[r.targetId];ch=cm?`<div class="detail-content">${escapeHTML(cm.text)}</div>`:'<div style="color:var(--muted)">Comment deleted.</div>';}
-    else if(r.targetType==='user'){const u=allUsers[r.targetId]||{};ch=`<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.nickname||u.displayName||'?')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'?')}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'YES':'No'}</span></div>`;}
+    else if(r.targetType==='user'){const u=allUsers[r.targetId]||{};ch=`<div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.username||u.nickname||u.displayName||'?')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'?')}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'YES':'No'}</span></div>`;}
     openModal(`<h3>Report Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">Type:</span><span class="detail-val"><span class="r-type ${r.targetType||'post'}">${r.targetType||'post'}</span></span></div><div class="detail-row"><span class="detail-label">Reason:</span><span class="detail-val">${escapeHTML(r.reason)}</span></div><div class="detail-row"><span class="detail-label">Reporter:</span><span class="detail-val">${escapeHTML(getUserName(r.reporterUid))}</span></div><div class="detail-row"><span class="detail-label">Target:</span><span class="detail-val">${escapeHTML(getUserName(r.targetAuthorUid||r.targetId))}</span></div><div class="detail-row"><span class="detail-label">Time:</span><span class="detail-val">${r.timestamp?new Date(r.timestamp).toLocaleString():'—'}</span></div><div class="detail-row"><span class="detail-label">Status:</span><span class="detail-val">${r.resolved?'<span style="color:var(--green)">Resolved</span>':'<span style="color:var(--red)">Pending</span>'}</span></div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Content</div>${ch}`);
   }
 
   function viewUser(uid){
     const u=allUsers[uid]||{};const up=Object.entries(allPosts).filter(([,p])=>p.authorUid===uid);const ur=Object.entries(allReports).filter(([,r])=>r.targetAuthorUid===uid||r.targetId===uid);const ua=allAppeals[uid];
-    openModal(`<h3>User Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">UID:</span><span class="detail-val" style="font-family:monospace;font-size:.75rem">${uid}</span></div><div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.nickname||u.displayName||'—')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'—')}</span></div><div class="detail-row"><span class="detail-label">Credits:</span><span class="detail-val" style="color:var(--gold)">${(u.credits||0).toLocaleString()}</span></div><div class="detail-row"><span class="detail-label">Bio:</span><span class="detail-val">${escapeHTML(u.bio||'(none)')}</span></div><div class="detail-row"><span class="detail-label">Private:</span><span class="detail-val">${u.privateProfile?'Yes':'No'}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'<span style="color:var(--red);font-weight:700">YES</span> — '+escapeHTML(u.banReason||''):'No'}</span></div><div class="detail-row"><span class="detail-label">Created:</span><span class="detail-val">${u.createdAt?new Date(u.createdAt).toLocaleString():'—'}</span></div><div class="detail-row"><span class="detail-label">Posts:</span><span class="detail-val">${up.length}</span></div><div class="detail-row"><span class="detail-label">Reports:</span><span class="detail-val">${ur.length}</span></div>${ua?`<div class="detail-row"><span class="detail-label">Appeal:</span><span class="detail-val"><span class="ac-status ${ua.status}">${ua.status}</span></span></div>`:''}<hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Inventory (${Object.keys(u.inventory||{}).length})</div><div class="detail-content" style="font-size:.7rem">${Object.keys(u.inventory||{}).join(', ')||'(empty)'}</div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Recent Posts</div><div class="detail-content">${up.slice(0,5).map(([,p])=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)"><strong>${timeAgo(p.timestamp)}</strong>: ${escapeHTML((p.text||'').substring(0,150))}${p.image?' [img]':''}</div>`).join('')||'(none)'}</div>`);
+    openModal(`<h3>User Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">UID:</span><span class="detail-val" style="font-family:monospace;font-size:.75rem">${uid}</span></div><div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.username||u.nickname||u.displayName||'—')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'—')}</span></div><div class="detail-row"><span class="detail-label">Credits:</span><span class="detail-val" style="color:var(--gold)">${(u.credits||0).toLocaleString()}</span></div><div class="detail-row"><span class="detail-label">Bio:</span><span class="detail-val">${escapeHTML(u.bio||'(none)')}</span></div><div class="detail-row"><span class="detail-label">Private:</span><span class="detail-val">${u.privateProfile?'Yes':'No'}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'<span style="color:var(--red);font-weight:700">YES</span> — '+escapeHTML(u.banReason||''):'No'}</span></div><div class="detail-row"><span class="detail-label">Created:</span><span class="detail-val">${u.createdAt?new Date(u.createdAt).toLocaleString():'—'}</span></div><div class="detail-row"><span class="detail-label">Posts:</span><span class="detail-val">${up.length}</span></div><div class="detail-row"><span class="detail-label">Reports:</span><span class="detail-val">${ur.length}</span></div>${ua?`<div class="detail-row"><span class="detail-label">Appeal:</span><span class="detail-val"><span class="ac-status ${ua.status}">${ua.status}</span></span></div>`:''}<hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Inventory (${Object.keys(u.inventory||{}).length})</div><div class="detail-content" style="font-size:.7rem">${Object.keys(u.inventory||{}).join(', ')||'(empty)'}</div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Recent Posts</div><div class="detail-content">${up.slice(0,5).map(([,p])=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)"><strong>${timeAgo(p.timestamp)}</strong>: ${escapeHTML((p.text||'').substring(0,150))}${p.image?' [img]':''}</div>`).join('')||'(none)'}</div>`);
   }
   </script>
 </body>

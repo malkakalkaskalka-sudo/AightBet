@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Online Blackjack</title>
+  <link rel="stylesheet" href="css/light.css" />
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+
+    .bg-gradient,.orb{pointer-events:none}
+    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.10),transparent),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(236,72,153,.06),transparent);animation:bgShift 14s ease-in-out infinite alternate;will-change:transform}
+    @keyframes bgShift{0%{transform:scale(1)}100%{transform:scale(1.08) translate(-2%,1%)}}
+    #particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+    .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.3;z-index:0;will-change:transform;animation:orbFloat 8s ease-in-out infinite alternate}
+    .orb-1{width:320px;height:320px;background:var(--accent);top:-80px;left:-60px}
+    .orb-2{width:260px;height:260px;background:var(--accent2);bottom:-60px;right:-40px;animation-delay:-3s;animation-duration:10s}
+    .orb-3{width:180px;height:180px;background:var(--accent3);top:40%;left:55%;animation-delay:-5s;animation-duration:14s}
+    @keyframes orbFloat{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(25px,-35px) rotate(4deg)}}
+
+    /* NAVBAR */
+    .navbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:100;display:flex;align-items:center;padding:0 24px;background:rgba(10,10,15,.6);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border);transition:background .3s}
+    .navbar.scrolled{background:rgba(10,10,15,.85)}
+    .nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+    .nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:8px;filter:drop-shadow(0 0 6px rgba(139,92,246,.3))}
+    .nav-logo span{font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-link{display:flex;align-items:center;gap:7px;padding:10px 18px;font-size:.9rem;font-weight:600;color:var(--muted);border-radius:10px;transition:color .2s,background .2s;cursor:pointer;border:none;background:transparent;font-family:var(--font)}
+    .nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,.06)}
+    .nav-link.active{color:var(--accent);background:rgba(139,92,246,.1)}
+    .nav-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .nav-credits{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:.85rem;font-weight:700;color:var(--gold);cursor:pointer;transition:background .2s,transform .15s}
+    .nav-credits:hover{background:rgba(245,158,11,.18);transform:translateY(-1px)}
+    .nav-credits svg{width:16px;height:16px;fill:var(--gold);stroke:none}
+    .nav-avatar{width:36px;height:36px;border-radius:50%;margin-left:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.1);transition:border-color .2s,box-shadow .2s;overflow:hidden;flex-shrink:0}
+    .nav-avatar:hover{border-color:var(--accent);box-shadow:0 0 16px -4px var(--glow)}
+    .nav-avatar img{width:100%;height:100%;object-fit:cover}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:10px}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:99;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:8px;animation:fadeSlideDown .3s ease}
+    .mobile-menu.open{display:flex}
+    @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    .mobile-menu .nav-link{padding:16px 20px;font-size:1.05rem;border-radius:12px}
+    .mobile-menu .nav-credits{margin:8px 0 0;padding:14px 20px;font-size:1rem;border-radius:12px;justify-content:center}
+
+    .main{position:relative;z-index:10;padding-top:calc(var(--nav-h)+60px);min-height:100dvh}
+    .page-header{text-align:center;padding:88px 24px 20px}
+    .page-header h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px}
+    .page-header h1 .grad{background:linear-gradient(135deg,var(--accent3),var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradMove 4s ease-in-out infinite}
+    @keyframes gradMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .page-header p{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;font-size:.95rem;cursor:pointer;transition:transform .15s,box-shadow .25s;color:#fff;font-family:var(--font)}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:translateY(0) scale(.98)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#7c3aed);box-shadow:0 8px 26px -10px var(--glow)}
+    .btn-green{background:linear-gradient(135deg,var(--green),#16a34a);box-shadow:0 8px 26px -10px rgba(34,197,94,.4)}
+    .btn-red{background:linear-gradient(135deg,var(--red),#dc2626);box-shadow:0 8px 26px -10px rgba(239,68,68,.4)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);box-shadow:0 8px 26px -10px rgba(245,158,11,.4)}
+    .btn-secondary{background:var(--surface2);color:var(--text);box-shadow:none;border:1px solid var(--border2)}
+    .btn-cyan{background:linear-gradient(135deg,var(--accent2),#0891b2);box-shadow:0 8px 26px -10px rgba(6,182,212,.4)}
+    .btn-pink{background:linear-gradient(135deg,var(--accent3),#be185d);box-shadow:0 8px 26px -10px rgba(236,72,153,.4)}
+    .btn-hit{background:linear-gradient(135deg,var(--accent),#7c3aed);box-shadow:0 8px 26px -10px var(--glow)}
+    .btn-stand{background:linear-gradient(135deg,var(--accent2),#0891b2);box-shadow:0 8px 26px -10px rgba(6,182,212,.4)}
+
+    .content-wrapper{max-width:1100px;margin:0 auto;padding:0 24px 48px}
+
+    /* LOBBY */
+    .lobby-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .lobby-header h2{font-size:1.3rem;font-weight:800}
+    .battle-list{display:grid;gap:12px}
+    .battle-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;transition:border-color .2s,transform .2s;cursor:pointer}
+    .battle-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+    .battle-card-info h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+    .battle-card-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+    .battle-card-meta span{display:flex;align-items:center;gap:4px}
+    .battle-card-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    .battle-cost{font-size:.9rem;font-weight:800;color:var(--gold)}
+    .no-battles{text-align:center;padding:60px 20px;color:var(--muted);font-size:1rem}
+
+    /* CREATE OVERLAY */
+    .overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:16px}
+    .overlay.open{display:flex}
+    .overlay-panel{background:rgba(15,15,25,.97);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;animation:overlayIn .35s ease}
+    @keyframes overlayIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .overlay-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:1.2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;z-index:5}
+    .overlay-close:hover{background:rgba(255,255,255,.12)}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:.85rem;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .form-input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);font-weight:700;font-size:1rem;font-family:var(--font)}
+    .form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+    .create-summary{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:14px;padding:16px;margin:20px 0}
+    .cs-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.9rem}
+    .cs-label{color:var(--muted);font-weight:600}
+    .cs-val{font-weight:800;color:var(--gold)}
+    .create-error{text-align:center;color:var(--red);font-weight:700;min-height:24px;margin-top:8px}
+
+    /* BATTLE OVERLAY */
+    .battle-overlay{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto}
+    .battle-overlay.open{display:block}
+    .battle-inner{max-width:960px;margin:0 auto;padding:24px;min-height:100vh}
+    .battle-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .battle-topbar h2{font-size:1.3rem;font-weight:800}
+    .battle-topbar .bt-info{display:flex;gap:16px;font-size:.85rem;color:var(--muted);font-weight:600}
+    .battle-topbar .bt-info span{color:var(--gold);font-weight:800}
+
+    .waiting-screen{text-align:center;padding:80px 20px}
+    .waiting-screen h2{font-size:1.8rem;font-weight:900;margin-bottom:12px}
+    .waiting-screen p{color:var(--muted);font-size:1.05rem;margin-bottom:24px}
+    .waiting-dots{display:inline-flex;gap:6px}
+    .waiting-dots span{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite}
+    .waiting-dots span:nth-child(2){animation-delay:.2s}
+    .waiting-dots span:nth-child(3){animation-delay:.4s}
+    @keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}}
+    .waiting-id{margin-top:20px;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:inline-block;font-size:.85rem;color:var(--muted)}
+    .waiting-id code{color:var(--accent);font-weight:800;font-size:.9rem}
+
+    /* VERSUS LAYOUT */
+    .versus-area{display:grid;grid-template-columns:1fr 60px 1fr;gap:12px;align-items:start;margin-bottom:20px}
+    @media(max-width:700px){.versus-area{grid-template-columns:1fr;gap:16px}}
+    .vs-divider{display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:var(--accent3);align-self:center}
+
+    .player-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .4s,box-shadow .4s}
+    .player-panel.winner{border-color:var(--gold);box-shadow:0 0 40px -10px rgba(245,158,11,.3)}
+    .player-panel.loser{opacity:.7}
+    .player-panel.active-turn{border-color:var(--green);box-shadow:0 0 30px -10px rgba(34,197,94,.3)}
+    .pp-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .pp-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+    .pp-avatar img{width:100%;height:100%;object-fit:cover}
+    .pp-name{font-weight:800;font-size:1rem;flex:1}
+    .pp-score{font-weight:900;font-size:1.4rem}
+    .pp-score.score-green{color:var(--green)}
+    .pp-score.score-red{color:var(--red)}
+    .pp-score.score-gold{color:var(--gold)}
+    .pp-score.score-accent{color:var(--accent)}
+    .pp-score.score-muted{color:var(--muted)}
+    .pp-status{font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:8px;display:inline-block;margin-top:4px}
+    .pp-status.playing{background:rgba(34,197,94,.12);color:var(--green)}
+    .pp-status.stood{background:rgba(6,182,212,.12);color:var(--accent2)}
+    .pp-status.busted{background:rgba(239,68,68,.12);color:var(--red)}
+    .pp-status.blackjack{background:rgba(245,158,11,.12);color:var(--gold)}
+    .pp-status.your-turn{background:rgba(34,197,94,.15);color:var(--green);animation:pulse-glow 1.5s ease-in-out infinite}
+    @keyframes pulse-glow{0%,100%{opacity:1}50%{opacity:.6}}
+
+    /* CARDS */
+    .cards-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:100px;align-items:center;margin:12px 0}
+    .card-item{width:70px;height:100px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,.1);display:flex;flex-direction:column;justify-content:space-between;padding:6px;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:dealCard .4s ease both;font-family:'Segoe UI',sans-serif;transition:transform .2s}
+    .card-item:hover{transform:translateY(-3px)}
+    .card-item.facedown{background:linear-gradient(135deg,var(--accent3),#be185d);border:2px solid rgba(236,72,153,.5);justify-content:center;align-items:center}
+    .card-item.facedown::after{content:'?';font-size:1.8rem;font-weight:900;color:rgba(255,255,255,.4)}
+    @keyframes dealCard{from{opacity:0;transform:translateY(-30px) rotateY(90deg)}to{opacity:1;transform:translateY(0) rotateY(0)}}
+    .card-top{display:flex;align-items:center;gap:2px;font-size:.85rem;font-weight:800}
+    .card-bottom{display:flex;align-items:center;gap:2px;font-size:.85rem;font-weight:800;align-self:flex-end;transform:rotate(180deg)}
+    .card-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+    .suit-red{color:#ef4444}
+    .suit-black{color:#1a1a2e}
+
+    /* CONTROLS */
+    .controls-area{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+
+    /* TURN BANNER */
+    .turn-banner{text-align:center;margin-bottom:16px}
+    .turn-banner .tb-text{font-size:.9rem;font-weight:800;padding:8px 20px;border-radius:10px;display:inline-block}
+    .tb-your{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+    .tb-opp{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+    .tb-done{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.2)}
+
+    /* FINAL RESULT */
+    .final-result{text-align:center;padding:32px 20px;animation:resultPop .5s ease}
+    @keyframes resultPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    .final-result h2{font-size:1.8rem;font-weight:900;margin-bottom:8px}
+    .final-result .fr-amount{font-size:2rem;font-weight:900;color:var(--gold);margin:12px 0}
+    .final-result p{color:var(--muted);font-size:1rem}
+
+    /* RULES */
+    .rules-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-top:20px}
+    .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .rule-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:.85rem;line-height:1.5}
+    .rule-item strong{color:var(--accent)}
+
+    .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+
+    @media(max-width:768px){
+      .nav-links,.nav-credits-desktop{display:none!important}
+      .hamburger{display:flex}
+      .navbar{height:var(--nav-h-mobile);padding:0 16px}
+      .main{padding-top:calc(var(--nav-h-mobile)+50px)}
+      .mobile-menu{top:var(--nav-h-mobile)}
+      .content-wrapper{padding:0 16px 36px}
+      .overlay-panel{padding:20px;max-width:95vw}
+      .battle-inner{padding:16px}
+      .card-item{width:58px;height:84px;padding:4px}
+      .card-top,.card-bottom{font-size:.7rem}
+      .card-center{font-size:1.4rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div><div class="grid-overlay"></div><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div><canvas id="particles"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet"/><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link">Store</a>
+    <a href="games.html" class="nav-link active">Games</a>
+    <a href="social.html" class="nav-link">Social</a>
+    <a href="profile.html" class="nav-link">Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <!-- CREATE OVERLAY -->
+  <div class="overlay" id="createOverlay">
+    <div class="overlay-panel">
+      <button class="overlay-close" id="createClose">✕</button>
+      <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:20px">🃏 Create Blackjack Battle</h2>
+      <div class="form-group">
+        <label>Bet Amount (credits per player)</label>
+        <input type="number" class="form-input" id="createBet" value="50" min="10" step="10"/>
+      </div>
+      <div class="create-summary">
+        <div class="cs-row"><span class="cs-label">Your entry cost</span><span class="cs-val" id="sumTotal">🪙 50</span></div>
+        <div class="cs-row"><span class="cs-label">Winner takes</span><span class="cs-val" id="sumPot">🪙 100</span></div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-green" id="createBtn">🎮 Create Battle</button>
+        <button class="btn btn-secondary" id="createCancel">Cancel</button>
+      </div>
+      <div class="create-error" id="createError"></div>
+    </div>
+  </div>
+
+  <!-- BATTLE OVERLAY -->
+  <div class="battle-overlay" id="battleOverlay">
+    <div class="battle-inner" id="battleInner"></div>
+  </div>
+
+  <!-- MAIN LOBBY -->
+  <main class="main" id="mainLobby">
+    <section class="page-header">
+      <h1>Online <span class="grad">Blackjack</span></h1>
+      <p>1v1 Blackjack battles. No dealer — closest to 21 wins the pot!</p>
+    </section>
+    <section class="content-wrapper">
+      <div class="lobby-header">
+        <h2>🃏 Open Tables</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="blackjack.html" class="btn btn-secondary" style="font-size:.85rem;padding:10px 16px">← Solo Blackjack</a>
+          <button class="btn btn-pink" id="openCreateBtn">+ Create Table</button>
+        </div>
+      </div>
+      <div class="battle-list" id="battleList">
+        <div class="no-battles" id="noBattles">No open tables right now. Create one!</div>
+      </div>
+
+      <div class="rules-panel" style="margin-top:28px">
+        <h3 style="margin-bottom:12px">How It Works</h3>
+        <div class="rules-grid">
+          <div class="rule-item"><strong>1v1:</strong> No dealer. You play directly against your opponent.</div>
+          <div class="rule-item"><strong>Goal:</strong> Get as close to 21 as possible without going over.</div>
+          <div class="rule-item"><strong>Turns:</strong> Player 1 hits/stands first, then Player 2.</div>
+          <div class="rule-item"><strong>Cards:</strong> 2-10 = face value. J/Q/K = 10. A = 1 or 11.</div>
+          <div class="rule-item"><strong>Blackjack:</strong> Natural 21 (A + 10-card) beats a regular 21.</div>
+          <div class="rule-item"><strong>Winner:</strong> Highest score ≤ 21 wins. Both bust = draw.</div>
+          <div class="rule-item"><strong>Draw:</strong> Same score = bets returned to both players.</div>
+          <div class="rule-item"><strong>Forfeit:</strong> Leave mid-game and your opponent wins automatically.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2026 AightBet. Fake casino – no real money.</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  /* ═══════════════════════════════════════════
+     FIREBASE
+     ═══════════════════════════════════════════ */
+  const firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
+  firebase.initializeApp(firebaseConfig);
+  const auth=firebase.auth(),rtdb=firebase.database();
+  let currentUser=null,myUid=null,myName='',myAvatar='';
+
+  function applyTheme(t){document.documentElement.setAttribute('data-theme',t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);localStorage.setItem('aightbet-theme',t);}
+  applyTheme(localStorage.getItem('aightbet-theme')||'dark');
+
+  auth.onAuthStateChanged(u=>{
+    if(!u){location.href='index.html';return;}
+    currentUser=u;myUid=u.uid;
+    rtdb.ref('users/'+u.uid).on('value',snap=>{
+      const d=snap.val()||{};
+      document.getElementById('creditsCount').textContent=(d.credits||0).toLocaleString();
+      document.getElementById('creditsCountMobile').textContent=(d.credits||0).toLocaleString();
+      applyTheme(d.theme||localStorage.getItem('aightbet-theme')||'dark');
+      myName=d.username||u.displayName||u.email||'Player';
+      myAvatar=d.avatar||u.photoURL||'';
+      const av=document.getElementById('navAvatar');
+      if(myAvatar)av.innerHTML=`<img src="${myAvatar}" alt=""/>`;
+      else av.textContent=myName.charAt(0).toUpperCase();
+    });
+  });
+
+  function getCredits(){return parseInt((document.getElementById('creditsCount').textContent||'0').replace(/,/g,''))||0;}
+  async function adjCredits(uid,delta){await rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+delta);}
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  /* Navbar */
+  (()=>{const nav=document.getElementById('navbar');let t=false;addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{nav.classList.toggle('scrolled',scrollY>20);t=false;});t=true;}});})();
+  (()=>{const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');});m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');}));})();
+  document.getElementById('navAvatar').addEventListener('click',()=>location.href='profile.html');
+
+  /* ═══════════════════════════════════════════
+     BLACKJACK ENGINE (no dealer)
+     ═══════════════════════════════════════════ */
+  const SUITS=['♠','♥','♦','♣'];
+  const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+  function createDeck(){
+    const d=[];for(const s of SUITS)for(const r of RANKS)d.push({rank:r,suit:s});
+    const shoe=[...d,...d,...d,...d,...d,...d];
+    for(let i=shoe.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shoe[i],shoe[j]]=[shoe[j],shoe[i]];}
+    return shoe;
+  }
+  function cardValue(c){if(['J','Q','K'].includes(c.rank))return 10;if(c.rank==='A')return 11;return parseInt(c.rank);}
+  function handValue(h){let t=0,a=0;for(const c of(h||[])){t+=cardValue(c);if(c.rank==='A')a++;}while(t>21&&a>0){t-=10;a--;}return t;}
+  function isBlackjack(h){return h&&h.length===2&&handValue(h)===21;}
+  function suitColor(s){return(s==='♥'||s==='♦')?'suit-red':'suit-black';}
+
+  function renderCardHtml(card,facedown=false){
+    if(facedown)return`<div class="card-item facedown"></div>`;
+    const cc=suitColor(card.suit);
+    return`<div class="card-item"><div class="card-top ${cc}">${card.rank}${card.suit}</div><div class="card-center ${cc}">${card.suit}</div><div class="card-bottom ${cc}">${card.rank}${card.suit}</div></div>`;
+  }
+
+  function renderHandCards(hand){
+    return(hand||[]).map(c=>renderCardHtml(c)).join('');
+  }
+
+  /* ═══════════════════════════════════════════
+     CREATE OVERLAY
+     ═══════════════════════════════════════════ */
+  const createOverlay=document.getElementById('createOverlay');
+  const createBetInput=document.getElementById('createBet');
+
+  document.getElementById('openCreateBtn').addEventListener('click',()=>createOverlay.classList.add('open'));
+  document.getElementById('createClose').addEventListener('click',()=>createOverlay.classList.remove('open'));
+  document.getElementById('createCancel').addEventListener('click',()=>createOverlay.classList.remove('open'));
+  createOverlay.addEventListener('click',e=>{if(e.target===createOverlay)createOverlay.classList.remove('open');});
+
+  createBetInput.addEventListener('input',()=>{
+    const bet=Math.max(10,parseInt(createBetInput.value)||10);
+    document.getElementById('sumTotal').textContent='🪙 '+bet.toLocaleString();
+    document.getElementById('sumPot').textContent='🪙 '+(bet*2).toLocaleString();
+  });
+
+  document.getElementById('createBtn').addEventListener('click',async()=>{
+    const errEl=document.getElementById('createError');
+    errEl.textContent='';
+    if(!myUid){errEl.textContent='Not logged in!';return;}
+    const bet=Math.max(10,parseInt(createBetInput.value)||10);
+    if(getCredits()<bet){errEl.textContent='Not enough credits! Need '+bet.toLocaleString();return;}
+
+    const userSnap=await rtdb.ref('users/'+myUid).once('value');
+    const ud=userSnap.val()||{};
+    const nickname=ud.username||currentUser.displayName||currentUser.email||'Player';
+    const avatar=ud.avatar||currentUser.photoURL||'';
+
+    await adjCredits(myUid,-bet);
+
+    const ref=rtdb.ref('bj-battles').push();
+    await ref.set({
+      id:ref.key,
+      creator:myUid,
+      bet:bet,
+      status:'waiting',
+      createdAt:firebase.database.ServerValue.TIMESTAMP,
+      players:{[myUid]:{uid:myUid,name:nickname,avatar:avatar}},
+      phase:'waiting',
+      p1Hand:null,p2Hand:null,shoe:null,
+      p1Status:'waiting',p2Status:'waiting',
+      winner:null,
+      playersLeft:{}
+    });
+
+    createOverlay.classList.remove('open');
+    openBattleRoom(ref.key);
+  });
+
+  /* ═══════════════════════════════════════════
+     LOBBY LIST
+     ═══════════════════════════════════════════ */
+  const battleListEl=document.getElementById('battleList');
+
+  rtdb.ref('bj-battles').orderByChild('status').equalTo('waiting').on('value',snap=>{
+    const battles=snap.val()||{};
+    const entries=Object.entries(battles);
+    battleListEl.innerHTML='';
+    if(entries.length===0){
+      battleListEl.innerHTML='<div class="no-battles">No open tables right now. Create one!</div>';
+      return;
+    }
+    entries.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    entries.forEach(([id,b])=>{
+      const creatorData=b.players?.[b.creator]||{};
+      const isCreator=b.creator===myUid;
+      const card=document.createElement('div');
+      card.className='battle-card';
+      card.innerHTML=`
+        <div class="battle-card-info">
+          <h3>🃏 ${creatorData.name||'Unknown'}'s Table</h3>
+          <div class="battle-card-meta">
+            <span>🪙 Bet: ${(b.bet||0).toLocaleString()} per player</span>
+            <span>💰 Pot: ${((b.bet||0)*2).toLocaleString()}</span>
+          </div>
+        </div>
+        <div class="battle-card-actions">
+          <div class="battle-cost">🪙 ${(b.bet||0).toLocaleString()}</div>
+          <button class="btn ${isCreator?'btn-gold':'btn-green'}" style="font-size:.8rem;padding:8px 16px">${isCreator?'View':'Join Table'}</button>
+        </div>`;
+      const btn=card.querySelector('button');
+      btn.addEventListener('click',e=>{e.stopPropagation();isCreator?openBattleRoom(id):joinBattle(id,b);});
+      card.addEventListener('click',()=>isCreator?openBattleRoom(id):joinBattle(id,b));
+      battleListEl.appendChild(card);
+    });
+  });
+
+  async function joinBattle(battleId,battleData){
+    if(!myUid)return;
+    const bet=battleData.bet||0;
+    if(getCredits()<bet){alert('Not enough credits! Need '+bet.toLocaleString());return;}
+
+    const snap=await rtdb.ref('bj-battles/'+battleId).once('value');
+    const b=snap.val();
+    if(!b||b.status!=='waiting'){alert('Table no longer available.');return;}
+    if(Object.keys(b.players||{}).length>=2){alert('Table is full.');return;}
+
+    const userSnap=await rtdb.ref('users/'+myUid).once('value');
+    const ud=userSnap.val()||{};
+    const nickname=ud.username||currentUser.displayName||currentUser.email||'Player';
+    const avatar=ud.avatar||currentUser.photoURL||'';
+
+    await adjCredits(myUid,-bet);
+    await rtdb.ref('bj-battles/'+battleId+'/players/'+myUid).set({uid:myUid,name:nickname,avatar:avatar});
+    await rtdb.ref('bj-battles/'+battleId+'/status').set('playing');
+
+    openBattleRoom(battleId);
+  }
+
+  /* ═══════════════════════════════════════════
+     BATTLE ROOM
+     ═══════════════════════════════════════════ */
+  let activeBattle=null,battleRef=null,battleUnsub=null,battleState=null;
+  let actionInProgress=false;
+
+  function openBattleRoom(battleId){
+    closeBattleRoom(true);
+    activeBattle=battleId;
+    actionInProgress=false;
+
+    document.getElementById('battleOverlay').classList.add('open');
+    document.getElementById('mainLobby').style.display='none';
+
+    battleRef=rtdb.ref('bj-battles/'+battleId);
+    battleUnsub=battleRef.on('value',snap=>{
+      const data=snap.val();
+      if(!data){closeBattleRoom(true);return;}
+      battleState=data;
+      renderBattle(data);
+    });
+
+    battleRef.child('playersLeft/'+myUid).set(false);
+    window.addEventListener('beforeunload',markLeft);
+  }
+
+  function markLeft(){
+    if(activeBattle&&myUid){
+      rtdb.ref('bj-battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
+      if(battleState&&battleState.status==='playing'&&!battleState.winner){
+        const pids=Object.keys(battleState.players||{});
+        const opponentId=pids.find(id=>id!==myUid);
+        rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'none');
+        rtdb.ref('bj-battles/'+activeBattle+'/status').set('finished');
+        rtdb.ref('bj-battles/'+activeBattle+'/forfeitedBy').set(myUid);
+        if(opponentId)adjCredits(opponentId,(battleState.bet||0)*2);
+        trackForfeit(myUid);
+      }
+    }
+  }
+
+  function closeBattleRoom(silent=false){
+    if(battleRef&&battleUnsub)battleRef.off('value',battleUnsub);
+
+    if(!silent&&activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner){
+      const pids=Object.keys(battleState.players||{});
+      const opponentId=pids.find(id=>id!==myUid);
+      rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'none');
+      rtdb.ref('bj-battles/'+activeBattle+'/status').set('finished');
+      rtdb.ref('bj-battles/'+activeBattle+'/forfeitedBy').set(myUid);
+      if(opponentId)adjCredits(opponentId,(battleState.bet||0)*2);
+      trackForfeit(myUid);
+    }
+
+    if(activeBattle&&myUid){
+      rtdb.ref('bj-battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
+      rtdb.ref('bj-battles/'+activeBattle+'/playersLeft').once('value').then(snap=>{
+        const left=snap.val()||{};
+        const allLeft=Object.values(left).every(v=>v===true)&&Object.keys(left).length>=2;
+        if(allLeft)rtdb.ref('bj-battles/'+activeBattle).remove();
+      });
+    }
+
+    window.removeEventListener('beforeunload',markLeft);
+    activeBattle=null;battleRef=null;battleUnsub=null;battleState=null;actionInProgress=false;
+    document.getElementById('battleOverlay').classList.remove('open');
+    document.getElementById('mainLobby').style.display='';
+  }
+
+  async function trackForfeit(uid){
+    const today=new Date().toISOString().slice(0,10);
+    const ref=rtdb.ref('users/'+uid+'/forfeits/'+today);
+    const snap=await ref.once('value');
+    const count=(snap.val()||0)+1;
+    await ref.set(count);
+    if(count>=3){
+      await rtdb.ref('reports').push().set({
+        targetType:'user',targetId:uid,targetAuthorUid:uid,reporterUid:'system',
+        reason:`Auto-flag: forfeited ${count} blackjack battles today (${today}).`,
+        timestamp:Date.now(),resolved:false,autoGenerated:true
+      });
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BATTLE
+     ═══════════════════════════════════════════ */
+  function renderBattle(data){
+    const inner=document.getElementById('battleInner');
+    const players=data.players||{};
+    const pids=Object.keys(players);
+    const p1id=data.creator;
+    const p2id=pids.find(id=>id!==data.creator)||null;
+    const p1=players[p1id]||{};
+    const p2=p2id?players[p2id]:null;
+    const isFinished=data.status==='finished';
+    const phase=data.phase||'waiting';
+
+    // ── WAITING ──
+    if(data.status==='waiting'){
+      inner.innerHTML=`
+        <div class="battle-topbar">
+          <h2>🃏 Blackjack Battle</h2>
+          <button class="btn btn-red" id="cancelBattleBtn" style="font-size:.8rem;padding:8px 16px">Cancel & Refund</button>
+        </div>
+        <div class="waiting-screen">
+          <h2>Waiting for Opponent</h2>
+          <p>Share this table or wait for someone to join from the lobby.</p>
+          <div class="waiting-dots"><span></span><span></span><span></span></div>
+          <div style="margin-top:20px;font-size:1.1rem;font-weight:800;color:var(--gold)">Bet: 🪙 ${(data.bet||0).toLocaleString()} per player</div>
+          <div class="waiting-id" style="margin-top:16px">Table ID: <code>${data.id}</code></div>
+        </div>`;
+      document.getElementById('cancelBattleBtn')?.addEventListener('click',async()=>{
+        if(data.creator!==myUid)return;
+        await adjCredits(myUid,data.bet||0);
+        await rtdb.ref('bj-battles/'+activeBattle).remove();
+        closeBattleRoom(true);
+      });
+      return;
+    }
+
+    // ── PLAYING / FINISHED ──
+    const p1Hand=data.p1Hand||[];
+    const p2Hand=data.p2Hand||[];
+    const p1Status=data.p1Status||'waiting';
+    const p2Status=data.p2Status||'waiting';
+
+    const amP1=myUid===p1id;
+    const myHand=amP1?p1Hand:p2Hand;
+    const oppHand=amP1?p2Hand:p1Hand;
+    const myStatus=amP1?p1Status:p2Status;
+    const oppStatus=amP1?p2Status:p1Status;
+    const myPid=amP1?p1id:p2id;
+    const oppPid=amP1?p2id:p1id;
+    const myData=amP1?p1:p2;
+    const oppData=amP1?p2:p1;
+
+    const isMyTurn=(amP1&&phase==='p1-turn')||(!amP1&&phase==='p2-turn');
+    const isOppTurn=(amP1&&phase==='p2-turn')||(!amP1&&phase==='p1-turn');
+
+    // Turn banner
+    let turnHtml='';
+    if(!isFinished){
+      if(isMyTurn)turnHtml=`<div class="turn-banner"><span class="tb-text tb-your">🟢 Your Turn — Hit or Stand</span></div>`;
+      else if(isOppTurn)turnHtml=`<div class="turn-banner"><span class="tb-text tb-opp">⏳ Waiting for opponent…</span></div>`;
+    }else{
+      turnHtml=`<div class="turn-banner"><span class="tb-text tb-done">🏁 Round Over</span></div>`;
+    }
+
+    // Score color
+    function scoreClass(val,status){
+      if(status==='busted')return'score-red';
+      if(status==='blackjack')return'score-gold';
+      if(val===21)return'score-green';
+      if(val>=17)return'score-accent';
+      return'score-muted';
+    }
+
+    // Status badge
+    function statusBadge(s,isMeTurn){
+      if(s==='stood')return`<span class="pp-status stood">STOOD</span>`;
+      if(s==='busted')return`<span class="pp-status busted">💥 BUSTED</span>`;
+      if(s==='blackjack')return`<span class="pp-status blackjack">🃏 BLACKJACK!</span>`;
+      if(isMeTurn)return`<span class="pp-status your-turn">YOUR TURN</span>`;
+      if(s==='playing')return`<span class="pp-status playing">Playing</span>`;
+      return`<span class="pp-status" style="background:var(--surface2);color:var(--muted)">Waiting</span>`;
+    }
+
+    // Player panel builder
+    function buildPanel(pid,pdata,hand,status,isActive,canSeeCards){
+      if(!pdata)return`<div class="player-panel"><div style="text-align:center;color:var(--muted);padding:40px">No opponent</div></div>`;
+      const isWinner=data.winner===pid;
+      const isLoser=data.winner&&data.winner!=='draw'&&data.winner!==pid&&isFinished;
+      const val=handValue(hand);
+      const isMe=pid===myUid;
+      const isMeTurn=(isMe&&isMyTurn);
+
+      let cardsHtml='';
+      if(canSeeCards||isFinished){
+        cardsHtml=renderHandCards(hand);
+      }else{
+        // Show first card, rest facedown
+        if(hand.length>0)cardsHtml+=renderCardHtml(hand[0]);
+        for(let i=1;i<hand.length;i++)cardsHtml+=renderCardHtml(hand[i],true);
+      }
+
+      const showScore=canSeeCards||isFinished;
+
+      return`
+        <div class="player-panel ${isWinner?'winner':''} ${isLoser?'loser':''} ${isActive?'active-turn':''}">
+          <div class="pp-header">
+            <div class="pp-avatar">${pdata.avatar?`<img src="${pdata.avatar}"/>`:((pdata.name||'?').charAt(0).toUpperCase())}</div>
+            <div class="pp-name">${pdata.name||'Player'}${isMe?' (You)':''}</div>
+            <div class="pp-score ${showScore?scoreClass(val,status):'score-muted'}">${showScore?val:'?'}</div>
+          </div>
+          ${statusBadge(status,isMeTurn)}
+          <div class="cards-row">${cardsHtml}</div>
+        </div>`;
+    }
+
+    // Result
+    let resultHtml='';
+    if(isFinished&&data.winner){
+      const wasForfeit=!!data.forfeitedBy;
+      if(data.winner==='draw'){
+        resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players had the same score. Bets returned.</p></div>`;
+      }else if(data.winner==='both_bust'){
+        resultHtml=`<div class="final-result"><h2 style="color:var(--red)">💥 Both Busted!</h2><p>Nobody wins. Bets returned.</p></div>`;
+      }else{
+        const isMe=data.winner===myUid;
+        const winnerData=players[data.winner];
+        const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
+        resultHtml=`<div class="final-result">
+          <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won!':'💀 You Lost!'}</h2>
+          <p>${winnerData?.name||'Winner'} takes the pot${forfeitText}!</p>
+          ${isMe?`<div class="fr-amount">+${((data.bet||0)*2).toLocaleString()} credits</div>`:''}
+        </div>`;
+      }
+    }
+
+    inner.innerHTML=`
+      <div class="battle-topbar">
+        <h2>🃏 Blackjack Battle</h2>
+        <div class="bt-info">
+          <div>Bet: <span>🪙 ${(data.bet||0).toLocaleString()}</span></div>
+          <div>Pot: <span>🪙 ${((data.bet||0)*2).toLocaleString()}</span></div>
+        </div>
+      </div>
+      ${turnHtml}
+      <div class="versus-area">
+        ${buildPanel(myPid,myData,myHand,myStatus,isMyTurn,true)}
+        <div class="vs-divider">VS</div>
+        ${buildPanel(oppPid,oppData,oppHand,oppStatus,isOppTurn,false)}
+      </div>
+      <div class="controls-area" id="controlsArea">
+        ${isMyTurn&&!isFinished?`
+          <button class="btn btn-hit" id="hitBtn">Hit</button>
+          <button class="btn btn-stand" id="standBtn">Stand</button>
+        `:''}
+      </div>
+      ${resultHtml}
+      <div style="display:flex;justify-content:center;margin-top:16px">
+        <button class="btn btn-secondary" id="leaveBtn">${isFinished?'← Back to Lobby':'Leave Table'}</button>
+      </div>`;
+
+    // Attach
+    document.getElementById('hitBtn')?.addEventListener('click',()=>doHit());
+    document.getElementById('standBtn')?.addEventListener('click',()=>doStand());
+    document.getElementById('leaveBtn')?.addEventListener('click',()=>closeBattleRoom());
+
+    // Creator deals on game start
+    if(data.status==='playing'&&phase==='waiting'&&myUid===data.creator){
+      dealInitialCards();
+    }
+
+    // Check if both done → resolve
+        // Check if both done → resolve (creator handles it)
+        // Check if both done → resolve (creator handles it)
+    if(data.status==='playing'&&!data.winner&&myUid===data.creator){
+      const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
+      const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
+      if(p1Done&&p2Done){
+        resolveGame();
+      }
+    }
+  }
+
+   /* ═══════════════════════════════════════════
+     DEAL INITIAL CARDS (creator only)
+     ═══════════════════════════════════════════ */
+  async function dealInitialCards(){
+    if(actionInProgress)return;
+    actionInProgress=true;
+
+    const snap=await battleRef.once('value');
+    const data=snap.val();
+    if(!data||data.phase!=='waiting'||data.status!=='playing'){actionInProgress=false;return;}
+
+    const shoe=createDeck();
+    const p1Hand=[shoe.pop(),shoe.pop()];
+    const p2Hand=[shoe.pop(),shoe.pop()];
+
+    const p1BJ=isBlackjack(p1Hand);
+    const p2BJ=isBlackjack(p2Hand);
+
+    let phase='p1-turn';
+    let p1Status='playing';
+    let p2Status='playing';
+
+    if(p1BJ)p1Status='blackjack';
+    if(p2BJ)p2Status='blackjack';
+
+    // If P1 has blackjack, skip to P2's turn
+    if(p1BJ&&!p2BJ){
+      phase='p2-turn';
+    }
+    // If both have blackjack, skip straight to resolve
+    if(p1BJ&&p2BJ){
+      phase='done';
+    }
+    // If only P2 has blackjack, P1 still plays
+    // (p1 might still get 21 with more cards, but BJ beats regular 21)
+
+    await battleRef.update({
+      shoe:shoe,
+      p1Hand:p1Hand,
+      p2Hand:p2Hand,
+      phase:phase,
+      p1Status:p1Status,
+      p2Status:p2Status
+    });
+
+    // If both BJ, resolve immediately
+    if(p1BJ&&p2BJ){
+      await delay(500);
+      const freshSnap=await battleRef.once('value');
+      if(freshSnap.val()&&!freshSnap.val().winner){
+        await resolveGame(freshSnap.val());
+      }
+    }
+
+    actionInProgress=false;
+  }
+
+  /* ═══════════════════════════════════════════
+     HIT
+     ═══════════════════════════════════════════ */
+    async function doHit(){
+    if(!battleRef)return;
+
+    const snap=await battleRef.once('value');
+    const data=snap.val();
+    if(!data||data.status!=='playing'||data.winner)return;
+
+    const amP1=myUid===data.creator;
+    const myTurnPhase=amP1?'p1-turn':'p2-turn';
+    if(data.phase!==myTurnPhase)return;
+
+    const handKey=amP1?'p1Hand':'p2Hand';
+    const statusKey=amP1?'p1Status':'p2Status';
+    const shoe=[...(data.shoe||[])];
+
+    if(shoe.length<1)return;
+
+    const newCard=shoe.pop();
+    const hand=[...(data[handKey]||[]),newCard];
+    const val=handValue(hand);
+    const updates={shoe:shoe,[handKey]:hand};
+
+    if(val>21){
+      updates[statusKey]='busted';
+      if(amP1){
+        const p2s=data.p2Status||'playing';
+        updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
+      }else{
+        updates.phase='done';
+      }
+    }else if(val===21){
+      updates[statusKey]='stood';
+      if(amP1){
+        const p2s=data.p2Status||'playing';
+        updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
+      }else{
+        updates.phase='done';
+      }
+    }
+
+    await battleRef.update(updates);
+  }
+
+  /* ═══════════════════════════════════════════
+     STAND
+     ═══════════════════════════════════════════ */
+    async function doStand(){
+    if(!battleRef)return;
+
+    const snap=await battleRef.once('value');
+    const data=snap.val();
+    if(!data||data.status!=='playing'||data.winner)return;
+
+    const amP1=myUid===data.creator;
+    const myTurnPhase=amP1?'p1-turn':'p2-turn';
+    if(data.phase!==myTurnPhase)return;
+
+    const statusKey=amP1?'p1Status':'p2Status';
+    const updates={[statusKey]:'stood'};
+
+    if(amP1){
+      const p2s=data.p2Status||'playing';
+      updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
+    }else{
+      updates.phase='done';
+    }
+
+    await battleRef.update(updates);
+  }
+
+  /* ═══════════════════════════════════════════
+     RESOLVE GAME (creator only — no dealer)
+     ═══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════
+     RESOLVE GAME (creator only — no dealer)
+     ═══════════════════════════════════════════ */
+  let resolving=false;
+
+  async function resolveGame(){
+    if(resolving)return;
+    resolving=true;
+
+    // Small delay to let all writes settle
+    await delay(500);
+
+    const freshSnap=await battleRef.once('value');
+    const fresh=freshSnap.val();
+    if(!fresh||fresh.winner||fresh.status==='finished'){resolving=false;return;}
+
+    const pids=Object.keys(fresh.players||{});
+    const p1id=fresh.creator;
+    const p2id=pids.find(id=>id!==fresh.creator);
+    const bet=fresh.bet||0;
+
+    const p1Hand=fresh.p1Hand||[];
+    const p2Hand=fresh.p2Hand||[];
+    const p1Val=handValue(p1Hand);
+    const p2Val=handValue(p2Hand);
+    const p1Status=fresh.p1Status||'playing';
+    const p2Status=fresh.p2Status||'playing';
+    const p1Busted=p1Status==='busted';
+    const p2Busted=p2Status==='busted';
+    const p1BJ=p1Status==='blackjack';
+    const p2BJ=p2Status==='blackjack';
+
+    // Make sure both are actually done
+    const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
+    const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
+    if(!p1Done||!p2Done){resolving=false;return;}
+
+    let winner;
+
+    if(p1Busted&&p2Busted){
+      winner='both_bust';
+      await adjCredits(p1id,bet);
+      await adjCredits(p2id,bet);
+    }
+    else if(p1Busted&&!p2Busted){
+      winner=p2id;
+      await adjCredits(p2id,bet*2);
+    }
+    else if(p2Busted&&!p1Busted){
+      winner=p1id;
+      await adjCredits(p1id,bet*2);
+    }
+    else{
+      if(p1BJ&&!p2BJ){
+        winner=p1id;
+        await adjCredits(p1id,bet*2);
+      }else if(p2BJ&&!p1BJ){
+        winner=p2id;
+        await adjCredits(p2id,bet*2);
+      }else if(p1BJ&&p2BJ){
+        winner='draw';
+        await adjCredits(p1id,bet);
+        await adjCredits(p2id,bet);
+      }else if(p1Val>p2Val){
+        winner=p1id;
+        await adjCredits(p1id,bet*2);
+      }else if(p2Val>p1Val){
+        winner=p2id;
+        await adjCredits(p2id,bet*2);
+      }else{
+        winner='draw';
+        await adjCredits(p1id,bet);
+        await adjCredits(p2id,bet);
+      }
+    }
+
+    await battleRef.update({
+      phase:'done',
+      status:'finished',
+      winner:winner
+    });
+
+    const p1Won=winner===p1id;
+    const p2Won=winner===p2id;
+    await saveGameStats(p1id,'online-blackjack',bet,p1Won?bet*2:0,p1Won);
+    await saveGameStats(p2id,'online-blackjack',bet,p2Won?bet*2:0,p2Won);
+
+    resolving=false;
+  }
+
+  /* ═══════════════════════════════════════════
+     SAVE STATS
+     ═══════════════════════════════════════════ */
+  async function saveGameStats(uid,gameName,betAmount,winAmount,won){
+    if(!uid)return;
+    const statsRef=rtdb.ref('users/'+uid+'/stats/'+gameName);
+    await statsRef.transaction(function(current){
+      if(!current)current={totalBet:0,totalWon:0,totalLost:0,gamesPlayed:0,gamesWon:0,biggestWin:0,biggestBet:0,currentStreak:0,bestStreak:0,lastPlayed:0};
+      current.gamesPlayed=(current.gamesPlayed||0)+1;
+      current.totalBet=(current.totalBet||0)+betAmount;
+      current.lastPlayed=Date.now();
+      if(betAmount>(current.biggestBet||0))current.biggestBet=betAmount;
+      if(won){
+        current.gamesWon=(current.gamesWon||0)+1;
+        current.totalWon=(current.totalWon||0)+winAmount;
+        current.currentStreak=(current.currentStreak||0)+1;
+        if(current.currentStreak>(current.bestStreak||0))current.bestStreak=current.currentStreak;
+        if(winAmount>(current.biggestWin||0))current.biggestWin=winAmount;
+      }else{
+        current.totalLost=(current.totalLost||0)+betAmount;
+        current.currentStreak=0;
+      }
+      return current;
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     CLEANUP — stale tables
+     ═══════════════════════════════════════════ */
+  setInterval(async()=>{
+    if(!myUid)return;
+    const snap=await rtdb.ref('bj-battles').once('value');
+    const all=snap.val()||{};
+    for(const[id,b]of Object.entries(all)){
+      const left=b.playersLeft||{};
+      const playerCount=Object.keys(b.players||{}).length;
+      const leftCount=Object.values(left).filter(v=>v===true).length;
+      if(playerCount>=2&&leftCount>=2){
+        await rtdb.ref('bj-battles/'+id).remove();
+      }
+      if(b.status==='waiting'&&b.createdAt&&Date.now()-b.createdAt>1800000){
+        await adjCredits(b.creator,b.bet||0);
+        await rtdb.ref('bj-battles/'+id).remove();
+      }
+    }
+  },30000);
+
+  /* ═══════════════════════════════════════════
+     PARTICLES
+     ═══════════════════════════════════════════ */
+  (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
+  </script>
+</body>
+</html>
