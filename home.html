@@ -154,10 +154,15 @@
       border-radius: 10px;
       font-size: .85rem; font-weight: 700;
       color: var(--gold);
-      cursor: default;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
     }
     .nav-credits svg {
       width: 16px; height: 16px; fill: var(--gold); stroke: none;
+    }
+    .nav-credits:hover {
+      background: rgba(245,158,11,.18);
+      transform: translateY(-1px);
     }
 
     /* User avatar */
@@ -539,34 +544,47 @@
       font-size: .8rem;
     }
 
-    .nav-credits {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  margin-left: 12px;
-  background: rgba(245,158,11,.1);
-  border: 1px solid rgba(245,158,11,.2);
-  border-radius: 10px;
-  font-size: .85rem;
-  font-weight: 700;
-  color: var(--gold);
-  cursor: pointer;
-  transition: background .2s, transform .15s; /* enables smooth hover */
-}
+    /* ───────── FLOATING SUPPORT WIDGET ───────── */
+    .support-fab-group{position:fixed;top:calc(var(--nav-h) + 16px);right:20px;z-index:90;display:flex;flex-direction:column;gap:10px}
+    .support-fab{width:44px;height:44px;border-radius:50%;border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:900;font-size:1.2rem;transition:transform .15s,box-shadow .25s,background .2s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    .support-fab:hover{transform:scale(1.1)}
+    .support-fab-help{background:rgba(139,92,246,.15);color:var(--accent);box-shadow:0 4px 16px -4px var(--glow)}
+    .support-fab-help:hover{background:rgba(139,92,246,.25);box-shadow:0 6px 24px -4px var(--glow)}
+    .support-fab-bug{background:rgba(239,68,68,.12);color:#f87171;box-shadow:0 4px 16px -4px rgba(239,68,68,.3)}
+    .support-fab-bug:hover{background:rgba(239,68,68,.2);box-shadow:0 6px 24px -4px rgba(239,68,68,.4)}
+    .support-fab-bug svg{pointer-events:none}
 
-.nav-credits svg {
-  width: 16px;
-  height: 16px;
-  fill: var(--gold);
-  stroke: none;
-}
-
-/* Hover animation */
-.nav-credits:hover {
-  background: rgba(245,158,11,.18);
-  transform: translateY(-1px);
-}
+    /* ── SUPPORT CHAT ── */
+    .support-chat-overlay{display:none;position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);justify-content:flex-end;align-items:flex-start;padding:calc(var(--nav-h) + 16px) 20px 20px}
+    .support-chat-overlay.open{display:flex}
+    .support-chat-panel{width:380px;max-width:95vw;max-height:70vh;background:rgba(15,15,25,.97);border:1px solid var(--border2);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;animation:chatSlideIn .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+    @keyframes chatSlideIn{from{opacity:0;transform:translateY(-16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .support-chat-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03)}
+    .support-chat-title{font-size:.9rem;font-weight:800}
+    .support-chat-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .support-chat-close:hover{background:rgba(255,255,255,.12)}
+    .support-chat-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+    .support-chat-empty{color:var(--muted);font-size:.82rem;text-align:center;padding:40px 10px}
+    .support-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:.82rem;line-height:1.45;word-break:break-word}
+    .support-msg.sent{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border-bottom-right-radius:4px}
+    .support-msg.received{align-self:flex-start;background:var(--surface2);color:var(--text);border-bottom-left-radius:4px}
+    .support-msg .s-ts{font-size:.55rem;margin-top:4px;opacity:.6;text-align:right}
+    .support-msg.received .s-ts{text-align:left}
+    .support-msg .s-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:.55rem;font-weight:700;margin-bottom:4px}
+    .s-tag-help{background:rgba(139,92,246,.15);color:var(--accent)}
+    .s-tag-bug{background:rgba(239,68,68,.15);color:#f87171}
+    .support-chat-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:rgba(255,255,255,.02)}
+    .support-chat-input{flex:1;padding:10px 14px;font-size:.82rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);outline:none;transition:border-color .2s}
+    .support-chat-input:focus{border-color:rgba(139,92,246,.3)}
+    .support-chat-input::placeholder{color:var(--muted)}
+    .support-chat-send{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+    .support-chat-send:hover{transform:translateY(-1px)}
+    @media(max-width:768px){
+      .support-fab-group{top:calc(var(--nav-h-mobile) + 12px);right:12px}
+      .support-fab{width:38px;height:38px;font-size:1rem}
+      .support-chat-overlay{padding:calc(var(--nav-h-mobile) + 12px) 10px 10px}
+      .support-chat-panel{width:100%;max-height:65vh}
+    }
 
     /* ───────── RESPONSIVE ───────── */
     @media (max-width: 768px) {
@@ -632,9 +650,9 @@
 
     <!-- Credits (desktop) -->
     <a href="credits.html" class="nav-credits nav-credits-desktop">
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
-  <span id="creditsCount">0</span>
-</a>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCount">0</span>
+    </a>
 
     <!-- Avatar -->
     <div class="nav-avatar" id="navAvatar" title="Profile"></div>
@@ -663,11 +681,12 @@
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Profile
     </a>
-   <a href="credits.html" class="nav-credits">
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
-  <span id="creditsCountMobile">0</span>
-</a>
-</div>
+    <a href="credits.html" class="nav-credits">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCountMobile">0</span>
+    </a>
+  </div>
+
   <!-- ════════ MAIN ════════ -->
   <main class="main">
 
@@ -712,7 +731,7 @@
     </div>
 
     <!-- Featured Banner -->
-      <div class="featured">
+    <div class="featured">
       <div class="featured-content">
         <h2>Play & Win Big</h2>
         <p>Test your luck with our collection of casino games. Spin slots, play blackjack, crash, and more — turn your credits into a fortune!</p>
@@ -740,7 +759,6 @@
       </div>
 
       <div class="game-grid">
-        <!-- Slots -->
         <div class="game-card" data-game="slots" onclick="location.href='slots.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -755,7 +773,6 @@
           </div>
         </div>
 
-        <!-- Cases -->
         <div class="game-card" data-game="cases" onclick="location.href='cases.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -770,7 +787,6 @@
           </div>
         </div>
 
-        <!-- Blackjack -->
         <div class="game-card" data-game="blackjack" onclick="location.href='blackjack.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -785,7 +801,6 @@
           </div>
         </div>
 
-        <!-- Poker -->
         <div class="game-card" data-game="poker" onclick="location.href='poker.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -800,7 +815,6 @@
           </div>
         </div>
 
-        <!-- Roulette -->
         <div class="game-card" data-game="roulette" onclick="location.href='roulette.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -815,7 +829,6 @@
           </div>
         </div>
 
-        <!-- Coinflip -->
         <div class="game-card" data-game="coinflip" onclick="location.href='coinflip.html'">
           <div class="game-thumb">
             <div class="game-bg"></div>
@@ -833,229 +846,321 @@
     </section>
   </main>
 
+  <!-- SUPPORT CHAT WIDGET -->
+  <div class="support-fab-group" id="supportFabGroup">
+    <button class="support-fab support-fab-help" id="fabHelp" title="Get Help">?</button>
+    <button class="support-fab support-fab-bug" id="fabBug" title="Report a Bug">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3.003 3.003 0 116 0v1M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 014-4h4a4 4 0 014 4v3c0 3.3-2.7 6-6 6zM12 20v2M6 13H2M22 13h-4M6 17l-2 2M18 17l2 2"/></svg>
+    </button>
+  </div>
+
+  <!-- Support Chat Overlay -->
+  <div class="support-chat-overlay" id="supportChatOverlay">
+    <div class="support-chat-panel">
+      <div class="support-chat-header">
+        <span class="support-chat-title" id="supportChatTitle">💬 Help & Support</span>
+        <button class="support-chat-close" id="supportChatClose">&times;</button>
+      </div>
+      <div class="support-chat-body" id="supportChatBody">
+        <div class="support-chat-empty">Send a message and support will reply as soon as possible!</div>
+      </div>
+      <div class="support-chat-input-row">
+        <input type="text" class="support-chat-input" id="supportChatInput" placeholder="Type your message..." maxlength="500" />
+        <button class="support-chat-send" id="supportChatSend">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     &copy; 2026 AightBet. This is a fake casino – no real money involved. Play responsibly (or don't, it's fake).
   </footer>
 
- <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
-  authDomain: "gamle-53778.firebaseapp.com",
-  databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gamle-53778",
-  storageBucket: "gamle-53778.firebasestorage.app",
-  messagingSenderId: "513958176524",
-  appId: "1:513958176524:web:c74a2e946da58507200b29",
-  measurementId: "G-EB6SF28HZK"
-};
-
-firebase.initializeApp(firebaseConfig);
-firebase.analytics();
-const auth = firebase.auth();
-const rtdb = firebase.database();
-</script>
-
-<script src="checker.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 
   <script>
-auth.onAuthStateChanged(async u => {
-  if (!u) { window.location.href = 'index.html'; return; }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+      authDomain: "gamle-53778.firebaseapp.com",
+      databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gamle-53778",
+      storageBucket: "gamle-53778.firebasestorage.app",
+      messagingSenderId: "513958176524",
+      appId: "1:513958176524:web:c74a2e946da58507200b29",
+      measurementId: "G-EB6SF28HZK"
+    };
 
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    const auth = firebase.auth();
+    const rtdb = firebase.database();
+  </script>
 
-  
+  <script src="checker.js"></script>
 
-  // live credits + avatar — both inside the listener so "data" exists
-  rtdb.ref('users/' + u.uid).on('value', snap => {
-    const data = snap.val() || {};
-    const c = (data.credits || 0).toLocaleString();
-    document.getElementById('creditsCount').textContent = c;
-    document.getElementById('creditsCountMobile').textContent = c;
+  <script>
+    auth.onAuthStateChanged(async u => {
+      if (!u) { window.location.href = 'index.html'; return; }
 
-    // avatar
-    const av = document.getElementById('navAvatar');
-    const avatarUrl = data.avatar || u.photoURL || null;
-    if (avatarUrl) {
-      av.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
-    } else {
-      av.textContent = (u.displayName || u.email || '?').charAt(0).toUpperCase();
-    }
-  });
-});
-   
+      rtdb.ref('users/' + u.uid).on('value', snap => {
+        const data = snap.val() || {};
+        const c = (data.credits || 0).toLocaleString();
+        document.getElementById('creditsCount').textContent = c;
+        document.getElementById('creditsCountMobile').textContent = c;
 
-  /* ══════════ NAVBAR SCROLL EFFECT ══════════ */
-  (() => {
-    const nav = document.getElementById('navbar');
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          nav.classList.toggle('scrolled', window.scrollY > 20);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    });
-  })();
-
-  /* ══════════ HAMBURGER ══════════ */
-  (() => {
-    const ham  = document.getElementById('hamburger');
-    const menu = document.getElementById('mobileMenu');
-
-    ham.addEventListener('click', () => {
-      ham.classList.toggle('open');
-      menu.classList.toggle('open');
-    });
-
-    // Close when clicking a link
-    menu.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        ham.classList.remove('open');
-        menu.classList.remove('open');
+        const av = document.getElementById('navAvatar');
+        const avatarUrl = data.avatar || u.photoURL || null;
+        if (avatarUrl) {
+          av.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+        } else {
+          av.textContent = (u.displayName || u.email || '?').charAt(0).toUpperCase();
+        }
       });
     });
-  })();
 
-  /* ══════════ AVATAR → PROFILE ══════════ */
-  document.getElementById('navAvatar').addEventListener('click', () => {
-    window.location.href = 'profile.html';
-  });
-
-  /* ══════════ ANIMATED STAT COUNTERS ══════════ */
-  function animateCounter(el, target, duration = 1500) {
-    const start = 0;
-    const startTime = performance.now();
-    function update(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-      const current = Math.round(start + (target - start) * ease);
-      el.textContent = current.toLocaleString();
-      if (progress < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-  }
-
-  // Fake live stats (randomized for show)
-  setTimeout(() => {
-    animateCounter(document.getElementById('statPlayers'), Math.floor(Math.random() * 300) + 80);
-    animateCounter(document.getElementById('statBets'), Math.floor(Math.random() * 5000) + 1200);
-    animateCounter(document.getElementById('statWon'), Math.floor(Math.random() * 500000) + 100000, 2000);
-  }, 400);
-
-  /* ══════════ PARTICLE SYSTEM ══════════ */
-  (() => {
-    const canvas = document.getElementById('particles');
-    const ctx    = canvas.getContext('2d');
-    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
-    const COUNT  = Math.min(60, Math.round(window.innerWidth * 0.04));
-    const COLORS = ['rgba(139,92,246,', 'rgba(6,182,212,', 'rgba(236,72,153,'];
-
-    function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width  = W * dpr;
-      canvas.height = H * dpr;
-      canvas.style.width  = W + 'px';
-      canvas.style.height = H + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-
-    function createParticle() {
-      return {
-        x: Math.random() * W, y: Math.random() * H,
-        r: Math.random() * 1.8 + 0.4,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        alpha: Math.random() * 0.4 + 0.15,
-        color: COLORS[Math.random() * COLORS.length | 0]
-      };
-    }
-
-    function init() {
-      resize();
-      particles = [];
-      for (let i = 0; i < COUNT; i++) particles.push(createParticle());
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        const dx = p.x - mouse.x, dy = p.y - mouse.y;
-        const dist = dx * dx + dy * dy;
-        if (dist < 10000) {
-          p.vx += dx * 0.015 / Math.sqrt(dist);
-          p.vy += dy * 0.015 / Math.sqrt(dist);
+    /* ══════════ NAVBAR SCROLL EFFECT ══════════ */
+    (() => {
+      const nav = document.getElementById('navbar');
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+            ticking = false;
+          });
+          ticking = true;
         }
-        p.vx *= 0.99; p.vy *= 0.99;
-        if (p.x < -10) p.x = W + 10;
-        if (p.x > W + 10) p.x = -10;
-        if (p.y < -10) p.y = H + 10;
-        if (p.y > H + 10) p.y = -10;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.color + p.alpha + ')';
-        ctx.fill();
-        for (let j = i + 1; j < particles.length; j++) {
-          const q = particles[j];
-          const ld = (p.x - q.x) ** 2 + (p.y - q.y) ** 2;
-          if (ld < 16000) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = p.color + (0.06 * (1 - ld / 16000)) + ')';
-            ctx.lineWidth = 0.4;
-            ctx.stroke();
+      });
+    })();
+
+    /* ══════════ HAMBURGER ══════════ */
+    (() => {
+      const ham  = document.getElementById('hamburger');
+      const menu = document.getElementById('mobileMenu');
+      ham.addEventListener('click', () => {
+        ham.classList.toggle('open');
+        menu.classList.toggle('open');
+      });
+      menu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          ham.classList.remove('open');
+          menu.classList.remove('open');
+        });
+      });
+    })();
+
+    /* ══════════ AVATAR → PROFILE ══════════ */
+    document.getElementById('navAvatar').addEventListener('click', () => {
+      window.location.href = 'profile.html';
+    });
+
+    /* ══════════ ANIMATED STAT COUNTERS ══════════ */
+    function animateCounter(el, target, duration = 1500) {
+      const start = 0;
+      const startTime = performance.now();
+      function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * ease);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    setTimeout(() => {
+      animateCounter(document.getElementById('statPlayers'), Math.floor(Math.random() * 300) + 80);
+      animateCounter(document.getElementById('statBets'), Math.floor(Math.random() * 5000) + 1200);
+      animateCounter(document.getElementById('statWon'), Math.floor(Math.random() * 500000) + 100000, 2000);
+    }, 400);
+
+    /* ══════════ PARTICLE SYSTEM ══════════ */
+    (() => {
+      const canvas = document.getElementById('particles');
+      const ctx    = canvas.getContext('2d');
+      let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+      const COUNT  = Math.min(60, Math.round(window.innerWidth * 0.04));
+      const COLORS = ['rgba(139,92,246,', 'rgba(6,182,212,', 'rgba(236,72,153,'];
+
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function createParticle() {
+        return {
+          x: Math.random() * W, y: Math.random() * H,
+          r: Math.random() * 1.8 + 0.4,
+          vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+          alpha: Math.random() * 0.4 + 0.15,
+          color: COLORS[Math.random() * COLORS.length | 0]
+        };
+      }
+
+      function init() { resize(); particles = []; for (let i = 0; i < COUNT; i++) particles.push(createParticle()); }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx; p.y += p.vy;
+          const dx = p.x - mouse.x, dy = p.y - mouse.y;
+          const dist = dx * dx + dy * dy;
+          if (dist < 10000) { p.vx += dx * 0.015 / Math.sqrt(dist); p.vy += dy * 0.015 / Math.sqrt(dist); }
+          p.vx *= 0.99; p.vy *= 0.99;
+          if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+          if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + p.alpha + ')'; ctx.fill();
+          for (let j = i + 1; j < particles.length; j++) {
+            const q = particles[j];
+            const ld = (p.x - q.x) ** 2 + (p.y - q.y) ** 2;
+            if (ld < 16000) {
+              ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+              ctx.strokeStyle = p.color + (0.06 * (1 - ld / 16000)) + ')';
+              ctx.lineWidth = 0.4; ctx.stroke();
+            }
           }
         }
+        requestAnimationFrame(draw);
       }
-      requestAnimationFrame(draw);
-    }
 
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-    window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
-    init(); draw();
-  })();
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
+      init(); draw();
+    })();
 
-  (() => {
-  const KEY = 'aightbet-theme';
+    /* ══════════ THEME ══════════ */
+    (() => {
+      const KEY = 'aightbet-theme';
+      function apply(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem(KEY, theme);
+      }
+      apply(localStorage.getItem(KEY) || 'dark');
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        toggle.checked = localStorage.getItem(KEY) === 'light';
+        toggle.addEventListener('change', () => { apply(toggle.checked ? 'light' : 'dark'); });
+      }
+      window.AightBetTheme = {
+        get: () => localStorage.getItem(KEY) || 'dark',
+        set: apply,
+        toggle: () => apply(localStorage.getItem(KEY) === 'dark' ? 'light' : 'dark')
+      };
+    })();
+  </script>
 
-  function apply(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(KEY, theme);
-  }
+    <script>
+    /* ══════════ SUPPORT CHAT WIDGET ══════════ */
+    (() => {
+      const overlay = document.getElementById('supportChatOverlay');
+      const body = document.getElementById('supportChatBody');
+      const input = document.getElementById('supportChatInput');
+      const sendBtn = document.getElementById('supportChatSend');
+      const title = document.getElementById('supportChatTitle');
+      let chatType = 'help';
+      let chatListener = null;
 
-  // Apply saved theme instantly
-  apply(localStorage.getItem(KEY) || 'dark');
+      document.getElementById('fabHelp').addEventListener('click', () => {
+        chatType = 'help';
+        title.textContent = '💬 Help & Support';
+        openSupportChat();
+      });
 
-  // If this page has a toggle, sync it
-  const toggle = document.getElementById('themeToggle');
-  if (toggle) {
-    toggle.checked = localStorage.getItem(KEY) === 'light';
-    toggle.addEventListener('change', () => {
-      apply(toggle.checked ? 'light' : 'dark');
-    });
-  }
+      document.getElementById('fabBug').addEventListener('click', () => {
+        chatType = 'bug';
+        title.textContent = '🐛 Report a Bug';
+        openSupportChat();
+      });
 
-  // Expose globally so any page can call it
-  window.AightBetTheme = {
-    get:    () => localStorage.getItem(KEY) || 'dark',
-    set:    apply,
-    toggle: () => apply(localStorage.getItem(KEY) === 'dark' ? 'light' : 'dark')
-  };
-})();
+      document.getElementById('supportChatClose').addEventListener('click', closeSupportChat);
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeSupportChat(); });
+
+      function openSupportChat() {
+        overlay.classList.add('open');
+        const u = auth.currentUser;
+        if (!u) return;
+        if (chatListener) rtdb.ref('supportChats/' + u.uid + '/messages').off('value', chatListener);
+        chatListener = rtdb.ref('supportChats/' + u.uid + '/messages').orderByChild('timestamp').on('value', snap => {
+          body.innerHTML = '';
+          if (!snap.exists()) {
+            body.innerHTML = `<div class="support-chat-empty">${chatType === 'bug' ? 'Describe the bug you found and we\'ll look into it!' : 'Send a message and support will reply as soon as possible!'}</div>`;
+            return;
+          }
+          snap.forEach(child => {
+            const m = child.val();
+            const bubble = document.createElement('div');
+            bubble.className = 'support-msg ' + (m.sender === 'user' ? 'sent' : 'received');
+            const tagClass = m.type === 'bug' ? 's-tag-bug' : 's-tag-help';
+            const tagLabel = m.type === 'bug' ? '🐛 Bug' : '💬 Help';
+            const tagHtml = m.type ? `<div class="s-tag ${tagClass}">${tagLabel}</div>` : '';
+            bubble.innerHTML = `${tagHtml}${escapeHTMLChat(m.text)}<div class="s-ts">${m.timestamp ? timeAgoChat(m.timestamp) : ''}</div>`;
+            body.appendChild(bubble);
+          });
+          body.scrollTop = body.scrollHeight;
+        });
+        input.focus();
+      }
+
+      function closeSupportChat() {
+        overlay.classList.remove('open');
+        if (chatListener) {
+          const u = auth.currentUser;
+          if (u) rtdb.ref('supportChats/' + u.uid + '/messages').off('value', chatListener);
+          chatListener = null;
+        }
+      }
+
+      async function sendSupportMsg() {
+        const text = input.value.trim();
+        if (!text) return;
+        const u = auth.currentUser;
+        if (!u) return;
+        input.value = '';
+
+        let userName = 'User';
+        try {
+          const snap = await rtdb.ref('users/' + u.uid).once('value');
+          const d = snap.val() || {};
+          userName = d.username || d.nickname || u.displayName || u.email || 'User';
+        } catch (e) {}
+
+        await rtdb.ref('supportChats/' + u.uid + '/meta').update({
+          uid: u.uid,
+          name: userName,
+          email: u.email || '',
+          lastMessageAt: firebase.database.ServerValue.TIMESTAMP,
+          hasUnread: true,
+          status: 'open',
+          lastMessage: text,
+          type: chatType
+        });
+
+        await rtdb.ref('supportChats/' + u.uid + '/messages').push({
+          text: text,
+          sender: 'user',
+          type: chatType,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+
+      sendBtn.addEventListener('click', sendSupportMsg);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') sendSupportMsg(); });
+
+      function escapeHTMLChat(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+      function timeAgoChat(ts) { const d = Date.now() - ts; if (d < 60000) return 'just now'; if (d < 3600000) return Math.floor(d / 60000) + 'm ago'; if (d < 86400000) return Math.floor(d / 3600000) + 'h ago'; return Math.floor(d / 86400000) + 'd ago'; }
+    })();
   </script>
 </body>
 </html>

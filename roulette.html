@@ -600,6 +600,23 @@
     }
   }
 
+    function getSegAtPointer(){
+    const count=WHEEL_ORDER.length;
+    const arc=Math.PI*2/count;
+    /*
+       In drawWheel, segment i starts at: wheelRotation + i*arc - PI/2
+       Pointer is fixed at angle -PI/2 (top).
+       Segment i is under pointer when:
+         wheelRotation + i*arc - PI/2 <= -PI/2 < wheelRotation + (i+1)*arc - PI/2
+       Simplifies to:
+         i = floor(-wheelRotation / arc)  (mod count)
+    */
+    let angle=(-wheelRotation)%(Math.PI*2);
+    if(angle<0)angle+=Math.PI*2;
+    let idx=Math.floor(angle/arc)%count;
+    if(idx<0)idx+=count;
+    return idx;
+  }
   /* ═══════════════════════════════════════════
      SPIN THE WHEEL
      ═══════════════════════════════════════════ */
@@ -626,33 +643,60 @@
     const winIdx=Math.floor(Math.random()*WHEEL_ORDER.length);
     const winNum=WHEEL_ORDER[winIdx];
 
-    // Calculate target angle
-    const sliceAngle=Math.PI*2/WHEEL_ORDER.length;
-    // Target: the winning slice should be at the top (pointer)
-    const targetAngle=-(winIdx*sliceAngle)-sliceAngle/2+Math.PI/2;
-    // Add extra full rotations
-    const extraRotations=Math.PI*2*(6+Math.floor(Math.random()*4));
-    const finalAngle=wheelRotation+extraRotations+targetAngle-wheelRotation%(Math.PI*2);
+    const count=WHEEL_ORDER.length;
+    const arc=Math.PI*2/count;
 
-    // Animate wheel
+    /*
+       From drawWheel, segment i is at the pointer when:
+         floor(-rotation / arc) % count == i
+       So we need:
+         -rotation = winIdx * arc + (offset within slice)
+         rotation  = -(winIdx * arc + offset)
+       Land in the CENTER of the slice (with small random jitter to look natural):
+    */
+    const edgePad=arc*0.15; // stay away from slice edges
+    const randomOffset=(Math.random()*(arc-2*edgePad))+edgePad;
+    const targetRot=-(winIdx*arc+randomOffset);
+
+    // Add full spins (5-8 rotations, all going clockwise = negative)
+    const fullSpins=(6+Math.random()*3)*Math.PI*2;
+
+    // Calculate total rotation delta
+    const curNorm=wheelRotation%(Math.PI*2);
+    const tarNorm=targetRot%(Math.PI*2);
+
+    // Clockwise delta (negative = clockwise visual rotation)
+    let delta=tarNorm-curNorm;
+    while(delta>0)delta-=Math.PI*2;
+    while(delta<=-Math.PI*2)delta+=Math.PI*2;
+
+    const totalRotation=delta-fullSpins;
+
+    const startAngle=wheelRotation;
+    const finalAngle=startAngle+totalRotation;
     const duration=5000;
     const startTime=performance.now();
-    const startAngle=wheelRotation;
+
+    function easeOutCubic(t){return 1-Math.pow(1-t,3);}
 
     function animateWheel(now){
       const elapsed=now-startTime;
       const progress=Math.min(elapsed/duration,1);
-      // Ease out cubic
-      const ease=1-Math.pow(1-progress,3);
-      const currentAngle=startAngle+(finalAngle-startAngle)*ease;
+      const ease=easeOutCubic(progress);
+      const currentAngle=startAngle+totalRotation*ease;
       drawWheel(currentAngle);
 
-      // Tick sound effect via subtle visual
       if(progress<1){
         requestAnimationFrame(animateWheel);
       }else{
+        // Snap to exact final angle
         wheelRotation=finalAngle;
-        showResult(winNum);
+        drawWheel(wheelRotation);
+
+        // Read actual segment at pointer to guarantee visual = payout
+        const actualIdx=getSegAtPointer();
+        const actualNum=WHEEL_ORDER[actualIdx];
+        showResult(actualNum);
       }
     }
     requestAnimationFrame(animateWheel);

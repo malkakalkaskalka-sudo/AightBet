@@ -324,7 +324,7 @@
   });
 
   function getCredits(){return parseInt((document.getElementById('creditsCount').textContent||'0').replace(/,/g,''))||0;}
-  async function adjCredits(uid,delta){await rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+delta);}
+  async function adjCredits(uid,delta){if(!uid)return;await rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+delta);}
   function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
   /* Navbar */
@@ -333,7 +333,7 @@
   document.getElementById('navAvatar').addEventListener('click',()=>location.href='profile.html');
 
   /* ═══════════════════════════════════════════
-     BLACKJACK ENGINE (no dealer)
+     BLACKJACK ENGINE
      ═══════════════════════════════════════════ */
   const SUITS=['♠','♥','♦','♣'];
   const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -399,9 +399,9 @@
       createdAt:firebase.database.ServerValue.TIMESTAMP,
       players:{[myUid]:{uid:myUid,name:nickname,avatar:avatar}},
       phase:'waiting',
-      p1Hand:null,p2Hand:null,shoe:null,
+      p1Hand:[],p2Hand:[],shoe:[],
       p1Status:'waiting',p2Status:'waiting',
-      winner:null,
+      winner:'none',
       playersLeft:{}
     });
 
@@ -498,10 +498,10 @@
   function markLeft(){
     if(activeBattle&&myUid){
       rtdb.ref('bj-battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
-      if(battleState&&battleState.status==='playing'&&!battleState.winner){
+      if(battleState&&battleState.status==='playing'&&battleState.winner==='none'){
         const pids=Object.keys(battleState.players||{});
         const opponentId=pids.find(id=>id!==myUid);
-        rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'none');
+        rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'nobody');
         rtdb.ref('bj-battles/'+activeBattle+'/status').set('finished');
         rtdb.ref('bj-battles/'+activeBattle+'/forfeitedBy').set(myUid);
         if(opponentId)adjCredits(opponentId,(battleState.bet||0)*2);
@@ -513,10 +513,10 @@
   function closeBattleRoom(silent=false){
     if(battleRef&&battleUnsub)battleRef.off('value',battleUnsub);
 
-    if(!silent&&activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner){
+    if(!silent&&activeBattle&&myUid&&battleState&&battleState.status==='playing'&&battleState.winner==='none'){
       const pids=Object.keys(battleState.players||{});
       const opponentId=pids.find(id=>id!==myUid);
-      rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'none');
+      rtdb.ref('bj-battles/'+activeBattle+'/winner').set(opponentId||'nobody');
       rtdb.ref('bj-battles/'+activeBattle+'/status').set('finished');
       rtdb.ref('bj-battles/'+activeBattle+'/forfeitedBy').set(myUid);
       if(opponentId)adjCredits(opponentId,(battleState.bet||0)*2);
@@ -554,8 +554,16 @@
   }
 
   /* ═══════════════════════════════════════════
-     RENDER BATTLE
+     HELPER: check if a winner value is a real result
+     'none' = no result yet. Anything else = resolved.
      ═══════════════════════════════════════════ */
+  function hasResult(winnerVal){
+    return winnerVal && winnerVal !== 'none';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BATTLE
+     ═════════════════════��═════════════════════ */
   function renderBattle(data){
     const inner=document.getElementById('battleInner');
     const players=data.players||{};
@@ -566,6 +574,7 @@
     const p2=p2id?players[p2id]:null;
     const isFinished=data.status==='finished';
     const phase=data.phase||'waiting';
+    const winner=data.winner||'none';
 
     // ── WAITING ──
     if(data.status==='waiting'){
@@ -612,13 +621,17 @@
     // Turn banner
     let turnHtml='';
     if(!isFinished){
-      if(isMyTurn)turnHtml=`<div class="turn-banner"><span class="tb-text tb-your">🟢 Your Turn — Hit or Stand</span></div>`;
-      else if(isOppTurn)turnHtml=`<div class="turn-banner"><span class="tb-text tb-opp">⏳ Waiting for opponent…</span></div>`;
+      if(phase==='done'){
+        turnHtml=`<div class="turn-banner"><span class="tb-text tb-done">⏳ Calculating results…</span></div>`;
+      }else if(isMyTurn){
+        turnHtml=`<div class="turn-banner"><span class="tb-text tb-your">🟢 Your Turn — Hit or Stand</span></div>`;
+      }else if(isOppTurn){
+        turnHtml=`<div class="turn-banner"><span class="tb-text tb-opp">⏳ Waiting for opponent…</span></div>`;
+      }
     }else{
       turnHtml=`<div class="turn-banner"><span class="tb-text tb-done">🏁 Round Over</span></div>`;
     }
 
-    // Score color
     function scoreClass(val,status){
       if(status==='busted')return'score-red';
       if(status==='blackjack')return'score-gold';
@@ -627,7 +640,6 @@
       return'score-muted';
     }
 
-    // Status badge
     function statusBadge(s,isMeTurn){
       if(s==='stood')return`<span class="pp-status stood">STOOD</span>`;
       if(s==='busted')return`<span class="pp-status busted">💥 BUSTED</span>`;
@@ -637,11 +649,10 @@
       return`<span class="pp-status" style="background:var(--surface2);color:var(--muted)">Waiting</span>`;
     }
 
-    // Player panel builder
     function buildPanel(pid,pdata,hand,status,isActive,canSeeCards){
       if(!pdata)return`<div class="player-panel"><div style="text-align:center;color:var(--muted);padding:40px">No opponent</div></div>`;
-      const isWinner=data.winner===pid;
-      const isLoser=data.winner&&data.winner!=='draw'&&data.winner!==pid&&isFinished;
+      const isWinner=winner===pid;
+      const isLoser=hasResult(winner)&&winner!=='draw'&&winner!=='both_bust'&&winner!==pid&&isFinished;
       const val=handValue(hand);
       const isMe=pid===myUid;
       const isMeTurn=(isMe&&isMyTurn);
@@ -650,7 +661,6 @@
       if(canSeeCards||isFinished){
         cardsHtml=renderHandCards(hand);
       }else{
-        // Show first card, rest facedown
         if(hand.length>0)cardsHtml+=renderCardHtml(hand[0]);
         for(let i=1;i<hand.length;i++)cardsHtml+=renderCardHtml(hand[i],true);
       }
@@ -669,17 +679,17 @@
         </div>`;
     }
 
-    // Result
+    // Result display
     let resultHtml='';
-    if(isFinished&&data.winner){
+    if(isFinished&&hasResult(winner)){
       const wasForfeit=!!data.forfeitedBy;
-      if(data.winner==='draw'){
+      if(winner==='draw'){
         resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players had the same score. Bets returned.</p></div>`;
-      }else if(data.winner==='both_bust'){
+      }else if(winner==='both_bust'){
         resultHtml=`<div class="final-result"><h2 style="color:var(--red)">💥 Both Busted!</h2><p>Nobody wins. Bets returned.</p></div>`;
       }else{
-        const isMe=data.winner===myUid;
-        const winnerData=players[data.winner];
+        const isMe=winner===myUid;
+        const winnerData=players[winner];
         const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
         resultHtml=`<div class="final-result">
           <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won!':'💀 You Lost!'}</h2>
@@ -704,7 +714,7 @@
         ${buildPanel(oppPid,oppData,oppHand,oppStatus,isOppTurn,false)}
       </div>
       <div class="controls-area" id="controlsArea">
-        ${isMyTurn&&!isFinished?`
+        ${isMyTurn&&!isFinished&&phase!=='done'?`
           <button class="btn btn-hit" id="hitBtn">Hit</button>
           <button class="btn btn-stand" id="standBtn">Stand</button>
         `:''}
@@ -714,249 +724,259 @@
         <button class="btn btn-secondary" id="leaveBtn">${isFinished?'← Back to Lobby':'Leave Table'}</button>
       </div>`;
 
-    // Attach
     document.getElementById('hitBtn')?.addEventListener('click',()=>doHit());
     document.getElementById('standBtn')?.addEventListener('click',()=>doStand());
     document.getElementById('leaveBtn')?.addEventListener('click',()=>closeBattleRoom());
 
-    // Creator deals on game start
+    // Creator deals when game starts
     if(data.status==='playing'&&phase==='waiting'&&myUid===data.creator){
       dealInitialCards();
     }
 
-    // Check if both done → resolve
-        // Check if both done → resolve (creator handles it)
-        // Check if both done → resolve (creator handles it)
-    if(data.status==='playing'&&!data.winner&&myUid===data.creator){
-      const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
-      const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
-      if(p1Done&&p2Done){
-        resolveGame();
-      }
+    // RESOLVE TRIGGER: either player can trigger, uses transaction for safety
+    if(data.status==='playing'&&phase==='done'&&winner==='none'){
+      tryResolveGame();
     }
   }
 
-   /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      DEAL INITIAL CARDS (creator only)
      ═══════════════════════════════════════════ */
   async function dealInitialCards(){
     if(actionInProgress)return;
     actionInProgress=true;
 
-    const snap=await battleRef.once('value');
-    const data=snap.val();
-    if(!data||data.phase!=='waiting'||data.status!=='playing'){actionInProgress=false;return;}
+    try{
+      const snap=await battleRef.once('value');
+      const data=snap.val();
+      if(!data||data.phase!=='waiting'||data.status!=='playing')return;
 
-    const shoe=createDeck();
-    const p1Hand=[shoe.pop(),shoe.pop()];
-    const p2Hand=[shoe.pop(),shoe.pop()];
+      const shoe=createDeck();
+      const p1Hand=[shoe.pop(),shoe.pop()];
+      const p2Hand=[shoe.pop(),shoe.pop()];
 
-    const p1BJ=isBlackjack(p1Hand);
-    const p2BJ=isBlackjack(p2Hand);
+      const p1BJ=isBlackjack(p1Hand);
+      const p2BJ=isBlackjack(p2Hand);
 
-    let phase='p1-turn';
-    let p1Status='playing';
-    let p2Status='playing';
+      let phase='p1-turn';
+      let p1Status='playing';
+      let p2Status='playing';
 
-    if(p1BJ)p1Status='blackjack';
-    if(p2BJ)p2Status='blackjack';
+      if(p1BJ)p1Status='blackjack';
+      if(p2BJ)p2Status='blackjack';
 
-    // If P1 has blackjack, skip to P2's turn
-    if(p1BJ&&!p2BJ){
-      phase='p2-turn';
+      if(p1BJ&&!p2BJ) phase='p2-turn';
+      if(p1BJ&&p2BJ) phase='done';
+
+      await battleRef.update({
+        shoe:shoe,
+        p1Hand:p1Hand,
+        p2Hand:p2Hand,
+        phase:phase,
+        p1Status:p1Status,
+        p2Status:p2Status
+      });
+    }finally{
+      actionInProgress=false;
     }
-    // If both have blackjack, skip straight to resolve
-    if(p1BJ&&p2BJ){
-      phase='done';
-    }
-    // If only P2 has blackjack, P1 still plays
-    // (p1 might still get 21 with more cards, but BJ beats regular 21)
-
-    await battleRef.update({
-      shoe:shoe,
-      p1Hand:p1Hand,
-      p2Hand:p2Hand,
-      phase:phase,
-      p1Status:p1Status,
-      p2Status:p2Status
-    });
-
-    // If both BJ, resolve immediately
-    if(p1BJ&&p2BJ){
-      await delay(500);
-      const freshSnap=await battleRef.once('value');
-      if(freshSnap.val()&&!freshSnap.val().winner){
-        await resolveGame(freshSnap.val());
-      }
-    }
-
-    actionInProgress=false;
   }
 
   /* ═══════════════════════════════════════════
      HIT
      ═══════════════════════════════════════════ */
-    async function doHit(){
-    if(!battleRef)return;
+  async function doHit(){
+    if(!battleRef||actionInProgress)return;
+    actionInProgress=true;
 
-    const snap=await battleRef.once('value');
-    const data=snap.val();
-    if(!data||data.status!=='playing'||data.winner)return;
+    try{
+      const snap=await battleRef.once('value');
+      const data=snap.val();
+      if(!data||data.status!=='playing'||hasResult(data.winner))return;
 
-    const amP1=myUid===data.creator;
-    const myTurnPhase=amP1?'p1-turn':'p2-turn';
-    if(data.phase!==myTurnPhase)return;
+      const amP1=myUid===data.creator;
+      const myTurnPhase=amP1?'p1-turn':'p2-turn';
+      if(data.phase!==myTurnPhase)return;
 
-    const handKey=amP1?'p1Hand':'p2Hand';
-    const statusKey=amP1?'p1Status':'p2Status';
-    const shoe=[...(data.shoe||[])];
+      const handKey=amP1?'p1Hand':'p2Hand';
+      const statusKey=amP1?'p1Status':'p2Status';
+      const shoe=[...(data.shoe||[])];
 
-    if(shoe.length<1)return;
+      if(shoe.length<1)return;
 
-    const newCard=shoe.pop();
-    const hand=[...(data[handKey]||[]),newCard];
-    const val=handValue(hand);
-    const updates={shoe:shoe,[handKey]:hand};
+      const newCard=shoe.pop();
+      const hand=[...(data[handKey]||[]),newCard];
+      const val=handValue(hand);
+      const updates={shoe:shoe,[handKey]:hand};
 
-    if(val>21){
-      updates[statusKey]='busted';
-      if(amP1){
-        const p2s=data.p2Status||'playing';
-        updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
-      }else{
-        updates.phase='done';
+      if(val>21){
+        updates[statusKey]='busted';
+        if(amP1){
+          const p2s=data.p2Status||'playing';
+          const p2Done=p2s==='stood'||p2s==='busted'||p2s==='blackjack';
+          updates.phase=p2Done?'done':'p2-turn';
+        }else{
+          updates.phase='done';
+        }
+      }else if(val===21){
+        updates[statusKey]='stood';
+        if(amP1){
+          const p2s=data.p2Status||'playing';
+          const p2Done=p2s==='stood'||p2s==='busted'||p2s==='blackjack';
+          updates.phase=p2Done?'done':'p2-turn';
+        }else{
+          updates.phase='done';
+        }
       }
-    }else if(val===21){
-      updates[statusKey]='stood';
-      if(amP1){
-        const p2s=data.p2Status||'playing';
-        updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
-      }else{
-        updates.phase='done';
-      }
+
+      await battleRef.update(updates);
+    }finally{
+      actionInProgress=false;
     }
-
-    await battleRef.update(updates);
   }
 
   /* ═══════════════════════════════════════════
      STAND
      ═══════════════════════════════════════════ */
-    async function doStand(){
-    if(!battleRef)return;
+  async function doStand(){
+    if(!battleRef||actionInProgress)return;
+    actionInProgress=true;
 
-    const snap=await battleRef.once('value');
-    const data=snap.val();
-    if(!data||data.status!=='playing'||data.winner)return;
+    try{
+      const snap=await battleRef.once('value');
+      const data=snap.val();
+      if(!data||data.status!=='playing'||hasResult(data.winner))return;
 
-    const amP1=myUid===data.creator;
-    const myTurnPhase=amP1?'p1-turn':'p2-turn';
-    if(data.phase!==myTurnPhase)return;
+      const amP1=myUid===data.creator;
+      const myTurnPhase=amP1?'p1-turn':'p2-turn';
+      if(data.phase!==myTurnPhase)return;
 
-    const statusKey=amP1?'p1Status':'p2Status';
-    const updates={[statusKey]:'stood'};
+      const statusKey=amP1?'p1Status':'p2Status';
+      const updates={[statusKey]:'stood'};
 
-    if(amP1){
-      const p2s=data.p2Status||'playing';
-      updates.phase=(p2s==='stood'||p2s==='busted'||p2s==='blackjack')?'done':'p2-turn';
-    }else{
-      updates.phase='done';
+      if(amP1){
+        const p2s=data.p2Status||'playing';
+        const p2Done=p2s==='stood'||p2s==='busted'||p2s==='blackjack';
+        updates.phase=p2Done?'done':'p2-turn';
+      }else{
+        updates.phase='done';
+      }
+
+      await battleRef.update(updates);
+    }finally{
+      actionInProgress=false;
     }
-
-    await battleRef.update(updates);
   }
 
   /* ═══════════════════════════════════════════
-     RESOLVE GAME (creator only — no dealer)
-     ═══════════════════════════════════════════ */
-    /* ═══════════════════════════════════════════
-     RESOLVE GAME (creator only — no dealer)
+     RESOLVE GAME
+     Uses transaction on 'winner' to go from 'none' → real result.
+     Either player can trigger this — first one wins the transaction.
      ═══════════════════════════════════════════ */
   let resolving=false;
 
-  async function resolveGame(){
-    if(resolving)return;
+  async function tryResolveGame(){
+    if(resolving||!battleRef)return;
     resolving=true;
 
-    // Small delay to let all writes settle
-    await delay(500);
+    try{
+      await delay(300);
 
-    const freshSnap=await battleRef.once('value');
-    const fresh=freshSnap.val();
-    if(!fresh||fresh.winner||fresh.status==='finished'){resolving=false;return;}
+      // Re-read fresh data
+      const freshSnap=await battleRef.once('value');
+      const fresh=freshSnap.val();
+      if(!fresh){return;}
 
-    const pids=Object.keys(fresh.players||{});
-    const p1id=fresh.creator;
-    const p2id=pids.find(id=>id!==fresh.creator);
-    const bet=fresh.bet||0;
+      // Already resolved by the other client?
+      if(fresh.status==='finished'||hasResult(fresh.winner)){return;}
+      // Phase must be done
+      if(fresh.phase!=='done'){return;}
 
-    const p1Hand=fresh.p1Hand||[];
-    const p2Hand=fresh.p2Hand||[];
-    const p1Val=handValue(p1Hand);
-    const p2Val=handValue(p2Hand);
-    const p1Status=fresh.p1Status||'playing';
-    const p2Status=fresh.p2Status||'playing';
-    const p1Busted=p1Status==='busted';
-    const p2Busted=p2Status==='busted';
-    const p1BJ=p1Status==='blackjack';
-    const p2BJ=p2Status==='blackjack';
+      const pids=Object.keys(fresh.players||{});
+      const p1id=fresh.creator;
+      const p2id=pids.find(id=>id!==fresh.creator)||null;
+      const bet=fresh.bet||0;
 
-    // Make sure both are actually done
-    const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
-    const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
-    if(!p1Done||!p2Done){resolving=false;return;}
+      const p1Hand=fresh.p1Hand||[];
+      const p2Hand=fresh.p2Hand||[];
+      const p1Val=handValue(p1Hand);
+      const p2Val=handValue(p2Hand);
+      const p1Status=fresh.p1Status||'playing';
+      const p2Status=fresh.p2Status||'playing';
+      const p1Busted=p1Status==='busted';
+      const p2Busted=p2Status==='busted';
+      const p1BJ=p1Status==='blackjack';
+      const p2BJ=p2Status==='blackjack';
 
-    let winner;
+      // Both must be done
+      const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
+      const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
+      if(!p1Done||!p2Done){return;}
 
-    if(p1Busted&&p2Busted){
-      winner='both_bust';
-      await adjCredits(p1id,bet);
-      await adjCredits(p2id,bet);
-    }
-    else if(p1Busted&&!p2Busted){
-      winner=p2id;
-      await adjCredits(p2id,bet*2);
-    }
-    else if(p2Busted&&!p1Busted){
-      winner=p1id;
-      await adjCredits(p1id,bet*2);
-    }
-    else{
-      if(p1BJ&&!p2BJ){
-        winner=p1id;
-        await adjCredits(p1id,bet*2);
+      // Compute winner
+      let result;
+      if(p1Busted&&p2Busted){
+        result='both_bust';
+      }else if(p1Busted&&!p2Busted){
+        result=p2id||'both_bust';
+      }else if(p2Busted&&!p1Busted){
+        result=p1id;
+      }else if(p1BJ&&!p2BJ){
+        result=p1id;
       }else if(p2BJ&&!p1BJ){
-        winner=p2id;
-        await adjCredits(p2id,bet*2);
+        result=p2id||'draw';
       }else if(p1BJ&&p2BJ){
-        winner='draw';
-        await adjCredits(p1id,bet);
-        await adjCredits(p2id,bet);
+        result='draw';
       }else if(p1Val>p2Val){
-        winner=p1id;
-        await adjCredits(p1id,bet*2);
+        result=p1id;
       }else if(p2Val>p1Val){
-        winner=p2id;
-        await adjCredits(p2id,bet*2);
+        result=p2id||'draw';
       }else{
-        winner='draw';
+        result='draw';
+      }
+
+      // Transaction: only succeed if winner is still 'none'
+      const txResult=await battleRef.child('winner').transaction(current=>{
+        // current might be null (key deleted), undefined, or 'none'
+        if(current!==null&&current!==undefined&&current!=='none'){
+          return; // Already resolved, abort (return undefined)
+        }
+        return result;
+      });
+
+      // If transaction didn't commit, another client already resolved
+      if(!txResult.committed||txResult.snapshot.val()!==result){
+        return;
+      }
+
+      // We won the transaction — pay out credits
+      if(result==='both_bust'){
         await adjCredits(p1id,bet);
         await adjCredits(p2id,bet);
+      }else if(result==='draw'){
+        await adjCredits(p1id,bet);
+        await adjCredits(p2id,bet);
+      }else{
+        // result is a player uid — they win the pot
+        await adjCredits(result,bet*2);
       }
+
+      // Mark game as finished
+      await battleRef.update({
+        status:'finished',
+        phase:'done'
+      });
+
+      // Save stats
+      const p1Won=result===p1id;
+      const p2Won=result===p2id;
+      await saveGameStats(p1id,'online-blackjack',bet,p1Won?bet*2:0,p1Won);
+      if(p2id) await saveGameStats(p2id,'online-blackjack',bet,p2Won?bet*2:0,p2Won);
+
+    }catch(err){
+      console.error('resolveGame error:',err);
+    }finally{
+      resolving=false;
     }
-
-    await battleRef.update({
-      phase:'done',
-      status:'finished',
-      winner:winner
-    });
-
-    const p1Won=winner===p1id;
-    const p2Won=winner===p2id;
-    await saveGameStats(p1id,'online-blackjack',bet,p1Won?bet*2:0,p1Won);
-    await saveGameStats(p2id,'online-blackjack',bet,p2Won?bet*2:0,p2Won);
-
-    resolving=false;
   }
 
   /* ═══════════════════════════════════════════
@@ -1010,6 +1030,6 @@
      PARTICLES
      ═══════════════════════════════════════════ */
   (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
-  </script>
+</script>
 </body>
 </html>

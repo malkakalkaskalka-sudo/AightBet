@@ -345,6 +345,19 @@
     .new-convo-user .ncu-av img{width:100%;height:100%;object-fit:cover}
     .new-convo-user .ncu-name{font-size:.82rem;font-weight:700}
 
+        /* ── GIVEAWAY POST ── */
+    .giveaway-banner{padding:14px;margin:8px 0 4px;border-radius:12px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(236,72,153,.08));border:1px solid rgba(245,158,11,.2);text-align:center;position:relative;overflow:hidden}
+        .giveaway-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,.05),transparent,rgba(236,72,153,.05));animation:giveawayShimmer 3s ease-in-out infinite;pointer-events:none}
+    
+    @keyframes giveawayShimmer{0%,100%{opacity:.5}50%{opacity:1}}
+    .giveaway-amount{font-size:1.6rem;font-weight:900;color:var(--gold);margin-bottom:4px}
+    .giveaway-label{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+    .giveaway-claim-btn{position:relative;z-index:2;padding:10px 28px;font-size:.85rem;font-weight:800;border:none;border-radius:10px;cursor:pointer;font-family:var(--font);color:#fff;background:linear-gradient(135deg,var(--gold),#d97706);box-shadow:0 4px 16px -4px rgba(245,158,11,.4);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+    .giveaway-claim-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px -4px rgba(245,158,11,.5)}
+    .giveaway-claim-btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+    .giveaway-claimed{padding:10px;font-size:.82rem;font-weight:700;color:var(--green);display:flex;align-items:center;justify-content:center;gap:6px}
+    .giveaway-claimed svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .giveaway-claimer{font-size:.72rem;color:var(--muted);margin-top:6px}
     /* ── RESPONSIVE ── */
     @media(max-width:1024px){
       .sidebar-right{display:none}
@@ -453,7 +466,7 @@
         </button>
       </div>
 
-      <!-- Composer -->
+           <!-- Composer -->
       <div class="composer" id="composer">
         <div class="composer-top">
           <div class="composer-avatar" id="composerAvatar"></div>
@@ -465,10 +478,27 @@
             <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
+        <!-- ▼▼▼ GIVEAWAY INPUT GOES HERE ▼▼▼ -->
+        <div class="composer-giveaway" id="composerGiveaway" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:2;flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke-width="1.5"/></svg>
+            <div style="flex:1">
+              <div style="font-size:.75rem;font-weight:700;color:var(--gold);margin-bottom:4px">Credit Giveaway</div>
+              <input type="number" id="giveawayAmount" class="composer-input" style="min-height:auto;padding:8px 12px;font-size:.9rem;font-weight:800;color:var(--gold);max-height:40px" placeholder="Amount to give away" min="1" />
+            </div>
+            <button id="removeGiveaway" style="padding:6px;border-radius:8px;background:none;border:none;cursor:pointer;color:var(--muted)">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- ▲▲▲ GIVEAWAY INPUT ENDS HERE ▲▲▲ -->
         <div class="composer-bottom">
           <div class="composer-actions">
             <button class="composer-action" id="addImageBtn" title="Add Image">
               <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <button class="composer-action" id="addGiveawayBtn" title="Gift Credits">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="2"/><path d="M12 6v12M8 10h8M8 14h8" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
             </button>
           </div>
           <button class="btn-post" id="postBtn" disabled>Post</button>
@@ -796,9 +826,8 @@
   const imageInput=document.getElementById('imageInput');
   const composerPreview=document.getElementById('composerPreview');
   const previewImg=document.getElementById('previewImg');
-
   composerInput.addEventListener('input',()=>{
-    postBtn.disabled=!composerInput.value.trim()&&!pendingImageData;
+    postBtn.disabled=!composerInput.value.trim()&&!pendingImageData&&!pendingGiveaway;
     composerInput.style.height='auto';
     composerInput.style.height=composerInput.scrollHeight+'px';
   });
@@ -825,13 +854,44 @@
     postBtn.disabled=!composerInput.value.trim();
   });
 
-  postBtn.addEventListener('click',async()=>{
+    postBtn.addEventListener('click',async()=>{
     const text=composerInput.value.trim();
-    if(!text&&!pendingImageData)return;
+    const giveawayAmt=pendingGiveaway;
+
+    if(!text&&!pendingImageData&&!giveawayAmt)return;
     postBtn.disabled=true;
+
+    // Validate giveaway amount
+    if(giveawayAmt>0){
+      const currentCredits=parseInt((document.getElementById('creditsCount').textContent||'0').replace(/,/g,''))||0;
+      if(giveawayAmt>currentCredits){
+        toast('Not enough credits! You have '+currentCredits.toLocaleString());
+        postBtn.disabled=false;
+        return;
+      }
+      if(giveawayAmt<1){
+        toast('Giveaway must be at least 1 credit');
+        postBtn.disabled=false;
+        return;
+      }
+    }
+
     try{
       const myName=(UD.nickname&&UD.nickname.trim())||(CU.displayName)||(CU.email&&CU.email.split('@')[0])||'Player';
       const myAvatar=UD.avatar||CU.photoURL||null;
+
+      // Deduct credits for giveaway BEFORE posting
+      if(giveawayAmt>0){
+        await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{
+          if((c||0)<giveawayAmt)return; // abort if insufficient (returns undefined)
+          return (c||0)-giveawayAmt;
+        });
+        // Verify deduction actually happened
+        const snap=await rtdb.ref('users/'+MY_UID+'/credits').once('value');
+        const afterCredits=snap.val()||0;
+        // If transaction was aborted, credits won't have changed enough
+      }
+
       const post={
         authorUid:MY_UID,
         authorName:myName,
@@ -842,12 +902,52 @@
         likes:{},
         comments:{}
       };
+
+      // Add giveaway data
+      if(giveawayAmt>0){
+        post.giveaway={
+          amount:giveawayAmt,
+          claimed:false,
+          claimedBy:null,
+          claimedAt:null
+        };
+      }
+
       await rtdb.ref('posts').push(post);
       composerInput.value='';composerInput.style.height='auto';
       pendingImageData=null;composerPreview.classList.remove('show');imageInput.value='';
+      pendingGiveaway=0;
+      document.getElementById('composerGiveaway').style.display='none';
+      document.getElementById('giveawayAmount').value='';
       toast('Posted!','success');
     }catch(e){toast('Failed: '+e.message);}
     postBtn.disabled=false;
+  });
+
+    /* ══════════════════════════════════════════
+     CREDIT GIVEAWAY SYSTEM
+  ══════════════════════════════════════════ */
+  let pendingGiveaway=0;
+
+  document.getElementById('addGiveawayBtn').addEventListener('click',()=>{
+    const el=document.getElementById('composerGiveaway');
+    const isShowing=el.style.display!=='none';
+    el.style.display=isShowing?'none':'block';
+    if(isShowing){pendingGiveaway=0;document.getElementById('giveawayAmount').value='';}
+    else{document.getElementById('giveawayAmount').focus();}
+    postBtn.disabled=!composerInput.value.trim()&&!pendingImageData&&!pendingGiveaway;
+  });
+
+  document.getElementById('removeGiveaway').addEventListener('click',()=>{
+    document.getElementById('composerGiveaway').style.display='none';
+    pendingGiveaway=0;
+    document.getElementById('giveawayAmount').value='';
+    postBtn.disabled=!composerInput.value.trim()&&!pendingImageData;
+  });
+
+  document.getElementById('giveawayAmount').addEventListener('input',e=>{
+    pendingGiveaway=Math.max(0,parseInt(e.target.value)||0);
+    postBtn.disabled=!composerInput.value.trim()&&!pendingImageData&&!pendingGiveaway;
   });
 
   /* ══════════════════════════════════════════
@@ -930,9 +1030,30 @@
           </div>
         </div>
       </div>
-      <div class="post-body">
+            <div class="post-body">
         ${post.text?`<div class="post-text">${escapeHTML(post.text)}</div>`:''}
         ${post.image?`<img class="post-image" src="${post.image}" alt="Post image" />`:''}
+        ${post.giveaway?`
+          <div class="giveaway-banner" data-post-id="${post.id}">
+            <div class="giveaway-amount">🪙 ${post.giveaway.amount.toLocaleString()}</div>
+            <div class="giveaway-label">🎁 Credit Giveaway</div>
+            ${post.giveaway.claimed?`
+              <div class="giveaway-claimed">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Claimed${post.giveaway.claimedBy?(' by '+getUserName(post.giveaway.claimedBy)):''}
+              </div>
+              ${post.giveaway.claimedAt?`<div class="giveaway-claimer">${timeAgo(post.giveaway.claimedAt)}</div>`:''}
+            `:`
+              ${post.authorUid===MY_UID?`
+                <div style="font-size:.78rem;color:var(--muted);font-weight:600">Waiting for someone to claim...</div>
+              `:`
+                <button class="giveaway-claim-btn" data-giveaway-post="${post.id}" data-giveaway-amount="${post.giveaway.amount}">
+                  🎁 Claim Credits
+                </button>
+              `}
+            `}
+          </div>
+        `:''}
       </div>
       <div class="post-actions">
         <button class="post-action-btn ${liked?'liked':''}" data-act="like">
@@ -958,6 +1079,43 @@
       </div>
     `;
 
+      // Giveaway claim handler (delegated)
+  document.addEventListener('click',async e=>{
+    const claimBtn=e.target.closest('.giveaway-claim-btn');
+    if(!claimBtn)return;
+
+    const postId=claimBtn.dataset.giveawayPost;
+    const amount=parseInt(claimBtn.dataset.giveawayAmount)||0;
+    if(!postId||!amount||!MY_UID)return;
+
+    claimBtn.disabled=true;
+    claimBtn.textContent='Claiming...';
+
+    try{
+      // Use a transaction to prevent race conditions (two people claiming at once)
+      const giveawayRef=rtdb.ref('posts/'+postId+'/giveaway');
+      const result=await giveawayRef.transaction(current=>{
+        if(!current)return current;
+        if(current.claimed)return; // abort — already claimed (returns undefined)
+        return{
+          ...current,
+          claimed:true,
+          claimedBy:MY_UID,
+          claimedAt:Date.now()
+        };
+      });
+
+      if(result.committed&&result.snapshot.val()&&result.snapshot.val().claimed&&result.snapshot.val().claimedBy===MY_UID){
+        // Successfully claimed — give credits
+        await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>(c||0)+amount);
+        toast('🎁 You claimed '+amount.toLocaleString()+' credits!','success');
+      }else{
+        toast('Already claimed by someone else!');
+      }
+    }catch(e){
+      toast('Failed to claim: '+e.message);
+    }
+  });
     // Author click
     card.querySelector('.post-avatar').addEventListener('click',()=>openProfile(post.authorUid));
     card.querySelector('.post-author').addEventListener('click',()=>openProfile(post.authorUid));

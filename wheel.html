@@ -274,33 +274,34 @@
   window.nudgeBet=nudgeBet;window.setMaxBet=setMaxBet;window.setHalf=setHalf;window.setDouble=setDouble;
 
   /* ═══ WHEEL CONFIG ═══ */
-  var WHEELS={
+    var WHEELS={
     safe:[
-      {mult:0,   weight:1, color:'#1e1e2e',label:'0x'},
+      {mult:0,   weight:2, color:'#1e1e2e',label:'0x'},
+      {mult:0.3, weight:4, color:'#475569',label:'0.3x'},
       {mult:0.5, weight:4, color:'#64748b',label:'0.5x'},
-      {mult:1,   weight:5, color:'#22c55e',label:'1x'},
-      {mult:1.2, weight:4, color:'#16a34a',label:'1.2x'},
-      {mult:1.5, weight:3, color:'#eab308',label:'1.5x'},
-      {mult:2,   weight:2, color:'#f59e0b',label:'2x'},
+      {mult:0.8, weight:3, color:'#22c55e',label:'0.8x'},
+      {mult:1,   weight:3, color:'#16a34a',label:'1x'},
+      {mult:1.3, weight:2, color:'#eab308',label:'1.3x'},
+      {mult:1.8, weight:1, color:'#f59e0b',label:'1.8x'},
       {mult:3,   weight:1, color:'#ef4444',label:'3x'}
     ],
     balanced:[
-      {mult:0,   weight:2, color:'#1e1e2e',label:'0x'},
-      {mult:0.2, weight:3, color:'#475569',label:'0.2x'},
-      {mult:0.5, weight:3, color:'#64748b',label:'0.5x'},
-      {mult:1,   weight:3, color:'#22c55e',label:'1x'},
+      {mult:0,   weight:4, color:'#1e1e2e',label:'0x'},
+      {mult:0.1, weight:3, color:'#3f3f46',label:'0.1x'},
+      {mult:0.3, weight:3, color:'#475569',label:'0.3x'},
+      {mult:0.5, weight:2, color:'#64748b',label:'0.5x'},
+      {mult:1,   weight:2, color:'#22c55e',label:'1x'},
       {mult:1.5, weight:2, color:'#16a34a',label:'1.5x'},
-      {mult:2,   weight:2, color:'#eab308',label:'2x'},
-      {mult:3,   weight:2, color:'#f59e0b',label:'3x'},
-      {mult:5,   weight:1, color:'#ef4444',label:'5x'},
-      {mult:10,  weight:1, color:'#dc2626',label:'10x'},
-      {mult:20,  weight:1, color:'#8b5cf6',label:'20x'}
+      {mult:2,   weight:1, color:'#eab308',label:'2x'},
+      {mult:4,   weight:1, color:'#f59e0b',label:'4x'},
+      {mult:8,   weight:1, color:'#ef4444',label:'8x'},
+      {mult:15,  weight:1, color:'#dc2626',label:'15x'}
     ],
     risky:[
-      {mult:0,   weight:5, color:'#1e1e2e',label:'0x'},
-      {mult:0,   weight:4, color:'#27272a',label:'0x'},
-      {mult:0.2, weight:2, color:'#475569',label:'0.2x'},
-      {mult:0.5, weight:2, color:'#64748b',label:'0.5x'},
+      {mult:0,   weight:7, color:'#1e1e2e',label:'0x'},
+      {mult:0,   weight:5, color:'#27272a',label:'0x'},
+      {mult:0.1, weight:2, color:'#475569',label:'0.1x'},
+      {mult:0.3, weight:1, color:'#64748b',label:'0.3x'},
       {mult:1.5, weight:1, color:'#22c55e',label:'1.5x'},
       {mult:3,   weight:1, color:'#eab308',label:'3x'},
       {mult:5,   weight:1, color:'#f59e0b',label:'5x'},
@@ -509,19 +510,25 @@
      At the pointer, the angle is -PI/2 (top).
      We need: which i satisfies startAngle <= pointerAngle < endAngle
      pointerAngle in wheel-local coords: -PI/2 - rotation (normalized) */
-  function getSegAtPointer(){
+      function getSegAtPointer(){
     var sliceAngle=Math.PI*2/totalSegs;
-    /* Pointer angle relative to wheel rotation */
-    var pAngle=(-Math.PI/2-rotation)%(Math.PI*2);
-    if(pAngle<0)pAngle+=Math.PI*2;
-    var idx=Math.floor(pAngle/sliceAngle);
-    if(idx<0)idx=0;
-    if(idx>=totalSegs)idx=totalSegs-1;
+    /* In drawWheel, segment i starts at: rotation + i*sliceAngle - PI/2
+       Pointer is at angle -PI/2.
+       Segment i is under pointer when:
+         rotation + i*sliceAngle - PI/2 <= -PI/2 < rotation + (i+1)*sliceAngle - PI/2
+       Simplifies to:
+         i*sliceAngle <= -rotation < (i+1)*sliceAngle
+       So: i = floor(-rotation / sliceAngle)  (mod totalSegs)
+    */
+    var angle=(-rotation)%(Math.PI*2);
+    if(angle<0)angle+=Math.PI*2;
+    var idx=Math.floor(angle/sliceAngle)%totalSegs;
+    if(idx<0)idx+=totalSegs;
     return idx;
   }
 
   /* ═══ SPIN ═══ */
-  spinBtn.addEventListener('click',async function(){
+    spinBtn.addEventListener('click',async function(){
     if(spinning)return;
     var bet=Math.max(1,parseInt(betInput.value)||1);
     if(bet>getCredits()){resultEl.innerHTML='<span class="rr-lose">Not enough credits!</span>';return;}
@@ -538,30 +545,45 @@
     var targetIdx=pickResult();
     var sliceAngle=Math.PI*2/totalSegs;
 
-    /* Target rotation: we need segment targetIdx to be at the pointer (top = -PI/2).
-       Segment center angle (in wheel space): targetIdx * sliceAngle + sliceAngle/2
-       We want: rotation + that center = -PI/2 (mod 2PI)
-       So target rotation = -PI/2 - targetIdx*sliceAngle - sliceAngle/2 */
-    var targetRot=-Math.PI/2-targetIdx*sliceAngle-sliceAngle/2;
+    /*
+       From getSegAtPointer:
+         idx = floor(-rotation / sliceAngle)
+       We want idx == targetIdx, so we need:
+         targetIdx * sliceAngle <= -rotation < (targetIdx+1) * sliceAngle
+       Pick the center:
+         -rotation = targetIdx * sliceAngle + sliceAngle/2
+         rotation  = -(targetIdx * sliceAngle + sliceAngle/2)
+       Add a small random offset within the slice (avoid edges):
+    */
+    var edgePad=sliceAngle*0.15;
+    var randomOffset=(Math.random()*(sliceAngle-2*edgePad))+edgePad;
+    var targetRot=-(targetIdx*sliceAngle+randomOffset);
 
-    /* Add multiple full rotations for dramatic spin (5-8 full spins) */
+    /* Normalize targetRot into [0, -2PI) range isn't needed;
+       just ensure we spin multiple full clockwise rotations to get there. */
     var fullSpins=(5+Math.random()*3)*Math.PI*2;
 
-    /* Normalize current rotation */
+    /* Calculate how much total to rotate.
+       We go clockwise (negative direction).
+       First, figure out the shortest clockwise path from current to target: */
     var curNorm=rotation%(Math.PI*2);
-    var targetNorm=targetRot%(Math.PI*2);
-    if(targetNorm>curNorm)targetNorm-=Math.PI*2;
+    var tarNorm=targetRot%(Math.PI*2);
 
-    var totalRotation=targetNorm-curNorm-fullSpins;
+    /* Clockwise delta (negative values = clockwise) */
+    var delta=tarNorm-curNorm;
+    /* We want delta to be in (-2PI, 0] so wheel goes clockwise */
+    while(delta>0)delta-=Math.PI*2;
+    while(delta<=-Math.PI*2)delta+=Math.PI*2;
+
+    var totalRotation=delta-fullSpins; /* add full spins (all negative = clockwise) */
 
     var startRot=rotation;
+    var finalRot=startRot+totalRotation;
     var startTime=performance.now();
     var duration=4000+Math.random()*1500;
 
-    /* Easing: cubic out */
     function easeOutCubic(t){return 1-Math.pow(1-t,3);}
 
-    /* Tick sound timing */
     var lastPegIdx=-1;
 
     function animateSpin(){
@@ -573,24 +595,26 @@
       rotation=startRot+totalRotation*eased;
       drawWheel();
 
-      /* Peg tick detection */
       var pegIdx=getSegAtPointer();
       if(pegIdx!==lastPegIdx){
         lastPegIdx=pegIdx;
-        /* Visual tick: brief pointer bounce could go here */
       }
 
       if(t<1){
         spinRAF=requestAnimationFrame(animateSpin);
       }else{
-        /* Done */
+        /* Snap to exact final rotation */
+        rotation=finalRot;
+        drawWheel();
         spinRAF=null;
-        onSpinDone(targetIdx,bet);
+
+        /* Read the ACTUAL visual segment at the pointer — this is the result */
+        var actualIdx=getSegAtPointer();
+        onSpinDone(actualIdx,bet);
       }
     }
     spinRAF=requestAnimationFrame(animateSpin);
   });
-
   /* ═══ SPIN DONE ═══ */
   async function onSpinDone(segIdx,bet){
     var seg=segments[segIdx];

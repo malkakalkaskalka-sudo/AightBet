@@ -558,9 +558,8 @@
     window.addEventListener('beforeunload',markLeft);
   }
 
-   function markLeft(){
+     function markLeft(){
     if(activeBattle&&myUid){
-      // Use sendBeacon-style sync write for beforeunload
       rtdb.ref('battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
 
       // If game is still playing, mark forfeit
@@ -572,7 +571,8 @@
         rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
         if(opponentId){
           const bet=battleState.bet||0;
-          adjCredits(opponentId,bet*2);
+          const allSkinsValue=pids.reduce((sum,pid)=>sum+((battleState.players[pid]||{}).total||0),0);
+          adjCredits(opponentId, bet*2 + allSkinsValue);
         }
         trackForfeit(myUid);
       }
@@ -584,7 +584,7 @@
       battleRef.off('value',battleUnsub);
     }
 
-    // If battle is still playing and I leave = forfeit
+       // If battle is still playing and I leave = forfeit
     if(activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner){
       const pids=Object.keys(battleState.players||{});
       const opponentId=pids.find(id=>id!==myUid);
@@ -594,10 +594,11 @@
       rtdb.ref('battles/'+activeBattle+'/status').set('finished');
       rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
 
-      // Opponent gets both bets (no refund for forfeiter)
+      // Opponent gets both bets + all skin value from both players
       if(opponentId){
         const bet=battleState.bet||0;
-        adjCredits(opponentId, bet*2);
+        const allSkinsValue=pids.reduce((sum,pid)=>sum+((battleState.players[pid]||{}).total||0),0);
+        adjCredits(opponentId, bet*2 + allSkinsValue);
       }
 
       // Track daily forfeits
@@ -732,14 +733,18 @@
 
       if(data.winner==='draw'){
         resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players got the same total value. Bets returned.</p></div>`;
-      }else{
+            }else{
         const isMe=data.winner===myUid;
         const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
+        // Calculate all skins value from both players
+        const allSkinsValue=Object.values(players).reduce((sum,p)=>sum+(p.total||0),0);
+        const totalWinnings=((data.bet||0)*2)+allSkinsValue;
         resultHtml=`<div class="final-result">
           <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won the Battle!':'💀 You Lost the Battle!'}</h2>
           <p>${winnerData?.name||'Winner'} wins${forfeitText}!</p>
-          ${!wasForfeit?`<p style="color:var(--muted)">Total: 🪙 ${(winnerData?.total||0).toLocaleString()}</p>`:''}
-          ${isMe?`<div class="fr-amount">+${((data.bet||0)*2).toLocaleString()} bet winnings</div>`:''}
+          ${!wasForfeit?`<p style="color:var(--muted)">Total skin value: 🪙 ${(winnerData?.total||0).toLocaleString()}</p>`:''}
+          ${isMe?`<div class="fr-amount">+${totalWinnings.toLocaleString()} total winnings</div>
+          <p style="color:var(--muted);font-size:.85rem">(🪙 ${allSkinsValue.toLocaleString()} skins + 🪙 ${((data.bet||0)*2).toLocaleString()} bets)</p>`:''}
         </div>`;
       }
     }
@@ -997,7 +1002,7 @@
   /* ═══════════════════════════════════════════
      FINISH BATTLE
      ═══════════════════════════════════════════ */
-  async function finishBattle(data,totalRoundsDone){
+   async function finishBattle(data,totalRoundsDone){
     // Re-read latest
     const snap=await rtdb.ref('battles/'+activeBattle+'/players').once('value');
     const ps=snap.val()||{};
@@ -1005,18 +1010,21 @@
     const totals={};
     pids.forEach(pid=>totals[pid]=ps[pid].total||0);
 
+    // Total skin value from ALL players combined
+    const allSkinsValue=pids.reduce((sum,pid)=>sum+(ps[pid].total||0),0);
+
     const sorted=pids.sort((a,b)=>totals[b]-totals[a]);
     const bet=data.bet||0;
     let winner;
 
     if(pids.length===2&&totals[sorted[0]]===totals[sorted[1]]){
       winner='draw';
-      // Return bets
-      for(const pid of pids) await adjCredits(pid,bet);
+      // Return bets + each player gets their own skin value back
+      for(const pid of pids) await adjCredits(pid, bet + (ps[pid].total||0));
     }else{
       winner=sorted[0];
-      // Winner gets both bets
-      await adjCredits(winner,bet*2);
+      // Winner gets: both side bets + ALL skin value from both players
+      await adjCredits(winner, bet*2 + allSkinsValue);
     }
 
     await rtdb.ref('battles/'+activeBattle+'/winner').set(winner);
