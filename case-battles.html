@@ -89,6 +89,15 @@
     .battle-cost{font-size:.9rem;font-weight:800;color:var(--gold)}
     .no-battles{text-align:center;padding:60px 20px;color:var(--muted);font-size:1rem}
 
+    /* MODE TOGGLE */
+    .mode-toggle{display:flex;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--border2);margin-bottom:4px}
+    .mode-toggle button{flex:1;padding:10px 18px;border:none;background:var(--surface);color:var(--muted);font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;font-family:var(--font)}
+    .mode-toggle button.active{background:rgba(139,92,246,.2);color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+    .mode-toggle button:hover:not(.active){background:rgba(255,255,255,.06);color:var(--text)}
+    .mode-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+    .mode-badge-1v1{background:rgba(139,92,246,.15);color:var(--accent)}
+    .mode-badge-2v2{background:rgba(236,72,153,.15);color:var(--accent3)}
+
     /* CREATE OVERLAY */
     .overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:16px}
     .overlay.open{display:flex}
@@ -130,7 +139,7 @@
     /* BATTLE OVERLAY */
     .battle-overlay{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto}
     .battle-overlay.open{display:block}
-    .battle-inner{max-width:960px;margin:0 auto;padding:24px;min-height:100vh}
+    .battle-inner{max-width:1100px;margin:0 auto;padding:24px;min-height:100vh}
 
     .battle-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
     .battle-topbar h2{font-size:1.3rem;font-weight:800}
@@ -148,6 +157,13 @@
     .waiting-id{margin-top:20px;padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:inline-block;font-size:.85rem;color:var(--muted)}
     .waiting-id code{color:var(--accent);font-weight:800;font-size:.9rem}
 
+    .waiting-players{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+    .waiting-player-slot{width:80px;padding:12px 8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;font-size:.75rem;font-weight:700;color:var(--muted)}
+    .waiting-player-slot.filled{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.06)}
+    .waiting-player-slot .wps-avatar{width:36px;height:36px;border-radius:50%;margin:0 auto 6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;overflow:hidden}
+    .waiting-player-slot .wps-avatar img{width:100%;height:100%;object-fit:cover}
+    .waiting-player-slot .wps-team{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
     .round-header{text-align:center;margin-bottom:16px}
     .round-header h3{font-size:1.1rem;font-weight:800;color:var(--accent)}
     .round-header p{color:var(--muted);font-size:.85rem}
@@ -157,10 +173,20 @@
     .round-chip.active{background:rgba(139,92,246,.15);border-color:var(--accent);color:var(--accent)}
     .round-chip.done{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green)}
 
+    /* 1v1 layout */
     .versus-area{display:grid;grid-template-columns:1fr 60px 1fr;gap:12px;align-items:start;margin-bottom:20px}
     @media(max-width:700px){.versus-area{grid-template-columns:1fr;gap:16px}}
     .vs-divider{display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:var(--accent3);align-self:center}
     @media(max-width:700px){.vs-divider{order:0}}
+
+    /* 2v2 layout */
+    .versus-area-2v2{display:grid;grid-template-columns:1fr 60px 1fr;gap:12px;align-items:start;margin-bottom:20px}
+    @media(max-width:700px){.versus-area-2v2{grid-template-columns:1fr;gap:16px}}
+    .team-side{display:flex;flex-direction:column;gap:12px}
+    .team-label{text-align:center;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:6px 0;border-radius:8px;margin-bottom:4px}
+    .team-label-1{color:var(--accent);background:rgba(139,92,246,.1)}
+    .team-label-2{color:var(--accent3);background:rgba(236,72,153,.1)}
+    .team-total{text-align:center;font-size:1.1rem;font-weight:900;color:var(--gold);padding:4px 0}
 
     .player-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .4s,box-shadow .4s}
     .player-panel.winner{border-color:var(--gold);box-shadow:0 0 40px -10px rgba(245,158,11,.3)}
@@ -211,6 +237,7 @@
       .case-selector{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
       .battle-inner{padding:16px}
       .b-track-item{width:75px}
+      .versus-area-2v2{grid-template-columns:1fr;gap:16px}
     }
   </style>
 </head>
@@ -245,7 +272,15 @@
       <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:20px">⚔️ Create Case Battle</h2>
 
       <div class="form-group">
-        <label>Side Bet (credits)</label>
+        <label>Battle Mode</label>
+        <div class="mode-toggle" id="modeToggle">
+          <button class="active" data-mode="1v1">⚔️ 1 vs 1</button>
+          <button data-mode="2v2">👥 2 vs 2</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Side Bet (credits per player)</label>
         <input type="number" class="form-input" id="createBet" value="50" min="0" step="1"/>
       </div>
 
@@ -256,10 +291,11 @@
       </div>
 
       <div class="create-summary">
+        <div class="cs-row"><span class="cs-label">Mode</span><span class="cs-val" id="sumMode">1v1</span></div>
         <div class="cs-row"><span class="cs-label">Rounds</span><span class="cs-val" id="sumRounds">0</span></div>
-        <div class="cs-row"><span class="cs-label">Case cost</span><span class="cs-val" id="sumCaseCost">🪙 0</span></div>
-        <div class="cs-row"><span class="cs-label">Side bet</span><span class="cs-val" id="sumBet">🪙 50</span></div>
-        <div class="cs-row cs-total"><span class="cs-label">Total entry cost</span><span class="cs-val" id="sumTotal">🪙 50</span></div>
+        <div class="cs-row"><span class="cs-label">Case cost (per player)</span><span class="cs-val" id="sumCaseCost">🪙 0</span></div>
+        <div class="cs-row"><span class="cs-label">Side bet (per player)</span><span class="cs-val" id="sumBet">🪙 50</span></div>
+        <div class="cs-row cs-total"><span class="cs-label">Your entry cost</span><span class="cs-val" id="sumTotal">🪙 50</span></div>
       </div>
 
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
@@ -340,13 +376,7 @@
      ═══════════════════════════════════════════ */
   const RARITIES={common:{label:'Common',color:'#94a3b8',bg:'rgba(148,163,184,.15)'},uncommon:{label:'Uncommon',color:'#22c55e',bg:'rgba(34,197,94,.15)'},rare:{label:'Rare',color:'#3b82f6',bg:'rgba(59,130,246,.15)'},epic:{label:'Epic',color:'#8b5cf6',bg:'rgba(139,92,246,.15)'},legendary:{label:'Legendary',color:'#f59e0b',bg:'rgba(245,158,11,.15)'},mythic:{label:'Mythic',color:'#ef4444',bg:'rgba(239,68,68,.15)'}};
 
-  const CASES=[{id:'starter',name:'Starter Case',img:'Images/cases/1.png',price:50,items:[{name:'Worn Knife',img:'Images/skins/starter/basic2.png',value:20,rarity:'common',weight:30},{name:'Rusty Pistol',img:'Images/skins/starter/basic3.png',value:30,rarity:'common',weight:28},{name:'Old Revolver',img:'Images/skins/starter/basic4.png',value:40,rarity:'common',weight:22},{name:'Basic Shield',img:'Images/skins/starter/basic5.png',value:60,rarity:'uncommon',weight:18},{name:'Silver Ring',img:'Images/skins/starter/basic6.png',value:80,rarity:'uncommon',weight:14},{name:'Iron Blade',img:'Images/skins/starter/basic1.png',value:120,rarity:'rare',weight:10},{name:'Gold Coin',img:'Images/skins/starter/basic7.png',value:200,rarity:'epic',weight:5},{name:'Diamond Shard',img:'Images/skins/starter/basic8.png',value:500,rarity:'legendary',weight:2}]},{id:'neon',name:'Neon Case',img:'Images/cases/2.png',price:100,items:[{name:'Neon Stick',img:'Images/skins/neon/neon1.png',value:40,rarity:'common',weight:28},{name:'Glow Glasses',img:'Images/skins/neon/neon2.png',value:60,rarity:'common',weight:25},{name:'UV Blade',img:'Images/skins/neon/neon3.png',value:80,rarity:'common',weight:20},{name:'Laser Blade',img:'Images/skins/neon/neon4.png',value:120,rarity:'uncommon',weight:18},{name:'Neon Katana',img:'Images/skins/neon/neon5.png',value:150,rarity:'uncommon',weight:15},{name:'Plasma Gun',img:'Images/skins/neon/neon6.png',value:200,rarity:'rare',weight:12},{name:'Neon Crown',img:'Images/skins/neon/neon7.png',value:400,rarity:'epic',weight:7},{name:'Aurora Aura',img:'Images/skins/neon/neon8.png',value:800,rarity:'legendary',weight:3},{name:'Supernova',img:'Images/skins/neon/neon9.png',value:2000,rarity:'mythic',weight:0.5}]},{id:'dragon',name:'Dragon Case',img:'Images/cases/3.png',price:200,items:[{name:'Dragon Scale',img:'Images/skins/dragon/dragon1.png',value:80,rarity:'common',weight:25},{name:'Fire Scroll',img:'Images/skins/dragon/dragon2.png',value:120,rarity:'common',weight:22},{name:'Dragon Fang',img:'Images/skins/dragon/dragon3.png',value:180,rarity:'uncommon',weight:18},{name:'Flame Dagger',img:'Images/skins/dragon/dragon4.png',value:250,rarity:'uncommon',weight:15},{name:'Flame Sword',img:'Images/skins/dragon/dragon5.png',value:400,rarity:'rare',weight:12},{name:'Dragon Egg',img:'Images/skins/dragon/dragon6.png',value:800,rarity:'epic',weight:8},{name:'Dragon Wing',img:'Images/skins/dragon/dragon7.png',value:1200,rarity:'epic',weight:5},{name:'Dragon Armor',img:'Images/skins/dragon/dragon8.png',value:2000,rarity:'legendary',weight:3},{name:'Fire Crown',img:'Images/skins/dragon/dragon9.png',value:3000,rarity:'legendary',weight:1.5},{name:'Elder Dragon',img:'Images/skins/dragon/dragon10.png',value:6000,rarity:'mythic',weight:0.8}]},{id:'cosmic',name:'Cosmic Case',img:'Images/cases/4.png',price:150,items:[{name:'Star Dust',img:'Images/skins/cosmic/cosmic2.png',value:60,rarity:'common',weight:28},{name:'Moon Rock',img:'Images/skins/cosmic/cosmic1.png',value:90,rarity:'common',weight:24},{name:'Asteroid',img:'Images/skins/cosmic/cosmic3.png',value:130,rarity:'uncommon',weight:18},{name:'Comet Trail',img:'Images/skins/cosmic/cosmic4.png',value:180,rarity:'uncommon',weight:15},{name:'Space Blaster',img:'Images/skins/cosmic/cosmic8.png',value:300,rarity:'rare',weight:12},{name:'Nebula Cloak',img:'Images/skins/cosmic/cosmic5.png',value:600,rarity:'epic',weight:7},{name:'Black Hole',img:'Images/skins/cosmic/cosmic6.png',value:1200,rarity:'legendary',weight:3},{name:'Universe Orb',img:'Images/skins/cosmic/cosmic7.png',value:3000,rarity:'mythic',weight:0.8}]},{id:'pirate',name:'Pirate Case',img:'Images/cases/5.png',price:120,items:[{name:'Wooden Plank',img:'Images/skins/pirate/pirate1-removebg-preview.png',value:40,rarity:'common',weight:28},{name:'Compass',img:'Images/skins/pirate/pirate2-removebg-preview.png',value:70,rarity:'common',weight:24},{name:'Rum Bottle',img:'Images/skins/pirate/pirate3-removebg-preview.png',value:90,rarity:'common',weight:20},{name:'Pirate Hat',img:'Images/skins/pirate/pirate4-removebg-preview.png',value:140,rarity:'uncommon',weight:16},{name:'Anchor Blade',img:'Images/skins/pirate/pirate5-removebg-preview.png',value:180,rarity:'uncommon',weight:14},{name:'Cutlass',img:'Images/skins/pirate/pirate6-removebg-preview.png',value:250,rarity:'rare',weight:12},{name:'Treasure Map',img:'Images/skins/pirate/pirate7-removebg-preview.png',value:500,rarity:'epic',weight:7},{name:'Gold Chest',img:'Images/skins/pirate/pirate8-removebg-preview.png',value:1000,rarity:'legendary',weight:3},{name:'Kraken Pearl',img:'Images/skins/pirate/pirate9-removebg-preview.png',value:2500,rarity:'mythic',weight:0.8}]},{id:'cyber',name:'Cyber Case',img:'Images/cases/6.png',price:175,items:[{name:'USB Drive',img:'Images/skins/cyber/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Circuit Board',img:'Images/skins/cyber/download__5_-removebg-preview.png',value:90,rarity:'common',weight:22},{name:'Data Chip',img:'Images/skins/cyber/download__6_-removebg-preview.png',value:120,rarity:'common',weight:18},{name:'Cyber Visor',img:'Images/skins/cyber/download__7_-removebg-preview.png',value:175,rarity:'uncommon',weight:16},{name:'Nano Blade',img:'Images/skins/cyber/download__8_-removebg-preview.png',value:250,rarity:'uncommon',weight:14},{name:'Holo Watch',img:'Images/skins/cyber/download__9_-removebg-preview.png',value:350,rarity:'rare',weight:12},{name:'Firewall Shield',img:'Images/skins/cyber/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Mech Arm',img:'Images/skins/cyber/download__11_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'AI Core',img:'Images/skins/cyber/download__12_-removebg-preview.png',value:1400,rarity:'legendary',weight:4},{name:'Singularity',img:'Images/skins/cyber/download__13_-removebg-preview.png',value:4000,rarity:'mythic',weight:1}]},{id:'royal',name:'Royal Case',img:'Images/cases/7.png',price:250,items:[{name:'Silk Cloth',img:'Images/skins/royal/download__4_-removebg-preview.png',value:100,rarity:'common',weight:25},{name:'Silver Goblet',img:'Images/skins/royal/download__5_-removebg-preview.png',value:140,rarity:'common',weight:22},{name:'Ruby Ring',img:'Images/skins/royal/download__6_-removebg-preview.png',value:200,rarity:'uncommon',weight:18},{name:'Royal Cape',img:'Images/skins/royal/download__7_-removebg-preview.png',value:300,rarity:'uncommon',weight:14},{name:'Royal Sword',img:'Images/skins/royal/download__8_-removebg-preview.png',value:400,rarity:'rare',weight:12},{name:'Gold Scepter',img:'Images/skins/royal/download__9_-removebg-preview.png',value:500,rarity:'rare',weight:11},{name:'Crown Jewel',img:'Images/skins/royal/download__10_-removebg-preview.png',value:750,rarity:'epic',weight:8},{name:'Diamond Tiara',img:'Images/skins/royal/download__11_-removebg-preview.png',value:1000,rarity:'epic',weight:7},{name:'Throne',img:'Images/skins/royal/download__12_-removebg-preview.png',value:2000,rarity:'legendary',weight:3.5},{name:'Excalibur',img:'Images/skins/royal/download__13_-removebg-preview.png',value:6000,rarity:'mythic',weight:1}]},{id:'shadow',name:'Shadow Case',img:'Images/cases/8.png',price:180,items:[{name:'Shadow Dust',img:'Images/skins/shadow/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Dark Potion',img:'Images/skins/shadow/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Night Dagger',img:'Images/skins/shadow/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Phantom Mask',img:'Images/skins/shadow/download__7_-removebg-preview.png',value:280,rarity:'rare',weight:14},{name:'Shadow Blade',img:'Images/skins/shadow/download__8_-removebg-preview.png',value:450,rarity:'rare',weight:10},{name:'Void Cloak',img:'Images/skins/shadow/download__9_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'Death Scythe',img:'Images/skins/shadow/download__10_-removebg-preview.png',value:1500,rarity:'legendary',weight:3},{name:'Eclipse',img:'Images/skins/shadow/download__11_-removebg-preview.png',value:4500,rarity:'mythic',weight:1}]},{id:'lucky',name:'Lucky Case',img:'Images/cases/9.png',price:300,items:[{name:'Lucky Penny',img:'Images/skins/lucky/download__4_-removebg-preview.png',value:100,rarity:'common',weight:18},{name:'Four Leaf Clover',img:'Images/skins/lucky/download__5_-removebg-preview.png',value:180,rarity:'uncommon',weight:18},{name:'Horseshoe',img:'Images/skins/lucky/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Lucky Dice',img:'Images/skins/lucky/download__7_-removebg-preview.png',value:400,rarity:'rare',weight:14},{name:'Rainbow',img:'Images/skins/lucky/download__8_-removebg-preview.png',value:600,rarity:'rare',weight:12},{name:'Pot of Gold',img:'Images/skins/lucky/download__9_-removebg-preview.png',value:1000,rarity:'epic',weight:10},{name:'Golden Horseshoe',img:'Images/skins/lucky/download__10_-removebg-preview.png',value:1500,rarity:'epic',weight:7},{name:'Leprechaun Hat',img:'Images/skins/lucky/download__11_-removebg-preview.png',value:2500,rarity:'legendary',weight:5},{name:'Lucky Katana',img:'Images/skins/lucky/download__12_-removebg-preview.png',value:4000,rarity:'legendary',weight:3},{name:'Jackpot Star',img:'Images/skins/lucky/download__13_-removebg-preview.png',value:7000,rarity:'mythic',weight:2}]},{id:'inferno',name:'Inferno Case',img:'Images/cases/10.png',price:500,items:[{name:'Fire',img:'Images/skins/inferno/download__4_-removebg-preview.png',value:150,rarity:'common',weight:20},{name:'Lava Rock',img:'Images/skins/inferno/download__5_-removebg-preview.png',value:250,rarity:'common',weight:18},{name:'Fire Whip',img:'Images/skins/inferno/download__6_-removebg-preview.png',value:400,rarity:'uncommon',weight:16},{name:'Magma Blade',img:'Images/skins/inferno/download__7_-removebg-preview.png',value:700,rarity:'rare',weight:13},{name:'Inferno Pistol',img:'Images/skins/inferno/download__8_-removebg-preview.png',value:1000,rarity:'rare',weight:10},{name:'Phoenix Feather',img:'Images/skins/inferno/download__9_-removebg-preview.png',value:1800,rarity:'epic',weight:8},{name:'Molten Shield',img:'Images/skins/inferno/download__10_-removebg-preview.png',value:2500,rarity:'epic',weight:6},{name:'Inferno Armor',img:'Images/skins/inferno/download__11_-removebg-preview.png',value:4000,rarity:'legendary',weight:4},{name:'Hell Blade',img:'Images/skins/inferno/download__12_-removebg-preview.png',value:7000,rarity:'legendary',weight:2},{name:'Phoenix',img:'Images/skins/inferno/download__13_-removebg-preview.png',value:15000,rarity:'mythic',weight:1}]},{id:'arctic',name:'Arctic Case',img:'Images/cases/11.png',price:160,items:[{name:'Snowball',img:'Images/skins/arctic/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Ice Shard',img:'Images/skins/arctic/download__5_-removebg-preview.png',value:80,rarity:'common',weight:24},{name:'Frost Dagger',img:'Images/skins/arctic/download__6_-removebg-preview.png',value:130,rarity:'uncommon',weight:18},{name:'Frozen Shield',img:'Images/skins/arctic/download__7_-removebg-preview.png',value:220,rarity:'uncommon',weight:14},{name:'Blizzard Staff',img:'Images/skins/arctic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ice Crown',img:'Images/skins/arctic/download__9_-removebg-preview.png',value:650,rarity:'epic',weight:7},{name:'Glacier Blade',img:'Images/skins/arctic/download__10_-removebg-preview.png',value:1100,rarity:'legendary',weight:3},{name:'Yeti',img:'Images/skins/arctic/download__11_-removebg-preview.png',value:3000,rarity:'mythic',weight:1}]},{id:'samurai',name:'Samurai Case',img:'Images/cases/12.png',price:220,items:[{name:'Bamboo Stick',img:'Images/skins/samurai/download__4_-removebg-preview.png',value:80,rarity:'common',weight:25},{name:'Paper Fan',img:'Images/skins/samurai/download__5_-removebg-preview.png',value:110,rarity:'common',weight:22},{name:'Shuriken',img:'Images/skins/samurai/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Cherry Blossom',img:'Images/skins/samurai/download__7_-removebg-preview.png',value:180,rarity:'uncommon',weight:16},{name:'Samurai Mask',img:'Images/skins/samurai/download__8_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Tanto Blade',img:'Images/skins/samurai/download__9_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ninja Star',img:'Images/skins/samurai/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Katana',img:'Images/skins/samurai/download__11_-removebg-preview.png',value:650,rarity:'rare',weight:8},{name:'Shogun Armor',img:'Images/skins/samurai/download__12_-removebg-preview.png',value:1100,rarity:'epic',weight:6},{name:'Dragon Katana',img:'Images/skins/samurai/download__13_-removebg-preview.png',value:2000,rarity:'legendary',weight:3},{name:'Spirit Blade',img:'Images/skins/samurai/download__14_-removebg-preview.png',value:3500,rarity:'legendary',weight:1.5},{name:'Oni Demon',img:'Images/skins/samurai/download__15_-removebg-preview.png',value:5500,rarity:'mythic',weight:0.8}]},{id:'ocean',name:'Ocean Case',img:'Images/cases/13.png',price:140,items:[{name:'Seashell',img:'Images/skins/ocean/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Coral Piece',img:'Images/skins/ocean/download__5_-removebg-preview.png',value:75,rarity:'common',weight:24},{name:'Starfish',img:'Images/skins/ocean/download__6_-removebg-preview.png',value:100,rarity:'common',weight:20},{name:'Pearl Necklace',img:'Images/skins/ocean/download__7_-removebg-preview.png',value:160,rarity:'uncommon',weight:16},{name:'Trident Shard',img:'Images/skins/ocean/download__8_-removebg-preview.png',value:280,rarity:'rare',weight:12},{name:'Shark Tooth',img:'Images/skins/ocean/download__9_-removebg-preview.png',value:450,rarity:'rare',weight:9},{name:'Mermaid Scale',img:'Images/skins/ocean/download__10_-removebg-preview.png',value:700,rarity:'epic',weight:6},{name:'Poseidon Trident',img:'Images/skins/ocean/download__11_-removebg-preview.png',value:1200,rarity:'legendary',weight:3},{name:'Leviathan',img:'Images/skins/ocean/download__12_-removebg-preview.png',value:3500,rarity:'mythic',weight:0.8}]},{id:'toxic',name:'Toxic Case',img:'Images/cases/14.png',price:190,items:[{name:'Slime Ball',img:'Images/skins/toxic/download__4_-removebg-preview.png',value:70,rarity:'common',weight:26},{name:'Gas Mask',img:'Images/skins/toxic/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Acid Flask',img:'Images/skins/toxic/download__6_-removebg-preview.png',value:150,rarity:'uncommon',weight:18},{name:'Toxic Blade',img:'Images/skins/toxic/download__7_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Radiation Gun',img:'Images/skins/toxic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Mutant Claw',img:'Images/skins/toxic/download__9_-removebg-preview.png',value:600,rarity:'rare',weight:8},{name:'Bio Armor',img:'Images/skins/toxic/download__10_-removebg-preview.png',value:900,rarity:'epic',weight:6},{name:'Nuclear Core',img:'Images/skins/toxic/download__11_-removebg-preview.png',value:1600,rarity:'legendary',weight:3},{name:'Toxic Katana',img:'Images/skins/toxic/download__12_-removebg-preview.png',value:2800,rarity:'legendary',weight:1.5},{name:'Chernobyl',img:'Images/skins/toxic/download__13_-removebg-preview.png',value:5000,rarity:'mythic',weight:0.8}]},{id:'galaxy',name:'Galaxy Case',img:'Images/cases/16.png',price:350,items:[{name:'Stardust Ring',img:'Images/skins/galaxy/download__4_-removebg-preview.png',value:120,rarity:'common',weight:22},{name:'Meteor Shard',img:'Images/skins/galaxy/download__5_-removebg-preview.png',value:180,rarity:'common',weight:20},{name:'Pulsar Blade',img:'Images/skins/galaxy/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Quasar Gun',img:'Images/skins/galaxy/download__7_-removebg-preview.png',value:420,rarity:'uncommon',weight:13},{name:'Warp Drive',img:'Images/skins/galaxy/download__8_-removebg-preview.png',value:650,rarity:'rare',weight:10},{name:'Galaxy Shield',img:'Images/skins/galaxy/download__9_-removebg-preview.png',value:1000,rarity:'rare',weight:8},{name:'Dark Matter',img:'Images/skins/galaxy/download__10_-removebg-preview.png',value:1800,rarity:'epic',weight:6},{name:'Dimension Rift',img:'Images/skins/galaxy/download__11_-removebg-preview.png',value:3000,rarity:'epic',weight:4},{name:'Infinity Blade',img:'Images/skins/galaxy/download__12_-removebg-preview.png',value:5000,rarity:'legendary',weight:2.5},{name:'Galaxy Core',img:'Images/skins/galaxy/download__13_-removebg-preview.png',value:8000,rarity:'legendary',weight:1.5},{name:'Big Bang',img:'Images/skins/galaxy/download__14_-removebg-preview.png',value:15000,rarity:'mythic',weight:0.5}]},{id:'void',name:'Void Case',img:'Images/cases/15.png',price:750,items:[{name:'Void Fragment',img:'Images/skins/void/download__4_-removebg-preview.png',value:200,rarity:'common',weight:20},{name:'Dark Crystal',img:'Images/skins/void/download__5_-removebg-preview.png',value:350,rarity:'common',weight:18},{name:'Void Dagger',img:'Images/skins/void/download__6_-removebg-preview.png',value:550,rarity:'uncommon',weight:15},{name:'Abyssal Ring',img:'Images/skins/void/download__7_-removebg-preview.png',value:800,rarity:'uncommon',weight:12},{name:'Void Pistol',img:'Images/skins/void/download__8_-removebg-preview.png',value:1200,rarity:'rare',weight:10},{name:'Null Blade',img:'Images/skins/void/download__9_-removebg-preview.png',value:1500,rarity:'rare',weight:9},{name:'Entropy Blade',img:'Images/skins/void/download__10_-removebg-preview.png',value:2000,rarity:'rare',weight:8},{name:'Void Armor',img:'Images/skins/void/download__11_-removebg-preview.png',value:3500,rarity:'epic',weight:6},{name:'Reality Breaker',img:'Images/skins/void/download__12_-removebg-preview.png',value:6000,rarity:'epic',weight:4},{name:'Oblivion Scythe',img:'Images/skins/void/download__13_-removebg-preview.png',value:10000,rarity:'legendary',weight:3},{name:'Void Emperor Set',img:'Images/skins/void/download__14_-removebg-preview.png',value:18000,rarity:'legendary',weight:1.5},{name:'The Void',img:'Images/skins/void/download (15).jpg',value:30000,rarity:'mythic',weight:0.5}]},{id:'roj',name:'Rojs Case',img:'Images/cases/17.png',price:1000,items:[{name:'HandBall Roj',img:'Images/skins/roj2.png',value:300,rarity:'common',weight:52},{name:'Like Roj',img:'Images/skins/roj1.png',value:500,rarity:'uncommon',weight:25},{name:'Winner Roj',img:'Images/skins/roj3.png',value:800,rarity:'rare',weight:15},{name:'Tuff Roj',img:'Images/skins/roj4.png',value:1000,rarity:'epic',weight:5.9},{name:'Smoking Roj',img:'Images/skins/roj6.png',value:1800,rarity:'legendary',weight:2},{name:'Falling Roj',img:'Images/skins/roj5.png',value:3000,rarity:'mythic',weight:0.1}]}// ══════════════════════════════════════════════════════════════════
-// ADD THESE CASES AFTER THE ROJS CASE ENTRY
-// ══════════════════════════════════════════════════════════════════
-
-// ──────────────────────────────────────────────────────────────────
-// TOM CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
+  const CASES=[{id:'starter',name:'Starter Case',img:'Images/cases/1.png',price:50,items:[{name:'Worn Knife',img:'Images/skins/starter/basic2.png',value:20,rarity:'common',weight:30},{name:'Rusty Pistol',img:'Images/skins/starter/basic3.png',value:30,rarity:'common',weight:28},{name:'Old Revolver',img:'Images/skins/starter/basic4.png',value:40,rarity:'common',weight:22},{name:'Basic Shield',img:'Images/skins/starter/basic5.png',value:60,rarity:'uncommon',weight:18},{name:'Silver Ring',img:'Images/skins/starter/basic6.png',value:80,rarity:'uncommon',weight:14},{name:'Iron Blade',img:'Images/skins/starter/basic1.png',value:120,rarity:'rare',weight:10},{name:'Gold Coin',img:'Images/skins/starter/basic7.png',value:200,rarity:'epic',weight:5},{name:'Diamond Shard',img:'Images/skins/starter/basic8.png',value:500,rarity:'legendary',weight:2}]},{id:'neon',name:'Neon Case',img:'Images/cases/2.png',price:100,items:[{name:'Neon Stick',img:'Images/skins/neon/neon1.png',value:40,rarity:'common',weight:28},{name:'Glow Glasses',img:'Images/skins/neon/neon2.png',value:60,rarity:'common',weight:25},{name:'UV Blade',img:'Images/skins/neon/neon3.png',value:80,rarity:'common',weight:20},{name:'Laser Blade',img:'Images/skins/neon/neon4.png',value:120,rarity:'uncommon',weight:18},{name:'Neon Katana',img:'Images/skins/neon/neon5.png',value:150,rarity:'uncommon',weight:15},{name:'Plasma Gun',img:'Images/skins/neon/neon6.png',value:200,rarity:'rare',weight:12},{name:'Neon Crown',img:'Images/skins/neon/neon7.png',value:400,rarity:'epic',weight:7},{name:'Aurora Aura',img:'Images/skins/neon/neon8.png',value:800,rarity:'legendary',weight:3},{name:'Supernova',img:'Images/skins/neon/neon9.png',value:2000,rarity:'mythic',weight:0.5}]},{id:'dragon',name:'Dragon Case',img:'Images/cases/3.png',price:200,items:[{name:'Dragon Scale',img:'Images/skins/dragon/dragon1.png',value:80,rarity:'common',weight:25},{name:'Fire Scroll',img:'Images/skins/dragon/dragon2.png',value:120,rarity:'common',weight:22},{name:'Dragon Fang',img:'Images/skins/dragon/dragon3.png',value:180,rarity:'uncommon',weight:18},{name:'Flame Dagger',img:'Images/skins/dragon/dragon4.png',value:250,rarity:'uncommon',weight:15},{name:'Flame Sword',img:'Images/skins/dragon/dragon5.png',value:400,rarity:'rare',weight:12},{name:'Dragon Egg',img:'Images/skins/dragon/dragon6.png',value:800,rarity:'epic',weight:8},{name:'Dragon Wing',img:'Images/skins/dragon/dragon7.png',value:1200,rarity:'epic',weight:5},{name:'Dragon Armor',img:'Images/skins/dragon/dragon8.png',value:2000,rarity:'legendary',weight:3},{name:'Fire Crown',img:'Images/skins/dragon/dragon9.png',value:3000,rarity:'legendary',weight:1.5},{name:'Elder Dragon',img:'Images/skins/dragon/dragon10.png',value:6000,rarity:'mythic',weight:0.8}]},{id:'cosmic',name:'Cosmic Case',img:'Images/cases/4.png',price:150,items:[{name:'Star Dust',img:'Images/skins/cosmic/cosmic2.png',value:60,rarity:'common',weight:28},{name:'Moon Rock',img:'Images/skins/cosmic/cosmic1.png',value:90,rarity:'common',weight:24},{name:'Asteroid',img:'Images/skins/cosmic/cosmic3.png',value:130,rarity:'uncommon',weight:18},{name:'Comet Trail',img:'Images/skins/cosmic/cosmic4.png',value:180,rarity:'uncommon',weight:15},{name:'Space Blaster',img:'Images/skins/cosmic/cosmic8.png',value:300,rarity:'rare',weight:12},{name:'Nebula Cloak',img:'Images/skins/cosmic/cosmic5.png',value:600,rarity:'epic',weight:7},{name:'Black Hole',img:'Images/skins/cosmic/cosmic6.png',value:1200,rarity:'legendary',weight:3},{name:'Universe Orb',img:'Images/skins/cosmic/cosmic7.png',value:3000,rarity:'mythic',weight:0.8}]},{id:'pirate',name:'Pirate Case',img:'Images/cases/5.png',price:120,items:[{name:'Wooden Plank',img:'Images/skins/pirate/pirate1-removebg-preview.png',value:40,rarity:'common',weight:28},{name:'Compass',img:'Images/skins/pirate/pirate2-removebg-preview.png',value:70,rarity:'common',weight:24},{name:'Rum Bottle',img:'Images/skins/pirate/pirate3-removebg-preview.png',value:90,rarity:'common',weight:20},{name:'Pirate Hat',img:'Images/skins/pirate/pirate4-removebg-preview.png',value:140,rarity:'uncommon',weight:16},{name:'Anchor Blade',img:'Images/skins/pirate/pirate5-removebg-preview.png',value:180,rarity:'uncommon',weight:14},{name:'Cutlass',img:'Images/skins/pirate/pirate6-removebg-preview.png',value:250,rarity:'rare',weight:12},{name:'Treasure Map',img:'Images/skins/pirate/pirate7-removebg-preview.png',value:500,rarity:'epic',weight:7},{name:'Gold Chest',img:'Images/skins/pirate/pirate8-removebg-preview.png',value:1000,rarity:'legendary',weight:3},{name:'Kraken Pearl',img:'Images/skins/pirate/pirate9-removebg-preview.png',value:2500,rarity:'mythic',weight:0.8}]},{id:'cyber',name:'Cyber Case',img:'Images/cases/6.png',price:175,items:[{name:'USB Drive',img:'Images/skins/cyber/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Circuit Board',img:'Images/skins/cyber/download__5_-removebg-preview.png',value:90,rarity:'common',weight:22},{name:'Data Chip',img:'Images/skins/cyber/download__6_-removebg-preview.png',value:120,rarity:'common',weight:18},{name:'Cyber Visor',img:'Images/skins/cyber/download__7_-removebg-preview.png',value:175,rarity:'uncommon',weight:16},{name:'Nano Blade',img:'Images/skins/cyber/download__8_-removebg-preview.png',value:250,rarity:'uncommon',weight:14},{name:'Holo Watch',img:'Images/skins/cyber/download__9_-removebg-preview.png',value:350,rarity:'rare',weight:12},{name:'Firewall Shield',img:'Images/skins/cyber/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Mech Arm',img:'Images/skins/cyber/download__11_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'AI Core',img:'Images/skins/cyber/download__12_-removebg-preview.png',value:1400,rarity:'legendary',weight:4},{name:'Singularity',img:'Images/skins/cyber/download__13_-removebg-preview.png',value:4000,rarity:'mythic',weight:1}]},{id:'royal',name:'Royal Case',img:'Images/cases/7.png',price:250,items:[{name:'Silk Cloth',img:'Images/skins/royal/download__4_-removebg-preview.png',value:100,rarity:'common',weight:25},{name:'Silver Goblet',img:'Images/skins/royal/download__5_-removebg-preview.png',value:140,rarity:'common',weight:22},{name:'Ruby Ring',img:'Images/skins/royal/download__6_-removebg-preview.png',value:200,rarity:'uncommon',weight:18},{name:'Royal Cape',img:'Images/skins/royal/download__7_-removebg-preview.png',value:300,rarity:'uncommon',weight:14},{name:'Royal Sword',img:'Images/skins/royal/download__8_-removebg-preview.png',value:400,rarity:'rare',weight:12},{name:'Gold Scepter',img:'Images/skins/royal/download__9_-removebg-preview.png',value:500,rarity:'rare',weight:11},{name:'Crown Jewel',img:'Images/skins/royal/download__10_-removebg-preview.png',value:750,rarity:'epic',weight:8},{name:'Diamond Tiara',img:'Images/skins/royal/download__11_-removebg-preview.png',value:1000,rarity:'epic',weight:7},{name:'Throne',img:'Images/skins/royal/download__12_-removebg-preview.png',value:2000,rarity:'legendary',weight:3.5},{name:'Excalibur',img:'Images/skins/royal/download__13_-removebg-preview.png',value:6000,rarity:'mythic',weight:1}]},{id:'shadow',name:'Shadow Case',img:'Images/cases/8.png',price:180,items:[{name:'Shadow Dust',img:'Images/skins/shadow/download__4_-removebg-preview.png',value:60,rarity:'common',weight:26},{name:'Dark Potion',img:'Images/skins/shadow/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Night Dagger',img:'Images/skins/shadow/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Phantom Mask',img:'Images/skins/shadow/download__7_-removebg-preview.png',value:280,rarity:'rare',weight:14},{name:'Shadow Blade',img:'Images/skins/shadow/download__8_-removebg-preview.png',value:450,rarity:'rare',weight:10},{name:'Void Cloak',img:'Images/skins/shadow/download__9_-removebg-preview.png',value:700,rarity:'epic',weight:7},{name:'Death Scythe',img:'Images/skins/shadow/download__10_-removebg-preview.png',value:1500,rarity:'legendary',weight:3},{name:'Eclipse',img:'Images/skins/shadow/download__11_-removebg-preview.png',value:4500,rarity:'mythic',weight:1}]},{id:'lucky',name:'Lucky Case',img:'Images/cases/9.png',price:300,items:[{name:'Lucky Penny',img:'Images/skins/lucky/download__4_-removebg-preview.png',value:100,rarity:'common',weight:18},{name:'Four Leaf Clover',img:'Images/skins/lucky/download__5_-removebg-preview.png',value:180,rarity:'uncommon',weight:18},{name:'Horseshoe',img:'Images/skins/lucky/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Lucky Dice',img:'Images/skins/lucky/download__7_-removebg-preview.png',value:400,rarity:'rare',weight:14},{name:'Rainbow',img:'Images/skins/lucky/download__8_-removebg-preview.png',value:600,rarity:'rare',weight:12},{name:'Pot of Gold',img:'Images/skins/lucky/download__9_-removebg-preview.png',value:1000,rarity:'epic',weight:10},{name:'Golden Horseshoe',img:'Images/skins/lucky/download__10_-removebg-preview.png',value:1500,rarity:'epic',weight:7},{name:'Leprechaun Hat',img:'Images/skins/lucky/download__11_-removebg-preview.png',value:2500,rarity:'legendary',weight:5},{name:'Lucky Katana',img:'Images/skins/lucky/download__12_-removebg-preview.png',value:4000,rarity:'legendary',weight:3},{name:'Jackpot Star',img:'Images/skins/lucky/download__13_-removebg-preview.png',value:7000,rarity:'mythic',weight:2}]},{id:'inferno',name:'Inferno Case',img:'Images/cases/10.png',price:500,items:[{name:'Fire',img:'Images/skins/inferno/download__4_-removebg-preview.png',value:150,rarity:'common',weight:20},{name:'Lava Rock',img:'Images/skins/inferno/download__5_-removebg-preview.png',value:250,rarity:'common',weight:18},{name:'Fire Whip',img:'Images/skins/inferno/download__6_-removebg-preview.png',value:400,rarity:'uncommon',weight:16},{name:'Magma Blade',img:'Images/skins/inferno/download__7_-removebg-preview.png',value:700,rarity:'rare',weight:13},{name:'Inferno Pistol',img:'Images/skins/inferno/download__8_-removebg-preview.png',value:1000,rarity:'rare',weight:10},{name:'Phoenix Feather',img:'Images/skins/inferno/download__9_-removebg-preview.png',value:1800,rarity:'epic',weight:8},{name:'Molten Shield',img:'Images/skins/inferno/download__10_-removebg-preview.png',value:2500,rarity:'epic',weight:6},{name:'Inferno Armor',img:'Images/skins/inferno/download__11_-removebg-preview.png',value:4000,rarity:'legendary',weight:4},{name:'Hell Blade',img:'Images/skins/inferno/download__12_-removebg-preview.png',value:7000,rarity:'legendary',weight:2},{name:'Phoenix',img:'Images/skins/inferno/download__13_-removebg-preview.png',value:15000,rarity:'mythic',weight:1}]},{id:'arctic',name:'Arctic Case',img:'Images/cases/11.png',price:160,items:[{name:'Snowball',img:'Images/skins/arctic/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Ice Shard',img:'Images/skins/arctic/download__5_-removebg-preview.png',value:80,rarity:'common',weight:24},{name:'Frost Dagger',img:'Images/skins/arctic/download__6_-removebg-preview.png',value:130,rarity:'uncommon',weight:18},{name:'Frozen Shield',img:'Images/skins/arctic/download__7_-removebg-preview.png',value:220,rarity:'uncommon',weight:14},{name:'Blizzard Staff',img:'Images/skins/arctic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ice Crown',img:'Images/skins/arctic/download__9_-removebg-preview.png',value:650,rarity:'epic',weight:7},{name:'Glacier Blade',img:'Images/skins/arctic/download__10_-removebg-preview.png',value:1100,rarity:'legendary',weight:3},{name:'Yeti',img:'Images/skins/arctic/download__11_-removebg-preview.png',value:3000,rarity:'mythic',weight:1}]},{id:'samurai',name:'Samurai Case',img:'Images/cases/12.png',price:220,items:[{name:'Bamboo Stick',img:'Images/skins/samurai/download__4_-removebg-preview.png',value:80,rarity:'common',weight:25},{name:'Paper Fan',img:'Images/skins/samurai/download__5_-removebg-preview.png',value:110,rarity:'common',weight:22},{name:'Shuriken',img:'Images/skins/samurai/download__6_-removebg-preview.png',value:160,rarity:'uncommon',weight:18},{name:'Cherry Blossom',img:'Images/skins/samurai/download__7_-removebg-preview.png',value:180,rarity:'uncommon',weight:16},{name:'Samurai Mask',img:'Images/skins/samurai/download__8_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Tanto Blade',img:'Images/skins/samurai/download__9_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Ninja Star',img:'Images/skins/samurai/download__10_-removebg-preview.png',value:500,rarity:'rare',weight:9},{name:'Katana',img:'Images/skins/samurai/download__11_-removebg-preview.png',value:650,rarity:'rare',weight:8},{name:'Shogun Armor',img:'Images/skins/samurai/download__12_-removebg-preview.png',value:1100,rarity:'epic',weight:6},{name:'Dragon Katana',img:'Images/skins/samurai/download__13_-removebg-preview.png',value:2000,rarity:'legendary',weight:3},{name:'Spirit Blade',img:'Images/skins/samurai/download__14_-removebg-preview.png',value:3500,rarity:'legendary',weight:1.5},{name:'Oni Demon',img:'Images/skins/samurai/download__15_-removebg-preview.png',value:5500,rarity:'mythic',weight:0.8}]},{id:'ocean',name:'Ocean Case',img:'Images/cases/13.png',price:140,items:[{name:'Seashell',img:'Images/skins/ocean/download__4_-removebg-preview.png',value:50,rarity:'common',weight:28},{name:'Coral Piece',img:'Images/skins/ocean/download__5_-removebg-preview.png',value:75,rarity:'common',weight:24},{name:'Starfish',img:'Images/skins/ocean/download__6_-removebg-preview.png',value:100,rarity:'common',weight:20},{name:'Pearl Necklace',img:'Images/skins/ocean/download__7_-removebg-preview.png',value:160,rarity:'uncommon',weight:16},{name:'Trident Shard',img:'Images/skins/ocean/download__8_-removebg-preview.png',value:280,rarity:'rare',weight:12},{name:'Shark Tooth',img:'Images/skins/ocean/download__9_-removebg-preview.png',value:450,rarity:'rare',weight:9},{name:'Mermaid Scale',img:'Images/skins/ocean/download__10_-removebg-preview.png',value:700,rarity:'epic',weight:6},{name:'Poseidon Trident',img:'Images/skins/ocean/download__11_-removebg-preview.png',value:1200,rarity:'legendary',weight:3},{name:'Leviathan',img:'Images/skins/ocean/download__12_-removebg-preview.png',value:3500,rarity:'mythic',weight:0.8}]},{id:'toxic',name:'Toxic Case',img:'Images/cases/14.png',price:190,items:[{name:'Slime Ball',img:'Images/skins/toxic/download__4_-removebg-preview.png',value:70,rarity:'common',weight:26},{name:'Gas Mask',img:'Images/skins/toxic/download__5_-removebg-preview.png',value:100,rarity:'common',weight:22},{name:'Acid Flask',img:'Images/skins/toxic/download__6_-removebg-preview.png',value:150,rarity:'uncommon',weight:18},{name:'Toxic Blade',img:'Images/skins/toxic/download__7_-removebg-preview.png',value:240,rarity:'uncommon',weight:14},{name:'Radiation Gun',img:'Images/skins/toxic/download__8_-removebg-preview.png',value:380,rarity:'rare',weight:10},{name:'Mutant Claw',img:'Images/skins/toxic/download__9_-removebg-preview.png',value:600,rarity:'rare',weight:8},{name:'Bio Armor',img:'Images/skins/toxic/download__10_-removebg-preview.png',value:900,rarity:'epic',weight:6},{name:'Nuclear Core',img:'Images/skins/toxic/download__11_-removebg-preview.png',value:1600,rarity:'legendary',weight:3},{name:'Toxic Katana',img:'Images/skins/toxic/download__12_-removebg-preview.png',value:2800,rarity:'legendary',weight:1.5},{name:'Chernobyl',img:'Images/skins/toxic/download__13_-removebg-preview.png',value:5000,rarity:'mythic',weight:0.8}]},{id:'galaxy',name:'Galaxy Case',img:'Images/cases/16.png',price:350,items:[{name:'Stardust Ring',img:'Images/skins/galaxy/download__4_-removebg-preview.png',value:120,rarity:'common',weight:22},{name:'Meteor Shard',img:'Images/skins/galaxy/download__5_-removebg-preview.png',value:180,rarity:'common',weight:20},{name:'Pulsar Blade',img:'Images/skins/galaxy/download__6_-removebg-preview.png',value:280,rarity:'uncommon',weight:16},{name:'Quasar Gun',img:'Images/skins/galaxy/download__7_-removebg-preview.png',value:420,rarity:'uncommon',weight:13},{name:'Warp Drive',img:'Images/skins/galaxy/download__8_-removebg-preview.png',value:650,rarity:'rare',weight:10},{name:'Galaxy Shield',img:'Images/skins/galaxy/download__9_-removebg-preview.png',value:1000,rarity:'rare',weight:8},{name:'Dark Matter',img:'Images/skins/galaxy/download__10_-removebg-preview.png',value:1800,rarity:'epic',weight:6},{name:'Dimension Rift',img:'Images/skins/galaxy/download__11_-removebg-preview.png',value:3000,rarity:'epic',weight:4},{name:'Infinity Blade',img:'Images/skins/galaxy/download__12_-removebg-preview.png',value:5000,rarity:'legendary',weight:2.5},{name:'Galaxy Core',img:'Images/skins/galaxy/download__13_-removebg-preview.png',value:8000,rarity:'legendary',weight:1.5},{name:'Big Bang',img:'Images/skins/galaxy/download__14_-removebg-preview.png',value:15000,rarity:'mythic',weight:0.5}]},{id:'void',name:'Void Case',img:'Images/cases/15.png',price:750,items:[{name:'Void Fragment',img:'Images/skins/void/download__4_-removebg-preview.png',value:200,rarity:'common',weight:20},{name:'Dark Crystal',img:'Images/skins/void/download__5_-removebg-preview.png',value:350,rarity:'common',weight:18},{name:'Void Dagger',img:'Images/skins/void/download__6_-removebg-preview.png',value:550,rarity:'uncommon',weight:15},{name:'Abyssal Ring',img:'Images/skins/void/download__7_-removebg-preview.png',value:800,rarity:'uncommon',weight:12},{name:'Void Pistol',img:'Images/skins/void/download__8_-removebg-preview.png',value:1200,rarity:'rare',weight:10},{name:'Null Blade',img:'Images/skins/void/download__9_-removebg-preview.png',value:1500,rarity:'rare',weight:9},{name:'Entropy Blade',img:'Images/skins/void/download__10_-removebg-preview.png',value:2000,rarity:'rare',weight:8},{name:'Void Armor',img:'Images/skins/void/download__11_-removebg-preview.png',value:3500,rarity:'epic',weight:6},{name:'Reality Breaker',img:'Images/skins/void/download__12_-removebg-preview.png',value:6000,rarity:'epic',weight:4},{name:'Oblivion Scythe',img:'Images/skins/void/download__13_-removebg-preview.png',value:10000,rarity:'legendary',weight:3},{name:'Void Emperor Set',img:'Images/skins/void/download__14_-removebg-preview.png',value:18000,rarity:'legendary',weight:1.5},{name:'The Void',img:'Images/skins/void/download (15).jpg',value:30000,rarity:'mythic',weight:0.5}]},{id:'roj',name:'Rojs Case',img:'Images/cases/17.png',price:1000,items:[{name:'HandBall Roj',img:'Images/skins/roj2.png',value:300,rarity:'common',weight:52},{name:'Like Roj',img:'Images/skins/roj1.png',value:500,rarity:'uncommon',weight:25},{name:'Winner Roj',img:'Images/skins/roj3.png',value:800,rarity:'rare',weight:15},{name:'Tuff Roj',img:'Images/skins/roj4.png',value:1000,rarity:'epic',weight:5.9},{name:'Smoking Roj',img:'Images/skins/roj6.png',value:1800,rarity:'legendary',weight:2},{name:'Falling Roj',img:'Images/skins/roj5.png',value:3000,rarity:'mythic',weight:0.1}]}
 ,{id:'tom',name:'Tom Case',img:'Images/cases/18.png',price:1000,items:[
   {name:'Sigma Tom',img:'Images/skins/tom/tom5.jpg',value:300,rarity:'common',weight:52},
   {name:'Strange Tom',img:'Images/skins/tom/tom4.jpg',value:300,rarity:'common',weight:25},
@@ -366,10 +396,6 @@
   {name:'School Ready Tom',img:'Images/skins/tom/tomathy (5).jpg',value:10000,rarity:'legendary',weight:5.9},
   {name:'Love Tom',img:'Images/skins/tom/tom2.jpg',value:43000,rarity:'mythic',weight:0.3}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// RICHARD CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'richard',name:'Richard Case',img:'Images/cases/19.png',price:1000,items:[
   {name:'Happy Richard',img:'Images/skins/richard/ricard1.jpg',value:300,rarity:'common',weight:5},
   {name:'Nerdy Richard',img:'Images/skins/richard/ricard2.jpg',value:300,rarity:'common',weight:5},
@@ -391,10 +417,6 @@
   {name:'Very Happy Richard',img:'Images/skins/richard/ricard18.jpg',value:10000,rarity:'legendary',weight:0.5},
   {name:'Goofy Richard',img:'Images/skins/richard/ricard19.png',value:42000,rarity:'mythic',weight:0.2}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// JUSTIN CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'justin',name:'Justin Case',img:'Images/cases/20.png',price:1000,items:[
   {name:'Square Justin',img:'Images/skins/justin/justin1.jpg',value:300,rarity:'common',weight:52},
   {name:'Toilet Justin',img:'Images/skins/justin/justin.jpg',value:300,rarity:'common',weight:52},
@@ -410,10 +432,6 @@
   {name:'Deep-Think Justin',img:'Images/skins/justin/11231211.jpg',value:9000,rarity:'legendary',weight:1.9},
   {name:'Naked Justin',img:'Images/skins/justin/12312311111.png',value:50000,rarity:'mythic',weight:0.2}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// MATISS CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'matiss',name:'Matiss Case',img:'Images/cases/21.png',price:1000,items:[
   {name:'Regular Matiss',img:'Images/skins/matiss/2.jpg',value:300,rarity:'common',weight:52},
   {name:'Tuff Matiss',img:'Images/skins/matiss/3.jpg',value:500,rarity:'uncommon',weight:25},
@@ -422,10 +440,6 @@
   {name:'Zesty Matiss',img:'Images/skins/matiss/7.jpg',value:18000,rarity:'legendary',weight:2},
   {name:'The TUFFEST Matiss',img:'Images/skins/matiss/5.jpg',value:50000,rarity:'mythic',weight:0.1}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// TOM S. CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'toms',name:'Tom S. Case',img:'Images/cases/22.png',price:1000,items:[
   {name:'Red Tom S.',img:'Images/skins/toms/6.png',value:500,rarity:'uncommon',weight:55},
   {name:'Death-Stare Tom S.',img:'Images/skins/toms/2.jpg',value:800,rarity:'rare',weight:15},
@@ -434,10 +448,6 @@
   {name:'Bum Tom S.',img:'Images/skins/toms/5.jpg',value:18000,rarity:'legendary',weight:2},
   {name:'Gooner Tom S.',img:'Images/skins/toms/7.png',value:40000,rarity:'mythic',weight:0.2}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// GABRIEL G. CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'gabrielg',name:'Gabriel G. Case',img:'Images/cases/23.png',price:1000,items:[
   {name:'Shocked Gabriel G.',img:'Images/skins/gabriel_g/2.jpg',value:500,rarity:'uncommon',weight:55},
   {name:'Tree Gabriel G.',img:'Images/skins/gabriel_g/3.jpg',value:800,rarity:'rare',weight:15},
@@ -445,10 +455,6 @@
   {name:'Confused Gabriel G.',img:'Images/skins/gabriel_g/4.jpg',value:18000,rarity:'legendary',weight:2},
   {name:'Horse Gabriel G.',img:'Images/skins/gabriel_g/6.jpg',value:40000,rarity:'mythic',weight:0.2}
 ]}
-
-// ──────────────────────────────────────────────────────────────────
-// ADRIAN CASE — ADD THIS
-// ──────────────────────────────────────────────────────────────────
 ,{id:'adrian',name:'Adrian Case',img:'Images/cases/24.png',price:1000,items:[
   {name:'Gay Adrian',img:'Images/skins/adrian/6.jpg',value:300,rarity:'common',weight:10},
   {name:'Tuff Adrian',img:'Images/skins/adrian/14.jpg',value:300,rarity:'common',weight:10},
@@ -485,11 +491,34 @@
   {name:'Persil Adrian',img:'Images/skins/adrian/34.jpg',value:50000,rarity:'mythic',weight:0.1},
   {name:'Triple Chin Adrian',img:'Images/skins/adrian/30.jpg',value:50000,rarity:'mythic',weight:0.1}
 ]}
-
-]; // <--- END OF CASES ARRAY];
+,{id:'nick',name:'Nick Case',img:'Images/cases/25.png',price:1000,items:[
+  {name:'Chef Nick',img:'Images/skins/nick/2.jpg',value:300,rarity:'common',weight:52},
+  {name:'Like Nick',img:'Images/skins/nick/6.jpg',value:500,rarity:'uncommon',weight:25},
+  {name:'Hyped Nick',img:'Images/skins/nick/4.jpg',value:800,rarity:'rare',weight:15},
+  {name:'Beautiful Nick',img:'Images/skins/nick/4.jpg',value:800,rarity:'rare',weight:15},
+  {name:'Zesty Nick',img:'Images/skins/nick/7.jpg',value:800,rarity:'rare',weight:15},
+  {name:'Washed Nick',img:'Images/skins/nick/5.jpg',value:1500,rarity:'epic',weight:5.9},
+  {name:'Nick Pulling',img:'Images/skins/nick/5.png',value:18000,rarity:'legendary',weight:2},
+  {name:'Fairy Nick',img:'Images/skins/nick/8.png',value:50000,rarity:'mythic',weight:0.1}
+]}
+];
 
   const CASE_MAP={};
   CASES.forEach(c=>CASE_MAP[c.id]=c);
+
+  /* ═══════════════════════════════════════════
+     MODE TOGGLE
+     ═══════════════════════════════════════════ */
+  let battleMode='1v1'; // '1v1' or '2v2'
+  const modeToggle=document.getElementById('modeToggle');
+  modeToggle.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      modeToggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      battleMode=btn.dataset.mode;
+      refreshCreateUI();
+    });
+  });
 
   /* ═══════════════════════════════════════════
      CREATE OVERLAY
@@ -498,7 +527,7 @@
   const caseSelectorEl=document.getElementById('caseSelector');
   const selectedListEl=document.getElementById('selectedList');
   const createBetInput=document.getElementById('createBet');
-  let selectedCases=[]; // array of case IDs, can repeat
+  let selectedCases=[];
 
   document.getElementById('openCreateBtn').addEventListener('click',()=>createOverlay.classList.add('open'));
   document.getElementById('createClose').addEventListener('click',()=>createOverlay.classList.remove('open'));
@@ -524,6 +553,7 @@
     let caseCost=0;
     selectedCases.forEach(id=>caseCost+=CASE_MAP[id].price);
 
+    document.getElementById('sumMode').textContent=battleMode==='2v2'?'2v2 Teams':'1v1';
     document.getElementById('sumRounds').textContent=selectedCases.length;
     document.getElementById('sumCaseCost').textContent='🪙 '+caseCost.toLocaleString();
     document.getElementById('sumBet').textContent='🪙 '+bet.toLocaleString();
@@ -548,7 +578,7 @@
     });
   }
 
-    /* ── Create battle ── */
+  /* ── Create battle ── */
   document.getElementById('createBtn').addEventListener('click',async()=>{
     const errEl=document.getElementById('createError');
     errEl.textContent='';
@@ -562,7 +592,6 @@
 
     if(getCredits()<total){errEl.textContent='Not enough credits! Need '+total.toLocaleString();return;}
 
-    // Always fetch the latest nickname from the database
     const userSnap=await rtdb.ref('users/'+myUid).once('value');
     const userData=userSnap.val()||{};
     const nickname=userData.username||currentUser.displayName||currentUser.email||'Player';
@@ -570,20 +599,26 @@
 
     await adjCredits(myUid,-total);
 
+    const maxPlayers=battleMode==='2v2'?4:2;
+
     const ref=rtdb.ref('battles').push();
     await ref.set({
       id:ref.key,
       creator:myUid,
+      mode:battleMode,
+      maxPlayers:maxPlayers,
       cases:selectedCases.slice(),
       bet,caseCost,totalCost:total,
       status:'waiting',
       createdAt:firebase.database.ServerValue.TIMESTAMP,
       players:{
-        [myUid]:{uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false}
+        [myUid]:{uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false,team:1}
       },
+      teams:{1:[myUid],2:[]},
       currentRound:0,
       rounds:{},
       winner:null,
+      winnerTeam:null,
       playersLeft:{}
     });
 
@@ -622,13 +657,18 @@
         if(c) caseImgs+=`<img src="${c.img}" alt="${c.name}" title="${c.name}${cnt>1?' x'+cnt:''}"/>`;
       });
 
-      const isCreator=b.creator===myUid;
+      const isInBattle=!!(b.players&&b.players[myUid]);
       const creatorData=b.players?.[b.creator]||{};
+      const playerCount=Object.keys(b.players||{}).length;
+      const maxPlayers=b.maxPlayers||2;
+      const mode=b.mode||'1v1';
+      const modeBadge=mode==='2v2'?'<span class="mode-badge mode-badge-2v2">2v2</span>':'<span class="mode-badge mode-badge-1v1">1v1</span>';
 
       card.innerHTML=`
         <div class="battle-card-info">
-          <h3>⚔️ ${creatorData.name||'Unknown'}'s Battle</h3>
+          <h3>⚔️ ${creatorData.name||'Unknown'}'s Battle ${modeBadge}</h3>
           <div class="battle-card-meta">
+            <span>👥 ${playerCount}/${maxPlayers}</span>
             <span>📦 ${(b.cases||[]).length} round${(b.cases||[]).length!==1?'s':''}</span>
             <span>🪙 Bet: ${(b.bet||0).toLocaleString()}</span>
             <span>💰 Entry: ${(b.totalCost||0).toLocaleString()}</span>
@@ -637,18 +677,18 @@
         </div>
         <div class="battle-card-actions">
           <div class="battle-cost">🪙 ${(b.totalCost||0).toLocaleString()}</div>
-          <button class="btn ${isCreator?'btn-gold':'btn-green'}" style="font-size:.8rem;padding:8px 16px">${isCreator?'View':'Join Battle'}</button>
+          <button class="btn ${isInBattle?'btn-gold':'btn-green'}" style="font-size:.8rem;padding:8px 16px">${isInBattle?'View':'Join Battle'}</button>
         </div>
       `;
 
       const btn=card.querySelector('button');
-      btn.addEventListener('click',e=>{e.stopPropagation();isCreator?openBattleRoom(id):joinBattle(id,b);});
-      card.addEventListener('click',()=>isCreator?openBattleRoom(id):joinBattle(id,b));
+      btn.addEventListener('click',e=>{e.stopPropagation();isInBattle?openBattleRoom(id):joinBattle(id,b);});
+      card.addEventListener('click',()=>isInBattle?openBattleRoom(id):joinBattle(id,b));
       battleListEl.appendChild(card);
     });
   });
 
-    async function joinBattle(battleId,battleData){
+  async function joinBattle(battleId,battleData){
     if(!myUid)return;
     const total=battleData.totalCost||0;
     if(getCredits()<total){alert('Not enough credits! Need '+total.toLocaleString());return;}
@@ -656,9 +696,11 @@
     const snap=await rtdb.ref('battles/'+battleId).once('value');
     const b=snap.val();
     if(!b||b.status!=='waiting'){alert('Battle no longer available.');return;}
-    if(Object.keys(b.players||{}).length>=2){alert('Battle is full.');return;}
+    const maxPlayers=b.maxPlayers||2;
+    const playerCount=Object.keys(b.players||{}).length;
+    if(playerCount>=maxPlayers){alert('Battle is full.');return;}
+    if(b.players&&b.players[myUid]){openBattleRoom(battleId);return;}
 
-    // Always fetch the latest nickname from the database
     const userSnap=await rtdb.ref('users/'+myUid).once('value');
     const userData=userSnap.val()||{};
     const nickname=userData.username||currentUser.displayName||currentUser.email||'Player';
@@ -666,10 +708,29 @@
 
     await adjCredits(myUid,-total);
 
+    // Assign team: balance teams
+    const teams=b.teams||{1:[b.creator],2:[]};
+    const t1=Array.isArray(teams[1])?teams[1]:Object.values(teams[1]||{});
+    const t2=Array.isArray(teams[2])?teams[2]:Object.values(teams[2]||{});
+    let assignedTeam;
+    if(t2.length<t1.length) assignedTeam=2;
+    else if(t1.length<t2.length) assignedTeam=1;
+    else assignedTeam=2; // default fill team 2 first for fairness
+
     await rtdb.ref('battles/'+battleId+'/players/'+myUid).set({
-      uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false
+      uid:myUid,name:nickname,avatar:avatar,total:0,items:{},left:false,team:assignedTeam
     });
-    await rtdb.ref('battles/'+battleId+'/status').set('playing');
+
+    // Update teams array
+    if(assignedTeam===1) t1.push(myUid);
+    else t2.push(myUid);
+    await rtdb.ref('battles/'+battleId+'/teams').set({1:t1,2:t2});
+
+    // Check if battle is full → start
+    const newPlayerCount=playerCount+1;
+    if(newPlayerCount>=maxPlayers){
+      await rtdb.ref('battles/'+battleId+'/status').set('playing');
+    }
 
     openBattleRoom(battleId);
   }
@@ -680,11 +741,12 @@
   let activeBattle=null;
   let battleRef=null;
   let battleUnsub=null;
+  let battleState=null;
   let spinning=false;
   let roundsAnimated=new Set();
 
   function openBattleRoom(battleId){
-    closeBattleRoom();
+    closeBattleRoom(true); // true = skip forfeit on reopen
     activeBattle=battleId;
     roundsAnimated=new Set();
     spinning=false;
@@ -693,70 +755,75 @@
     document.getElementById('mainLobby').style.display='none';
 
     battleRef=rtdb.ref('battles/'+battleId);
-       battleUnsub=battleRef.on('value',snap=>{
+    battleUnsub=battleRef.on('value',snap=>{
       const data=snap.val();
-      if(!data){closeBattleRoom();return;}
+      if(!data){closeBattleRoom(true);return;}
       battleState=data;
       renderBattle(data);
     });
-    // Track presence
     battleRef.child('playersLeft/'+myUid).set(false);
     window.addEventListener('beforeunload',markLeft);
   }
 
-     function markLeft(){
+  function markLeft(){
     if(activeBattle&&myUid){
       rtdb.ref('battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
-
-      // If game is still playing, mark forfeit
       if(battleState&&battleState.status==='playing'&&!battleState.winner){
-        const pids=Object.keys(battleState.players||{});
-        const opponentId=pids.find(id=>id!==myUid);
-        rtdb.ref('battles/'+activeBattle+'/winner').set(opponentId||'none');
-        rtdb.ref('battles/'+activeBattle+'/status').set('finished');
-        rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
-        if(opponentId){
-          const bet=battleState.bet||0;
-          const allSkinsValue=pids.reduce((sum,pid)=>sum+((battleState.players[pid]||{}).total||0),0);
-          adjCredits(opponentId, bet*2 + allSkinsValue);
-        }
-        trackForfeit(myUid);
+        handleForfeit();
       }
     }
   }
 
-    function closeBattleRoom(){
+  function handleForfeit(){
+    if(!battleState||!myUid)return;
+    const mode=battleState.mode||'1v1';
+    const pids=Object.keys(battleState.players||{});
+    const bet=battleState.bet||0;
+    const allSkinsValue=pids.reduce((sum,pid)=>sum+(((battleState.players||{})[pid]||{}).total||0),0);
+
+    if(mode==='1v1'){
+      const opponentId=pids.find(id=>id!==myUid);
+      rtdb.ref('battles/'+activeBattle+'/winner').set(opponentId||'none');
+      rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+      rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
+      if(opponentId) adjCredits(opponentId, bet*2 + allSkinsValue);
+    }else{
+      // 2v2: my team forfeits
+      const myTeam=(battleState.players[myUid]||{}).team||1;
+      const otherTeam=myTeam===1?2:1;
+      const teams=battleState.teams||{1:[],2:[]};
+      const winningPids=Array.isArray(teams[otherTeam])?teams[otherTeam]:Object.values(teams[otherTeam]||{});
+      const totalPot=bet*pids.length+allSkinsValue;
+      const perWinner=Math.floor(totalPot/Math.max(winningPids.length,1));
+
+      rtdb.ref('battles/'+activeBattle+'/winnerTeam').set(otherTeam);
+      rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+      rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
+      winningPids.forEach(pid=>adjCredits(pid, perWinner));
+    }
+    trackForfeit(myUid);
+  }
+
+  function closeBattleRoom(skipForfeit){
     if(battleRef&&battleUnsub){
       battleRef.off('value',battleUnsub);
     }
 
-       // If battle is still playing and I leave = forfeit
-    if(activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner){
-      const pids=Object.keys(battleState.players||{});
-      const opponentId=pids.find(id=>id!==myUid);
-
-      // Mark me as forfeited
-      rtdb.ref('battles/'+activeBattle+'/winner').set(opponentId||'none');
-      rtdb.ref('battles/'+activeBattle+'/status').set('finished');
-      rtdb.ref('battles/'+activeBattle+'/forfeitedBy').set(myUid);
-
-      // Opponent gets both bets + all skin value from both players
-      if(opponentId){
-        const bet=battleState.bet||0;
-        const allSkinsValue=pids.reduce((sum,pid)=>sum+((battleState.players[pid]||{}).total||0),0);
-        adjCredits(opponentId, bet*2 + allSkinsValue);
-      }
-
-      // Track daily forfeits
-      trackForfeit(myUid);
+    if(!skipForfeit&&activeBattle&&myUid&&battleState&&battleState.status==='playing'&&!battleState.winner&&!battleState.winnerTeam){
+      handleForfeit();
     }
 
     if(activeBattle&&myUid){
       rtdb.ref('battles/'+activeBattle+'/playersLeft/'+myUid).set(true);
-      rtdb.ref('battles/'+activeBattle+'/playersLeft').once('value').then(snap=>{
+      const bid=activeBattle;
+      rtdb.ref('battles/'+bid+'/playersLeft').once('value').then(snap=>{
         const left=snap.val()||{};
-        const allLeft=Object.values(left).every(v=>v===true)&&Object.keys(left).length>=2;
-        if(allLeft) rtdb.ref('battles/'+activeBattle).remove();
+        return rtdb.ref('battles/'+bid+'/players').once('value').then(pSnap=>{
+          const ps=pSnap.val()||{};
+          const maxP=Object.keys(ps).length;
+          const leftCount=Object.values(left).filter(v=>v===true).length;
+          if(maxP>=2&&leftCount>=maxP) rtdb.ref('battles/'+bid).remove();
+        });
       });
     }
 
@@ -766,58 +833,100 @@
     document.getElementById('mainLobby').style.display='';
   }
 
-    async function trackForfeit(uid){
-    const today=new Date().toISOString().slice(0,10); // "2026-03-30"
+  async function trackForfeit(uid){
+    const today=new Date().toISOString().slice(0,10);
     const ref=rtdb.ref('users/'+uid+'/forfeits/'+today);
     const snap=await ref.once('value');
     const count=(snap.val()||0)+1;
     await ref.set(count);
-
-    // 3+ forfeits in a day → flag to support
     if(count>=3){
       const userName=myName||uid;
       await rtdb.ref('reports').push().set({
-        targetType:'user',
-        targetId:uid,
-        targetAuthorUid:uid,
-        reporterUid:'system',
+        targetType:'user',targetId:uid,targetAuthorUid:uid,reporterUid:'system',
         reason:`Auto-flag: ${userName} forfeited ${count} case battles today (${today}). Possible abuse.`,
-        timestamp:Date.now(),
-        resolved:false,
-        autoGenerated:true
+        timestamp:Date.now(),resolved:false,autoGenerated:true
       });
     }
   }
 
-  /* ── Render ── */
-    /* ── Render ── */
+  /* ═══════════════════════════════════════════
+     HELPER: get team arrays from battle data
+     ═══════════════════════════════════════════ */
+  function getTeams(data){
+    const teams=data.teams||{1:[],2:[]};
+    const t1=Array.isArray(teams[1])?teams[1]:Object.values(teams[1]||{});
+    const t2=Array.isArray(teams[2])?teams[2]:Object.values(teams[2]||{});
+    return {1:t1,2:t2};
+  }
+
+  function getTeamTotal(data,teamNum){
+    const teams=getTeams(data);
+    const pids=teams[teamNum]||[];
+    return pids.reduce((sum,pid)=>sum+((data.players[pid]||{}).total||0),0);
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BATTLE
+     ═══════════════════════════════════════════ */
   function renderBattle(data){
-    // Don't re-render the whole DOM while a spin animation is in progress
     if(spinning) return;
 
     const inner=document.getElementById('battleInner');
     const players=data.players||{};
     const pids=Object.keys(players);
-    const p1id=data.creator;
-    const p2id=pids.find(id=>id!==data.creator)||null;
-    const p1=players[p1id]||{};
-    const p2=p2id?players[p2id]:null;
     const cases=data.cases||[];
     const totalRounds=cases.length;
     const curRound=data.currentRound||0;
     const isFinished=data.status==='finished';
+    const mode=data.mode||'1v1';
+    const maxPlayers=data.maxPlayers||2;
+    const is2v2=mode==='2v2';
 
-    // Waiting screen
+    // ── WAITING SCREEN ──
     if(data.status==='waiting'){
+      const teams=getTeams(data);
+      let slotsHtml='';
+
+      if(is2v2){
+        slotsHtml+='<div style="width:100%;text-align:center;font-size:.75rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px">Team 1</div>';
+        for(let i=0;i<2;i++){
+          const pid=teams[1][i];
+          const p=pid?players[pid]:null;
+          slotsHtml+=`<div class="waiting-player-slot ${p?'filled':''}">
+            <div class="wps-avatar">${p?(p.avatar?`<img src="${p.avatar}"/>`:(p.name||'?').charAt(0).toUpperCase()):'?'}</div>
+            ${p?p.name:'Empty'}
+          </div>`;
+        }
+        slotsHtml+='<div style="width:100%;text-align:center;font-size:.75rem;font-weight:800;color:var(--accent3);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Team 2</div>';
+        for(let i=0;i<2;i++){
+          const pid=teams[2][i];
+          const p=pid?players[pid]:null;
+          slotsHtml+=`<div class="waiting-player-slot ${p?'filled':''}">
+            <div class="wps-avatar">${p?(p.avatar?`<img src="${p.avatar}"/>`:(p.name||'?').charAt(0).toUpperCase()):'?'}</div>
+            ${p?p.name:'Empty'}
+          </div>`;
+        }
+      }else{
+        for(let i=0;i<2;i++){
+          const pid=pids[i];
+          const p=pid?players[pid]:null;
+          slotsHtml+=`<div class="waiting-player-slot ${p?'filled':''}">
+            <div class="wps-avatar">${p?(p.avatar?`<img src="${p.avatar}"/>`:(p.name||'?').charAt(0).toUpperCase()):'?'}</div>
+            ${p?p.name:'Empty'}
+          </div>`;
+        }
+      }
+
       inner.innerHTML=`
         <div class="battle-topbar">
-          <h2>⚔️ Case Battle</h2>
-          <button class="btn btn-red" id="cancelBattleBtn" style="font-size:.8rem;padding:8px 16px">Cancel & Refund</button>
+          <h2>⚔️ Case Battle <span class="mode-badge mode-badge-${mode}">${mode}</span></h2>
+          ${data.creator===myUid?'<button class="btn btn-red" id="cancelBattleBtn" style="font-size:.8rem;padding:8px 16px">Cancel & Refund</button>':''}
         </div>
         <div class="waiting-screen">
-          <h2>Waiting for Opponent</h2>
-          <p>Share this battle or wait for someone to join from the lobby.</p>
+          <h2>Waiting for Players (${pids.length}/${maxPlayers})</h2>
+          <p>Share this battle or wait for players to join from the lobby.</p>
           <div class="waiting-dots"><span></span><span></span><span></span></div>
+          <div class="waiting-players">${slotsHtml}</div>
           <div class="waiting-id">Battle ID: <code>${data.id}</code></div>
           <div style="margin-top:20px">
             <div style="color:var(--muted);font-size:.9rem;margin-bottom:8px">Selected Cases:</div>
@@ -829,14 +938,15 @@
       `;
       document.getElementById('cancelBattleBtn')?.addEventListener('click',async()=>{
         if(data.creator!==myUid)return;
-        await adjCredits(myUid,data.totalCost||0);
+        // Refund all players
+        for(const pid of pids) await adjCredits(pid,data.totalCost||0);
         await rtdb.ref('battles/'+activeBattle).remove();
-        closeBattleRoom();
+        closeBattleRoom(true);
       });
       return;
     }
 
-    // Playing / Finished
+    // ── PLAYING / FINISHED ──
     let roundChips='';
     for(let i=0;i<totalRounds;i++){
       const c=CASE_MAP[cases[i]];
@@ -845,9 +955,9 @@
     }
 
     const buildPlayerPanel=(pid,pdata,prefix)=>{
-      if(!pdata) return `<div class="player-panel"><div class="player-waiting">No opponent</div></div>`;
-      const isWinner=data.winner===pid;
-      const isLoser=data.winner&&data.winner!=='draw'&&data.winner!==pid&&isFinished;
+      if(!pdata) return `<div class="player-panel"><div style="text-align:center;color:var(--muted);padding:20px">No player</div></div>`;
+      const isWinnerPlayer=is2v2?(data.winnerTeam===(pdata.team||0)):data.winner===pid;
+      const isLoserPlayer=isFinished&&!isWinnerPlayer&&(is2v2?!!data.winnerTeam:!!data.winner)&&(is2v2?data.winnerTeam!=='draw':data.winner!=='draw');
       let itemsHtml='';
       const items=pdata.items||{};
       for(let r=0;r<curRound;r++){
@@ -857,7 +967,7 @@
         itemsHtml+=`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${it.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${it.name}</span><span class="pp-item-val">🪙 ${(it.value||0).toLocaleString()}</span></div>`;
       }
       return `
-        <div class="player-panel ${isWinner?'winner':''} ${isLoser?'loser':''}" id="${prefix}Panel">
+        <div class="player-panel ${isWinnerPlayer?'winner':''} ${isLoserPlayer?'loser':''}" id="${prefix}Panel">
           <div class="pp-header">
             <div class="pp-avatar">${pdata.avatar?`<img src="${pdata.avatar}"/>`:((pdata.name||'?').charAt(0).toUpperCase())}</div>
             <div class="pp-name">${pdata.name||'Player'}</div>
@@ -872,70 +982,134 @@
       `;
     };
 
-     let resultHtml='';
-    if(isFinished&&data.winner){
-      const winnerData=players[data.winner];
-      const wasForfeit=!!data.forfeitedBy;
+    let versusHtml='';
 
-      if(data.winner==='draw'){
-        resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players got the same total value. Bets returned.</p></div>`;
-            }else{
-        const isMe=data.winner===myUid;
-        const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
-        // Calculate all skins value from both players
-        const allSkinsValue=Object.values(players).reduce((sum,p)=>sum+(p.total||0),0);
-        const totalWinnings=((data.bet||0)*2)+allSkinsValue;
-        resultHtml=`<div class="final-result">
-          <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won the Battle!':'💀 You Lost the Battle!'}</h2>
-          <p>${winnerData?.name||'Winner'} wins${forfeitText}!</p>
-          ${!wasForfeit?`<p style="color:var(--muted)">Total skin value: 🪙 ${(winnerData?.total||0).toLocaleString()}</p>`:''}
-          ${isMe?`<div class="fr-amount">+${totalWinnings.toLocaleString()} total winnings</div>
-          <p style="color:var(--muted);font-size:.85rem">(🪙 ${allSkinsValue.toLocaleString()} skins + 🪙 ${((data.bet||0)*2).toLocaleString()} bets)</p>`:''}
-        </div>`;
+    if(is2v2){
+      const teams=getTeams(data);
+      const t1Total=getTeamTotal(data,1);
+      const t2Total=getTeamTotal(data,2);
+
+      let t1Panels='';
+      (teams[1]||[]).forEach((pid,i)=>{
+        t1Panels+=buildPlayerPanel(pid,players[pid],'t1p'+i);
+      });
+      // Fill empty slots
+      for(let i=(teams[1]||[]).length;i<2;i++){
+        t1Panels+=buildPlayerPanel(null,null,'t1p'+i);
+      }
+
+      let t2Panels='';
+      (teams[2]||[]).forEach((pid,i)=>{
+        t2Panels+=buildPlayerPanel(pid,players[pid],'t2p'+i);
+      });
+      for(let i=(teams[2]||[]).length;i<2;i++){
+        t2Panels+=buildPlayerPanel(null,null,'t2p'+i);
+      }
+
+      versusHtml=`
+        <div class="versus-area-2v2">
+          <div class="team-side">
+            <div class="team-label team-label-1">⚔️ Team 1</div>
+            <div class="team-total">🪙 ${t1Total.toLocaleString()}</div>
+            ${t1Panels}
+          </div>
+          <div class="vs-divider">VS</div>
+          <div class="team-side">
+            <div class="team-label team-label-2">⚔️ Team 2</div>
+            <div class="team-total">🪙 ${t2Total.toLocaleString()}</div>
+            ${t2Panels}
+          </div>
+        </div>
+      `;
+    }else{
+      // 1v1
+      const p1id=data.creator;
+      const p2id=pids.find(id=>id!==data.creator)||null;
+      versusHtml=`
+        <div class="versus-area">
+          ${buildPlayerPanel(p1id,players[p1id],'p1')}
+          <div class="vs-divider">VS</div>
+          ${buildPlayerPanel(p2id,p2id?players[p2id]:null,'p2')}
+        </div>
+      `;
+    }
+
+    // Result
+    let resultHtml='';
+    if(isFinished){
+      const wasForfeit=!!data.forfeitedBy;
+      const allSkinsValue=pids.reduce((sum,pid)=>sum+((players[pid]||{}).total||0),0);
+      const bet=data.bet||0;
+
+      if(is2v2){
+        const wt=data.winnerTeam;
+        if(wt==='draw'){
+          resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both teams got the same total value. Bets returned.</p></div>`;
+        }else if(wt){
+          const teams=getTeams(data);
+          const myTeam=(players[myUid]||{}).team||0;
+          const isMyTeamWin=myTeam===wt;
+          const totalPot=bet*pids.length+allSkinsValue;
+          const winTeamSize=(teams[wt]||[]).length||1;
+          const perWinner=Math.floor(totalPot/winTeamSize);
+          const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
+          resultHtml=`<div class="final-result">
+            <h2 style="color:${isMyTeamWin?'var(--green)':'var(--red)'}">${isMyTeamWin?'🎉 Your Team Won!':'💀 Your Team Lost!'}</h2>
+            <p>Team ${wt} wins${forfeitText}!</p>
+            ${isMyTeamWin?`<div class="fr-amount">+${perWinner.toLocaleString()} per winner</div>
+            <p style="color:var(--muted);font-size:.85rem">(🪙 ${allSkinsValue.toLocaleString()} total skins + 🪙 ${(bet*pids.length).toLocaleString()} total bets, split ${winTeamSize} ways)</p>`:''}
+          </div>`;
+        }
+      }else{
+        if(data.winner==='draw'){
+          resultHtml=`<div class="final-result"><h2 style="color:var(--gold)">🤝 It's a Draw!</h2><p>Both players got the same total value. Bets returned.</p></div>`;
+        }else if(data.winner){
+          const winnerData=players[data.winner];
+          const isMe=data.winner===myUid;
+          const forfeitText=wasForfeit?(data.forfeitedBy===myUid?' (You forfeited)':' (Opponent forfeited)'):'';
+          const totalWinnings=bet*2+allSkinsValue;
+          resultHtml=`<div class="final-result">
+            <h2 style="color:${isMe?'var(--green)':'var(--red)'}">${isMe?'🎉 You Won the Battle!':'💀 You Lost the Battle!'}</h2>
+            <p>${winnerData?.name||'Winner'} wins${forfeitText}!</p>
+            ${!wasForfeit?`<p style="color:var(--muted)">Total skin value: 🪙 ${(winnerData?.total||0).toLocaleString()}</p>`:''}
+            ${isMe?`<div class="fr-amount">+${totalWinnings.toLocaleString()} total winnings</div>
+            <p style="color:var(--muted);font-size:.85rem">(🪙 ${allSkinsValue.toLocaleString()} skins + 🪙 ${(bet*2).toLocaleString()} bets)</p>`:''}
+          </div>`;
+        }
       }
     }
 
     inner.innerHTML=`
       <div class="battle-topbar">
-        <h2>⚔️ Case Battle</h2>
+        <h2>⚔️ Case Battle <span class="mode-badge mode-badge-${mode}">${mode}</span></h2>
         <div class="bt-info">
           <div>Bet: <span>🪙 ${(data.bet||0).toLocaleString()}</span></div>
           <div>Round: <span>${Math.min(curRound+1,totalRounds)} / ${totalRounds}</span></div>
         </div>
       </div>
       <div class="round-chips">${roundChips}</div>
-      <div class="versus-area">
-        ${buildPlayerPanel(p1id,p1,'p1')}
-        <div class="vs-divider">VS</div>
-        ${buildPlayerPanel(p2id,p2,'p2')}
-      </div>
+      ${versusHtml}
       ${resultHtml}
       <div style="display:flex;justify-content:center;margin-top:16px">
         <button class="btn btn-secondary" id="leaveBtn">${isFinished?'← Back to Lobby':'Leave Battle'}</button>
       </div>
     `;
 
-       document.getElementById('leaveBtn').addEventListener('click',closeBattleRoom);
+    document.getElementById('leaveBtn').addEventListener('click',()=>closeBattleRoom(isFinished));
 
-    // Trigger round spin if playing and results exist
+    // Trigger round spin
     if(data.status==='playing'&&!isFinished&&curRound<totalRounds&&!spinning){
       const roundData=(data.rounds||{})[curRound];
       if(!roundData&&myUid===data.creator){
-        // Creator generates this round's results
-        setTimeout(()=>{
-          if(!spinning) generateRound(data,curRound);
-        },200);
+        setTimeout(()=>{if(!spinning) generateRound(data,curRound);},200);
       }else if(roundData&&!roundsAnimated.has(curRound)){
-        // Both clients animate when round data exists
-        setTimeout(()=>{
-          if(!spinning) playRound(curRound);
-        },300);
+        setTimeout(()=>{if(!spinning) playRound(curRound);},300);
       }
     }
-  } // close renderBattle
+  }
 
-   /* ═══════════════════════════════════════════
-     GENERATE ROUND (CREATOR ONLY – used for round 0)
+  /* ═══════════════════════════════════════════
+     GENERATE ROUND (CREATOR ONLY)
      ═══════════════════════════════════════════ */
   function pickItem(items){
     const tw=items.reduce((s,i)=>s+i.weight,0);
@@ -958,19 +1132,16 @@
     });
 
     await rtdb.ref('battles/'+activeBattle+'/rounds/'+round).set(results);
-    // Don't advance currentRound here — it stays the same, the on('value') listener
-    // will re-fire and both clients will see the round data and start animating
   }
 
-   /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      PLAY ROUND ANIMATION
-     ═���═════════════════════════════════════════ */
+          ═══════════════════════════════════════════ */
   async function playRound(round){
     if(spinning)return;
     spinning=true;
     roundsAnimated.add(round);
 
-    // Always read fresh state from Firebase
     const snap=await rtdb.ref('battles/'+activeBattle).once('value');
     const data=snap.val();
     if(!data||data.status!=='playing'){spinning=false;return;}
@@ -983,60 +1154,87 @@
     if(!roundData){spinning=false;return;}
 
     const pids=Object.keys(data.players);
-    const p1id=data.creator;
-    const p2id=pids.find(id=>id!==data.creator);
+    const mode=data.mode||'1v1';
+    const is2v2=mode==='2v2';
 
-    const p1Win=roundData[p1id];
-    const p2Win=roundData[p2id];
-    if(!p1Win||!p2Win){spinning=false;return;}
+    // Build prefix map for each player's spinner elements
+    let prefixMap={};
+    if(is2v2){
+      const teams=getTeams(data);
+      (teams[1]||[]).forEach((pid,i)=>{prefixMap[pid]='t1p'+i;});
+      (teams[2]||[]).forEach((pid,i)=>{prefixMap[pid]='t2p'+i;});
+    }else{
+      const p1id=data.creator;
+      const p2id=pids.find(id=>id!==data.creator);
+      prefixMap[p1id]='p1';
+      if(p2id) prefixMap[p2id]='p2';
+    }
 
-    const p1Spinner=document.getElementById('p1Spinner');
-    const p2Spinner=document.getElementById('p2Spinner');
-    const p1Track=document.getElementById('p1Track');
-    const p2Track=document.getElementById('p2Track');
+    // Verify all round results exist
+    for(const pid of pids){
+      if(!roundData[pid]){spinning=false;return;}
+    }
 
-    if(!p1Spinner||!p2Spinner){spinning=false;return;}
+    // Show all spinners
+    const spinnerPairs=[];
+    for(const pid of pids){
+      const prefix=prefixMap[pid];
+      if(!prefix) continue;
+      const spinner=document.getElementById(prefix+'Spinner');
+      const track=document.getElementById(prefix+'Track');
+      if(!spinner||!track) continue;
+      spinner.style.display='block';
+      buildTrack(track,cd,roundData[pid]);
+      spinnerPairs.push({pid,prefix,spinner,track});
+    }
 
-    p1Spinner.style.display='block';
-    p2Spinner.style.display='block';
-
-    buildTrack(p1Track,cd,p1Win);
-    buildTrack(p2Track,cd,p2Win);
-
-    await Promise.all([
-      animateTrack(p1Spinner,p1Track),
-      animateTrack(p2Spinner,p2Track)
-    ]);
+    // Animate all spinners simultaneously
+    await Promise.all(spinnerPairs.map(sp=>animateTrack(sp.spinner,sp.track)));
 
     await delay(600);
 
-    // Show won items in the list for both clients
-    const p1Items=document.getElementById('p1Items');
-    const p2Items=document.getElementById('p2Items');
-    if(p1Items&&p1Win){
-      const rar=RARITIES[p1Win.rarity]||RARITIES.common;
-      p1Items.insertAdjacentHTML('beforeend',`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${p1Win.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${p1Win.name}</span><span class="pp-item-val">🪙 ${(p1Win.value||0).toLocaleString()}</span></div>`);
-    }
-    if(p2Items&&p2Win){
-      const rar=RARITIES[p2Win.rarity]||RARITIES.common;
-      p2Items.insertAdjacentHTML('beforeend',`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${p2Win.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${p2Win.name}</span><span class="pp-item-val">🪙 ${(p2Win.value||0).toLocaleString()}</span></div>`);
+    // Show won items in the list for all players
+    for(const sp of spinnerPairs){
+      const win=roundData[sp.pid];
+      const itemsEl=document.getElementById(sp.prefix+'Items');
+      if(itemsEl&&win){
+        const rar=RARITIES[win.rarity]||RARITIES.common;
+        itemsEl.insertAdjacentHTML('beforeend',`<div class="pp-item"><span class="pp-item-dot" style="background:${rar.color}"></span><img src="${win.img}" alt="" onerror="this.style.display='none'"/><span class="pp-item-name">${win.name}</span><span class="pp-item-val">🪙 ${(win.value||0).toLocaleString()}</span></div>`);
+      }
     }
 
     // Update totals visually
-    const p1Total=(data.players[p1id]?.total||0)+p1Win.value;
-    const p2Total=(data.players[p2id]?.total||0)+(p2Win?p2Win.value:0);
-    const p1TotalEl=document.querySelector('#p1Panel .pp-total');
-    const p2TotalEl=document.querySelector('#p2Panel .pp-total');
-    if(p1TotalEl) p1TotalEl.textContent='🪙 '+p1Total.toLocaleString();
-    if(p2TotalEl) p2TotalEl.textContent='🪙 '+p2Total.toLocaleString();
+    for(const sp of spinnerPairs){
+      const win=roundData[sp.pid];
+      const pTotal=(data.players[sp.pid]?.total||0)+(win?win.value:0);
+      const totalEl=document.querySelector('#'+sp.prefix+'Panel .pp-total');
+      if(totalEl) totalEl.textContent='🪙 '+pTotal.toLocaleString();
+    }
+
+    // Update team totals visually in 2v2
+    if(is2v2){
+      const teams=getTeams(data);
+      [1,2].forEach(tn=>{
+        let teamTotal=0;
+        (teams[tn]||[]).forEach(pid=>{
+          teamTotal+=(data.players[pid]?.total||0)+(roundData[pid]?roundData[pid].value:0);
+        });
+        // Find the team-total element (it's inside .team-side)
+        const teamSides=document.querySelectorAll('.team-side');
+        if(teamSides[tn-1]){
+          const ttEl=teamSides[tn-1].querySelector('.team-total');
+          if(ttEl) ttEl.textContent='🪙 '+teamTotal.toLocaleString();
+        }
+      });
+    }
 
     // Hide spinners
-    p1Spinner.style.display='none';
-    p2Spinner.style.display='none';
+    for(const sp of spinnerPairs){
+      sp.spinner.style.display='none';
+    }
 
-       // Only the creator advances the game state in the database
+    // Only the creator advances the game state
     if(myUid===data.creator){
-      // Write player items and totals
       for(const pid of pids){
         const item=roundData[pid];
         const curTotal=(data.players[pid]?.total||0);
@@ -1047,13 +1245,10 @@
       const nextRound=round+1;
 
       if(nextRound>=data.cases.length){
-        // Last round — finish the battle, then set currentRound
         await rtdb.ref('battles/'+activeBattle+'/currentRound').set(nextRound);
         await finishBattle(data,nextRound);
-        // Small delay to let Firebase propagate the winner/status writes
         await delay(300);
       }else{
-        // Generate next round's results FIRST, then advance currentRound
         const nextCaseId=data.cases[nextRound];
         const nextCd=CASE_MAP[nextCaseId];
         if(nextCd){
@@ -1070,8 +1265,6 @@
 
     spinning=false;
 
-    // Both clients: poll until we get a definitive next state
-    // This handles the case where on('value') fired while spinning was true
     const pollForNext=async(retries)=>{
       for(let i=0;i<retries;i++){
         await delay(500);
@@ -1080,13 +1273,11 @@
         const freshData=freshSnap.val();
         if(!freshData)return;
 
-        // Game finished — re-render to show results
-        if(freshData.status==='finished'||freshData.winner){
+        if(freshData.status==='finished'||freshData.winner||freshData.winnerTeam){
           renderBattle(freshData);
           return;
         }
 
-        // Next round is ready — play it
         if(freshData.status==='playing'){
           const nextR=freshData.currentRound||0;
           const nextRoundData=(freshData.rounds||{})[nextR];
@@ -1095,14 +1286,11 @@
             playRound(nextR);
             return;
           }
-          // If all rounds are done but status isn't finished yet, the creator
-          // is still writing — keep polling
           if(nextR>=freshData.cases.length){
-            continue; // retry, finishBattle hasn't completed yet
+            continue;
           }
         }
       }
-      // Final fallback: force a re-read and render whatever we have
       if(!activeBattle)return;
       const finalSnap=await rtdb.ref('battles/'+activeBattle).once('value');
       const finalData=finalSnap.val();
@@ -1148,54 +1336,78 @@
   /* ═══════════════════════════════════════════
      FINISH BATTLE
      ═══════════════════════════════════════════ */
-   async function finishBattle(data,totalRoundsDone){
-    // Re-read latest
+  async function finishBattle(data,totalRoundsDone){
     const snap=await rtdb.ref('battles/'+activeBattle+'/players').once('value');
     const ps=snap.val()||{};
     const pids=Object.keys(ps);
-    const totals={};
-    pids.forEach(pid=>totals[pid]=ps[pid].total||0);
-
-    // Total skin value from ALL players combined
+    const mode=data.mode||'1v1';
+    const is2v2=mode==='2v2';
+    const bet=data.bet||0;
     const allSkinsValue=pids.reduce((sum,pid)=>sum+(ps[pid].total||0),0);
 
-    const sorted=pids.sort((a,b)=>totals[b]-totals[a]);
-    const bet=data.bet||0;
-    let winner;
+    if(is2v2){
+      // Team-based finish
+      const teams=getTeams(data);
+      const t1pids=teams[1]||[];
+      const t2pids=teams[2]||[];
+      const t1Total=t1pids.reduce((sum,pid)=>sum+((ps[pid]||{}).total||0),0);
+      const t2Total=t2pids.reduce((sum,pid)=>sum+((ps[pid]||{}).total||0),0);
 
-    if(pids.length===2&&totals[sorted[0]]===totals[sorted[1]]){
-      winner='draw';
-      // Return bets + each player gets their own skin value back
-      for(const pid of pids) await adjCredits(pid, bet + (ps[pid].total||0));
+      const totalPot=bet*pids.length+allSkinsValue;
+
+      let winnerTeam;
+      if(t1Total===t2Total){
+        winnerTeam='draw';
+        // Return bets + each player gets their own skin value back
+        for(const pid of pids) await adjCredits(pid, bet + (ps[pid].total||0));
+      }else{
+        winnerTeam=t1Total>t2Total?1:2;
+        const winningPids=winnerTeam===1?t1pids:t2pids;
+        const perWinner=Math.floor(totalPot/Math.max(winningPids.length,1));
+        for(const pid of winningPids) await adjCredits(pid, perWinner);
+      }
+
+      await rtdb.ref('battles/'+activeBattle+'/winnerTeam').set(winnerTeam);
+      await rtdb.ref('battles/'+activeBattle+'/status').set('finished');
     }else{
-      winner=sorted[0];
-      // Winner gets: both side bets + ALL skin value from both players
-      await adjCredits(winner, bet*2 + allSkinsValue);
-    }
+      // 1v1 finish
+      const totals={};
+      pids.forEach(pid=>totals[pid]=ps[pid].total||0);
+      const sorted=pids.sort((a,b)=>totals[b]-totals[a]);
+      let winner;
 
-    await rtdb.ref('battles/'+activeBattle+'/winner').set(winner);
-    await rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+      if(pids.length===2&&totals[sorted[0]]===totals[sorted[1]]){
+        winner='draw';
+        for(const pid of pids) await adjCredits(pid, bet + (ps[pid].total||0));
+      }else{
+        winner=sorted[0];
+        await adjCredits(winner, bet*2 + allSkinsValue);
+      }
+
+      await rtdb.ref('battles/'+activeBattle+'/winner').set(winner);
+      await rtdb.ref('battles/'+activeBattle+'/status').set('finished');
+    }
   }
 
   /* ═══════════════════════════════════════════
-     CLEANUP — check on page load for leftover battles
+     CLEANUP
      ═══════════════════════════════════════════ */
-  // Also clean up battles where both left
   setInterval(async()=>{
     if(!myUid)return;
     const snap=await rtdb.ref('battles').once('value');
     const all=snap.val()||{};
     for(const[id,b]of Object.entries(all)){
-      // Delete if both players left
       const left=b.playersLeft||{};
       const playerCount=Object.keys(b.players||{}).length;
       const leftCount=Object.values(left).filter(v=>v===true).length;
-      if(playerCount>=2&&leftCount>=2){
+      if(playerCount>=2&&leftCount>=playerCount){
         await rtdb.ref('battles/'+id).remove();
       }
-      // Delete stale waiting battles >30min, refund creator
       if(b.status==='waiting'&&b.createdAt&&Date.now()-b.createdAt>1800000){
-        await adjCredits(b.creator,b.totalCost||0);
+        // Refund all players in stale battles
+        for(const pid of Object.keys(b.players||{})){
+          await adjCredits(pid,b.totalCost||0);
+        }
         await rtdb.ref('battles/'+id).remove();
       }
     }

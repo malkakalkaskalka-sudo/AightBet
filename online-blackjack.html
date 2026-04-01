@@ -564,6 +564,9 @@
   /* ═══════════════════════════════════════════
      RENDER BATTLE
      ═════════════════════��═════════════════════ */
+   /* ═══════════════════════════════════════════
+     RENDER BATTLE
+     ═══════════════════════════════════════════ */
   function renderBattle(data){
     const inner=document.getElementById('battleInner');
     const players=data.players||{};
@@ -733,8 +736,19 @@
       dealInitialCards();
     }
 
-    // RESOLVE TRIGGER: either player can trigger, uses transaction for safety
+    // ═══════════════════════════════════════════
+    // RESOLVE TRIGGERS (FIXED)
+    // ═══════════════════════════════════════════
+
+    // Primary trigger: phase is done, no winner yet — run resolution
     if(data.status==='playing'&&phase==='done'&&winner==='none'){
+      tryResolveGame();
+    }
+
+    // Safety net: winner was set by one client's transaction, but that client
+    // disconnected before writing status:'finished'. Any client seeing this
+    // inconsistent state will finalize it.
+    if(data.status==='playing'&&hasResult(winner)){
       tryResolveGame();
     }
   }
@@ -867,117 +881,137 @@
     }
   }
 
-  /* ═══════════════════════════════════════════
-     RESOLVE GAME
-     Uses transaction on 'winner' to go from 'none' → real result.
-     Either player can trigger this — first one wins the transaction.
-     ═══════════════════════════════════════════ */
-  let resolving=false;
+ // ═══════════════════════════════════════════
+// RESOLVE GAME — Fixed version
+// Uses transaction on 'winner' to go from 'none' → real result.
+// Either player can trigger this — first one wins the transaction.
+// ═══════════════════════════════════════════
+let resolving = false;
+let resolveRetryTimer = null;
 
-  async function tryResolveGame(){
-    if(resolving||!battleRef)return;
-    resolving=true;
+async function tryResolveGame() {
+  if (resolving || !battleRef) return;
+  resolving = true;
 
-    try{
-      await delay(300);
-
-      // Re-read fresh data
-      const freshSnap=await battleRef.once('value');
-      const fresh=freshSnap.val();
-      if(!fresh){return;}
-
-      // Already resolved by the other client?
-      if(fresh.status==='finished'||hasResult(fresh.winner)){return;}
-      // Phase must be done
-      if(fresh.phase!=='done'){return;}
-
-      const pids=Object.keys(fresh.players||{});
-      const p1id=fresh.creator;
-      const p2id=pids.find(id=>id!==fresh.creator)||null;
-      const bet=fresh.bet||0;
-
-      const p1Hand=fresh.p1Hand||[];
-      const p2Hand=fresh.p2Hand||[];
-      const p1Val=handValue(p1Hand);
-      const p2Val=handValue(p2Hand);
-      const p1Status=fresh.p1Status||'playing';
-      const p2Status=fresh.p2Status||'playing';
-      const p1Busted=p1Status==='busted';
-      const p2Busted=p2Status==='busted';
-      const p1BJ=p1Status==='blackjack';
-      const p2BJ=p2Status==='blackjack';
-
-      // Both must be done
-      const p1Done=p1Status==='stood'||p1Status==='busted'||p1Status==='blackjack';
-      const p2Done=p2Status==='stood'||p2Status==='busted'||p2Status==='blackjack';
-      if(!p1Done||!p2Done){return;}
-
-      // Compute winner
-      let result;
-      if(p1Busted&&p2Busted){
-        result='both_bust';
-      }else if(p1Busted&&!p2Busted){
-        result=p2id||'both_bust';
-      }else if(p2Busted&&!p1Busted){
-        result=p1id;
-      }else if(p1BJ&&!p2BJ){
-        result=p1id;
-      }else if(p2BJ&&!p1BJ){
-        result=p2id||'draw';
-      }else if(p1BJ&&p2BJ){
-        result='draw';
-      }else if(p1Val>p2Val){
-        result=p1id;
-      }else if(p2Val>p1Val){
-        result=p2id||'draw';
-      }else{
-        result='draw';
-      }
-
-      // Transaction: only succeed if winner is still 'none'
-      const txResult=await battleRef.child('winner').transaction(current=>{
-        // current might be null (key deleted), undefined, or 'none'
-        if(current!==null&&current!==undefined&&current!=='none'){
-          return; // Already resolved, abort (return undefined)
-        }
-        return result;
-      });
-
-      // If transaction didn't commit, another client already resolved
-      if(!txResult.committed||txResult.snapshot.val()!==result){
-        return;
-      }
-
-      // We won the transaction — pay out credits
-      if(result==='both_bust'){
-        await adjCredits(p1id,bet);
-        await adjCredits(p2id,bet);
-      }else if(result==='draw'){
-        await adjCredits(p1id,bet);
-        await adjCredits(p2id,bet);
-      }else{
-        // result is a player uid — they win the pot
-        await adjCredits(result,bet*2);
-      }
-
-      // Mark game as finished
-      await battleRef.update({
-        status:'finished',
-        phase:'done'
-      });
-
-      // Save stats
-      const p1Won=result===p1id;
-      const p2Won=result===p2id;
-      await saveGameStats(p1id,'online-blackjack',bet,p1Won?bet*2:0,p1Won);
-      if(p2id) await saveGameStats(p2id,'online-blackjack',bet,p2Won?bet*2:0,p2Won);
-
-    }catch(err){
-      console.error('resolveGame error:',err);
-    }finally{
-      resolving=false;
-    }
+  // Clear any pending retry
+  if (resolveRetryTimer) {
+    clearTimeout(resolveRetryTimer);
+    resolveRetryTimer = null;
   }
+
+  try {
+    // Re-read fresh data (no artificial delay)
+    const freshSnap = await battleRef.once('value');
+    const fresh = freshSnap.val();
+    if (!fresh) { return; }
+
+    // Already fully resolved?
+    if (fresh.status === 'finished') { return; }
+
+    // If winner is already set but status isn't 'finished', 
+    // just finalize the status (handles Bug 5)
+    if (hasResult(fresh.winner) && fresh.status !== 'finished') {
+      await battleRef.update({ status: 'finished', phase: 'done' });
+      return;
+    }
+
+    // Phase must be done and winner must be 'none'
+    if (fresh.phase !== 'done' || fresh.winner !== 'none') { return; }
+
+    const pids = Object.keys(fresh.players || {});
+    const p1id = fresh.creator;
+    const p2id = pids.find(id => id !== fresh.creator) || null;
+    const bet = fresh.bet || 0;
+
+    const p1Hand = fresh.p1Hand || [];
+    const p2Hand = fresh.p2Hand || [];
+    const p1Val = handValue(p1Hand);
+    const p2Val = handValue(p2Hand);
+    const p1Status = fresh.p1Status || 'playing';
+    const p2Status = fresh.p2Status || 'playing';
+    const p1Busted = p1Status === 'busted';
+    const p2Busted = p2Status === 'busted';
+    const p1BJ = p1Status === 'blackjack';
+    const p2BJ = p2Status === 'blackjack';
+
+    // Both must be done
+    const p1Done = p1Status === 'stood' || p1Status === 'busted' || p1Status === 'blackjack';
+    const p2Done = p2Status === 'stood' || p2Status === 'busted' || p2Status === 'blackjack';
+    if (!p1Done || !p2Done) { return; }
+
+    // Compute winner
+    let result;
+    if (p1Busted && p2Busted) {
+      result = 'both_bust';
+    } else if (p1Busted && !p2Busted) {
+      result = p2id || 'both_bust';
+    } else if (p2Busted && !p1Busted) {
+      result = p1id;
+    } else if (p1BJ && !p2BJ) {
+      result = p1id;
+    } else if (p2BJ && !p1BJ) {
+      result = p2id || 'draw';
+    } else if (p1BJ && p2BJ) {
+      result = 'draw';
+    } else if (p1Val > p2Val) {
+      result = p1id;
+    } else if (p2Val > p1Val) {
+      result = p2id || 'draw';
+    } else {
+      result = 'draw';
+    }
+
+    // Transaction: only succeed if winner is still 'none'
+    const txResult = await battleRef.child('winner').transaction(current => {
+      if (current !== null && current !== undefined && current !== 'none') {
+        return; // Already resolved, abort
+      }
+      return result;
+    });
+
+    // If transaction didn't commit, another client already resolved
+    if (!txResult.committed) {
+      // The other client should finalize — but if they don't,
+      // we'll catch it on next render via the status !== 'finished' check above
+      return;
+    }
+
+    // We won the transaction — pay out credits AND mark finished atomically
+    if (result === 'both_bust' || result === 'draw') {
+      await Promise.all([
+        adjCredits(p1id, bet),
+        adjCredits(p2id, bet)
+      ]);
+    } else {
+      await adjCredits(result, bet * 2);
+    }
+
+    // Mark game as finished immediately after payout
+    await battleRef.update({
+      status: 'finished',
+      phase: 'done'
+    });
+
+    // Save stats (non-blocking, don't let this prevent finishing)
+    const p1Won = result === p1id;
+    const p2Won = result === p2id;
+    saveGameStats(p1id, 'online-blackjack', bet, p1Won ? bet * 2 : 0, p1Won).catch(console.error);
+    if (p2id) saveGameStats(p2id, 'online-blackjack', bet, p2Won ? bet * 2 : 0, p2Won).catch(console.error);
+
+  } catch (err) {
+    console.error('resolveGame error:', err);
+    // CRITICAL FIX: Schedule a retry on failure instead of staying stuck forever
+    resolveRetryTimer = setTimeout(() => {
+      resolving = false; // Reset so retry can run
+      if (battleState && battleState.status === 'playing' && battleState.phase === 'done' &&
+          (!battleState.winner || battleState.winner === 'none')) {
+        tryResolveGame();
+      }
+    }, 2000);
+  } finally {
+    resolving = false;
+  }
+}
 
   /* ═══════════════════════════════════════════
      SAVE STATS
