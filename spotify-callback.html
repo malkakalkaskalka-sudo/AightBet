@@ -2,51 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Spotify – Connecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connecting to Spotify...</title>
   <style>
     body {
-      margin: 0; display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; background: #0a0a0f; color: #e2e8f0;
-      font-family: 'Segoe UI', system-ui, sans-serif; text-align: center;
+      margin: 0; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: #0a0a0f; color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
     }
-    .wrap { padding: 40px; }
-    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.1);
-      border-top-color: #1DB954; border-radius: 50%; animation: spin .8s linear infinite;
-      margin: 0 auto 20px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    h2 { font-size: 1.2rem; margin-bottom: 8px; }
-    p { color: #94a3b8; font-size: .85rem; }
-    .err { color: #f87171; }
+    .msg {
+      text-align: center;
+      padding: 40px;
+    }
+    .msg h2 {
+      font-size: 1.4rem; margin-bottom: 8px;
+      color: #1DB954;
+    }
+    .msg p {
+      font-size: .9rem; color: #94a3b8;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap" id="content">
-    <div class="spinner"></div>
-    <h2>Connecting to Spotify...</h2>
+  <div class="msg">
+    <h2>🎵 Connecting to Spotify...</h2>
     <p>This window will close automatically.</p>
   </div>
   <script>
     (() => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
-      const error = params.get('error');
-
-      if (error) {
-        document.getElementById('content').innerHTML =
-          '<p class="err">Authorization failed: ' + error + '</p><p>You can close this window.</p>';
-        return;
-      }
-
       if (code && window.opener) {
         window.opener.postMessage({ spotifyCode: code }, '*');
-        setTimeout(() => window.close(), 1500);
-      } else if (code) {
-        document.getElementById('content').innerHTML =
-          '<h2>✅ Connected!</h2><p>You can close this window and return to AightBet.</p>';
-      } else {
-        document.getElementById('content').innerHTML =
-          '<p class="err">No authorization code received.</p><p>Please try again.</p>';
       }
+      setTimeout(() => window.close(), 1500);
     })();
   </script>
 </body>
