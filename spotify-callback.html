@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Connecting to Spotify...</title>
   <style>
     body {
@@ -11,33 +10,21 @@
       background: #0a0a0f; color: #e2e8f0;
       font-family: 'Segoe UI', system-ui, sans-serif;
     }
-    .msg {
-      text-align: center;
-      padding: 40px;
-    }
-    .msg h2 {
-      font-size: 1.4rem; margin-bottom: 8px;
-      color: #1DB954;
-    }
-    .msg p {
-      font-size: .9rem; color: #94a3b8;
-    }
+    h2 { color: #1DB954; margin-bottom: 8px; }
+    p { color: #94a3b8; font-size: .9rem; }
   </style>
 </head>
 <body>
-  <div class="msg">
+  <div style="text-align:center;padding:40px">
     <h2>🎵 Connecting to Spotify...</h2>
     <p>This window will close automatically.</p>
   </div>
   <script>
-    (() => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
-      if (code && window.opener) {
-        window.opener.postMessage({ spotifyCode: code }, '*');
-      }
-      setTimeout(() => window.close(), 1500);
-    })();
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code && window.opener) {
+      window.opener.postMessage({ spotifyCode: code }, '*');
+    }
+    setTimeout(() => window.close(), 1500);
   </script>
 </body>
 </html>
