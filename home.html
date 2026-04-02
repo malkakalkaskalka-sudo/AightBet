@@ -586,6 +586,115 @@
       .support-chat-panel{width:100%;max-height:65vh}
     }
 
+
+ /* ───────── SPOTIFY WIDGET ───────── */
+.spotify-widget {
+  position: fixed; bottom: 20px; right: 20px; z-index: 95;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+}
+.spotify-toggle {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: rgba(30,215,96,.12); border: 1px solid rgba(30,215,96,.25);
+  border-radius: 50px; color: #1DB954;
+  font-family: var(--font); font-size: .85rem; font-weight: 700;
+  cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: background .2s, transform .15s, box-shadow .25s;
+  box-shadow: 0 4px 16px -4px rgba(30,215,96,.3);
+}
+.spotify-toggle:hover {
+  background: rgba(30,215,96,.2); transform: translateY(-2px);
+  box-shadow: 0 6px 24px -4px rgba(30,215,96,.4);
+}
+.spotify-panel {
+  display: none; width: 340px; max-width: 95vw;
+  background: rgba(15,15,25,.97); border: 1px solid var(--border2);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0,0,0,.5);
+  animation: spotSlideIn .3s ease;
+}
+.spotify-panel.open { display: block; }
+@keyframes spotSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.03);
+}
+.sp-title { font-size: .9rem; font-weight: 800; }
+.sp-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(255,255,255,.06);
+  color: var(--text); font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.sp-close:hover { background: rgba(255,255,255,.12); }
+.sp-connect {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 32px 24px; text-align: center;
+}
+.sp-connect p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+.btn-spotify {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; font-size: .9rem; font-weight: 700;
+  color: #fff; background: #1DB954; border: none; border-radius: 50px;
+  cursor: pointer; font-family: var(--font); transition: background .2s, transform .15s;
+}
+.btn-spotify:hover { background: #1ed760; transform: translateY(-1px); }
+.sp-now {
+  padding: 20px; display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.sp-art {
+  width: 200px; height: 200px; border-radius: 12px; object-fit: cover;
+  background: var(--surface); box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.sp-info { text-align: center; }
+.sp-track {
+  font-size: .95rem; font-weight: 700; margin-bottom: 2px;
+  max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sp-artist { font-size: .8rem; color: var(--muted); }
+.sp-bar {
+  width: 100%; height: 4px; background: rgba(255,255,255,.1);
+  border-radius: 4px; overflow: hidden; cursor: pointer;
+}
+.sp-fill {
+  height: 100%; width: 0%; background: #1DB954;
+  border-radius: 4px; transition: width .5s linear;
+}
+.sp-ctrls { display: flex; align-items: center; gap: 16px; }
+.sp-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(255,255,255,.06);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .15s;
+}
+.sp-btn:hover { background: rgba(255,255,255,.12); transform: scale(1.05); }
+.sp-btn-play {
+  width: 50px; height: 50px; background: #1DB954;
+  border-color: #1DB954; color: #fff;
+}
+.sp-btn-play:hover { background: #1ed760; }
+.sp-disconnect {
+  margin-top: 4px; padding: 6px 16px;
+  font-size: .72rem; font-weight: 600; color: var(--muted);
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; font-family: var(--font);
+  transition: color .2s, border-color .2s;
+}
+.sp-disconnect:hover { color: #f87171; border-color: rgba(239,68,68,.3); }
+@media(max-width:768px){
+  .spotify-widget { bottom: 12px; right: 12px; }
+  .spotify-panel { width: 100%; }
+  .sp-art { width: 160px; height: 160px; }
+}
+
+
     /* ───────── RESPONSIVE ───────── */
     @media (max-width: 768px) {
       .nav-links, .nav-credits-desktop { display: none !important; }
@@ -872,7 +981,48 @@
       </div>
     </div>
   </div>
-
+<!-- ════════ SPOTIFY PLAYER ════════ -->
+<div class="spotify-widget" id="spotifyWidget">
+  <button class="spotify-toggle" id="spotifyToggle">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="#1DB954" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    <span id="spBtnText">Spotify</span>
+  </button>
+  <div class="spotify-panel" id="spotifyPanel">
+    <div class="sp-header">
+      <span class="sp-title">🎵 Spotify Player</span>
+      <button class="sp-close" id="spClose">&times;</button>
+    </div>
+    <div class="sp-connect" id="spConnect">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="#1DB954" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      <p>Connect your Spotify Premium account to listen while you play</p>
+      <button class="btn-spotify" id="spLoginBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        Connect with Spotify
+      </button>
+    </div>
+    <div class="sp-now" id="spNow" style="display:none">
+      <img id="spArt" class="sp-art" src="" alt="Album Art" />
+      <div class="sp-info">
+        <div class="sp-track" id="spTrack">Not Playing</div>
+        <div class="sp-artist" id="spArtist">—</div>
+      </div>
+      <div class="sp-bar" id="spBar"><div class="sp-fill" id="spFill"></div></div>
+      <div class="sp-ctrls">
+        <button class="sp-btn" id="spPrev" title="Previous">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+        </button>
+        <button class="sp-btn sp-btn-play" id="spPlayPause" title="Play/Pause">
+          <svg id="spPlayIcon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="spPauseIcon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button class="sp-btn" id="spNext" title="Next">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        </button>
+      </div>
+      <button class="sp-disconnect" id="spDisconnect">Disconnect</button>
+    </div>
+  </div>
+</div>
   <!-- Footer -->
   <footer class="footer">
     &copy; 2026 AightBet. This is a fake casino – no real money involved. Play responsibly (or don't, it's fake).
@@ -882,7 +1032,232 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+<script>
+/* ══════════ SPOTIFY WEB PLAYBACK – PKCE AUTH ══════════ */
+(() => {
+  // ⚠️ REPLACE with your Client ID from https://developer.spotify.com/dashboard
+  const CLIENT_ID = '31ac1837ac5841aa873d1a3cf6e8b6a4';
+  const REDIRECT  = window.location.origin + '/AightBet/spotify-callback.html';
+  const SCOPES    = 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state user-read-currently-playing';
+  const LS_TOKEN  = 'ab-sp-token';
+  const LS_REFRESH = 'ab-sp-refresh';
+  const LS_EXPIRY = 'ab-sp-expiry';
+  const LS_VERIFIER = 'ab-sp-verifier';
 
+  const toggle    = document.getElementById('spotifyToggle');
+  const btnText   = document.getElementById('spBtnText');
+  const panel     = document.getElementById('spotifyPanel');
+  const closeBtn  = document.getElementById('spClose');
+  const connectEl = document.getElementById('spConnect');
+  const nowEl     = document.getElementById('spNow');
+  const loginBtn  = document.getElementById('spLoginBtn');
+  const art       = document.getElementById('spArt');
+  const track     = document.getElementById('spTrack');
+  const artist    = document.getElementById('spArtist');
+  const fill      = document.getElementById('spFill');
+  const playPause = document.getElementById('spPlayPause');
+  const playIco   = document.getElementById('spPlayIcon');
+  const pauseIco  = document.getElementById('spPauseIcon');
+  const prevBtn   = document.getElementById('spPrev');
+  const nextBtn   = document.getElementById('spNext');
+  const discBtn   = document.getElementById('spDisconnect');
+
+  let player = null, deviceId = null, playing = false, pollId = null;
+
+  /* ── Toggle panel ── */
+  toggle.addEventListener('click', () => panel.classList.toggle('open'));
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  /* ── PKCE helpers ── */
+  function genRandom(len) {
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('').slice(0, len);
+  }
+
+  async function sha256(plain) {
+    const enc = new TextEncoder().encode(plain);
+    const hash = await crypto.subtle.digest('SHA-256', enc);
+    return hash;
+  }
+
+  function base64url(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  async function buildAuthURL() {
+    const verifier = genRandom(128);
+    localStorage.setItem(LS_VERIFIER, verifier);
+    const challenge = base64url(await sha256(verifier));
+    return 'https://accounts.spotify.com/authorize' +
+      '?client_id=' + encodeURIComponent(CLIENT_ID) +
+      '&response_type=code' +
+      '&redirect_uri=' + encodeURIComponent(REDIRECT) +
+      '&scope=' + encodeURIComponent(SCOPES) +
+      '&code_challenge_method=S256' +
+      '&code_challenge=' + challenge +
+      '&show_dialog=true';
+  }
+
+  async function exchangeCode(code) {
+    const verifier = localStorage.getItem(LS_VERIFIER);
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: REDIRECT,
+        code_verifier: verifier
+      })
+    });
+    if (!res.ok) throw new Error('Token exchange failed');
+    return res.json();
+  }
+
+  async function refreshToken() {
+    const rt = localStorage.getItem(LS_REFRESH);
+    if (!rt) return null;
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: rt
+      })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    saveTokens(data);
+    return data.access_token;
+  }
+
+  function saveTokens(data) {
+    localStorage.setItem(LS_TOKEN, data.access_token);
+    if (data.refresh_token) localStorage.setItem(LS_REFRESH, data.refresh_token);
+    localStorage.setItem(LS_EXPIRY, Date.now() + (data.expires_in || 3600) * 1000);
+  }
+
+  async function getValidToken() {
+    const expiry = parseInt(localStorage.getItem(LS_EXPIRY) || '0');
+    if (Date.now() > expiry - 120000) {                       // refresh 2 min early
+      const t = await refreshToken();
+      if (t) return t;
+    }
+    return localStorage.getItem(LS_TOKEN);
+  }
+
+  /* ── Listen for callback ── */
+  window.addEventListener('message', async e => {
+    if (e.data && e.data.spotifyCode) {
+      try {
+        const data = await exchangeCode(e.data.spotifyCode);
+        saveTokens(data);
+        initPlayer(data.access_token);
+      } catch (err) {
+        console.error('Spotify token exchange error:', err);
+        alert('Failed to connect to Spotify. Try again.');
+      }
+    }
+  });
+
+  /* ── Login button ── */
+  loginBtn.addEventListener('click', async () => {
+    const url = await buildAuthURL();
+    window.open(url, 'SpotifyLogin', 'width=500,height=750');
+  });
+
+  /* ── Disconnect ── */
+  discBtn.addEventListener('click', () => {
+    [LS_TOKEN, LS_REFRESH, LS_EXPIRY, LS_VERIFIER].forEach(k => localStorage.removeItem(k));
+    if (player) { player.disconnect(); player = null; }
+    if (pollId) clearInterval(pollId);
+    connectEl.style.display = 'flex';
+    nowEl.style.display = 'none';
+    btnText.textContent = 'Spotify';
+  });
+
+  /* ── Auto-connect on load if token exists ── */
+  (async () => {
+    const t = await getValidToken();
+    if (t) initPlayer(t);
+  })();
+
+  /* ── Init Web Playback SDK ── */
+  function initPlayer(token) {
+    btnText.textContent = '🎵 Playing';
+    connectEl.style.display = 'none';
+    nowEl.style.display = 'flex';
+
+    if (!window.Spotify) {
+      const s = document.createElement('script');
+      s.src = 'https://sdk.scdn.co/spotify-player.js';
+      document.body.appendChild(s);
+      window.onSpotifyWebPlaybackSDKReady = () => createPlayer(token);
+    } else {
+      createPlayer(token);
+    }
+  }
+
+  function createPlayer(token) {
+    if (player) player.disconnect();
+
+    player = new Spotify.Player({
+      name: 'AightBet Player',
+      getOAuthToken: async cb => { cb(await getValidToken() || token); },
+      volume: 0.5
+    });
+
+    player.addListener('ready', ({ device_id }) => {
+      deviceId = device_id;
+      console.log('🎵 Spotify ready – device', device_id);
+      fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_ids: [device_id], play: false })
+      }).catch(() => {});
+    });
+
+    player.addListener('player_state_changed', state => {
+      if (!state) return;
+      const t = state.track_window.current_track;
+      track.textContent  = t.name;
+      artist.textContent = t.artists.map(a => a.name).join(', ');
+      art.src = (t.album.images[0] || {}).url || '';
+      playing = !state.paused;
+      playIco.style.display  = playing ? 'none' : 'block';
+      pauseIco.style.display = playing ? 'block' : 'none';
+      fill.style.width = ((state.position / state.duration) * 100) + '%';
+    });
+
+    player.addListener('authentication_error', () => {
+      console.warn('Spotify auth error – trying refresh');
+      refreshToken().then(t => { if (t) createPlayer(t); else discBtn.click(); });
+    });
+
+    player.addListener('initialization_error', ({ message }) => {
+      console.error('Spotify init error:', message);
+    });
+
+    player.connect();
+
+    if (pollId) clearInterval(pollId);
+    pollId = setInterval(async () => {
+      if (!player) return;
+      const s = await player.getCurrentState();
+      if (s) fill.style.width = ((s.position / s.duration) * 100) + '%';
+    }, 1000);
+  }
+
+  /* ── Controls ── */
+  playPause.addEventListener('click', () => { if (player) player.togglePlay(); });
+  prevBtn.addEventListener('click',   () => { if (player) player.previousTrack(); });
+  nextBtn.addEventListener('click',   () => { if (player) player.nextTrack(); });
+})();
+</script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
