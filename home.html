@@ -1079,43 +1079,34 @@
       <span class="sp-title">🎵 Spotify Player</span>
       <button class="sp-close" id="spClose">&times;</button>
     </div>
-    <!-- Connect Screen -->
+    <!-- Connect View -->
     <div class="sp-connect" id="spConnect">
-      <p>Connect your Spotify Premium account to listen to music while you play.</p>
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="#1DB954" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      <p>Connect your Spotify account to listen to music while you play. Requires Spotify Premium.</p>
       <button class="btn-spotify" id="spLoginBtn">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-        Connect Spotify
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        Connect with Spotify
       </button>
     </div>
-    <!-- Now Playing + Search + Playlists -->
+    <!-- Now Playing View -->
     <div class="sp-now" id="spNow" style="display:none">
-      <!-- Search -->
       <div class="sp-search-row">
         <input type="text" class="sp-search" id="spSearch" placeholder="Search songs, artists, playlists..." maxlength="200" />
         <button class="sp-search-btn" id="spSearchBtn" title="Search">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
       </div>
-      <!-- Tabs -->
       <div class="sp-tabs" id="spTabs" style="display:none">
         <button class="sp-tab active" data-type="track">Songs</button>
         <button class="sp-tab" data-type="artist">Artists</button>
         <button class="sp-tab" data-type="playlist">Playlists</button>
         <button class="sp-tab" data-type="album">Albums</button>
       </div>
-      <!-- Results -->
       <div class="sp-results" id="spResults"></div>
       <div class="sp-divider" id="spDivider" style="display:none"></div>
-      <!-- Your Playlists -->
-      <div style="width:100%;padding:0 20px">
-        <div style="font-size:.8rem;font-weight:700;margin:8px 0 6px;color:var(--muted)">Your Playlists</div>
-      </div>
-      <div class="sp-results" id="spPlaylists" style="margin-bottom:8px"></div>
-      <div class="sp-divider"></div>
-      <!-- Now Playing -->
       <img id="spArt" class="sp-art" src="" alt="Album Art" style="display:none" />
       <div class="sp-info">
-        <div class="sp-track" id="spTrack">Pick a song to start playing</div>
+        <div class="sp-track" id="spTrack">Search for a song to start playing</div>
         <div class="sp-artist" id="spArtist">—</div>
       </div>
       <div class="sp-bar" id="spBar"><div class="sp-fill" id="spFill"></div></div>
@@ -1131,12 +1122,12 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
         </button>
       </div>
-      <button class="sp-disconnect" id="spDisconnect">Disconnect Spotify</button>
+      <button class="sp-disconnect" id="spDisconnect">Disconnect</button>
     </div>
   </div>
-  <!-- Toggle Button -->
+  <!-- Toggle Button (the green pill at bottom-right) -->
   <button class="spotify-toggle" id="spotifyToggle">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" stroke="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
     <span id="spBtnText">Spotify</span>
   </button>
 </div>
@@ -1161,7 +1152,7 @@
 (() => {
   const CLIENT_ID  = '31ac1837ac5841aa873d1a3cf6e8b6a4';
   const REDIRECT   = window.location.origin + '/AightBet/spotify-callback.html';
-  const SCOPES     = 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
+  const SCOPES = 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
   const LS_TOKEN   = 'ab-sp-token';
   const LS_REFRESH = 'ab-sp-refresh';
   const LS_EXPIRY  = 'ab-sp-expiry';
