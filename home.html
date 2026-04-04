@@ -922,7 +922,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 
-  
+  <script src="checker.js"></script>
 
   <script>
       const firebaseConfig = {
@@ -1203,6 +1203,5 @@
       function timeAgoChat(ts) { const d = Date.now() - ts; if (d < 60000) return 'just now'; if (d < 3600000) return Math.floor(d / 60000) + 'm ago'; if (d < 86400000) return Math.floor(d / 3600000) + 'h ago'; return Math.floor(d / 86400000) + 'd ago'; }
     })();
   </script>
-  <script src="checker.js"></script>
 </body>
 </html>
