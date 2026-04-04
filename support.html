@@ -188,6 +188,18 @@
     .chat-reply-btn{padding:8px 14px;font-size:.72rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--green),#16a34a);border:none;border-radius:8px;cursor:pointer;font-family:var(--font);transition:transform .15s}
     .chat-reply-btn:hover{transform:translateY(-1px)}
 
+    /* RIGGED DROPS */
+.rig-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px}
+.rig-card.active-rig{border-left:3px solid var(--red)}
+.rig-form{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.rig-select{width:100%;padding:10px 14px;font-size:.85rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:var(--font)}
+.rig-select:focus{border-color:var(--accent)}
+.rig-select option{background:var(--bg);color:var(--text)}
+.rig-active-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.rig-entry{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px}
+.rig-entry .re-user{font-weight:700;font-size:.85rem;flex:1}
+.rig-entry .re-detail{font-size:.75rem;color:var(--muted)}
+.rig-entry .re-item{font-size:.8rem;font-weight:700;color:var(--gold)}
     @media(max-width:768px){
       .dash-stats{padding:12px 16px;gap:8px}
       .dash-stat{min-width:90px;padding:12px}
@@ -227,6 +239,7 @@
       <button class="dash-tab" data-tab="appeals">Appeals <span class="tab-badge" id="appealBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="chats">Chats <span class="tab-badge" id="chatBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="users">Users</button>
+<button class="dash-tab" data-tab="rigged">Rigged Drops</button>
       <button class="dash-tab" data-tab="messages">Messages</button>
       <button class="dash-tab" data-tab="resolved">Resolved</button>
       <button class="dash-tab" data-tab="settings">Settings</button>
@@ -302,6 +315,7 @@
       else if(activeTab==='messages')renderMessages(c);
       else if(activeTab==='chats')renderChats(c);
       else if(activeTab==='settings')renderSettings(c);
+else if(activeTab==='rigged') renderRigged(c);
     }
 
     /* ═══ LOAD DASHBOARD ═══ */
@@ -595,6 +609,165 @@
         document.getElementById('clearChatsBtn').addEventListener('click',async()=>{if(!confirm('DELETE all support chats?'))return;await rtdb.ref('supportChats').remove();toast('Chats cleared','success');});
       });
     }
+
+    /* ═══ RIGGED DROPS ═══ */
+let allRiggedDrops = {};
+
+// Load rigged drops in loadDashboard():
+// Add this line inside the loadDashboard() function:
+rtdb.ref('riggedDrops').on('value', s => {
+  allRiggedDrops = s.val() || {};
+  if (activeTab === 'rigged') renderContent();
+});
+
+// Case data for the support panel (simplified list for the dropdown)
+const SUPPORT_CASES = [
+  {id:'starter', name:'Starter Case', items:['Worn Knife','Rusty Pistol','Old Revolver','Basic Shield','Silver Ring','Iron Blade','Gold Coin','Diamond Shard']},
+  {id:'neon', name:'Neon Case', items:['Neon Stick','Glow Glasses','UV Blade','Laser Blade','Neon Katana','Plasma Gun','Neon Crown','Aurora Aura','Supernova']},
+  {id:'dragon', name:'Dragon Case', items:['Dragon Scale','Fire Scroll','Dragon Fang','Flame Dagger','Flame Sword','Dragon Egg','Dragon Wing','Dragon Armor','Fire Crown','Elder Dragon']},
+  {id:'cosmic', name:'Cosmic Case', items:['Star Dust','Moon Rock','Asteroid','Comet Trail','Space Blaster','Nebula Cloak','Black Hole','Universe Orb']},
+  {id:'pirate', name:'Pirate Case', items:['Wooden Plank','Compass','Rum Bottle','Pirate Hat','Anchor Blade','Cutlass','Treasure Map','Gold Chest','Kraken Pearl']},
+  {id:'cyber', name:'Cyber Case', items:['USB Drive','Circuit Board','Data Chip','Cyber Visor','Nano Blade','Holo Watch','Firewall Shield','Mech Arm','AI Core','Singularity']},
+  {id:'royal', name:'Royal Case', items:['Silk Cloth','Silver Goblet','Ruby Ring','Royal Cape','Royal Sword','Gold Scepter','Crown Jewel','Diamond Tiara','Throne','Excalibur']},
+  {id:'shadow', name:'Shadow Case', items:['Shadow Dust','Dark Potion','Night Dagger','Phantom Mask','Shadow Blade','Void Cloak','Death Scythe','Eclipse']},
+  {id:'lucky', name:'Lucky Case', items:['Lucky Penny','Four Leaf Clover','Horseshoe','Lucky Dice','Rainbow','Pot of Gold','Golden Horseshoe','Leprechaun Hat','Lucky Katana','Jackpot Star']},
+  {id:'inferno', name:'Inferno Case', items:['Fire','Lava Rock','Fire Whip','Magma Blade','Inferno Pistol','Phoenix Feather','Molten Shield','Inferno Armor','Hell Blade','Phoenix']},
+  {id:'arctic', name:'Arctic Case', items:['Snowball','Ice Shard','Frost Dagger','Frozen Shield','Blizzard Staff','Ice Crown','Glacier Blade','Yeti']},
+  {id:'samurai', name:'Samurai Case', items:['Bamboo Stick','Paper Fan','Shuriken','Cherry Blossom','Samurai Mask','Tanto Blade','Ninja Star','Katana','Shogun Armor','Dragon Katana','Spirit Blade','Oni Demon']},
+  {id:'ocean', name:'Ocean Case', items:['Seashell','Coral Piece','Starfish','Pearl Necklace','Trident Shard','Shark Tooth','Mermaid Scale','Poseidon Trident','Leviathan']},
+  {id:'toxic', name:'Toxic Case', items:['Slime Ball','Gas Mask','Acid Flask','Toxic Blade','Radiation Gun','Mutant Claw','Bio Armor','Nuclear Core','Toxic Katana','Chernobyl']},
+  {id:'galaxy', name:'Galaxy Case', items:['Stardust Ring','Meteor Shard','Pulsar Blade','Quasar Gun','Warp Drive','Galaxy Shield','Dark Matter','Dimension Rift','Infinity Blade','Galaxy Core','Big Bang']},
+  {id:'void', name:'Void Case', items:['Void Fragment','Dark Crystal','Void Dagger','Abyssal Ring','Void Pistol','Null Blade','Entropy Blade','Void Armor','Reality Breaker','Oblivion Scythe','Void Emperor Set','The Void']},
+  {id:'roj', name:'Rojs Case', items:['HandBall Roj','Like Roj','Winner Roj','Tuff Roj','Smoking Roj','Falling Roj']},
+  {id:'tom', name:'Tom Case', items:['Sigma Tom','Strange Tom','Zesty Tom','Confused Tom','Lost tom','Alpha Tom','Very Happy Tom','Mogging Tom','Happy Tom','Sleepy Tom','Centrik Tom','Burger King','Tampon Tom','Nigrana Tom','Super Zesty Tom','School Ready Tom','Love Tom']},
+  {id:'richard', name:'Richard Case', items:['Happy Richard','Nerdy Richard','Povar Richard','Captain Richard','Zombie Richard','Marijuana Richard','Babushka Richard','Locked In Richard','Gaming Richard','Mad Richard','Agressive Richard','Eating Richard','Richard?','Working Richard','Pirate Richard','Death Stare Richard','Screaming Richard','Very Happy Richard','Goofy Richard']},
+  {id:'justin', name:'Justin Case', items:['Square Justin','Toilet Justin','Sleepy Justin','Eating Justin','Sitting Justin','Sex Doll justin','Mogging Justin','Zesty Justin','Fighting Justin','Bandit Justin','Shit Justin','Deep-Think Justin','Naked Justin']},
+  {id:'matiss', name:'Matiss Case', items:['Regular Matiss','Tuff Matiss','Peeking Matiss','Baby Matiss','Zesty Matiss','The TUFFEST Matiss']},
+  {id:'toms', name:'Tom S. Case', items:['Red Tom S.','Death-Stare Tom S.','Music Tom S.','Beautiful Tom S.','Bum Tom S.','Gooner Tom S.']},
+  {id:'gabrielg', name:'Gabriel G. Case', items:['Shocked Gabriel G.','Tree Gabriel G.','Spider Gabriel G.','Confused Gabriel G.','Horse Gabriel G.']},
+  {id:'adrian', name:'Adrian Case', items:['Gay Adrian','Tuff Adrian','Watermelon Adrian','Fluffy Fluffy Hair Adrian','Shitting Session Adrian','Agressive Adrian','Laughing Adrian','Fisherman Adrian','Fluffy Hair Adrian','Adrian And Adrian','Kebab Adrian','Flying Adrian','IT Adrian','Mogger Gamer Adrian','Forest Survival Adrian','Spooked Adrian','Lovely Adrian','Mogging Adrian','Welcome Home Adrian','Tongue Of Adrian','Gamer Adrian','Sleepy Adrian','Nerdy Adrian','Small Adrian','Close Up Adrian','Fresh Cut Adrian','Piercing Adrian','Story Time Adrian','Crazy Adrian','Peeking Adrian','Date-Ready Adrian','Bath Adrian','Persil Adrian','Triple Chin Adrian']},
+  {id:'nick', name:'Nick Case', items:['Chef Nick','Like Nick','Bored Nick','Hyped Nick','Beautiful Nick','Zesty Nick','Washed Nick','Nick Pulling','Tuff Gamer Nick','Fairy Nick']},
+];
+
+function renderRigged(c) {
+  const userEntries = Object.entries(allUsers).sort((a, b) => {
+    const na = (a[1].username || a[1].email || a[0]).toLowerCase();
+    const nb = (b[1].username || b[1].email || b[0]).toLowerCase();
+    return na.localeCompare(nb);
+  });
+
+  const activeRigs = Object.entries(allRiggedDrops);
+
+  let h = `
+    <div class="rig-card">
+      <div class="setting-title" style="margin-bottom:4px">
+        <svg viewBox="0 0 24 24" style="stroke:var(--red)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Rig a User's Drops
+      </div>
+      <div class="setting-desc">Force a specific user to ALWAYS get a specific item from a specific case. The rig applies to both solo case openings and case battles.</div>
+      <div class="rig-form">
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Target User</label>
+          <select class="rig-select" id="rigUser">
+            <option value="">-- Select User --</option>
+            ${userEntries.map(([uid, u]) => `<option value="${uid}">${escapeHTML(u.username || u.nickname || u.displayName || u.email || uid.substring(0, 10))}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Case</label>
+          <select class="rig-select" id="rigCase">
+            <option value="">-- Select Case --</option>
+            ${SUPPORT_CASES.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Forced Item</label>
+          <select class="rig-select" id="rigItem" disabled>
+            <option value="">-- Select a case first --</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Apply to</label>
+          <select class="rig-select" id="rigScope">
+            <option value="all">All cases of this type (always)</option>
+            <option value="once">Next open only (one-time)</option>
+          </select>
+        </div>
+        <button class="maint-save" id="rigSaveBtn" style="background:linear-gradient(135deg,var(--red),#b91c1c);align-self:flex-start">🎯 Set Rigged Drop</button>
+      </div>
+    </div>
+  `;
+
+  // Active rigs
+  h += `<div style="font-size:.9rem;font-weight:800;margin-bottom:10px">Active Rigs (${activeRigs.length})</div>`;
+  if (!activeRigs.length) {
+    h += `<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/></svg><div class="es-title">No active rigs</div><div style="font-size:.8rem">Set up a rigged drop above.</div></div>`;
+  } else {
+    h += '<div class="rig-active-list">';
+    activeRigs.forEach(([uid, rig]) => {
+      const userName = getUserName(uid);
+      const caseName = SUPPORT_CASES.find(c => c.id === rig.caseId)?.name || rig.caseId;
+      h += `<div class="rig-entry">
+        <div style="flex:1">
+          <div class="re-user">🎯 ${escapeHTML(userName)}</div>
+          <div class="re-detail">Case: <strong>${escapeHTML(caseName)}</strong> → Item: <strong style="color:var(--gold)">${escapeHTML(rig.forcedItemName)}</strong></div>
+          <div class="re-detail">Scope: ${rig.scope === 'once' ? '⚡ Next open only' : '♾️ Always'} · Set ${timeAgo(rig.setAt)}</div>
+        </div>
+        <button class="r-btn delete" onclick="removeRig('${uid}')">Remove</button>
+      </div>`;
+    });
+    h += '</div>';
+  }
+
+  c.innerHTML = h;
+
+  // Wire up case → item dropdown
+  document.getElementById('rigCase').addEventListener('change', function () {
+    const itemSelect = document.getElementById('rigItem');
+    const caseId = this.value;
+    const caseData = SUPPORT_CASES.find(c => c.id === caseId);
+    if (!caseData) {
+      itemSelect.innerHTML = '<option value="">-- Select a case first --</option>';
+      itemSelect.disabled = true;
+      return;
+    }
+    itemSelect.disabled = false;
+    itemSelect.innerHTML = '<option value="">-- Select Item --</option>' +
+      caseData.items.map(name => `<option value="${name}">${name}</option>`).join('');
+  });
+
+    document.getElementById('rigSaveBtn').addEventListener('click', async () => {
+    const uid = document.getElementById('rigUser').value;
+    const caseId = document.getElementById('rigCase').value;
+    const itemName = document.getElementById('rigItem').value;
+    const scope = document.getElementById('rigScope').value;
+
+    if (!uid) { toast('Select a user'); return; }
+    if (!caseId) { toast('Select a case'); return; }
+    if (!itemName) { toast('Select an item'); return; }
+
+    const caseInfo = SUPPORT_CASES.find(c => c.id === caseId);
+    const caseName = caseInfo ? caseInfo.name : '';
+
+    try {
+      await rtdb.ref('riggedDrops/' + uid).set({
+        caseId: caseId,
+        caseName: caseName,
+        forcedItemName: itemName,
+        scope: scope,
+        setAt: Date.now(),
+        setBy: auth.currentUser?.uid || 'support'
+      });
+      toast('Rig set! ' + getUserName(uid) + ' will get "' + itemName + '" from ' + caseName, 'success');
+    } catch (e) { toast('Error: ' + e.message); }
+  });
+}
+
+async function removeRig(uid) {
+  if (!confirm('Remove rig for ' + getUserName(uid) + '?')) return;
+  await rtdb.ref('riggedDrops/' + uid).remove();
+  toast('Rig removed', 'success');
+}
 
     /* ═══ ACTIONS ═══ */
     async function resolveReport(id){await rtdb.ref('reports/'+id+'/resolved').set(true);await rtdb.ref('reports/'+id+'/resolvedAt').set(Date.now());toast('Resolved','success');}

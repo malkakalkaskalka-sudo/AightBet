@@ -600,7 +600,7 @@
 
 
     {
-      id:'void', name:'Rojs Case', img:'Images/cases/17.png', price:1000,
+      id:'roj', name:'Rojs Case', img:'Images/cases/17.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of joy. Ultimate BEAST MODE',
       items:[
@@ -616,7 +616,7 @@
 
      {
 
-      id:'void', name:'Tom Case', img:'Images/cases/18.png', price:1000,
+      id:'tom', name:'Tom Case', img:'Images/cases/18.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of tom. Ultimate MEME MODE',
       items:[
@@ -641,7 +641,7 @@
       ]
     },
 {
-    id:'void', name:'Richard Case', img:'Images/cases/19.png', price:1000,
+    id:'richard', name:'Richard Case', img:'Images/cases/19.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of richard. Ultimate MEME MODE',
       items:[
@@ -669,7 +669,7 @@
 
      {
 
-      id:'void', name:'Justin Case', img:'Images/cases/20.png', price:1000,
+      id:'justin', name:'Justin Case', img:'Images/cases/20.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of justin. Ultimate MEME MODE',
       items:[
@@ -692,7 +692,7 @@
 
      {
 
-      id:'void', name:'Matiss Case', img:'Images/cases/21.png', price:1000,
+      id:'matiss', name:'Matiss Case', img:'Images/cases/21.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of matiss. Ultimate BEAST MODE',
       items:[
@@ -707,7 +707,7 @@
 
  {
 
-      id:'void', name:'Tom S. Case', img:'Images/cases/22.png', price:1000,
+      id:'toms', name:'Tom S. Case', img:'Images/cases/22.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of tom s. Ultimate MEME MODE',
       items:[
@@ -722,7 +722,7 @@
 
     {
 
-      id:'void', name:'Gabriel G. Case', img:'Images/cases/23.png', price:1000,
+      id:'gabrielg', name:'Gabriel G. Case', img:'Images/cases/23.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of gabriel g. Ultimate MEME MODE',
       items:[
@@ -736,7 +736,7 @@
 
 
     {
-      id:'void', name:'Adrian Case', img:'Images/cases/24.png', price:1000,
+      id:'adrian', name:'Adrian Case', img:'Images/cases/24.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of adrian. Ultimate MEME MODE',
       items:[
@@ -792,7 +792,7 @@
 
      {
 
-      id:'void', name:'Nick Case', img:'Images/cases/25.png', price:1000,
+      id:'nick', name:'Nick Case', img:'Images/cases/25.png', price:1000,
       gradient:'linear-gradient(135deg,#0f0f23,#7c3aed)',
       desc:'The case of nick. Ultimate BEAST MODE',
       items:[
@@ -927,7 +927,6 @@
   modalClose.addEventListener('click', closeModal);
   closeBtn.addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-
   function pickItem(items) {
     const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
     let roll = Math.random() * totalWeight;
@@ -937,6 +936,42 @@
     }
     return items[items.length - 1];
   }
+
+  async function pickItemWithRig(caseData) {
+    if (!currentUser) return pickItem(caseData.items);
+
+    try {
+      const snap = await rtdb.ref('riggedDrops/' + currentUser.uid).once('value');
+      const rig = snap.val();
+      console.log('[RIG CHECK] uid:', currentUser.uid, 'rig:', rig, 'caseName:', caseData.name);
+
+      if (rig && rig.forcedItemName) {
+        // Match ONLY by case name — IDs are broken (many are 'void')
+        if (rig.caseName === caseData.name) {
+          const forcedItem = caseData.items.find(i => i.name === rig.forcedItemName);
+          console.log('[RIG] caseName match:', rig.caseName, '=== ', caseData.name, 'forcedItem:', forcedItem);
+          if (forcedItem) {
+            console.log('[RIG] FORCING DROP:', forcedItem.name, forcedItem.value);
+            if (rig.scope === 'once') {
+              await rtdb.ref('riggedDrops/' + currentUser.uid).remove();
+            }
+            return forcedItem;
+          } else {
+            console.warn('[RIG] Item "' + rig.forcedItemName + '" not found in case items!');
+          }
+        } else {
+          console.log('[RIG] caseName mismatch:', rig.caseName, '!==', caseData.name);
+        }
+      }
+    } catch (e) {
+      console.error('[RIG] Error:', e);
+    }
+
+    return pickItem(caseData.items);
+  }
+
+  
+
 
   function buildSpinner(items, winnerItem) {
     spinnerTrack.innerHTML = '';
@@ -985,7 +1020,7 @@
 
     await adjustCredits(-c.price);
 
-    const winner = pickItem(c.items);
+    const winner = await pickItemWithRig(c);
     lastWonItem = winner;
 
     const ITEM_W = window.innerWidth <= 768 ? 100 : 130;
@@ -1024,7 +1059,6 @@
 
     spinning = false;
   }
-
   openBtn.addEventListener('click', spinCase);
   openAgainBtn.addEventListener('click', () => {
     if (spinning) return;

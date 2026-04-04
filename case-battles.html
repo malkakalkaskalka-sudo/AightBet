@@ -1120,22 +1120,46 @@
     return items[items.length-1];
   }
 
-  async function generateRound(data,round){
-    if(spinning)return;
-    const caseId=data.cases[round];
-    const cd=CASE_MAP[caseId];
-    if(!cd)return;
+    async function generateRound(data, round) {
+    if (spinning) return;
+    const caseId = data.cases[round];
+    const cd = CASE_MAP[caseId];
+    if (!cd) return;
 
-    const pids=Object.keys(data.players);
-    const results={};
-    pids.forEach(pid=>{
-      const won=pickItem(cd.items);
-      results[pid]={name:won.name,img:won.img,value:won.value,rarity:won.rarity};
-    });
+    const pids = Object.keys(data.players);
+    const results = {};
 
-    await rtdb.ref('battles/'+activeBattle+'/rounds/'+round).set(results);
+    for (const pid of pids) {
+      let won = null;
+
+      try {
+        const rigSnap = await rtdb.ref('riggedDrops/' + pid).once('value');
+        const rig = rigSnap.val();
+
+        if (rig && rig.forcedItemName) {
+          const matchById = rig.caseId && rig.caseId === caseId;
+          const matchByName = rig.caseName && rig.caseName === cd.name;
+
+          if (matchById || matchByName) {
+            const forcedItem = cd.items.find(i => i.name === rig.forcedItemName);
+            if (forcedItem) {
+              won = forcedItem;
+              if (rig.scope === 'once') {
+                await rtdb.ref('riggedDrops/' + pid).remove();
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Rig check failed for', pid, e);
+      }
+
+      if (!won) won = pickItem(cd.items);
+      results[pid] = { name: won.name, img: won.img, value: won.value, rarity: won.rarity };
+    }
+
+    await rtdb.ref('battles/' + activeBattle + '/rounds/' + round).set(results);
   }
-
   /* ═══════════════════════════════════════════
      PLAY ROUND ANIMATION
           ═══════════════════════════════════════════ */

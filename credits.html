@@ -7,7 +7,7 @@
   <title>AightBet – Credits</title>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.06);--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#8b5cf6;--accent2:#06b6d4;--accent3:#ec4899;--glow:rgba(139,92,246,.45);--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif;--nav-h:70px;--nav-h-mobile:64px}
     html{font-size:16px;scroll-behavior:smooth}
     body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
     a{color:inherit;text-decoration:none}
@@ -22,7 +22,6 @@
     .orb-3{width:180px;height:180px;background:var(--accent3);top:40%;left:55%;animation-delay:-5s;animation-duration:14s}
     @keyframes orbFloat{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(25px,-35px) rotate(4deg)}}
 
-    /* NAVBAR */
     .navbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:100;display:flex;align-items:center;padding:0 24px;background:rgba(10,10,15,.6);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border);transition:background .3s}
     .navbar.scrolled{background:rgba(10,10,15,.85)}
     .nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
@@ -49,15 +48,12 @@
     .mobile-menu .nav-link{padding:16px 20px;font-size:1.05rem;border-radius:12px}
     .mobile-menu .nav-credits{margin:8px 0 0;padding:14px 20px;font-size:1rem;border-radius:12px;justify-content:center}
 
-    /* TOAST */
     .toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-120px);padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:999;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s;opacity:0;pointer-events:none;backdrop-filter:blur(12px);max-width:90vw;text-align:center}
     .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
     .toast.error{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
     .toast.success{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);color:#86efac}
 
-    /* MAIN */
     .main{position:relative;z-index:10;padding-top:calc(var(--nav-h) + 20px);min-height:100dvh;display:flex;flex-direction:column;align-items:center}
-
     .page-header{text-align:center;padding:48px 24px 20px}
     .page-header h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px;animation:fadeSlideIn .5s ease both}
     .page-header h1 .grad{background:linear-gradient(135deg,var(--gold),#f97316,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gradMove 4s ease-in-out infinite}
@@ -65,26 +61,14 @@
     .page-header p{color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto;animation:fadeSlideIn .5s ease .1s both}
     @keyframes fadeSlideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-    /* BALANCE CARD */
-    .balance-card{
-      width:100%;max-width:480px;margin:0 24px;
-      background:var(--surface);border:1px solid var(--border);border-radius:20px;
-      padding:40px 32px;text-align:center;backdrop-filter:blur(16px);
-      position:relative;overflow:hidden;animation:fadeSlideIn .5s ease .15s both;
-    }
+    .balance-card{width:100%;max-width:720px;margin:0 24px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px;text-align:center;backdrop-filter:blur(16px);position:relative;overflow:hidden;animation:fadeSlideIn .5s ease .15s both}
     .balance-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(245,158,11,.08),transparent 60%);pointer-events:none}
     .balance-label{font-size:.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
     .balance-amount{font-size:clamp(2.5rem,8vw,4rem);font-weight:900;background:linear-gradient(135deg,var(--gold),#fbbf24,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;transition:transform .2s}
     .balance-coin{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:var(--muted);font-weight:500;margin-bottom:32px}
     .balance-coin svg{width:18px;height:18px;fill:var(--gold);stroke:none}
 
-    /* DAILY STREAK */
-    .streak-card{
-      width:100%;max-width:480px;margin:20px 24px 0;
-      background:var(--surface);border:1px solid var(--border);border-radius:16px;
-      padding:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;
-      animation:fadeSlideIn .5s ease .2s both;
-    }
+    .streak-card{width:100%;max-width:720px;margin:20px 24px 0;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;animation:fadeSlideIn .5s ease .2s both}
     .streak-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(139,92,246,.06),transparent 60%);pointer-events:none}
     .streak-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     .streak-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
@@ -102,41 +86,27 @@
     .sd-label{font-size:.6rem;color:var(--muted);font-weight:600;text-transform:uppercase}
     .sd-reward{font-size:.65rem;font-weight:700;color:var(--gold)}
 
-    /* CLAIM GRID */
-    .claim-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:14px;
-      width:100%;max-width:480px;padding:0 24px;margin-top:24px;
-      animation:fadeSlideIn .5s ease .25s both;
-    }
-    .claim-card{
-      background:var(--surface);border:1px solid var(--border);border-radius:16px;
-      padding:24px 20px;text-align:center;cursor:pointer;
-      transition:transform .25s,border-color .25s,box-shadow .25s;
-      position:relative;overflow:hidden;
-    }
+    .claim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;width:100%;max-width:720px;padding:0 24px;margin-top:24px;animation:fadeSlideIn .5s ease .25s both}
+    .claim-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
     .claim-card:hover:not(.on-cooldown){transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 36px -8px rgba(0,0,0,.4)}
     .claim-card:active:not(.on-cooldown){transform:translateY(-1px) scale(.98)}
     .claim-card .cc-bg{position:absolute;inset:0;opacity:.15;pointer-events:none}
-    .claim-card:nth-child(1) .cc-bg{background:linear-gradient(135deg,var(--gold),#f97316)}
-    .claim-card:nth-child(2) .cc-bg{background:linear-gradient(135deg,var(--accent),var(--accent2))}
-    .claim-card:nth-child(3) .cc-bg{background:linear-gradient(135deg,#22c55e,#06b6d4)}
-    .claim-card:nth-child(4) .cc-bg{background:linear-gradient(135deg,var(--accent3),#f97316)}
-    .claim-icon{width:48px;height:48px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border-radius:14px;position:relative;z-index:1}
-    .claim-icon svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .claim-icon{width:48px;height:48px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border-radius:14px;position:relative;z-index:1;font-size:1.5rem}
     .claim-amount{font-size:1.3rem;font-weight:800;margin-bottom:4px;position:relative;z-index:1}
     .claim-label{font-size:.78rem;color:var(--muted);position:relative;z-index:1}
     .claim-cooldown{font-size:.7rem;color:var(--accent3);font-weight:600;margin-top:6px;position:relative;z-index:1;min-height:16px}
     .claim-card.loading{pointer-events:none;opacity:.65}
     .claim-card.on-cooldown{pointer-events:none;opacity:.45;filter:grayscale(.4)}
+    .claim-card.legendary-card{border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.04)}
+    .claim-card.legendary-card .claim-amount{color:var(--gold)}
 
     .credit-pop{position:fixed;font-size:2rem;font-weight:900;color:var(--gold);pointer-events:none;z-index:200;animation:popUp .8s ease-out forwards}
     @keyframes popUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.3)}}
 
-    /* ===== CHALLENGE MODAL ===== */
     .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;animation:modalFadeIn .25s ease}
     .modal-overlay.open{display:flex}
     @keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
-    .modal-box{background:#12121a;border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:440px;position:relative;animation:modalSlideUp .3s ease}
+    .modal-box{background:#12121a;border:1px solid var(--border2);border-radius:20px;padding:32px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;position:relative;animation:modalSlideUp .3s ease}
     @keyframes modalSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
     .modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.06);border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:1.2rem;transition:background .2s}
     .modal-close:hover{background:rgba(255,255,255,.12);color:#fff}
@@ -146,10 +116,9 @@
     .modal-timer{font-size:2.5rem;font-weight:900;text-align:center;margin:16px 0;font-variant-numeric:tabular-nums;color:var(--text)}
     .modal-timer.danger{color:#ef4444}
     .modal-instructions{font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.5}
-    .modal-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;font-family:var(--font)}
+    .modal-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;font-family:var(--font);margin-top:8px}
     .modal-btn:active{transform:scale(.97)}
     .modal-btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 20px -4px rgba(139,92,246,.4)}
-    .modal-btn-primary:hover{box-shadow:0 6px 28px -4px rgba(139,92,246,.5)}
     .modal-btn-gold{background:linear-gradient(135deg,var(--gold),#f97316);color:#000;box-shadow:0 4px 20px -4px rgba(245,158,11,.4)}
     .modal-btn-success{background:linear-gradient(135deg,#22c55e,#06b6d4);color:#fff}
     .modal-btn-danger{background:linear-gradient(135deg,#ef4444,var(--accent3));color:#fff}
@@ -158,28 +127,25 @@
     .modal-result.win{color:#4ade80}
     .modal-result.lose{color:#f87171}
 
-    /* REACTION GAME */
-    .reaction-zone{width:100%;height:200px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;margin-bottom:16px;user-select:none}
+    .reaction-zone{width:100%;height:180px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;margin-bottom:16px;user-select:none}
     .reaction-zone.waiting{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.3);color:#fca5a5}
     .reaction-zone.ready{background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.3);color:#86efac;animation:pulse .6s ease-in-out infinite}
     .reaction-zone.clicked{background:rgba(139,92,246,.15);border:2px solid rgba(139,92,246,.3);color:#c4b5fd}
     .reaction-zone.too-early{background:rgba(239,68,68,.25);border:2px solid rgba(239,68,68,.4);color:#fca5a5}
     @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
 
-    /* MEMORY GRID */
     .memory-grid{display:grid;gap:8px;margin:0 auto 16px;width:fit-content}
-    .memory-grid.g3x3{grid-template-columns:repeat(3,60px)}
     .memory-grid.g4x4{grid-template-columns:repeat(4,55px)}
-    .memory-cell{width:100%;aspect-ratio:1;border-radius:10px;border:2px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
-    .memory-cell.revealed{background:rgba(139,92,246,.3);border-color:var(--accent);box-shadow:0 0 12px -2px rgba(139,92,246,.3)}
+    .memory-cell{width:100%;aspect-ratio:1;border-radius:10px;border:2px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+    .memory-cell.revealed{background:rgba(139,92,246,.3);border-color:var(--accent)}
     .memory-cell.selected{background:rgba(245,158,11,.3);border-color:var(--gold)}
     .memory-cell.correct{background:rgba(34,197,94,.3);border-color:#22c55e}
     .memory-cell.wrong{background:rgba(239,68,68,.3);border-color:#ef4444}
-    .memory-cell:hover:not(.revealed):not(.correct):not(.wrong){background:rgba(255,255,255,.08)}
+    .memory-cell.matched{background:rgba(34,197,94,.2);border-color:#22c55e;pointer-events:none}
+    .memory-cell.flipped{background:rgba(139,92,246,.2);border-color:var(--accent)}
+    .memory-cell:hover:not(.revealed):not(.correct):not(.wrong):not(.matched):not(.flipped){background:rgba(255,255,255,.08)}
 
-    /* TYPING */
-    .typing-target{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:1rem;line-height:1.6;margin-bottom:12px;font-family:'Courier New',monospace;letter-spacing:.5px;position:relative}
-    .typing-target .char{transition:color .1s}
+    .typing-target{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:1rem;line-height:1.6;margin-bottom:12px;font-family:'Courier New',monospace;letter-spacing:.5px}
     .typing-target .char.correct{color:#4ade80}
     .typing-target .char.wrong{color:#ef4444;text-decoration:underline}
     .typing-target .char.current{background:rgba(139,92,246,.3);border-radius:2px}
@@ -188,7 +154,6 @@
     .typing-progress{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:16px}
     .typing-progress-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .15s;width:0%}
 
-    /* MATH BLITZ */
     .math-problem{font-size:2.2rem;font-weight:900;text-align:center;margin:16px 0;font-variant-numeric:tabular-nums}
     .math-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
     .math-option{padding:14px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.04);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:var(--font);color:var(--text)}
@@ -197,18 +162,61 @@
     .math-option.wrong-answer{border-color:#ef4444;background:rgba(239,68,68,.2);color:#f87171}
     .math-streak{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px}
     .math-streak-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid var(--border);transition:all .3s}
-    .math-streak-dot.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.4)}
-    .math-streak-dot.wrong{background:#ef4444;border-color:#ef4444}
+    .math-streak-dot.filled{background:var(--gold);border-color:var(--gold)}
     .math-multiplier{text-align:center;font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:8px}
 
-    /* HISTORY */
-    .history-section{width:100%;max-width:480px;padding:0 24px;margin-top:32px;animation:fadeSlideIn .5s ease .3s both}
+    .color-word{font-size:3rem;font-weight:900;text-align:center;margin:20px 0;text-transform:uppercase;letter-spacing:2px}
+    .color-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .color-opt{padding:16px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.04);font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:var(--font);color:var(--text);text-transform:uppercase}
+    .color-opt:hover{border-color:var(--accent);background:rgba(139,92,246,.1)}
+    .color-opt.correct-answer{border-color:#22c55e;background:rgba(34,197,94,.2)}
+    .color-opt.wrong-answer{border-color:#ef4444;background:rgba(239,68,68,.2)}
+
+    .aim-arena{position:relative;width:100%;height:280px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:crosshair;margin-bottom:16px}
+
+    .seq-grid{display:grid;grid-template-columns:repeat(2,80px);gap:10px;margin:16px auto;width:fit-content}
+    .seq-cell{width:80px;height:80px;border-radius:14px;border:2px solid var(--border);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+
+    .scramble-word{font-size:2.5rem;font-weight:900;text-align:center;margin:20px 0;letter-spacing:6px;color:var(--accent)}
+    .scramble-input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:1.2rem;font-weight:700;text-align:center;font-family:var(--font);outline:none;text-transform:uppercase;letter-spacing:4px}
+    .scramble-input:focus{border-color:var(--accent)}
+    .scramble-hint{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+
+    .coin-container{text-align:center;margin:20px 0}
+    .coin{width:120px;height:120px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#f97316);color:#000;transition:transform .1s;position:relative}
+    .coin.flipping{animation:coinFlip 1.5s ease-in-out}
+    @keyframes coinFlip{0%{transform:rotateY(0)}25%{transform:rotateY(720deg) scale(1.2)}50%{transform:rotateY(1440deg)}75%{transform:rotateY(2160deg) scale(1.1)}100%{transform:rotateY(2880deg)}}
+    .coin-choices{display:flex;gap:12px;justify-content:center;margin:20px 0}
+    .coin-choice{padding:14px 32px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.04);font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font);color:var(--text)}
+    .coin-choice:hover{border-color:var(--gold);background:rgba(245,158,11,.1)}
+
+    .pattern-display{display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+    .pattern-item{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);background:rgba(255,255,255,.04)}
+    .pattern-item.mystery{background:rgba(245,158,11,.15);border-color:var(--gold);font-size:1.8rem}
+    .pattern-choices{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+    .pattern-choice{padding:12px;border-radius:10px;border:2px solid var(--border);background:rgba(255,255,255,.04);font-size:1.5rem;cursor:pointer;transition:all .2s;text-align:center}
+    .pattern-choice:hover{border-color:var(--accent);background:rgba(139,92,246,.1)}
+    .pattern-choice.correct-answer{border-color:#22c55e;background:rgba(34,197,94,.2)}
+    .pattern-choice.wrong-answer{border-color:#ef4444;background:rgba(239,68,68,.2)}
+
+    .trivia-question{font-size:1.1rem;font-weight:700;text-align:center;margin:12px 0 20px;line-height:1.5}
+    .trivia-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+    .trivia-opt{padding:14px 16px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.04);font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;text-align:left;font-family:var(--font);color:var(--text)}
+    .trivia-opt:hover{border-color:var(--accent);background:rgba(139,92,246,.1)}
+    .trivia-opt.correct-answer{border-color:#22c55e;background:rgba(34,197,94,.15);color:#4ade80}
+    .trivia-opt.wrong-answer{border-color:#ef4444;background:rgba(239,68,68,.15);color:#f87171}
+
+    .slider-grid{display:grid;grid-template-columns:repeat(3,70px);gap:4px;margin:16px auto;width:fit-content}
+    .slider-tile{width:70px;height:70px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;cursor:pointer;transition:all .15s;user-select:none}
+    .slider-tile.filled{background:rgba(139,92,246,.2);border:2px solid var(--accent);color:var(--text)}
+    .slider-tile.filled:hover{background:rgba(139,92,246,.35);transform:scale(1.05)}
+    .slider-tile.empty{background:rgba(255,255,255,.02);border:2px dashed var(--border)}
+
+    .history-section{width:100%;max-width:720px;padding:0 24px;margin-top:32px;animation:fadeSlideIn .5s ease .3s both}
     .history-title{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
     .history-title svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .history-list{display:flex;flex-direction:column;gap:8px;margin-bottom:48px}
     .history-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:.85rem}
-    .history-item .hi-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(245,158,11,.1);border-radius:8px;flex-shrink:0}
-    .history-item .hi-icon svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .hi-text{flex:1}
     .hi-label{font-weight:600}
     .hi-time{font-size:.75rem;color:var(--muted)}
@@ -228,14 +236,12 @@
       .streak-card{margin:16px 16px 0;padding:20px 16px}
       .streak-days{gap:4px}
       .sd-circle{width:24px;height:24px;font-size:.6rem}
-      .claim-grid{padding:0 16px;gap:10px}
+      .claim-grid{padding:0 16px;gap:10px;grid-template-columns:1fr 1fr}
       .claim-card{padding:18px 14px}
       .history-section{padding:0 16px}
       .modal-box{padding:24px 20px}
-      .memory-grid.g3x3{grid-template-columns:repeat(3,52px)}
-      .memory-grid.g4x4{grid-template-columns:repeat(4,46px)}
+      .aim-arena{height:220px}
     }
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
@@ -248,7 +254,6 @@
   <canvas id="particles"></canvas>
   <div class="toast" id="toast"></div>
 
-  <!-- NAVBAR -->
   <nav class="navbar" id="navbar">
     <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet"/><span>AightBet</span></a>
     <div class="nav-links">
@@ -263,14 +268,13 @@
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
-    <a href="games.html" class="nav-link"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
-    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
-    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
-    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+    <a href="store.html" class="nav-link">Store</a>
+    <a href="games.html" class="nav-link">Games</a>
+    <a href="social.html" class="nav-link">Social</a>
+    <a href="profile.html" class="nav-link">Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="creditsCountMobile">0</span></a>
   </div>
 
-  <!-- CHALLENGE MODAL -->
   <div class="modal-overlay" id="challengeModal">
     <div class="modal-box" id="modalBox">
       <button class="modal-close" id="modalClose">&times;</button>
@@ -278,7 +282,6 @@
     </div>
   </div>
 
-  <!-- MAIN -->
   <main class="main">
     <section class="page-header">
       <h1>Your <span class="grad">Credits</span></h1>
@@ -288,66 +291,23 @@
     <div class="balance-card">
       <div class="balance-label">Current Balance</div>
       <div class="balance-amount" id="balanceDisplay">0</div>
-      <div class="balance-coin">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
-        AightBet Credits
-      </div>
+      <div class="balance-coin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>AightBet Credits</div>
     </div>
 
-    <!-- DAILY STREAK -->
     <div class="streak-card">
       <div class="streak-header">
-        <div class="streak-title">
-          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Daily Streak
-        </div>
+        <div class="streak-title"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Daily Streak</div>
         <div class="streak-badge" id="streakBadge">Day 0</div>
       </div>
       <div class="streak-days" id="streakDays"></div>
     </div>
 
-    <div class="claim-grid">
-      <!-- Card 1: Reaction Time -->
-      <div class="claim-card" data-challenge="reaction" data-amount="100" data-cooldown="3600000">
-        <div class="cc-bg"></div>
-        <div class="claim-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
-        <div class="claim-amount">+100</div>
-        <div class="claim-label">Reaction Test</div>
-        <div class="claim-cooldown" data-cd-id="reaction"></div>
-      </div>
-      <!-- Card 2: Memory Grid -->
-      <div class="claim-card" data-challenge="memory" data-amount="250" data-cooldown="14400000">
-        <div class="cc-bg"></div>
-        <div class="claim-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-        <div class="claim-amount">+250</div>
-        <div class="claim-label">Memory Grid</div>
-        <div class="claim-cooldown" data-cd-id="memory"></div>
-      </div>
-      <!-- Card 3: Typing Sprint -->
-      <div class="claim-card" data-challenge="typing" data-amount="500" data-cooldown="43200000">
-        <div class="cc-bg"></div>
-        <div class="claim-icon"><svg viewBox="0 0 24 24"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></div>
-        <div class="claim-amount">+500</div>
-        <div class="claim-label">Typing Sprint</div>
-        <div class="claim-cooldown" data-cd-id="typing"></div>
-      </div>
-      <!-- Card 4: Math Blitz -->
-      <div class="claim-card" data-challenge="math" data-amount="1000" data-cooldown="86400000">
-        <div class="cc-bg"></div>
-        <div class="claim-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-        <div class="claim-amount">+1,000</div>
-        <div class="claim-label">Math Blitz</div>
-        <div class="claim-cooldown" data-cd-id="math"></div>
-      </div>
-    </div>
+    <div class="claim-grid" id="claimGrid"></div>
 
     <div class="history-section">
-      <div class="history-title">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-        Recent Activity
-      </div>
+      <div class="history-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>Recent Activity</div>
       <div class="history-list" id="historyList">
-        <div class="history-empty">No claims yet. Complete a challenge to earn credits!</div>
+        <div class="history-empty">No claims yet. Complete a challenge!</div>
       </div>
     </div>
   </main>
@@ -357,791 +317,986 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 <script src="checker.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════
-   FIREBASE INIT
-   ═══════════════════════════════════════════ */
-const firebaseConfig = {
-  apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
-  authDomain: "gamle-53778.firebaseapp.com",
-  databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gamle-53778",
-  storageBucket: "gamle-53778.firebasestorage.app",
-  messagingSenderId: "513958176524",
-  appId: "1:513958176524:web:c74a2e946da58507200b29",
-  measurementId: "G-EB6SF28HZK"
-};
+const firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
 firebase.initializeApp(firebaseConfig);
-firebase.analytics();
-const auth = firebase.auth();
-const rtdb = firebase.database();
-
-let currentUser = null;
-function applyTheme(theme, persist=true){
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('aightbet-theme', theme);
-  if(persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({theme});
-}
-applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
-
-function showToast(msg, type='error'){
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  el.className='toast '+type+' show';
-  setTimeout(()=>el.classList.remove('show'),3000);
-}
-
-/* ═══════════════════════════════════════════
-   STATE
-   ═══════════════════════════════════════════ */
-let currentCredits=0, claiming=false;
+const auth=firebase.auth(),rtdb=firebase.database();
+let currentUser=null,currentCredits=0,claiming=false;
 const historyData=[];
 
-// Cooldowns stored in localStorage
-const COOLDOWN_KEY = 'aightbet-cooldowns';
-function getCooldowns(){
-  try{ return JSON.parse(localStorage.getItem(COOLDOWN_KEY)) || {}; }
-  catch{ return {}; }
-}
-function setCooldown(id, until){
-  const cd = getCooldowns();
-  cd[id] = until;
-  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cd));
-}
-function getRemainingCooldown(id){
-  const cd = getCooldowns();
-  if(!cd[id]) return 0;
-  return Math.max(0, cd[id] - Date.now());
-}
+function applyTheme(t,p=true){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('aightbet-theme',t);if(p&&currentUser)rtdb.ref('users/'+currentUser.uid).update({theme:t});}
+applyTheme(localStorage.getItem('aightbet-theme')||'dark',false);
 
-// Daily streak from localStorage (synced per-user later)
-const STREAK_KEY = 'aightbet-streak';
-function getStreakData(){
-  try{ return JSON.parse(localStorage.getItem(STREAK_KEY)) || {count:0,lastClaim:null}; }
-  catch{ return {count:0,lastClaim:null}; }
-}
-function saveStreakData(data){
-  localStorage.setItem(STREAK_KEY, JSON.stringify(data));
-}
+function showToast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3000);}
 
-/* ═══════════════════════════════════════════
-   UI UPDATES
-   ═══════════════════════════════════════════ */
-function updateDisplays(){
-  const f=currentCredits.toLocaleString();
-  document.getElementById('balanceDisplay').textContent=f;
-  document.getElementById('creditsCount').textContent=f;
-  document.getElementById('creditsCountMobile').textContent=f;
-}
+const CD_KEY='aightbet-cooldowns';
+function getCooldowns(){try{return JSON.parse(localStorage.getItem(CD_KEY))||{};}catch{return{};}}
+function setCooldown(id,until){const c=getCooldowns();c[id]=until;localStorage.setItem(CD_KEY,JSON.stringify(c));}
+function getRemaining(id){const c=getCooldowns();return c[id]?Math.max(0,c[id]-Date.now()):0;}
 
-/* ═══════════════════════════════════════════
-   COOLDOWN TIMERS
-   ═══════════════════════════════════════════ */
-function formatCooldown(ms){
-  const s=Math.ceil(ms/1000);
-  const h=Math.floor(s/3600);
-  const m=Math.floor((s%3600)/60);
-  const sec=s%60;
-  if(h>0) return `${h}h ${m}m`;
-  if(m>0) return `${m}m ${sec}s`;
-  return `${sec}s`;
-}
-
-function updateCooldownUI(){
-  document.querySelectorAll('.claim-card').forEach(card=>{
-    const id = card.dataset.challenge;
-    const remaining = getRemainingCooldown(id);
-    const cdEl = card.querySelector('.claim-cooldown');
-    if(remaining > 0){
-      card.classList.add('on-cooldown');
-      cdEl.textContent = '⏳ ' + formatCooldown(remaining);
-    } else {
-      card.classList.remove('on-cooldown');
-      cdEl.textContent = '';
-    }
-  });
-}
-setInterval(updateCooldownUI, 1000);
-updateCooldownUI();
-
-/* ═══════════════════════════════════════════
-   DAILY STREAK
-   ═══════════════════════════════════════════ */
-const STREAK_REWARDS = [50, 75, 100, 150, 200, 300, 500];
-const DAY_LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SK_KEY='aightbet-streak';
+const SK_REWARDS=[50,75,100,150,200,300,500];
+const DAY_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function getStreakData(){try{return JSON.parse(localStorage.getItem(SK_KEY))||{count:0,lastClaim:null};}catch{return{count:0,lastClaim:null};}}
+function saveStreakData(d){localStorage.setItem(SK_KEY,JSON.stringify(d));}
 
 function renderStreak(){
-  const data = getStreakData();
-  const today = new Date().toDateString();
-  const yesterday = new Date(Date.now()-86400000).toDateString();
-
-  // Reset streak if last claim wasn't today or yesterday
-  if(data.lastClaim && data.lastClaim !== today && data.lastClaim !== yesterday){
-    data.count = 0;
-    data.lastClaim = null;
-    saveStreakData(data);
-  }
-
-  const claimedToday = data.lastClaim === today;
-  const streakDay = Math.min(data.count, 7);
-
-  document.getElementById('streakBadge').textContent = `Day ${streakDay}/7`;
-
-  const container = document.getElementById('streakDays');
-  container.innerHTML = '';
-  for(let i=0; i<7; i++){
-    const div = document.createElement('div');
-    div.className = 'streak-day';
-    const isClaimed = i < streakDay;
-    const isToday = i === streakDay && !claimedToday && streakDay < 7;
-
-    if(isClaimed) div.classList.add('claimed');
-    if(isToday) div.classList.add('today');
-    if(!isClaimed && !isToday) div.classList.add('future');
-
-    div.innerHTML = `
-      <div class="sd-circle">${isClaimed ? '✓' : i+1}</div>
-      <div class="sd-label">${DAY_LABELS[i]}</div>
-      <div class="sd-reward">+${STREAK_REWARDS[i]}</div>
-    `;
-
-    if(isToday){
-      div.addEventListener('click', ()=> claimStreak(i));
-    }
-    container.appendChild(div);
+  const d=getStreakData(),today=new Date().toDateString(),yesterday=new Date(Date.now()-86400000).toDateString();
+  if(d.lastClaim&&d.lastClaim!==today&&d.lastClaim!==yesterday){d.count=0;d.lastClaim=null;saveStreakData(d);}
+  const claimed=d.lastClaim===today,day=Math.min(d.count,7);
+  document.getElementById('streakBadge').textContent=`Day ${day}/7`;
+  const c=document.getElementById('streakDays');c.innerHTML='';
+  for(let i=0;i<7;i++){
+    const div=document.createElement('div');div.className='streak-day';
+    const ic=i<day,it=i===day&&!claimed&&day<7;
+    if(ic)div.classList.add('claimed');if(it)div.classList.add('today');if(!ic&&!it)div.classList.add('future');
+    div.innerHTML=`<div class="sd-circle">${ic?'✓':i+1}</div><div class="sd-label">${DAY_LABELS[i]}</div><div class="sd-reward">+${SK_REWARDS[i]}</div>`;
+    if(it)div.addEventListener('click',()=>claimStreak(i));
+    c.appendChild(div);
   }
 }
-
-async function claimStreak(dayIndex){
-  if(!currentUser) return;
-  const data = getStreakData();
-  const today = new Date().toDateString();
-  if(data.lastClaim === today) return;
-
-  const reward = STREAK_REWARDS[dayIndex];
-  data.count = dayIndex + 1;
-  data.lastClaim = today;
-  saveStreakData(data);
-
-  try{
-    await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(cur=>(cur||0)+reward);
-    showToast(`🔥 Day ${dayIndex+1} streak! +${reward} credits`,'success');
-    addHistory(reward, 'Daily Streak');
-    renderStreak();
-  }catch(err){
-    console.error(err);
-    showToast(err.message);
-  }
+async function claimStreak(i){
+  if(!currentUser)return;const d=getStreakData(),today=new Date().toDateString();
+  if(d.lastClaim===today)return;
+  const r=SK_REWARDS[i];d.count=i+1;d.lastClaim=today;saveStreakData(d);
+  try{await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c=>(c||0)+r);showToast(`🔥 Day ${i+1} streak! +${r}`,'success');addHistory(r,'Daily Streak');renderStreak();}catch(e){showToast(e.message);}
 }
-
 renderStreak();
 
-/* ═══════════════════════════════════════════
-   AUTH + RTDB
-   ═══════════════════════════════════════════ */
-auth.onAuthStateChanged(user=>{
-  if(!user){ location.href='index.html'; return; }
-  currentUser = user;
-  const userRef = rtdb.ref('users/' + user.uid);
-  userRef.on('value', snap=>{
-    const data=snap.val()||{};
-    currentCredits = data.credits || 0;
-    updateDisplays();
-
-    const avatarUrl = data.avatar || user.photoURL || null;
-    const avatarEl = document.getElementById('navAvatar');
-    if(avatarUrl) avatarEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar">`;
-    else avatarEl.textContent = (user.displayName||user.email||'?').charAt(0).toUpperCase();
-
-    const theme = data.theme || localStorage.getItem('aightbet-theme') || 'dark';
-    applyTheme(theme, false);
+auth.onAuthStateChanged(u=>{
+  if(!u){location.href='index.html';return;}
+  currentUser=u;
+  rtdb.ref('users/'+u.uid).on('value',s=>{
+    const d=s.val()||{};currentCredits=d.credits||0;updateDisplays();
+    const av=d.avatar||u.photoURL;const el=document.getElementById('navAvatar');
+    if(av)el.innerHTML=`<img src="${av}"/>`;else el.textContent=(u.displayName||u.email||'?').charAt(0).toUpperCase();
+    applyTheme(d.theme||localStorage.getItem('aightbet-theme')||'dark',false);
   });
 });
 
-/* ═══════════════════════════════════════════
-   MODAL SYSTEM
-   ═══════════════════════════════════════════ */
-const modal = document.getElementById('challengeModal');
-const modalContent = document.getElementById('modalContent');
-let activeChallenge = null;
+function updateDisplays(){const f=currentCredits.toLocaleString();document.getElementById('balanceDisplay').textContent=f;document.getElementById('creditsCount').textContent=f;document.getElementById('creditsCountMobile').textContent=f;}
 
-function openModal(){ modal.classList.add('open'); }
-function closeModal(){
-  modal.classList.remove('open');
-  activeChallenge = null;
-  modalContent.innerHTML = '';
-}
-document.getElementById('modalClose').addEventListener('click', closeModal);
-modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+const modal=document.getElementById('challengeModal'),modalContent=document.getElementById('modalContent');
+let activeChallenge=null;
+let activeTimers=[];
+function openModal(){modal.classList.add('open');gameActive=true;}
+function closeModal(){modal.classList.remove('open');activeChallenge=null;modalContent.innerHTML='';gameActive=false;activeTimers.forEach(t=>{clearInterval(t);clearTimeout(t);});activeTimers=[];}
+function registerTimer(t){activeTimers.push(t);return t;}
+let gameActive=false;
+document.getElementById('modalClose').addEventListener('click',()=>{if(!gameActive)closeModal();});
+modal.addEventListener('click',e=>{if(e.target===modal&&!gameActive)closeModal();});
 
-/* ═══════════════════════════════════════════
-   CARD CLICK → OPEN CHALLENGE
-   ═══════════════════════════════════════════ */
-document.querySelectorAll('.claim-card').forEach(card=>{
-  card.addEventListener('click', ()=>{
-    if(!currentUser || claiming) return;
-    const id = card.dataset.challenge;
-    const amount = parseInt(card.dataset.amount);
-    const cooldownMs = parseInt(card.dataset.cooldown);
+document.getElementById('hamburger').addEventListener('click',function(){this.classList.toggle('open');document.getElementById('mobileMenu').classList.toggle('open');});
 
-    if(getRemainingCooldown(id) > 0){
-      showToast('This challenge is on cooldown!');
-      return;
-    }
-
-    activeChallenge = { id, amount, cooldownMs, card };
-    launchChallenge(id, amount);
-  });
-});
-
-function launchChallenge(type, reward){
-  switch(type){
-    case 'reaction': startReactionChallenge(reward); break;
-    case 'memory':   startMemoryChallenge(reward); break;
-    case 'typing':   startTypingChallenge(reward); break;
-    case 'math':     startMathChallenge(reward); break;
-  }
-  openModal();
+async function awardCredits(amount,label){
+  if(!currentUser||!activeChallenge)return;claiming=true;const ch=activeChallenge;ch.card.classList.add('loading');
+  try{await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c=>(c||0)+amount);setCooldown(ch.id,Date.now()+ch.cooldownMs);updateCooldownUI();showCreditPop(amount,ch.card);addHistory(amount,label);showToast(`+${amount} credits!`,'success');}
+  catch(e){showToast(e.message);}finally{claiming=false;ch.card.classList.remove('loading');}
 }
 
-/* ═══════════════════════════════════════════
-   AWARD CREDITS (shared)
-   ═══════════════════════════════════════════ */
-async function awardCredits(amount, label){
-  if(!currentUser || !activeChallenge) return;
-  claiming = true;
-  const ch = activeChallenge;
-  ch.card.classList.add('loading');
+function showCreditPop(a,card){const p=document.createElement('div');p.className='credit-pop';p.textContent='+'+a;const r=card.getBoundingClientRect();p.style.left=(r.left+r.width/2-30)+'px';p.style.top=(r.top-10)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),900);}
 
-  try{
-    await rtdb.ref('users/'+currentUser.uid+'/credits').transaction(cur=>(cur||0)+amount);
-    setCooldown(ch.id, Date.now() + ch.cooldownMs);
-    updateCooldownUI();
-    showCreditPop(amount, ch.card);
-    addHistory(amount, label);
-    showToast(`+${amount} credits earned!`,'success');
-  }catch(err){
-    console.error(err);
-    showToast(err.message);
-  }finally{
-    claiming = false;
-    ch.card.classList.remove('loading');
-  }
-}
+function addHistory(a,l){historyData.unshift({amount:a,label:l,time:new Date()});if(historyData.length>20)historyData.pop();renderHistory();}
+function renderHistory(){const list=document.getElementById('historyList');if(!historyData.length){list.innerHTML='<div class="history-empty">No claims yet.</div>';return;}list.innerHTML=historyData.map(h=>`<div class="history-item"><div class="hi-text"><div class="hi-label">${h.label}</div><div class="hi-time">${h.time.toLocaleTimeString()}</div></div><div class="hi-amount">+${h.amount.toLocaleString()}</div></div>`).join('');}
 
-/* ═══════════════════════════════════════════
-   CHALLENGE 1: REACTION TIME TEST
-   ═══════════════════════════════════════════ */
-function startReactionChallenge(reward){
-  let state='idle', startTime=0, timeout=null;
-
-  modalContent.innerHTML = `
-    <div class="modal-title">⚡ Reaction Test</div>
-    <div class="modal-subtitle">Click when the box turns GREEN. Under 400ms to win!</div>
-    <div class="modal-reward">🪙 +${reward} credits</div>
-    <div class="reaction-zone waiting" id="reactionZone">Click to Start</div>
-    <div id="reactionResult"></div>
-  `;
-
-  const zone = document.getElementById('reactionZone');
-  const result = document.getElementById('reactionResult');
-
-  zone.addEventListener('click', ()=>{
-    if(state==='idle'){
-      state='waiting';
-      zone.className='reaction-zone waiting';
-      zone.textContent='Wait for green...';
-      const delay = 1500 + Math.random()*3500; // 1.5s–5s random
-      timeout = setTimeout(()=>{
-        state='ready';
-        zone.className='reaction-zone ready';
-        zone.textContent='CLICK NOW!';
-        startTime = performance.now();
-      }, delay);
-    }
-    else if(state==='waiting'){
-      clearTimeout(timeout);
-      state='idle';
-      zone.className='reaction-zone too-early';
-      zone.textContent='Too early! Click to retry.';
-    }
-    else if(state==='ready'){
-      const ms = Math.round(performance.now()-startTime);
-      state='done';
-      zone.className='reaction-zone clicked';
-      zone.textContent=ms+'ms';
-
-      if(ms <= 400){
-        // Bonus: under 200ms = double reward
-        const finalReward = ms <= 200 ? reward * 2 : reward;
-        const bonusText = ms <= 200 ? ` (⚡ INSANE! Double reward!)` : '';
-        result.innerHTML = `<div class="modal-result win">✅ ${ms}ms — You win +${finalReward}!${bonusText}</div>`;
-        awardCredits(finalReward, `Reaction Test (${ms}ms)`);
-      } else {
-        result.innerHTML = `<div class="modal-result lose">❌ ${ms}ms — Too slow! Need under 400ms.</div>`;
-        // No cooldown on failure — let them retry
-      }
-      setTimeout(()=>closeModal(), 2500);
-    }
-  });
-}
-
-/* ═════════��═════════════════════════════════
-   CHALLENGE 2: MEMORY GRID
-   ═══════════════════════════════════════════ */
-function startMemoryChallenge(reward){
-  const gridSize = 4; // 4x4
-  const revealCount = 6; // 6 tiles to memorize
-  const totalCells = gridSize*gridSize;
-  let pattern=[], playerSelections=[], phase='reveal', attempts=0;
-
-  // Generate random pattern
-  const indices = Array.from({length:totalCells},(_,i)=>i);
-  for(let i=indices.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [indices[i],indices[j]]=[indices[j],indices[i]];
-  }
-  pattern = indices.slice(0, revealCount);
-
-  modalContent.innerHTML = `
-    <div class="modal-title">🧠 Memory Grid</div>
-    <div class="modal-subtitle">Memorize the highlighted tiles, then recreate the pattern.</div>
-    <div class="modal-reward">🪙 +${reward} credits</div>
-    <div class="modal-instructions" id="memInstructions">Memorize this pattern...</div>
-    <div class="memory-grid g4x4" id="memoryGrid"></div>
-    <div id="memoryResult"></div>
-  `;
-
-  const grid = document.getElementById('memoryGrid');
-  const instructions = document.getElementById('memInstructions');
-
-  // Build cells
-  for(let i=0; i<totalCells; i++){
-    const cell = document.createElement('div');
-    cell.className = 'memory-cell';
-    cell.dataset.index = i;
-    if(pattern.includes(i)) cell.classList.add('revealed');
-    grid.appendChild(cell);
-  }
-
-  // Reveal phase — show for 2.5s then hide
-  setTimeout(()=>{
-    grid.querySelectorAll('.memory-cell').forEach(c=>c.classList.remove('revealed'));
-    phase='input';
-    instructions.textContent = `Select the ${revealCount} tiles (${revealCount - playerSelections.length} remaining)`;
-
-    grid.querySelectorAll('.memory-cell').forEach(cell=>{
-      cell.addEventListener('click',()=>{
-        if(phase!=='input') return;
-        const idx = parseInt(cell.dataset.index);
-        if(playerSelections.includes(idx)) return;
-
-        playerSelections.push(idx);
-        cell.classList.add('selected');
-        instructions.textContent = `Select the ${revealCount} tiles (${revealCount - playerSelections.length} remaining)`;
-
-        if(playerSelections.length === revealCount){
-          phase='done';
-          evaluateMemory();
-        }
-      });
-    });
-  }, 2500);
-
-  function evaluateMemory(){
-    const correct = playerSelections.filter(i=>pattern.includes(i)).length;
-    const cells = grid.querySelectorAll('.memory-cell');
-
-    // Show results
-    cells.forEach(c=>{
-      const idx = parseInt(c.dataset.index);
-      c.classList.remove('selected');
-      if(pattern.includes(idx) && playerSelections.includes(idx)) c.classList.add('correct');
-      else if(pattern.includes(idx)) c.classList.add('revealed');
-      else if(playerSelections.includes(idx)) c.classList.add('wrong');
-    });
-
-    const result = document.getElementById('memoryResult');
-    if(correct === revealCount){
-      result.innerHTML = `<div class="modal-result win">🎉 Perfect! All ${revealCount} tiles correct! +${reward}</div>`;
-      awardCredits(reward, `Memory Grid (${correct}/${revealCount})`);
-    } else if(correct >= revealCount - 1){
-      const partial = Math.round(reward * 0.5);
-      result.innerHTML = `<div class="modal-result win">Almost! ${correct}/${revealCount} — +${partial} credits</div>`;
-      awardCredits(partial, `Memory Grid (${correct}/${revealCount})`);
-    } else {
-      result.innerHTML = `<div class="modal-result lose">❌ ${correct}/${revealCount} correct. Need at least ${revealCount-1}.</div>`;
-    }
-    setTimeout(()=>closeModal(), 3000);
-  }
-}
-
-/* ═══════════════════════════════════════════
-   CHALLENGE 3: TYPING SPRINT
-   ═══════════════════════════════════════════ */
-const TYPING_SENTENCES = [
-  "The quick brown fox jumps over the lazy dog near the river bank.",
-  "Pack my box with five dozen liquor jugs before midnight arrives.",
-  "She sells seashells by the seashore during the warm summer evenings.",
-  "A journey of a thousand miles begins with a single step forward.",
-  "Every great developer was once a beginner who never gave up hope.",
-  "Fortune favors the bold and rewards those who dare to take risks.",
-  "The stars shine brightest on the darkest nights of the cold winter.",
-  "All that glitters is not gold but silence is truly golden wisdom.",
-  "Practice makes perfect only if you practice beyond your comfort zone.",
-  "The early bird catches the worm but the second mouse gets cheese."
+/* ═══ GAMES ARRAY ═══ */
+const GAMES=[
+  {id:'reaction',   name:'Reaction Test',      icon:'⚡', amount:100,   cooldown:900000,    bg:'linear-gradient(135deg,var(--gold),#f97316)'},
+  {id:'rps',        name:'Rock Paper Scissors', icon:'✊', amount:100,   cooldown:900000,    bg:'linear-gradient(135deg,#ef4444,#f97316)'},
+  {id:'dice',       name:'Dice Roll',           icon:'🎲', amount:125,   cooldown:1200000,   bg:'linear-gradient(135deg,#a855f7,#6366f1)'},
+  {id:'quickdraw',  name:'Quick Draw',          icon:'🖱️', amount:150,   cooldown:1200000,   bg:'linear-gradient(135deg,#f43f5e,#ec4899)'},
+  {id:'truefalse',  name:'True or False',       icon:'✅', amount:150,   cooldown:1200000,   bg:'linear-gradient(135deg,#22c55e,#14b8a6)'},
+  {id:'numguess',   name:'Number Guess',        icon:'🔢', amount:175,   cooldown:1500000,   bg:'linear-gradient(135deg,#06b6d4,#3b82f6)'},
+  {id:'speedclick', name:'Speed Click',         icon:'👆', amount:175,   cooldown:1500000,   bg:'linear-gradient(135deg,#f97316,#eab308)'},
+  {id:'coinflip',   name:'Lucky Flip',          icon:'🪙', amount:200,   cooldown:1800000,   bg:'linear-gradient(135deg,#f59e0b,#d97706)'},
+  {id:'bubblepop',  name:'Bubble Pop',          icon:'🫧', amount:200,   cooldown:1800000,   bg:'linear-gradient(135deg,#06b6d4,#8b5cf6)'},
+  {id:'memory',     name:'Memory Grid',         icon:'🧠', amount:250,   cooldown:2700000,   bg:'linear-gradient(135deg,var(--accent),var(--accent2))'},
+  {id:'emojimatch', name:'Emoji Match',         icon:'😀', amount:250,   cooldown:2700000,   bg:'linear-gradient(135deg,#f59e0b,#ec4899)'},
+  {id:'color',      name:'Color Match',         icon:'🎨', amount:300,   cooldown:3600000,   bg:'linear-gradient(135deg,#f43f5e,#8b5cf6)'},
+  {id:'hangman',    name:'Hangman',             icon:'💀', amount:300,   cooldown:3600000,   bg:'linear-gradient(135deg,#64748b,#334155)'},
+  {id:'scramble',   name:'Word Scramble',       icon:'🔤', amount:350,   cooldown:3600000,   bg:'linear-gradient(135deg,#22c55e,#f59e0b)'},
+  {id:'whack',      name:'Whack-a-Mole',        icon:'🔨', amount:350,   cooldown:3600000,   bg:'linear-gradient(135deg,#84cc16,#22c55e)'},
+  {id:'aim',        name:'Aim Trainer',         icon:'🎯', amount:400,   cooldown:5400000,   bg:'linear-gradient(135deg,#ef4444,#f97316)'},
+  {id:'spotdiff',   name:'Spot the Diff',       icon:'🔍', amount:400,   cooldown:5400000,   bg:'linear-gradient(135deg,#6366f1,#a855f7)'},
+  {id:'wordchain',  name:'Word Chain',          icon:'🔗', amount:400,   cooldown:5400000,   bg:'linear-gradient(135deg,#14b8a6,#06b6d4)'},
+  {id:'pattern',    name:'Pattern Match',       icon:'🔮', amount:450,   cooldown:7200000,   bg:'linear-gradient(135deg,#6366f1,#06b6d4)'},
+  {id:'typing',     name:'Typing Sprint',       icon:'⌨️', amount:500,   cooldown:7200000,   bg:'linear-gradient(135deg,#22c55e,#06b6d4)'},
+  {id:'trivia',     name:'Trivia Quiz',         icon:'❓', amount:500,   cooldown:7200000,   bg:'linear-gradient(135deg,#8b5cf6,#ec4899)'},
+  {id:'maze',       name:'Maze Runner',         icon:'🏃', amount:500,   cooldown:7200000,   bg:'linear-gradient(135deg,#22c55e,#3b82f6)'},
+  {id:'colormem',   name:'Color Memory',        icon:'🌈', amount:550,   cooldown:9000000,   bg:'linear-gradient(135deg,#f43f5e,#f59e0b)'},
+  {id:'sequence',   name:'Simon Says',          icon:'🟢', amount:600,   cooldown:10800000,  bg:'linear-gradient(135deg,#06b6d4,#8b5cf6)'},
+  {id:'quizstreak', name:'Quiz Streak',         icon:'🧪', amount:650,   cooldown:10800000,  bg:'linear-gradient(135deg,#a855f7,#f43f5e)'},
+  {id:'riddle',     name:'Riddle Challenge',    icon:'🧩', amount:750,   cooldown:14400000,  bg:'linear-gradient(135deg,#f59e0b,#8b5cf6)'},
+  {id:'slider',     name:'Slide Puzzle',        icon:'🧩', amount:800,   cooldown:14400000,  bg:'linear-gradient(135deg,#a855f7,#ec4899)'},
+  {id:'math',       name:'Math Blitz',          icon:'🧮', amount:1000,  cooldown:21600000,  bg:'linear-gradient(135deg,var(--accent3),#f97316)'},
+  {id:'megatrivia', name:'Mega Trivia',         icon:'🏆', amount:10000, cooldown:43200000,  bg:'linear-gradient(135deg,#f59e0b,#ef4444)',legendary:true},
 ];
 
-function startTypingChallenge(reward){
-  const sentence = TYPING_SENTENCES[Math.floor(Math.random()*TYPING_SENTENCES.length)];
-  let startTime=0, finished=false;
-  const timeLimit = 15; // seconds
-
-  modalContent.innerHTML = `
-    <div class="modal-title">⌨️ Typing Sprint</div>
-    <div class="modal-subtitle">Type the sentence perfectly within ${timeLimit} seconds!</div>
-    <div class="modal-reward">🪙 +${reward} credits</div>
-    <div class="modal-timer" id="typingTimer">${timeLimit}.0s</div>
-    <div class="typing-target" id="typingTarget">${sentence.split('').map((c,i)=>`<span class="char${i===0?' current':''}" data-i="${i}">${c}</span>`).join('')}</div>
-    <div class="typing-progress"><div class="typing-progress-bar" id="typingBar"></div></div>
-    <input class="typing-input" id="typingInput" placeholder="Start typing..." autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
-    <div id="typingResult"></div>
-  `;
-
-  const input = document.getElementById('typingInput');
-  const timerEl = document.getElementById('typingTimer');
-  const bar = document.getElementById('typingBar');
-  const result = document.getElementById('typingResult');
-  let timerInterval = null;
-
-  input.focus();
-
-  input.addEventListener('input', ()=>{
-    if(finished) return;
-
-    // Start timer on first keystroke
-    if(!startTime){
-      startTime = Date.now();
-      timerInterval = setInterval(()=>{
-        const elapsed = (Date.now()-startTime)/1000;
-        const remaining = Math.max(0, timeLimit - elapsed);
-        timerEl.textContent = remaining.toFixed(1)+'s';
-        if(remaining <= 3) timerEl.classList.add('danger');
-        if(remaining <= 0){
-          clearInterval(timerInterval);
-          finished = true;
-          input.disabled = true;
-          result.innerHTML = `<div class="modal-result lose">⏰ Time's up!</div>`;
-          setTimeout(()=>closeModal(), 2000);
-        }
-      },100);
-    }
-
-    const typed = input.value;
-    const chars = document.querySelectorAll('#typingTarget .char');
-    let correctCount = 0;
-
-    chars.forEach((span, i)=>{
-      span.classList.remove('correct','wrong','current');
-      if(i < typed.length){
-        if(typed[i] === sentence[i]){
-          span.classList.add('correct');
-          correctCount++;
-        } else {
-          span.classList.add('wrong');
-        }
-      } else if(i === typed.length){
-        span.classList.add('current');
-      }
-    });
-
-    bar.style.width = (typed.length / sentence.length * 100) + '%';
-
-    // Check completion
-    if(typed.length === sentence.length && !finished){
-      clearInterval(timerInterval);
-      finished = true;
-      input.disabled = true;
-
-      const elapsed = ((Date.now()-startTime)/1000).toFixed(1);
-      const accuracy = Math.round(correctCount / sentence.length * 100);
-      const wpm = Math.round((sentence.split(' ').length / (parseFloat(elapsed))) * 60);
-
-      if(accuracy >= 95){
-        // Bonus for speed: under 8s = 1.5x, under 5s = 2x
-        let multiplier = 1;
-        let speedLabel = '';
-        if(parseFloat(elapsed) <= 5){ multiplier=2; speedLabel=' (🔥 BLAZING 2x!)'; }
-        else if(parseFloat(elapsed) <= 8){ multiplier=1.5; speedLabel=' (⚡ Fast 1.5x!)'; }
-
-        const finalReward = Math.round(reward * multiplier);
-        result.innerHTML = `<div class="modal-result win">✅ ${accuracy}% accuracy · ${elapsed}s · ${wpm} WPM${speedLabel}<br>+${finalReward} credits!</div>`;
-        awardCredits(finalReward, `Typing Sprint (${accuracy}% · ${elapsed}s)`);
-      } else {
-        result.innerHTML = `<div class="modal-result lose">❌ ${accuracy}% accuracy — Need 95%+</div>`;
-      }
-      setTimeout(()=>closeModal(), 3000);
-    }
+/* ═══ RENDER CARDS ═══ */
+const claimGrid=document.getElementById('claimGrid');
+GAMES.forEach(g=>{
+  const card=document.createElement('div');
+  card.className='claim-card'+(g.legendary?' legendary-card':'');
+  card.dataset.challenge=g.id;card.dataset.amount=g.amount;card.dataset.cooldown=g.cooldown;
+  card.innerHTML=`<div class="cc-bg" style="background:${g.bg}"></div><div class="claim-icon">${g.icon}</div><div class="claim-amount">+${g.amount.toLocaleString()}</div><div class="claim-label">${g.name}</div><div class="claim-cooldown" data-cd-id="${g.id}"></div>`;
+  card.addEventListener('click',()=>{
+    if(!currentUser||claiming)return;
+    if(getRemaining(g.id)>0){showToast('On cooldown!');return;}
+    activeChallenge={id:g.id,amount:g.amount,cooldownMs:g.cooldown,card};
+    launchChallenge(g.id,g.amount);openModal();
   });
+  claimGrid.appendChild(card);
+});
 
-  // Prevent paste
-  input.addEventListener('paste', e=>e.preventDefault());
+function formatCD(ms){const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>0)return`${h}h ${m}m`;if(m>0)return`${m}m ${sec}s`;return`${sec}s`;}
+function updateCooldownUI(){document.querySelectorAll('.claim-card').forEach(c=>{const id=c.dataset.challenge,r=getRemaining(id),el=c.querySelector('.claim-cooldown');if(r>0){c.classList.add('on-cooldown');el.textContent='⏳ '+formatCD(r);}else{c.classList.remove('on-cooldown');el.textContent='';}});}
+setInterval(updateCooldownUI,1000);updateCooldownUI();
+
+function launchChallenge(type,reward){
+  switch(type){
+    case'reaction':startReaction(reward);break;case'memory':startMemory(reward);break;
+    case'typing':startTyping(reward);break;case'math':startMath(reward);break;
+    case'color':startColor(reward);break;case'aim':startAim(reward);break;
+    case'sequence':startSequence(reward);break;case'scramble':startScramble(reward);break;
+    case'coinflip':startCoinFlip(reward);break;case'slider':startSlider(reward);break;
+    case'pattern':startPattern(reward);break;case'trivia':startTrivia(reward);break;
+    case'rps':startRPS(reward);break;case'dice':startDice(reward);break;
+    case'quickdraw':startQuickDraw(reward);break;case'truefalse':startTrueFalse(reward);break;
+    case'numguess':startNumGuess(reward);break;case'speedclick':startSpeedClick(reward);break;
+    case'bubblepop':startBubblePop(reward);break;case'emojimatch':startEmojiMatch(reward);break;
+    case'hangman':startHangman(reward);break;case'whack':startWhack(reward);break;
+    case'spotdiff':startSpotDiff(reward);break;case'wordchain':startWordChain(reward);break;
+    case'maze':startMaze(reward);break;case'colormem':startColorMem(reward);break;
+    case'quizstreak':startQuizStreak(reward);break;case'riddle':startRiddle(reward);break;
+    case'megatrivia':startMegaTrivia(reward);break;
+  }
 }
 
-/* ═══════════════════════════════════════════
-   CHALLENGE 4: MATH BLITZ
-   ═══════════════════════════════════════════ */
-function startMathChallenge(reward){
-  const totalRounds = 10;
-  let round=0, streak=0, maxStreak=0, score=0, answering=true;
-  let timeLeft=4, roundTimer=null;
+/* ═══ 1. REACTION TEST ═══ */
+function startReaction(reward){
+  let state='idle',startTime=0,timeout=null;
+  modalContent.innerHTML=`<div class="modal-title">⚡ Reaction Test</div><div class="modal-subtitle">Click when the box turns GREEN. Under 400ms to win!</div><div class="modal-reward">🪙 +${reward}</div><div class="reaction-zone waiting" id="rz">Click to Start</div><div id="rr"></div>`;
+  const z=document.getElementById('rz'),r=document.getElementById('rr');
+  z.addEventListener('click',()=>{
+    if(state==='idle'){state='waiting';z.className='reaction-zone waiting';z.textContent='Wait for green...';timeout=registerTimer(setTimeout(()=>{state='ready';z.className='reaction-zone ready';z.textContent='CLICK NOW!';startTime=performance.now();},1500+Math.random()*3500));}
+    else if(state==='waiting'){clearTimeout(timeout);state='idle';z.className='reaction-zone too-early';z.textContent='Too early! Click to retry.';}
+    else if(state==='ready'){const ms=Math.round(performance.now()-startTime);state='done';z.className='reaction-zone clicked';z.textContent=ms+'ms';
+      if(ms<=400){const fr=ms<=200?reward*2:reward;r.innerHTML=`<div class="modal-result win">✅ ${ms}ms${ms<=200?' — INSANE 2x!':''} +${fr}!</div>`;awardCredits(fr,`Reaction (${ms}ms)`);}
+      else{r.innerHTML=`<div class="modal-result lose">❌ ${ms}ms — Too slow!</div>`;}
+      gameActive=false;registerTimer(setTimeout(closeModal,2500));}
+  });
+}
 
-  function generateProblem(difficulty){
-    const ops = ['+','-','×'];
-    if(difficulty >= 5) ops.push('÷');
-    const op = ops[Math.floor(Math.random()*ops.length)];
-    let a, b, answer;
+/* ═══ 2. ROCK PAPER SCISSORS ═══ */
+function startRPS(reward){
+  let pW=0,cW=0,round=0;const moves=['🪨','📄','✂️'];
+  modalContent.innerHTML=`<div class="modal-title">✊ Rock Paper Scissors</div><div class="modal-subtitle">Best of 3!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="rpsInfo">Choose your move!</div><div style="display:flex;gap:12px;justify-content:center;margin:20px 0" id="rpsMoves"></div><div style="text-align:center;font-size:2rem;margin:12px 0;min-height:40px" id="rpsShow"></div><div id="rpsRes"></div>`;
+  function render(){
+    document.getElementById('rpsInfo').textContent=`You ${pW} – ${cW} CPU | Round ${round+1}`;
+    document.getElementById('rpsMoves').innerHTML=moves.map((m,i)=>`<button style="font-size:2.5rem;background:rgba(255,255,255,.06);border:2px solid var(--border);border-radius:16px;padding:16px 24px;cursor:pointer;transition:all .2s" data-i="${i}">${m}</button>`).join('');
+    document.querySelectorAll('#rpsMoves button').forEach(b=>b.addEventListener('click',()=>{
+      const pi=parseInt(b.dataset.i),ci=Math.floor(Math.random()*3);
+      const res=pi===ci?'draw':(pi===0&&ci===2)||(pi===1&&ci===0)||(pi===2&&ci===1)?'win':'lose';
+      if(res==='win')pW++;if(res==='lose')cW++;round++;
+      document.getElementById('rpsShow').textContent=`${moves[pi]} vs ${moves[ci]} — ${res==='draw'?'Draw!':res==='win'?'You win round!':'CPU wins round!'}`;
+      if(pW>=2){document.getElementById('rpsRes').innerHTML=`<div class="modal-result win">🎉 You win! +${reward}</div>`;awardCredits(reward,'Rock Paper Scissors');setTimeout(closeModal,2000);}
+      else if(cW>=2){document.getElementById('rpsRes').innerHTML=`<div class="modal-result lose">❌ CPU wins!</div>`;gameActive=false;registerTimer(setTimeout(closeModal,2500));}
+      else setTimeout(render,1000);
+    }));
+  }
+  render();
+}
 
-    const range = Math.min(10 + difficulty*5, 50);
+/* ═══ 3. DICE ROLL ═══ */
+function startDice(reward){
+  modalContent.innerHTML=`<div class="modal-title">🎲 Dice Roll</div><div class="modal-subtitle">Will the total of 2 dice be HIGH (7-12) or LOW (2-6)?</div><div class="modal-reward">🪙 +${reward}</div><div style="display:flex;gap:12px;justify-content:center;margin:20px 0"><button class="modal-btn modal-btn-primary" style="width:auto;padding:14px 32px" id="dHigh">HIGH (7-12)</button><button class="modal-btn modal-btn-gold" style="width:auto;padding:14px 32px" id="dLow">LOW (2-6)</button></div><div style="text-align:center;font-size:3rem;margin:12px 0" id="diceShow">🎲 🎲</div><div id="dRes"></div>`;
+  function roll(pick){
+    const d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1,total=d1+d2;
+    const actual=total>=7?'high':'low';
+    document.getElementById('diceShow').textContent=`🎲 ${d1} + 🎲 ${d2} = ${total}`;
+    document.getElementById('dHigh').disabled=true;document.getElementById('dLow').disabled=true;
+    if(pick===actual){document.getElementById('dRes').innerHTML=`<div class="modal-result win">🎉 Correct! +${reward}</div>`;awardCredits(reward,`Dice Roll (${total})`);}
+    else document.getElementById('dRes').innerHTML=`<div class="modal-result lose">❌ Wrong! Total was ${total} (${actual})</div>`;
+    gameActive=false;registerTimer(setTimeout(closeModal,2500));
+  }
+  document.getElementById('dHigh').addEventListener('click',()=>roll('high'));
+  document.getElementById('dLow').addEventListener('click',()=>roll('low'));
+}
 
-    switch(op){
-      case '+':
-        a=Math.floor(Math.random()*range)+1;
-        b=Math.floor(Math.random()*range)+1;
-        answer=a+b;
-        break;
-      case '-':
-        a=Math.floor(Math.random()*range)+1;
-        b=Math.floor(Math.random()*a)+1;
-        answer=a-b;
-        break;
-      case '×':
-        a=Math.floor(Math.random()*Math.min(range,15))+2;
-        b=Math.floor(Math.random()*Math.min(range,15))+2;
-        answer=a*b;
-        break;
-      case '÷':
-        b=Math.floor(Math.random()*12)+2;
-        answer=Math.floor(Math.random()*12)+1;
-        a=b*answer;
-        break;
+/* ═══ 4. QUICK DRAW ═══ */
+function startQuickDraw(reward){
+  const shapes=['⭐','❤️','🔷','🔶','⬛','🔴','🟢','🟡'];let score=0,round=0,total=10,done=false;
+  const start=Date.now(),timeLimit=10000;
+  modalContent.innerHTML=`<div class="modal-title">🖱️ Quick Draw</div><div class="modal-subtitle">Click the matching shape! ${total} rounds, 10s limit</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="qdTimer">10.0s</div><div style="text-align:center;font-size:1rem;margin:8px 0" id="qdTarget">Click: <span style="font-size:1.8rem" id="qdShape"></span></div><div style="display:grid;grid-template-columns:repeat(4,60px);gap:8px;margin:16px auto;width:fit-content" id="qdGrid"></div><div style="text-align:center;font-size:.9rem;font-weight:700;margin:8px 0" id="qdScore">Score: 0/${total}</div><div id="qdRes"></div>`;
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('qdTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';
+    if(r<=0&&!done){done=true;clearInterval(timer);finish();}
+  },100));
+  function finish(){
+    gameActive=false;
+    if(score>=7){document.getElementById('qdRes').innerHTML=`<div class="modal-result win">🎉 ${score}/${total}! +${reward}</div>`;awardCredits(reward,`Quick Draw (${score}/${total})`);}
+    else document.getElementById('qdRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need 7+</div>`;
+    registerTimer(setTimeout(closeModal,2500));
+  }
+  function nextRound(){
+    if(done)return;if(round>=total){done=true;clearInterval(timer);finish();return;}
+    const target=shapes[Math.floor(Math.random()*shapes.length)];
+    const el=document.getElementById('qdShape');if(!el)return;el.textContent=target;
+    document.getElementById('qdScore').textContent=`Score: ${score}/${total}`;
+    const grid=document.getElementById('qdGrid');if(!grid)return;grid.innerHTML='';
+    const opts=Array.from({length:8},()=>shapes[Math.floor(Math.random()*shapes.length)]);
+    opts[Math.floor(Math.random()*8)]=target;
+    opts.forEach(s=>{const b=document.createElement('div');b.style.cssText='width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s';b.textContent=s;
+      b.addEventListener('click',()=>{if(done)return;if(s===target){score++;b.style.borderColor='#22c55e';b.style.background='rgba(34,197,94,.2)';}else{b.style.borderColor='#ef4444';b.style.background='rgba(239,68,68,.2)';}round++;registerTimer(setTimeout(nextRound,250));});
+      grid.appendChild(b);});
+  }
+  nextRound();
+}
+
+/* ═══ 5. TRUE OR FALSE ═══ */
+function startTrueFalse(reward){
+  const QS=[
+    {q:'The Earth is the third planet from the Sun.',a:true},
+    {q:'Humans have 206 bones in their body.',a:true},
+    {q:'The Great Wall of China is visible from space with the naked eye.',a:false},
+    {q:'Octopuses have three hearts.',a:true},
+    {q:'Lightning never strikes the same place twice.',a:false},
+    {q:'Water boils at 100°C at sea level.',a:true},
+    {q:'Diamonds are made from compressed coal.',a:false},
+    {q:'Venus is the hottest planet in our solar system.',a:true},
+    {q:'Goldfish have a 3-second memory.',a:false},
+    {q:'Honey never spoils.',a:true},
+    {q:'Mount Everest is the tallest mountain measured from base to peak.',a:false},
+    {q:'Bats are blind.',a:false},
+    {q:'The human nose can detect over 1 trillion scents.',a:true},
+    {q:'Sound travels faster in water than in air.',a:true},
+    {q:'Bananas are berries.',a:true},
+    {q:'The Sahara is the largest desert on Earth.',a:false},
+  ];
+  let idx=0,score=0,total=5,answered=false;
+  const qs=[...QS].sort(()=>Math.random()-0.5).slice(0,total);
+  modalContent.innerHTML=`<div class="modal-title">✅ True or False</div><div class="modal-subtitle">Get 4 out of 5 correct to win!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="tfInfo">Question 1/${total}</div><div class="trivia-question" id="tfQ"></div><div style="display:flex;gap:12px;justify-content:center;margin:16px 0"><button class="modal-btn modal-btn-success" style="width:auto;padding:14px 40px" id="tfTrue">TRUE</button><button class="modal-btn modal-btn-danger" style="width:auto;padding:14px 40px" id="tfFalse">FALSE</button></div><div id="tfRes"></div>`;
+  function show(){
+    answered=false;
+    if(idx>=total){
+      if(score>=4){document.getElementById('tfRes').innerHTML=`<div class="modal-result win">✅ ${score}/${total}! +${reward}</div>`;awardCredits(reward,`True or False (${score}/${total})`);}
+      else document.getElementById('tfRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need 4+</div>`;
+      gameActive=false;registerTimer(setTimeout(closeModal,2500));return;
     }
-    return {text:`${a} ${op} ${b}`, answer};
+    document.getElementById('tfInfo').textContent=`Question ${idx+1}/${total} — Score: ${score}`;
+    document.getElementById('tfQ').textContent=qs[idx].q;
   }
+  function answer(v){if(answered||idx>=total)return;answered=true;if(v===qs[idx].a)score++;idx++;setTimeout(show,400);}
+  document.getElementById('tfTrue').addEventListener('click',()=>answer(true));
+  document.getElementById('tfFalse').addEventListener('click',()=>answer(false));
+  show();
+}
 
-    function generateOptions(correct){
-    const options = new Set([correct]);
-    while(options.size < 4){
-      const offset = Math.floor(Math.random()*20)-10;
-      const fake = correct + (offset === 0 ? 1 : offset);
-      if(fake >= 0) options.add(fake);
+/* ═══ 6. NUMBER GUESS ═══ */
+function startNumGuess(reward){
+  const target=Math.floor(Math.random()*100)+1;let guesses=0,maxG=7,done=false;
+  modalContent.innerHTML=`<div class="modal-title">🔢 Number Guess</div><div class="modal-subtitle">Guess 1-100. You have ${maxG} tries!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="ngInfo">Guesses left: ${maxG}</div><div style="display:flex;gap:8px;margin:16px 0"><input type="number" min="1" max="100" class="typing-input" id="ngInput" style="text-align:center;font-size:1.3rem" placeholder="1-100"><button class="modal-btn modal-btn-primary" style="width:auto;padding:14px 24px" id="ngBtn">Guess</button></div><div style="text-align:center;font-size:1.1rem;font-weight:700;min-height:30px;margin:8px 0" id="ngHint"></div><div id="ngRes"></div>`;
+  function doGuess(){
+    if(done)return;
+    const v=parseInt(document.getElementById('ngInput').value);
+    if(isNaN(v)||v<1||v>100){document.getElementById('ngHint').textContent='Enter a number 1-100!';return;}
+    guesses++;const left=maxG-guesses;
+    if(v===target){done=true;document.getElementById('ngRes').innerHTML=`<div class="modal-result win">🎉 It was ${target}! Got it in ${guesses} tries! +${reward}</div>`;awardCredits(reward,`Number Guess (${guesses} tries)`);setTimeout(closeModal,2500);}
+    else if(left<=0){done=true;document.getElementById('ngRes').innerHTML=`<div class="modal-result lose">❌ Out of guesses! It was ${target}</div>`;setTimeout(closeModal,2500);}
+    else{
+      const diff=Math.abs(v-target);
+      let hint=diff<=3?'🔥 BURNING HOT!':diff<=8?'🌡️ Very Warm':diff<=15?'😐 Warm':diff<=30?'❄️ Cold':'🧊 FREEZING';
+      hint+=v>target?' Go lower!':' Go higher!';
+      document.getElementById('ngHint').textContent=hint;
+      document.getElementById('ngInfo').textContent=`Guesses left: ${left}`;
     }
-    return [...options].sort(()=>Math.random()-0.5);
+    document.getElementById('ngInput').value='';document.getElementById('ngInput').focus();
   }
+  document.getElementById('ngBtn').addEventListener('click',doGuess);
+  document.getElementById('ngInput').addEventListener('keydown',e=>{if(e.key==='Enter')doGuess();});
+}
 
-  function updateStreakDots(){
-    document.getElementById('mathStreak').innerHTML =
-      Array.from({length:totalRounds},(_,i)=>
-        `<div class="math-streak-dot${i<score?' filled':''}"></div>`
-      ).join('');
-    document.getElementById('mathMultiplier').textContent = `Streak: ${streak}x 🔥`;
-  }
+/* ═══ 7. SPEED CLICK ═══ */
+function startSpeedClick(reward){
+  let clicks=0,started=false,done=false;const timeLimit=10;
+  modalContent.innerHTML=`<div class="modal-title">👆 Speed Click</div><div class="modal-subtitle">Click as fast as you can! Need 50+ in ${timeLimit}s</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="scTimer">${timeLimit}.0s</div><div style="text-align:center;font-size:3rem;font-weight:900;margin:12px 0" id="scCount">0</div><button class="modal-btn modal-btn-primary" id="scBtn" style="height:120px;font-size:1.5rem;user-select:none">TAP / CLICK ME!</button><div id="scRes"></div>`;
+  document.getElementById('scBtn').addEventListener('click',()=>{
+    if(done)return;
+    if(!started){started=true;const start=Date.now();
+      registerTimer(setInterval(()=>{
+        const r=Math.max(0,timeLimit-(Date.now()-start)/1000);
+        const el=document.getElementById('scTimer');if(!el)return;
+        el.textContent=r.toFixed(1)+'s';if(r<=3)el.classList.add('danger');
+        if(r<=0&&!done){done=true;
+          const btn=document.getElementById('scBtn');if(btn)btn.disabled=true;
+          gameActive=false;
+          if(clicks>=50){const bonus=clicks>=80?2:clicks>=65?1.5:1;const fr=Math.round(reward*bonus);document.getElementById('scRes').innerHTML=`<div class="modal-result win">🎉 ${clicks} clicks!${bonus>1?' ('+bonus+'x bonus!)':''} +${fr}</div>`;awardCredits(fr,`Speed Click (${clicks})`);}
+          else document.getElementById('scRes').innerHTML=`<div class="modal-result lose">❌ ${clicks}/50 clicks — Not enough!</div>`;
+          registerTimer(setTimeout(closeModal,2500));}
+      },100));}
+    clicks++;const el=document.getElementById('scCount');if(el)el.textContent=clicks;
+  });
+}
 
-  function stopTimer(){
-    if(roundTimer){ clearInterval(roundTimer); roundTimer=null; }
-  }
+/* ═══ 8. COIN FLIP ═══ */
+function startCoinFlip(reward){
+  let done=false;
+  modalContent.innerHTML=`<div class="modal-title">🪙 Lucky Flip</div><div class="modal-subtitle">Pick a side — 50/50 chance!</div><div class="modal-reward">🪙 +${reward}</div><div class="coin-container"><div class="coin" id="theCoin">?</div></div><div class="coin-choices"><button class="coin-choice" data-side="H">👑 Heads</button><button class="coin-choice" data-side="T">🦅 Tails</button></div><div id="cfRes"></div>`;
+  document.querySelectorAll('.coin-choice').forEach(b=>b.addEventListener('click',()=>{
+    if(done)return;done=true;
+    const pick=b.dataset.side,result=Math.random()<0.5?'H':'T';
+    const coin=document.getElementById('theCoin');coin.classList.add('flipping');
+    document.querySelectorAll('.coin-choice').forEach(x=>{x.disabled=true;if(x.dataset.side===pick)x.style.borderColor='var(--gold)';});
+    setTimeout(()=>{
+      coin.textContent=result==='H'?'👑':'🦅';
+      if(pick===result){document.getElementById('cfRes').innerHTML=`<div class="modal-result win">🎉 ${result==='H'?'Heads':'Tails'}! You win +${reward}!</div>`;awardCredits(reward,'Lucky Flip');}
+      else document.getElementById('cfRes').innerHTML=`<div class="modal-result lose">❌ It was ${result==='H'?'Heads':'Tails'}!</div>`;
+      setTimeout(closeModal,2500);
+    },1600);
+  }));
+}
 
-  // Build the modal shell ONCE so innerHTML isn't nuked every round
-  modalContent.innerHTML = `
-    <div class="modal-title">🧮 Math Blitz</div>
-    <div class="modal-subtitle" id="mathSubtitle">Round 1/${totalRounds} — Answer fast!</div>
-    <div class="modal-reward">🪙 Up to +${reward} credits</div>
-    <div class="math-streak" id="mathStreak"></div>
-    <div class="math-multiplier" id="mathMultiplier">Streak: 0x 🔥</div>
-    <div class="modal-timer" id="mathTimer">5.0s</div>
-    <div class="math-problem" id="mathProblem"></div>
-    <div class="math-options" id="mathOptions"></div>
-  `;
+/* ═══ 9. BUBBLE POP ═══ */
+function startBubblePop(reward){
+  const count=12;let next=1,done=false;const start=Date.now(),timeLimit=15000;
+  const nums=Array.from({length:count},(_,i)=>i+1).sort(()=>Math.random()-0.5);
+  modalContent.innerHTML=`<div class="modal-title">🫧 Bubble Pop</div><div class="modal-subtitle">Pop bubbles 1→${count} in order!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="bpTimer">15.0s</div><div class="modal-instructions" id="bpInfo">Next: 1</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0" id="bpGrid"></div><div id="bpRes"></div>`;
+  nums.forEach(n=>{
+    const b=document.createElement('button');b.className='math-option';b.textContent=n;b.style.fontSize='1.3rem';
+    b.addEventListener('click',()=>{
+      if(done)return;
+      if(n===next){b.classList.add('correct-answer');b.disabled=true;b.style.opacity='.4';next++;
+        const info=document.getElementById('bpInfo');if(info)info.textContent=next<=count?`Next: ${next}`:'Almost there!';
+        if(next>count){done=true;clearInterval(timer);gameActive=false;document.getElementById('bpRes').innerHTML=`<div class="modal-result win">🎉 All popped! +${reward}</div>`;awardCredits(reward,'Bubble Pop');registerTimer(setTimeout(closeModal,2000));}
+      }else{b.classList.add('wrong-answer');registerTimer(setTimeout(()=>b.classList.remove('wrong-answer'),300));}
+    });
+    document.getElementById('bpGrid').appendChild(b);
+  });
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('bpTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';if(r<=3)el.classList.add('danger');
+    if(r<=0&&!done){done=true;clearInterval(timer);gameActive=false;document.getElementById('bpRes').innerHTML=`<div class="modal-result lose">⏰ Time's up! Got to ${next-1}/${count}</div>`;registerTimer(setTimeout(closeModal,2000));}
+  },100));
+}
 
-  function startRound(){
-    stopTimer();
-
-    if(round >= totalRounds){
-      endGame();
-      return;
-    }
-
-    const difficulty = Math.floor(round/2)+1;
-    const problem = generateProblem(difficulty);
-    const options = generateOptions(problem.answer);
-    const timeLeft = Math.max(2, 5 - Math.floor(round/3)*0.5);
-    answering = false;
-
-    // Update only the parts that change — no innerHTML nuke
-    document.getElementById('mathSubtitle').textContent = `Round ${round+1}/${totalRounds} — Answer fast!`;
-    document.getElementById('mathProblem').textContent = `${problem.text} = ?`;
-    updateStreakDots();
-
-    const timerEl = document.getElementById('mathTimer');
-    timerEl.textContent = timeLeft.toFixed(1)+'s';
-    timerEl.classList.remove('danger');
-
-    const optionsEl = document.getElementById('mathOptions');
-    optionsEl.innerHTML = options.map(o =>
-      `<button class="math-option" data-val="${o}">${o}</button>`
-    ).join('');
-
-    // Enable answering and start the countdown
-    answering = true;
-    const startMs = Date.now();
-    const timeLimitMs = timeLeft * 1000;
-
-    roundTimer = setInterval(()=>{
-      const elapsed = Date.now() - startMs;
-      const remaining = Math.max(0, (timeLimitMs - elapsed)/1000);
-      timerEl.textContent = remaining.toFixed(1)+'s';
-      if(remaining <= 1) timerEl.classList.add('danger');
-      else timerEl.classList.remove('danger');
-
-      if(remaining <= 0){
-        stopTimer();
-        if(answering){
-          answering = false;
-          streak = 0;
-          const correctBtn = optionsEl.querySelector(`[data-val="${problem.answer}"]`);
-          if(correctBtn) correctBtn.classList.add('correct-answer');
-          round++;
-          setTimeout(startRound, 800);
+/* ═══ 10. MEMORY GRID ═══ */
+function startMemory(reward){
+  const sz=4,rev=6,tot=sz*sz;let pattern=[],picks=[],phase='reveal';
+  const idx=Array.from({length:tot},(_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+  pattern=idx.slice(0,rev);
+  modalContent.innerHTML=`<div class="modal-title">🧠 Memory Grid</div><div class="modal-subtitle">Memorize the highlighted tiles!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="mi">Memorize...</div><div class="memory-grid g4x4" id="mg"></div><div id="mr"></div>`;
+  const g=document.getElementById('mg'),ins=document.getElementById('mi');
+  for(let i=0;i<tot;i++){const c=document.createElement('div');c.className='memory-cell';c.dataset.index=i;if(pattern.includes(i))c.classList.add('revealed');g.appendChild(c);}
+  setTimeout(()=>{
+    g.querySelectorAll('.memory-cell').forEach(c=>c.classList.remove('revealed'));phase='input';
+    ins.textContent=`Select ${rev} tiles (${rev} left)`;
+    g.querySelectorAll('.memory-cell').forEach(cell=>{
+      cell.addEventListener('click',()=>{
+        if(phase!=='input')return;const i=parseInt(cell.dataset.index);if(picks.includes(i))return;
+        picks.push(i);cell.classList.add('selected');ins.textContent=`Select ${rev} tiles (${rev-picks.length} left)`;
+        if(picks.length===rev){phase='done';
+          const correct=picks.filter(i=>pattern.includes(i)).length;
+          g.querySelectorAll('.memory-cell').forEach(c=>{const ci=parseInt(c.dataset.index);c.classList.remove('selected');
+            if(pattern.includes(ci)&&picks.includes(ci))c.classList.add('correct');
+            else if(pattern.includes(ci))c.classList.add('revealed');
+            else if(picks.includes(ci))c.classList.add('wrong');});
+          const res=document.getElementById('mr');
+          if(correct===rev){res.innerHTML=`<div class="modal-result win">🎉 Perfect! +${reward}</div>`;awardCredits(reward,`Memory Grid (${correct}/${rev})`);}
+          else if(correct>=rev-1){const p=Math.round(reward*.5);res.innerHTML=`<div class="modal-result win">Close! ${correct}/${rev} — +${p}</div>`;awardCredits(p,`Memory Grid (${correct}/${rev})`);}
+          else res.innerHTML=`<div class="modal-result lose">❌ ${correct}/${rev} — Need ${rev-1}+</div>`;
+          setTimeout(closeModal,3000);
         }
-      }
-    }, 100);
-
-    optionsEl.querySelectorAll('.math-option').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        if(!answering) return;
-        answering = false;
-        stopTimer();
-
-        const val = parseInt(btn.dataset.val);
-        if(val === problem.answer){
-          btn.classList.add('correct-answer');
-          streak++;
-          score++;
-          maxStreak = Math.max(maxStreak, streak);
-        } else {
-          btn.classList.add('wrong-answer');
-          const correctBtn = optionsEl.querySelector(`[data-val="${problem.answer}"]`);
-          if(correctBtn) correctBtn.classList.add('correct-answer');
-          streak = 0;
-        }
-
-        updateStreakDots();
-        round++;
-        setTimeout(startRound, 800);
       });
     });
-  }
+  },2500);
+}
 
-  function endGame(){
-    stopTimer();
-    const pct = score / totalRounds;
-    let multiplier = 0;
-    let label = '';
+/* ═══ 11. EMOJI MATCH ═══ */
+function startEmojiMatch(reward){
+  const emojis=['🎮','🎲','🎯','🎪','🎭','🎨','🎬','🎵'];
+  const pairs=[...emojis,...emojis].sort(()=>Math.random()-0.5);
+  let flipped=[],matched=0,busy=false,moves=0;
+  modalContent.innerHTML=`<div class="modal-title">😀 Emoji Match</div><div class="modal-subtitle">Find all 8 pairs!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="emInfo">Pairs found: 0/8</div><div class="memory-grid g4x4" id="emGrid"></div><div id="emRes"></div>`;
+  pairs.forEach((e,i)=>{
+    const c=document.createElement('div');c.className='memory-cell';c.dataset.idx=i;c.dataset.emoji=e;c.style.cursor='pointer';
+    c.addEventListener('click',()=>{
+      if(busy||c.classList.contains('matched')||c.classList.contains('flipped'))return;
+      c.classList.add('flipped');c.textContent=e;c.style.fontSize='1.4rem';flipped.push(c);moves++;
+      if(flipped.length===2){
+        busy=true;const[a,b]=flipped;
+        if(a.dataset.emoji===b.dataset.emoji){
+          a.classList.remove('flipped');a.classList.add('matched');b.classList.remove('flipped');b.classList.add('matched');
+          matched++;flipped=[];busy=false;
+          document.getElementById('emInfo').textContent=`Pairs found: ${matched}/8`;
+          if(matched>=8){document.getElementById('emRes').innerHTML=`<div class="modal-result win">🎉 All matched in ${moves} moves! +${reward}</div>`;awardCredits(reward,`Emoji Match (${moves} moves)`);setTimeout(closeModal,2000);}
+        }else{setTimeout(()=>{a.classList.remove('flipped');a.textContent='';b.classList.remove('flipped');b.textContent='';flipped=[];busy=false;},700);}
+      }
+    });
+    document.getElementById('emGrid').appendChild(c);
+  });
+}
 
-    if(pct === 1){ multiplier=1; label='PERFECT! 🏆'; }
-    else if(pct >= 0.8){ multiplier=0.7; label='Great job! 🎉'; }
-    else if(pct >= 0.6){ multiplier=0.4; label='Not bad! 👍'; }
-    else { multiplier=0; label='Need 60%+ to earn credits.'; }
-
-    const finalReward = Math.round(reward * multiplier);
-    const streakBonus = maxStreak >= 5 ? Math.round(reward * 0.2) : 0;
-    const totalReward = finalReward + streakBonus;
-
-    modalContent.innerHTML = `
-      <div class="modal-title">🧮 Math Blitz — Results</div>
-      <div style="text-align:center;margin:20px 0">
-        <div style="font-size:3rem;font-weight:900;margin-bottom:8px">${score}/${totalRounds}</div>
-        <div style="font-size:1rem;color:var(--muted);margin-bottom:4px">${label}</div>
-        <div style="font-size:.85rem;color:var(--muted)">Best streak: ${maxStreak}x 🔥</div>
-        ${streakBonus > 0 ? `<div style="font-size:.85rem;color:var(--gold);margin-top:4px">+${streakBonus} streak bonus!</div>` : ''}
-      </div>
-      <div class="modal-result ${totalReward > 0 ? 'win' : 'lose'}">
-        ${totalReward > 0 ? `+${totalReward} credits earned!` : 'No credits earned. Try again later!'}
-      </div>
-    `;
-
-    if(totalReward > 0){
-      awardCredits(totalReward, `Math Blitz (${score}/${totalRounds})`);
+/* ═══ 12. COLOR MATCH ═══ */
+function startColor(reward){
+  const COLORS=['RED','BLUE','GREEN','YELLOW','PURPLE','ORANGE'];
+  const HEX={RED:'#ef4444',BLUE:'#3b82f6',GREEN:'#22c55e',YELLOW:'#eab308',PURPLE:'#a855f7',ORANGE:'#f97316'};
+  let score=0,round=0,total=8,answered=false;
+  modalContent.innerHTML=`<div class="modal-title">🎨 Color Match</div><div class="modal-subtitle">Click the COLOR the word is DISPLAYED in, not what it says!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="cmInfo">Round 1/${total}</div><div class="color-word" id="cmWord"></div><div class="color-options" id="cmOpts"></div><div id="cmRes"></div>`;
+  function nextRound(){
+    answered=false;
+    if(round>=total){
+      const pct=score/total;
+      if(pct>=0.75){const fr=Math.round(reward*pct);document.getElementById('cmRes').innerHTML=`<div class="modal-result win">✅ ${score}/${total}! +${fr}</div>`;awardCredits(fr,`Color Match (${score}/${total})`);}
+      else document.getElementById('cmRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need 75%+</div>`;
+      setTimeout(closeModal,2500);return;
     }
-    setTimeout(()=>closeModal(), 3500);
+    const textWord=COLORS[Math.floor(Math.random()*COLORS.length)];
+    let displayColor;do{displayColor=COLORS[Math.floor(Math.random()*COLORS.length)];}while(displayColor===textWord&&Math.random()>0.25);
+    document.getElementById('cmWord').textContent=textWord;
+    document.getElementById('cmWord').style.color=HEX[displayColor];
+    document.getElementById('cmInfo').textContent=`Round ${round+1}/${total} — Score: ${score}`;
+    const opts=[displayColor];while(opts.length<4){const c=COLORS[Math.floor(Math.random()*COLORS.length)];if(!opts.includes(c))opts.push(c);}
+    opts.sort(()=>Math.random()-0.5);
+    document.getElementById('cmOpts').innerHTML=opts.map(o=>`<button class="color-opt" data-c="${o}">${o}</button>`).join('');
+    document.querySelectorAll('.color-opt').forEach(b=>b.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      if(b.dataset.c===displayColor){score++;b.classList.add('correct-answer');}else{b.classList.add('wrong-answer');document.querySelectorAll('.color-opt').forEach(x=>{if(x.dataset.c===displayColor)x.classList.add('correct-answer');});}
+      round++;setTimeout(nextRound,600);
+    }));
   }
+  nextRound();
+}
 
+/* ═══ 13. HANGMAN ═══ */
+function startHangman(reward){
+  const WORDS=['JAVASCRIPT','PYTHON','ALGORITHM','DATABASE','FUNCTION','VARIABLE','BOOLEAN','ARRAY','OBJECT','STRING','BROWSER','NETWORK','TEMPLATE','PROMISE','CALLBACK','ITERATE'];
+  const word=WORDS[Math.floor(Math.random()*WORDS.length)];let guessed=new Set(),wrong=0,maxWrong=6,done=false;
+  modalContent.innerHTML=`<div class="modal-title">💀 Hangman</div><div class="modal-subtitle">${maxWrong} wrong guesses allowed</div><div class="modal-reward">🪙 +${reward}</div><div style="text-align:center;font-size:2rem;font-weight:900;letter-spacing:8px;margin:20px 0;font-family:monospace" id="hmWord"></div><div style="text-align:center;font-size:.9rem;color:var(--muted);margin:8px 0" id="hmInfo">Wrong: 0/${maxWrong}</div><div style="text-align:center;font-size:1.5rem;margin:8px 0" id="hmMan"></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0" id="hmKeys"></div><div id="hmRes"></div>`;
+  const PARTS=['😶','😐','😑','😣','😖','😵','💀'];
+  function render(){
+    document.getElementById('hmWord').textContent=word.split('').map(c=>guessed.has(c)?c:'_').join(' ');
+    document.getElementById('hmInfo').textContent=`Wrong: ${wrong}/${maxWrong}`;
+    document.getElementById('hmMan').textContent=PARTS[Math.min(wrong,PARTS.length-1)];
+  }
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
+    const b=document.createElement('button');b.textContent=l;
+    b.style.cssText='padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-weight:700;cursor:pointer;font-size:.85rem;min-width:36px;font-family:var(--font);transition:all .2s';
+    b.addEventListener('click',()=>{
+      if(done||guessed.has(l))return;guessed.add(l);b.disabled=true;b.style.opacity='.25';
+      if(word.includes(l)){b.style.borderColor='#22c55e';}else{wrong++;b.style.borderColor='#ef4444';}
+      render();
+      if(word.split('').every(c=>guessed.has(c))){done=true;document.getElementById('hmRes').innerHTML=`<div class="modal-result win">🎉 "${word}"! +${reward}</div>`;awardCredits(reward,'Hangman');setTimeout(closeModal,2500);}
+      else if(wrong>=maxWrong){done=true;document.getElementById('hmWord').textContent=word;document.getElementById('hmRes').innerHTML=`<div class="modal-result lose">💀 The word was "${word}"</div>`;setTimeout(closeModal,2500);}
+    });
+    document.getElementById('hmKeys').appendChild(b);
+  });
+  render();
+}
+
+/* ═══ 14. WORD SCRAMBLE ═══ */
+function startScramble(reward){
+  const WORDS=['GALAXY','RHYTHM','PUZZLE','MATRIX','CIPHER','FROZEN','PLANET','ROCKET','WIZARD','VORTEX','QUARTZ','OXYGEN','BREEZE','FRIDGE','JUNGLE'];
+  const word=WORDS[Math.floor(Math.random()*WORDS.length)];
+  let scrambled=word.split('').sort(()=>Math.random()-0.5).join('');
+  while(scrambled===word)scrambled=word.split('').sort(()=>Math.random()-0.5).join('');
+  let timeLeft=20,done=false;
+  modalContent.innerHTML=`<div class="modal-title">🔤 Word Scramble</div><div class="modal-subtitle">Unscramble the word!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="wsTimer">${timeLeft}s</div><div class="scramble-word">${scrambled}</div><input class="scramble-input" id="wsInput" placeholder="Your answer..." maxlength="${word.length}" autofocus><div class="scramble-hint">${word.length} letters — type your answer</div><div id="wsRes"></div>`;
+  const timer=setInterval(()=>{timeLeft--;document.getElementById('wsTimer').textContent=timeLeft+'s';if(timeLeft<=3)document.getElementById('wsTimer').classList.add('danger');if(timeLeft<=0&&!done){done=true;clearInterval(timer);document.getElementById('wsRes').innerHTML=`<div class="modal-result lose">⏰ It was "${word}"</div>`;setTimeout(closeModal,2500);}},1000);
+  document.getElementById('wsInput').addEventListener('input',()=>{if(done)return;const v=document.getElementById('wsInput').value.toUpperCase();if(v===word){done=true;clearInterval(timer);document.getElementById('wsRes').innerHTML=`<div class="modal-result win">🎉 Correct! +${reward}</div>`;awardCredits(reward,'Word Scramble');setTimeout(closeModal,2000);}});
+  setTimeout(()=>document.getElementById('wsInput').focus(),100);
+}
+
+/* ═══ 15. WHACK-A-MOLE ═══ */
+function startWhack(reward){
+  let score=0,done=false,activeCell=-1;const timeLimit=10000,start=Date.now();
+  modalContent.innerHTML=`<div class="modal-title">🔨 Whack-a-Mole</div><div class="modal-subtitle">Click the moles! Need 12+ hits in 10s</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="wTimer">10.0s</div><div style="text-align:center;font-size:1.1rem;font-weight:700;margin:8px 0" id="wScore">Hits: 0</div><div style="display:grid;grid-template-columns:repeat(3,80px);gap:8px;margin:0 auto 16px;width:fit-content" id="wGrid"></div><div id="wRes"></div>`;
+  for(let i=0;i<9;i++){
+    const c=document.createElement('div');
+    c.style.cssText='width:80px;height:80px;border-radius:14px;border:2px solid var(--border);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;transition:all .15s;user-select:none';
+    c.dataset.i=i;
+    c.addEventListener('click',()=>{if(done)return;if(parseInt(c.dataset.i)===activeCell){score++;c.textContent='💥';c.style.background='rgba(34,197,94,.2)';c.style.borderColor='#22c55e';activeCell=-1;const el=document.getElementById('wScore');if(el)el.textContent=`Hits: ${score}`;}});
+    document.getElementById('wGrid').appendChild(c);
+  }
+  let spawnTimer=null;
+  function spawnMole(){
+    if(done)return;
+    const cells=document.querySelectorAll('#wGrid > div');if(!cells.length)return;
+    cells.forEach(c=>{c.textContent='';c.style.background='rgba(255,255,255,.04)';c.style.borderColor='var(--border)';});
+    activeCell=Math.floor(Math.random()*9);
+    cells[activeCell].textContent='🐹';cells[activeCell].style.background='rgba(139,92,246,.15)';cells[activeCell].style.borderColor='var(--accent)';
+    spawnTimer=registerTimer(setTimeout(spawnMole,500+Math.random()*500));
+  }
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('wTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';if(r<=3)el.classList.add('danger');
+    if(r<=0&&!done){done=true;clearInterval(timer);clearTimeout(spawnTimer);gameActive=false;
+      if(score>=12){document.getElementById('wRes').innerHTML=`<div class="modal-result win">🎉 ${score} hits! +${reward}</div>`;awardCredits(reward,`Whack-a-Mole (${score})`);}
+      else document.getElementById('wRes').innerHTML=`<div class="modal-result lose">❌ ${score}/12 hits — Not enough!</div>`;
+      registerTimer(setTimeout(closeModal,2500));}
+  },100));
+  spawnMole();
+}
+
+/* ═══ 16. AIM TRAINER ═══ */
+function startAim(reward){
+  let score=0,spawned=0,maxTargets=20,done=false;const start=Date.now(),timeLimit=12000;
+  modalContent.innerHTML=`<div class="modal-title">🎯 Aim Trainer</div><div class="modal-subtitle">Click the targets! Need 12+ hits in 12s</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="aimTimer">12.0s</div><div style="text-align:center;font-size:1rem;font-weight:700;margin:4px 0" id="aimScore">Hits: 0</div><div class="aim-arena" id="aimArena"></div><div id="aimRes"></div>`;
+  function spawn(){
+    if(done||spawned>=maxTargets)return;
+    const arena=document.getElementById('aimArena');if(!arena)return;
+    const sz=25+Math.random()*20,maxX=arena.offsetWidth-sz-4,maxY=arena.offsetHeight-sz-4;
+    const x=Math.random()*Math.max(maxX,10),y=Math.random()*Math.max(maxY,10);
+    const t=document.createElement('div');
+    t.style.cssText=`width:${sz}px;height:${sz}px;left:${x}px;top:${y}px;position:absolute;border-radius:50%;background:radial-gradient(circle,#ef4444 30%,rgba(239,68,68,.3));cursor:pointer;transition:transform .1s;display:flex;align-items:center;justify-content:center`;
+    t.innerHTML='<div style="width:30%;height:30%;border-radius:50%;background:#fff"></div>';
+    t.addEventListener('click',()=>{if(done)return;score++;t.remove();const el=document.getElementById('aimScore');if(el)el.textContent=`Hits: ${score}`;});
+    arena.appendChild(t);spawned++;
+    registerTimer(setTimeout(()=>{if(t.parentNode)t.remove();},1100));
+    registerTimer(setTimeout(spawn,350+Math.random()*350));
+  }
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('aimTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';if(r<=3)el.classList.add('danger');
+    if(r<=0&&!done){done=true;clearInterval(timer);gameActive=false;
+      if(score>=12){document.getElementById('aimRes').innerHTML=`<div class="modal-result win">🎉 ${score} hits! +${reward}</div>`;awardCredits(reward,`Aim Trainer (${score})`);}
+      else document.getElementById('aimRes').innerHTML=`<div class="modal-result lose">❌ ${score}/12 hits — Need more!</div>`;
+      registerTimer(setTimeout(closeModal,2500));}
+  },100));
+  spawn();
+}
+
+/* ═══ 17. SPOT THE DIFFERENCE ═══ */
+function startSpotDiff(reward){
+  const E=['🍎','🍊','🍋','🍇','🍓','🫐','🥝','🍑','🍒'];
+  const grid1=Array.from({length:9},()=>E[Math.floor(Math.random()*E.length)]);
+  const diffCount=3,diffIdx=[];while(diffIdx.length<diffCount){const i=Math.floor(Math.random()*9);if(!diffIdx.includes(i))diffIdx.push(i);}
+  const grid2=[...grid1];diffIdx.forEach(i=>{let n;do{n=E[Math.floor(Math.random()*E.length)];}while(n===grid1[i]);grid2[i]=n;});
+  let found=0,done=false;
+  modalContent.innerHTML=`<div class="modal-title">🔍 Spot the Diff</div><div class="modal-subtitle">Find ${diffCount} differences in the RIGHT grid!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="sdInfo">Found: 0/${diffCount}</div><div style="display:flex;gap:16px;justify-content:center;align-items:start;margin:16px 0;flex-wrap:wrap"><div><div style="text-align:center;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600">ORIGINAL</div><div style="display:grid;grid-template-columns:repeat(3,52px);gap:4px">${grid1.map(e=>`<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);border-radius:8px;background:rgba(255,255,255,.04)">${e}</div>`).join('')}</div></div><div><div style="text-align:center;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600">FIND DIFFS →</div><div style="display:grid;grid-template-columns:repeat(3,52px);gap:4px" id="sdGrid2"></div></div></div><div id="sdRes"></div>`;
+  grid2.forEach((e,i)=>{
+    const c=document.createElement('div');c.style.cssText='width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);border-radius:8px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s';c.textContent=e;
+    c.addEventListener('click',()=>{
+      if(done||c.dataset.found)return;
+      if(diffIdx.includes(i)){c.dataset.found='1';c.style.borderColor='#22c55e';c.style.background='rgba(34,197,94,.15)';found++;document.getElementById('sdInfo').textContent=`Found: ${found}/${diffCount}`;
+        if(found>=diffCount){done=true;document.getElementById('sdRes').innerHTML=`<div class="modal-result win">🎉 All found! +${reward}</div>`;awardCredits(reward,'Spot the Diff');setTimeout(closeModal,2000);}
+      }else{c.style.borderColor='#ef4444';setTimeout(()=>c.style.borderColor='var(--border)',400);}
+    });
+    document.getElementById('sdGrid2').appendChild(c);
+  });
+}
+
+/* ═══ 18. WORD CHAIN ═══ */
+function startWordChain(reward){
+  const STARTS=['apple','ocean','tiger','lemon','house','eagle','stone','river','piano','grape'];
+  let chain=[STARTS[Math.floor(Math.random()*STARTS.length)]],score=0,needed=6,done=false;
+  modalContent.innerHTML=`<div class="modal-title">🔗 Word Chain</div><div class="modal-subtitle">Type a word starting with the last letter of the previous. Get ${needed}!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="wcInfo">Chain: 0/${needed}</div><div style="text-align:center;font-size:1.4rem;font-weight:800;margin:12px 0;color:var(--accent)" id="wcLast">${chain[0]}</div><div style="display:flex;gap:8px;margin:12px 0"><input class="typing-input" id="wcInput" placeholder="Type a word..." style="text-align:center;margin:0"><button class="modal-btn modal-btn-primary" style="width:auto;padding:14px 20px;margin:0" id="wcBtn">Submit</button></div><div style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px" id="wcHint">Must start with "${chain[0].slice(-1).toUpperCase()}"</div><div id="wcRes"></div>`;
+  function submit(){
+    if(done)return;const w=document.getElementById('wcInput').value.trim().toLowerCase();
+    if(w.length<2){document.getElementById('wcHint').textContent='Too short! Need 2+ letters';return;}
+    const lastChar=chain[chain.length-1].slice(-1);
+    if(w[0]!==lastChar){document.getElementById('wcHint').textContent=`Must start with "${lastChar.toUpperCase()}"!`;return;}
+    if(chain.includes(w)){document.getElementById('wcHint').textContent='Already used!';return;}
+    chain.push(w);score++;
+    document.getElementById('wcInput').value='';document.getElementById('wcLast').textContent=w;
+    document.getElementById('wcInfo').textContent=`Chain: ${score}/${needed}`;
+    document.getElementById('wcHint').textContent=`Must start with "${w.slice(-1).toUpperCase()}"`;
+    if(score>=needed){done=true;document.getElementById('wcRes').innerHTML=`<div class="modal-result win">🎉 ${score} words chained! +${reward}</div>`;awardCredits(reward,'Word Chain');setTimeout(closeModal,2000);}
+    document.getElementById('wcInput').focus();
+  }
+  document.getElementById('wcBtn').addEventListener('click',submit);
+  document.getElementById('wcInput').addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
+}
+
+/* ═══ 19. PATTERN MATCH ═══ */
+function startPattern(reward){
+  const patterns=[[2,4,6,8,10],[1,3,5,7,9],[3,6,9,12,15],[5,10,15,20,25],[1,4,9,16,25],[2,6,12,20,30],[1,1,2,3,5],[10,20,30,40,50],[7,14,21,28,35],[100,90,80,70,60]];
+  const p=patterns[Math.floor(Math.random()*patterns.length)];const answer=p[4];const shown=p.slice(0,4);
+  const opts=new Set([answer]);while(opts.size<4){const f=answer+Math.floor(Math.random()*12)-6;if(f>0&&f!==answer)opts.add(f);}
+  const choices=[...opts].sort(()=>Math.random()-0.5);
+  let done=false;
+  modalContent.innerHTML=`<div class="modal-title">🔮 Pattern Match</div><div class="modal-subtitle">What number comes next?</div><div class="modal-reward">🪙 +${reward}</div><div class="pattern-display">${shown.map(n=>`<div class="pattern-item">${n}</div>`).join('')}<div class="pattern-item mystery">?</div></div><div class="pattern-choices">${choices.map(o=>`<button class="pattern-choice" data-v="${o}">${o}</button>`).join('')}</div><div id="patRes"></div>`;
+  document.querySelectorAll('.pattern-choice').forEach(b=>b.addEventListener('click',()=>{
+    if(done)return;done=true;
+    if(parseInt(b.dataset.v)===answer){b.classList.add('correct-answer');document.getElementById('patRes').innerHTML=`<div class="modal-result win">🎉 Correct! +${reward}</div>`;awardCredits(reward,'Pattern Match');}
+    else{b.classList.add('wrong-answer');document.querySelectorAll('.pattern-choice').forEach(x=>{if(parseInt(x.dataset.v)===answer)x.classList.add('correct-answer');});document.getElementById('patRes').innerHTML=`<div class="modal-result lose">❌ Answer was ${answer}</div>`;}
+    setTimeout(closeModal,2500);
+  }));
+}
+
+/* ═══ 20. TYPING SPRINT ═══ */
+function startTyping(reward){
+  const SENTENCES=['The quick brown fox jumps over the lazy dog near the river.','Pack my box with five dozen liquor jugs before midnight.','She sells seashells by the seashore on warm summer days.','A journey of a thousand miles begins with a single step.','Every great developer was once a beginner who never gave up.','Fortune favors the bold and rewards those who take risks.','The stars shine brightest on the darkest winter nights.','Practice makes perfect if you push past your comfort zone.','All that glitters is not gold but silence is truly golden.','The early bird catches the worm but the night owl gets peace.'];
+  const sentence=SENTENCES[Math.floor(Math.random()*SENTENCES.length)];let startTime=0,finished=false;const timeLimit=15;
+  modalContent.innerHTML=`<div class="modal-title">⌨️ Typing Sprint</div><div class="modal-subtitle">Type perfectly within ${timeLimit}s!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="tTimer">${timeLimit}.0s</div><div class="typing-target" id="tTarget">${sentence.split('').map((c,i)=>`<span class="char${i===0?' current':''}">${c}</span>`).join('')}</div><div class="typing-progress"><div class="typing-progress-bar" id="tBar"></div></div><input class="typing-input" id="tInput" placeholder="Start typing..." autocomplete="off" spellcheck="false" autofocus><div id="tRes"></div>`;
+  const input=document.getElementById('tInput');let timerInt=null;
+  setTimeout(()=>input.focus(),100);
+  input.addEventListener('paste',e=>e.preventDefault());
+  input.addEventListener('input',()=>{
+    if(finished)return;
+    if(!startTime){startTime=Date.now();timerInt=registerTimer(setInterval(()=>{
+      const el=(Date.now()-startTime)/1000,rem=Math.max(0,timeLimit-el);
+      const tel=document.getElementById('tTimer');if(!tel){clearInterval(timerInt);return;}
+      tel.textContent=rem.toFixed(1)+'s';if(rem<=3)tel.classList.add('danger');
+      if(rem<=0){clearInterval(timerInt);finished=true;input.disabled=true;gameActive=false;
+        document.getElementById('tRes').innerHTML=`<div class="modal-result lose">⏰ Time's up!</div>`;
+        registerTimer(setTimeout(closeModal,2000));}
+    },100));}
+    const typed=input.value;const chars=document.querySelectorAll('#tTarget .char');let correct=0;
+    chars.forEach((s,i)=>{s.classList.remove('correct','wrong','current');if(i<typed.length){if(typed[i]===sentence[i]){s.classList.add('correct');correct++;}else s.classList.add('wrong');}else if(i===typed.length)s.classList.add('current');});
+    const bar=document.getElementById('tBar');if(bar)bar.style.width=(typed.length/sentence.length*100)+'%';
+    if(typed.length===sentence.length&&!finished){clearInterval(timerInt);finished=true;input.disabled=true;gameActive=false;
+      const elapsed=((Date.now()-startTime)/1000).toFixed(1),acc=Math.round(correct/sentence.length*100),wpm=Math.round(sentence.split(' ').length/parseFloat(elapsed)*60);
+      if(acc>=95){let mult=1,lab='';if(parseFloat(elapsed)<=5){mult=2;lab=' (🔥 2x!)';}else if(parseFloat(elapsed)<=8){mult=1.5;lab=' (⚡ 1.5x!)';}
+        const fr=Math.round(reward*mult);document.getElementById('tRes').innerHTML=`<div class="modal-result win">✅ ${acc}% · ${elapsed}s · ${wpm}WPM${lab} +${fr}</div>`;awardCredits(fr,`Typing (${acc}% ${elapsed}s)`);}
+      else document.getElementById('tRes').innerHTML=`<div class="modal-result lose">❌ ${acc}% accuracy — Need 95%+</div>`;
+      registerTimer(setTimeout(closeModal,3000));}
+  });
+}
+
+/* ═══ 21. TRIVIA QUIZ ═══ */
+function startTrivia(reward){
+  const QS=[
+    {q:'What is the capital of Australia?',o:['Sydney','Melbourne','Canberra','Perth'],a:2},
+    {q:'How many planets are in our solar system?',o:['7','8','9','10'],a:1},
+    {q:'What element has the chemical symbol "O"?',o:['Gold','Oxygen','Osmium','Oganesson'],a:1},
+    {q:'In what year did the Titanic sink?',o:['1910','1912','1914','1916'],a:1},
+    {q:'Which ocean is the largest?',o:['Atlantic','Indian','Arctic','Pacific'],a:3},
+    {q:'What is the hardest natural substance?',o:['Gold','Iron','Diamond','Titanium'],a:2},
+    {q:'How many continents are there?',o:['5','6','7','8'],a:2},
+    {q:'What gas do plants absorb?',o:['Oxygen','Nitrogen','CO2','Helium'],a:2},
+    {q:'Which planet is known as the Red Planet?',o:['Venus','Mars','Jupiter','Saturn'],a:1},
+    {q:'What is the smallest prime number?',o:['0','1','2','3'],a:2},
+    {q:'Who painted the Mona Lisa?',o:['Picasso','Da Vinci','Van Gogh','Monet'],a:1},
+    {q:'What is the boiling point of water in °F?',o:['100','200','212','250'],a:2},
+    {q:'Which country has the most people?',o:['USA','India','China','Indonesia'],a:1},
+    {q:'What is the largest mammal?',o:['Elephant','Blue Whale','Giraffe','Hippo'],a:1},
+    {q:'How many bones does a shark have?',o:['0','50','100','206'],a:0},
+  ];
+  let idx=0,score=0,total=5,answered=false;const qs=[...QS].sort(()=>Math.random()-0.5).slice(0,total);
+  modalContent.innerHTML=`<div class="modal-title">❓ Trivia Quiz</div><div class="modal-subtitle">Get 4 out of 5 to win!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="tqInfo">Question 1/${total}</div><div class="trivia-question" id="tqQ"></div><div class="trivia-options" id="tqOpts"></div><div id="tqRes"></div>`;
+  function show(){
+    answered=false;
+    if(idx>=total){if(score>=4){document.getElementById('tqRes').innerHTML=`<div class="modal-result win">✅ ${score}/${total}! +${reward}</div>`;awardCredits(reward,`Trivia (${score}/${total})`);}else document.getElementById('tqRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need 4+</div>`;setTimeout(closeModal,2500);return;}
+    document.getElementById('tqInfo').textContent=`Question ${idx+1}/${total} — Score: ${score}`;
+    document.getElementById('tqQ').textContent=qs[idx].q;
+    document.getElementById('tqOpts').innerHTML=qs[idx].o.map((o,i)=>`<button class="trivia-opt" data-i="${i}">${o}</button>`).join('');
+    document.querySelectorAll('.trivia-opt').forEach(b=>b.addEventListener('click',()=>{
+      if(answered)return;answered=true;const ci=parseInt(b.dataset.i);
+      if(ci===qs[idx].a){score++;b.classList.add('correct-answer');}else{b.classList.add('wrong-answer');document.querySelectorAll('.trivia-opt').forEach(x=>{if(parseInt(x.dataset.i)===qs[idx].a)x.classList.add('correct-answer');});}
+      idx++;setTimeout(show,800);
+    }));
+  }
+  show();
+}
+
+/* ═══ 22. MAZE RUNNER ═══ */
+function startMaze(reward){
+  const W=7,H=7;const maze=Array.from({length:H},()=>Array(W).fill(1));
+  function carve(x,y){maze[y][x]=0;const dirs=[[0,-2],[0,2],[-2,0],[2,0]].sort(()=>Math.random()-0.5);dirs.forEach(([dx,dy])=>{const nx=x+dx,ny=y+dy;if(nx>=0&&nx<W&&ny>=0&&ny<H&&maze[ny][nx]===1){maze[y+dy/2][x+dx/2]=0;carve(nx,ny);}});}
+  carve(0,0);maze[0][0]=0;maze[H-1][W-1]=0;
+  let px=0,py=0,done=false,moves=0;const start=Date.now(),timeLimit=30000;
+  modalContent.innerHTML=`<div class="modal-title">🏃 Maze Runner</div><div class="modal-subtitle">Navigate to the exit (bottom-right)!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="mazeTimer">30.0s</div><div style="text-align:center;font-size:.85rem;color:var(--muted);margin:4px 0" id="mazeInfo">Moves: 0</div><div style="display:grid;grid-template-columns:repeat(${W},36px);gap:2px;margin:12px auto;width:fit-content" id="mazeGrid"></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0"><button class="modal-btn modal-btn-primary" style="width:80px;padding:10px;margin:0" data-d="0,-1">▲</button><div style="display:flex;gap:6px"><button class="modal-btn modal-btn-primary" style="width:80px;padding:10px;margin:0" data-d="-1,0">◄</button><button class="modal-btn modal-btn-primary" style="width:80px;padding:10px;margin:0" data-d="1,0">►</button></div><button class="modal-btn modal-btn-primary" style="width:80px;padding:10px;margin:0" data-d="0,1">▼</button></div><div id="mazeRes"></div>`;
+  function render(){
+    const g=document.getElementById('mazeGrid');if(!g)return;g.innerHTML='';
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const c=document.createElement('div');
+      c.style.cssText=`width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.9rem`;
+      if(x===px&&y===py){c.style.background='rgba(139,92,246,.5)';c.style.border='2px solid var(--accent)';c.textContent='😊';}
+      else if(x===W-1&&y===H-1){c.style.background='rgba(34,197,94,.3)';c.style.border='2px solid #22c55e';c.textContent='🏁';}
+      else if(maze[y][x]===1){c.style.background='rgba(255,255,255,.12)';c.style.border='2px solid rgba(255,255,255,.15)';}
+      else{c.style.background='rgba(255,255,255,.02)';c.style.border='1px solid var(--border)';}
+      g.appendChild(c);
+    }
+  }
+  function move(dx,dy){
+    if(done)return;const nx=px+dx,ny=py+dy;
+    if(nx<0||nx>=W||ny<0||ny>=H||maze[ny][nx]===1)return;
+    px=nx;py=ny;moves++;const el=document.getElementById('mazeInfo');if(el)el.textContent=`Moves: ${moves}`;render();
+    if(px===W-1&&py===H-1){done=true;clearInterval(timer);gameActive=false;document.getElementById('mazeRes').innerHTML=`<div class="modal-result win">🎉 Escaped in ${moves} moves! +${reward}</div>`;awardCredits(reward,`Maze Runner (${moves} moves)`);registerTimer(setTimeout(closeModal,2500));}
+  }
+  document.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>{const[dx,dy]=b.dataset.d.split(',').map(Number);move(dx,dy);}));
+  const keyHandler=function(e){
+    if(done){document.removeEventListener('keydown',keyHandler);return;}
+    if(e.key==='ArrowUp'){e.preventDefault();move(0,-1);}else if(e.key==='ArrowDown'){e.preventDefault();move(0,1);}else if(e.key==='ArrowLeft'){e.preventDefault();move(-1,0);}else if(e.key==='ArrowRight'){e.preventDefault();move(1,0);}
+  };
+  document.addEventListener('keydown',keyHandler);
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('mazeTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';if(r<=5)el.classList.add('danger');
+    if(r<=0&&!done){done=true;clearInterval(timer);document.removeEventListener('keydown',keyHandler);gameActive=false;
+      document.getElementById('mazeRes').innerHTML=`<div class="modal-result lose">⏰ Time's up!</div>`;
+      registerTimer(setTimeout(closeModal,2000));}
+  },100));
+  render();
+}
+
+/* ═══ 23. COLOR MEMORY ═══ */
+function startColorMem(reward){
+  const COLORS=['#ef4444','#3b82f6','#22c55e','#eab308','#a855f7','#f97316'];
+  let sequence=[],playerIdx=0,round=0,maxRound=6,phase='watch',done=false;
+  modalContent.innerHTML=`<div class="modal-title">🌈 Color Memory</div><div class="modal-subtitle">Remember the color sequence! Survive ${maxRound} rounds</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="cmemInfo">Watch the pattern...</div><div style="display:grid;grid-template-columns:repeat(3,70px);gap:8px;margin:16px auto;width:fit-content" id="cmemGrid"></div><div id="cmemRes"></div>`;
+  COLORS.forEach((c,i)=>{
+    const b=document.createElement('div');
+    b.style.cssText=`width:70px;height:70px;border-radius:14px;border:3px solid rgba(255,255,255,.1);cursor:pointer;transition:all .2s;background:${c};opacity:.35`;
+    b.dataset.i=i;
+    b.addEventListener('click',()=>{
+      if(phase!=='input'||done)return;
+      flashCell(i);
+      if(i===sequence[playerIdx]){playerIdx++;
+        if(playerIdx>=sequence.length){round++;
+          if(round>=maxRound){done=true;gameActive=false;document.getElementById('cmemRes').innerHTML=`<div class="modal-result win">🎉 All ${maxRound} rounds! +${reward}</div>`;awardCredits(reward,`Color Memory (${round} rounds)`);registerTimer(setTimeout(closeModal,2500));}
+          else{document.getElementById('cmemInfo').textContent=`Round ${round+1}/${maxRound}`;registerTimer(setTimeout(()=>nextRound(),800));}
+        }
+      }else{done=true;gameActive=false;document.getElementById('cmemRes').innerHTML=`<div class="modal-result lose">❌ Wrong! Got to round ${round+1}</div>`;registerTimer(setTimeout(closeModal,2500));}
+    });
+    document.getElementById('cmemGrid').appendChild(b);
+  });
+  function flashCell(i){const cells=document.querySelectorAll('#cmemGrid > div');if(!cells[i])return;cells[i].style.opacity='1';cells[i].style.transform='scale(1.1)';cells[i].style.boxShadow=`0 0 20px ${COLORS[i]}`;registerTimer(setTimeout(()=>{if(cells[i]){cells[i].style.opacity='.35';cells[i].style.transform='scale(1)';cells[i].style.boxShadow='none';}},350));}
+  function nextRound(){
+    if(done)return;phase='watch';playerIdx=0;sequence.push(Math.floor(Math.random()*COLORS.length));
+    const info=document.getElementById('cmemInfo');if(info)info.textContent='Watch...';
+    let si=0;const iv=registerTimer(setInterval(()=>{if(si>=sequence.length){clearInterval(iv);phase='input';if(info)info.textContent=`Your turn! (${sequence.length} colors)`;return;}flashCell(sequence[si]);si++;},600));
+  }
+  registerTimer(setTimeout(()=>nextRound(),500));
+}
+
+/* ═══ 24. SIMON SAYS ═══ */
+function startSequence(reward){
+  const COLORS=[{bg:'#ef4444',name:'Red'},{bg:'#3b82f6',name:'Blue'},{bg:'#22c55e',name:'Green'},{bg:'#eab308',name:'Yellow'}];
+  let sequence=[],playerIdx=0,round=0,maxRound=8,phase='watch',done=false;
+  modalContent.innerHTML=`<div class="modal-title">🟢 Simon Says</div><div class="modal-subtitle">Repeat the sequence! Survive ${maxRound} rounds</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="seqInfo">Watch...</div><div class="seq-grid" id="seqGrid"></div><div id="seqRes"></div>`;
+  COLORS.forEach((c,i)=>{
+    const b=document.createElement('div');
+    b.className='seq-cell';b.style.background=c.bg;b.style.opacity='.3';b.dataset.i=i;
+    b.addEventListener('click',()=>{
+      if(phase!=='input'||done)return;
+      flash(i);
+      if(i===sequence[playerIdx]){playerIdx++;
+        if(playerIdx>=sequence.length){round++;
+          if(round>=maxRound){done=true;gameActive=false;document.getElementById('seqRes').innerHTML=`<div class="modal-result win">🎉 ${maxRound} rounds perfect! +${reward}</div>`;awardCredits(reward,`Simon Says (${round})`);registerTimer(setTimeout(closeModal,2500));}
+          else{const info=document.getElementById('seqInfo');if(info)info.textContent=`Round ${round+1}/${maxRound}`;registerTimer(setTimeout(nextRound,800));}
+        }
+      }else{done=true;gameActive=false;document.getElementById('seqRes').innerHTML=`<div class="modal-result lose">❌ Wrong! Got to round ${round+1}</div>`;registerTimer(setTimeout(closeModal,2500));}
+    });
+    document.getElementById('seqGrid').appendChild(b);
+  });
+  function flash(i){const cells=document.querySelectorAll('#seqGrid .seq-cell');if(!cells[i])return;cells[i].style.opacity='1';cells[i].style.transform='scale(1.1)';cells[i].style.boxShadow=`0 0 24px ${COLORS[i].bg}`;registerTimer(setTimeout(()=>{if(cells[i]){cells[i].style.opacity='.3';cells[i].style.transform='scale(1)';cells[i].style.boxShadow='none';}},350));}
+  function nextRound(){
+    if(done)return;phase='watch';playerIdx=0;sequence.push(Math.floor(Math.random()*4));
+    const info=document.getElementById('seqInfo');if(info)info.textContent='Watch...';
+    let si=0;const iv=registerTimer(setInterval(()=>{if(si>=sequence.length){clearInterval(iv);phase='input';if(info)info.textContent=`Your turn! (${sequence.length} moves)`;return;}flash(sequence[si]);si++;},600));
+  }
+  registerTimer(setTimeout(nextRound,500));
+}
+
+/* ═══ 25. QUIZ STREAK ═══ */
+function startQuizStreak(reward){
+  const QS=[
+    {q:'What is the chemical symbol for water?',o:['H2O','CO2','NaCl','O2'],a:0},
+    {q:'Which planet has the most moons?',o:['Jupiter','Saturn','Uranus','Neptune'],a:1},
+    {q:'What is the speed of light in km/s?',o:['200,000','300,000','400,000','500,000'],a:1},
+    {q:'Who wrote "Romeo and Juliet"?',o:['Dickens','Shakespeare','Austen','Twain'],a:1},
+    {q:'What is the square root of 144?',o:['10','11','12','14'],a:2},
+    {q:'In what country is the Eiffel Tower?',o:['Italy','Spain','France','UK'],a:2},
+    {q:'What is the largest organ in the body?',o:['Heart','Liver','Skin','Brain'],a:2},
+    {q:'How many sides does a hexagon have?',o:['5','6','7','8'],a:1},
+    {q:'What year was the internet invented?',o:['1969','1975','1983','1990'],a:0},
+    {q:'Which animal is the fastest on land?',o:['Lion','Cheetah','Horse','Gazelle'],a:1},
+    {q:'What is the currency of Japan?',o:['Yuan','Won','Yen','Ringgit'],a:2},
+    {q:'How many chromosomes do humans have?',o:['23','44','46','48'],a:2},
+    {q:'What is the largest desert?',o:['Sahara','Gobi','Antarctic','Arabian'],a:2},
+    {q:'Who discovered gravity?',o:['Einstein','Newton','Galileo','Tesla'],a:1},
+    {q:'What color does litmus paper turn in acid?',o:['Blue','Green','Red','Yellow'],a:2},
+  ];
+  let idx=0,score=0,streak=0,total=8,answered=false,totalEarned=0;
+  const qs=[...QS].sort(()=>Math.random()-0.5).slice(0,total);
+  modalContent.innerHTML=`<div class="modal-title">🧪 Quiz Streak</div><div class="modal-subtitle">Answer questions — streak multiplier!</div><div class="modal-reward">🪙 Up to +${reward}</div><div class="modal-instructions" id="qsInfo">Q1/${total} — Streak: 0x</div><div class="trivia-question" id="qsQ"></div><div class="trivia-options" id="qsOpts"></div><div id="qsRes"></div>`;
+  function show(){
+    answered=false;
+    if(idx>=total){
+      if(totalEarned>0){document.getElementById('qsRes').innerHTML=`<div class="modal-result win">🎉 ${score}/${total} correct! +${totalEarned}</div>`;awardCredits(totalEarned,`Quiz Streak (${score}/${total})`);}
+      else document.getElementById('qsRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — No credits earned</div>`;
+      setTimeout(closeModal,2500);return;
+    }
+    document.getElementById('qsInfo').textContent=`Q${idx+1}/${total} — Streak: ${streak}x 🔥 — Earned: ${totalEarned}`;
+    document.getElementById('qsQ').textContent=qs[idx].q;
+    document.getElementById('qsOpts').innerHTML=qs[idx].o.map((o,i)=>`<button class="trivia-opt" data-i="${i}">${o}</button>`).join('');
+    document.querySelectorAll('#qsOpts .trivia-opt').forEach(b=>b.addEventListener('click',()=>{
+      if(answered)return;answered=true;const ci=parseInt(b.dataset.i);
+      if(ci===qs[idx].a){score++;streak++;const mult=Math.min(streak,4);const pts=Math.round((reward/total)*mult);totalEarned+=pts;b.classList.add('correct-answer');}
+      else{streak=0;b.classList.add('wrong-answer');document.querySelectorAll('#qsOpts .trivia-opt').forEach(x=>{if(parseInt(x.dataset.i)===qs[idx].a)x.classList.add('correct-answer');});}
+      idx++;setTimeout(show,800);
+    }));
+  }
+  show();
+}
+
+/* ═══ 26. RIDDLE CHALLENGE ═══ */
+function startRiddle(reward){
+  const RS=[
+    {q:'I have cities but no houses, forests but no trees, water but no fish. What am I?',o:['A globe','A map','A painting','A dream'],a:1},
+    {q:'What has keys but no locks?',o:['A piano','A treasure chest','A door','A computer'],a:0},
+    {q:'The more you take, the more you leave behind. What am I?',o:['Footsteps','Time','Breath','Money'],a:0},
+    {q:'I speak without a mouth and hear without ears. I have no body, but I come alive with wind.',o:['An echo','A ghost','A flag','A bell'],a:0},
+    {q:'What gets wetter the more it dries?',o:['A sponge','A towel','Rain','Ice'],a:1},
+    {q:'I have hands but can\'t clap. What am I?',o:['A statue','A clock','A glove','A robot'],a:1},
+    {q:'What can travel around the world while staying in a corner?',o:['A spider','A stamp','Wi-Fi','Light'],a:1},
+    {q:'What has a head and tail but no body?',o:['A snake','A coin','A nail','A worm'],a:1},
+    {q:'The more of me there is, the less you see. What am I?',o:['Fog','Darkness','Water','Noise'],a:1},
+    {q:'What can you catch but not throw?',o:['A ball','A cold','A fish','A wave'],a:1},
+    {q:'What has one eye but cannot see?',o:['A pirate','A needle','A cyclops','A camera'],a:1},
+    {q:'I fly without wings. I cry without eyes. What am I?',o:['A bird','A cloud','A plane','Wind'],a:1},
+  ];
+  let idx=0,score=0,total=3,answered=false;const qs=[...RS].sort(()=>Math.random()-0.5).slice(0,total);
+  modalContent.innerHTML=`<div class="modal-title">🧩 Riddle Challenge</div><div class="modal-subtitle">Solve 3 riddles — need 2 correct!</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-instructions" id="rdInfo">Riddle 1/${total}</div><div class="trivia-question" id="rdQ" style="font-style:italic"></div><div class="trivia-options" id="rdOpts"></div><div id="rdRes"></div>`;
+  function show(){
+    answered=false;
+    if(idx>=total){
+      if(score>=2){document.getElementById('rdRes').innerHTML=`<div class="modal-result win">🎉 ${score}/${total}! +${reward}</div>`;awardCredits(reward,`Riddle (${score}/${total})`);}
+      else document.getElementById('rdRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need 2+</div>`;
+      setTimeout(closeModal,2500);return;
+    }
+    document.getElementById('rdInfo').textContent=`Riddle ${idx+1}/${total} — Score: ${score}`;
+    document.getElementById('rdQ').textContent=qs[idx].q;
+    document.getElementById('rdOpts').innerHTML=qs[idx].o.map((o,i)=>`<button class="trivia-opt" data-i="${i}">${o}</button>`).join('');
+    document.querySelectorAll('#rdOpts .trivia-opt').forEach(b=>b.addEventListener('click',()=>{
+      if(answered)return;answered=true;const ci=parseInt(b.dataset.i);
+      if(ci===qs[idx].a){score++;b.classList.add('correct-answer');}else{b.classList.add('wrong-answer');document.querySelectorAll('#rdOpts .trivia-opt').forEach(x=>{if(parseInt(x.dataset.i)===qs[idx].a)x.classList.add('correct-answer');});}
+      idx++;setTimeout(show,800);
+    }));
+  }
+  show();
+}
+
+/* ═══ 27. SLIDE PUZZLE ═══ */
+function startSlider(reward){
+  let tiles=[1,2,3,4,5,6,7,8,0],moves=0,done=false;const start=Date.now(),timeLimit=60000;
+  function shuffle(){for(let i=0;i<200;i++){const ei=tiles.indexOf(0),neighbors=[];const r=Math.floor(ei/3),c=ei%3;if(r>0)neighbors.push(ei-3);if(r<2)neighbors.push(ei+3);if(c>0)neighbors.push(ei-1);if(c<2)neighbors.push(ei+1);const ni=neighbors[Math.floor(Math.random()*neighbors.length)];[tiles[ei],tiles[ni]]=[tiles[ni],tiles[ei]];}}
+  shuffle();
+  function isSolved(){return tiles.every((t,i)=>t===(i+1)%9);}
+  modalContent.innerHTML=`<div class="modal-title">🧩 Slide Puzzle</div><div class="modal-subtitle">Arrange 1-8 in order! 60s limit</div><div class="modal-reward">🪙 +${reward}</div><div class="modal-timer" id="slTimer">60.0s</div><div style="text-align:center;font-size:.85rem;color:var(--muted);margin:4px 0" id="slInfo">Moves: 0</div><div class="slider-grid" id="slGrid"></div><div id="slRes"></div>`;
+  function render(){
+    const g=document.getElementById('slGrid');if(!g)return;g.innerHTML='';
+    tiles.forEach((t,i)=>{
+      const d=document.createElement('div');d.className='slider-tile '+(t===0?'empty':'filled');
+      if(t!==0)d.textContent=t;
+      d.addEventListener('click',()=>{
+        if(done||t===0)return;
+        const ei=tiles.indexOf(0),r1=Math.floor(i/3),c1=i%3,r2=Math.floor(ei/3),c2=ei%3;
+        if((Math.abs(r1-r2)+Math.abs(c1-c2))===1){[tiles[i],tiles[ei]]=[tiles[ei],tiles[i]];moves++;const info=document.getElementById('slInfo');if(info)info.textContent=`Moves: ${moves}`;render();
+          if(isSolved()){done=true;clearInterval(timer);gameActive=false;document.getElementById('slRes').innerHTML=`<div class="modal-result win">🎉 Solved in ${moves} moves! +${reward}</div>`;awardCredits(reward,`Slide Puzzle (${moves} moves)`);registerTimer(setTimeout(closeModal,2500));}
+        }
+      });
+      g.appendChild(d);
+    });
+  }
+  const timer=registerTimer(setInterval(()=>{
+    const r=Math.max(0,timeLimit-(Date.now()-start))/1000;
+    const el=document.getElementById('slTimer');if(!el){clearInterval(timer);return;}
+    el.textContent=r.toFixed(1)+'s';if(r<=10)el.classList.add('danger');
+    if(r<=0&&!done){done=true;clearInterval(timer);gameActive=false;
+      document.getElementById('slRes').innerHTML=`<div class="modal-result lose">⏰ Time's up!</div>`;
+      registerTimer(setTimeout(closeModal,2000));}
+  },100));
+  render();
+}
+
+/* ═══ 28. MATH BLITZ ═══ */
+function startMath(reward){
+  const totalR=10;let round=0,streak=0,score=0,answering=false;
+  function genProblem(d){
+    const ops=['+','-','×'];if(d>=5)ops.push('÷');const op=ops[Math.floor(Math.random()*ops.length)];let a,b,ans;const range=Math.min(10+d*5,50);
+    switch(op){case'+':a=Math.floor(Math.random()*range)+1;b=Math.floor(Math.random()*range)+1;ans=a+b;break;case'-':a=Math.floor(Math.random()*range)+1;b=Math.floor(Math.random()*a)+1;ans=a-b;break;case'×':a=Math.floor(Math.random()*Math.min(range,15))+2;b=Math.floor(Math.random()*Math.min(range,15))+2;ans=a*b;break;case'÷':b=Math.floor(Math.random()*12)+2;ans=Math.floor(Math.random()*12)+1;a=b*ans;break;}
+    return{text:`${a} ${op} ${b}`,answer:ans};
+  }
+  function genOpts(correct){const o=new Set([correct]);while(o.size<4){const f=correct+(Math.floor(Math.random()*20)-10||1);if(f>=0)o.add(f);}return[...o].sort(()=>Math.random()-0.5);}
+  modalContent.innerHTML=`<div class="modal-title">🧮 Math Blitz</div><div class="modal-subtitle" id="mSub">Round 1/${totalR}</div><div class="modal-reward">🪙 Up to +${reward}</div><div class="math-streak" id="mStreak"></div><div class="math-multiplier" id="mMult">Streak: 0x 🔥</div><div class="modal-timer" id="mTimer">5.0s</div><div class="math-problem" id="mProb"></div><div class="math-options" id="mOpts"></div><div id="mRes"></div>`;
+  function updateDots(){const el=document.getElementById('mStreak');if(el)el.innerHTML=Array.from({length:totalR},(_,i)=>`<div class="math-streak-dot${i<score?' filled':''}"></div>`).join('');const mel=document.getElementById('mMult');if(mel)mel.textContent=`Streak: ${streak}x 🔥`;}
+  let roundTimer=null;
+  function startRound(){
+    if(roundTimer){clearInterval(roundTimer);roundTimer=null;}
+    if(round>=totalR){
+      gameActive=false;const pct=score/totalR;const fr=Math.round(reward*pct);
+      if(fr>0){document.getElementById('mRes').innerHTML=`<div class="modal-result win">🎉 ${score}/${totalR}! +${fr}</div>`;awardCredits(fr,`Math Blitz (${score}/${totalR})`);}
+      else document.getElementById('mRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${totalR}</div>`;
+      registerTimer(setTimeout(closeModal,2500));return;
+    }
+    const d=Math.floor(round/2)+1,prob=genProblem(d),opts=genOpts(prob.answer),tl=Math.max(2,5-Math.floor(round/3)*0.5);
+    answering=false;
+    const sub=document.getElementById('mSub');if(sub)sub.textContent=`Round ${round+1}/${totalR}`;
+    const probEl=document.getElementById('mProb');if(probEl)probEl.textContent=`${prob.text} = ?`;
+    updateDots();
+    const timerEl=document.getElementById('mTimer');if(timerEl){timerEl.textContent=tl.toFixed(1)+'s';timerEl.classList.remove('danger');}
+    const optsEl=document.getElementById('mOpts');if(optsEl)optsEl.innerHTML=opts.map(o=>`<button class="math-option" data-v="${o}">${o}</button>`).join('');
+    answering=true;const st=Date.now(),tlMs=tl*1000;
+    roundTimer=registerTimer(setInterval(()=>{
+      const rem=Math.max(0,tlMs-(Date.now()-st))/1000;
+      if(timerEl){timerEl.textContent=rem.toFixed(1)+'s';if(rem<=1.5)timerEl.classList.add('danger');}
+      if(rem<=0){clearInterval(roundTimer);answering=false;streak=0;round++;registerTimer(setTimeout(startRound,400));}
+    },100));
+    document.querySelectorAll('#mOpts .math-option').forEach(b=>b.addEventListener('click',()=>{
+      if(!answering)return;answering=false;clearInterval(roundTimer);
+      if(parseInt(b.dataset.v)===prob.answer){score++;streak++;b.classList.add('correct-answer');}
+      else{streak=0;b.classList.add('wrong-answer');document.querySelectorAll('#mOpts .math-option').forEach(x=>{if(parseInt(x.dataset.v)===prob.answer)x.classList.add('correct-answer');});}
+      round++;registerTimer(setTimeout(startRound,500));
+    }));
+  }
   startRound();
 }
 
-/* ═══════════════════════════════════════════
-   CREDIT POP ANIMATION
-   ═══════════════════════════════════════════ */
-function showCreditPop(amount, card){
-  const pop=document.createElement('div');
-  pop.className='credit-pop';
-  pop.textContent='+'+amount;
-  const r=card.getBoundingClientRect();
-  pop.style.left=(r.left+r.width/2-30)+'px';
-  pop.style.top=(r.top-10)+'px';
-  document.body.appendChild(pop);
-  setTimeout(()=>pop.remove(),900);
-}
-
-/* ═══════════════════════════════════════════
-   HISTORY
-   ═══════════════════════════════════════════ */
-function addHistory(amount, label='Credits Claimed'){
-  historyData.unshift({amount, label, time:new Date()});
-  if(historyData.length>15) historyData.pop();
-  renderHistory();
-}
-
-function renderHistory(){
-  const list=document.getElementById('historyList');
-  if(!historyData.length){
-    list.innerHTML='<div class="history-empty">No claims yet. Complete a challenge!</div>';
-    return;
+/* ═══ 29. MEGA TRIVIA (10,000 — LEGENDARY) ═══ */
+function startMegaTrivia(reward){
+  const QS=[
+    {q:'What is the chemical formula for table salt?',o:['NaCl','KCl','CaCl2','MgCl2'],a:0},
+    {q:'In what year did World War I begin?',o:['1912','1914','1916','1918'],a:1},
+    {q:'Which programming language was created first?',o:['C','Java','Fortran','Python'],a:2},
+    {q:'What is the deepest ocean trench?',o:['Puerto Rico','Tonga','Mariana','Java'],a:2},
+    {q:'Who developed the theory of relativity?',o:['Newton','Bohr','Einstein','Hawking'],a:2},
+    {q:'What is the smallest country by area?',o:['Monaco','Vatican City','San Marino','Liechtenstein'],a:1},
+    {q:'How many elements are in the periodic table (2024)?',o:['112','118','120','126'],a:1},
+    {q:'What is the longest river in the world?',o:['Amazon','Mississippi','Yangtze','Nile'],a:3},
+    {q:'In binary, what is 1010?',o:['8','10','12','14'],a:1},
+    {q:'What is the rarest blood type?',o:['O-','A-','B-','AB-'],a:3},
+    {q:'Which element has atomic number 79?',o:['Silver','Gold','Platinum','Copper'],a:1},
+    {q:'What is the speed of sound in m/s (approx)?',o:['300','343','400','500'],a:1},
+    {q:'Who wrote "The Art of War"?',o:['Confucius','Sun Tzu','Lao Tzu','Miyamoto'],a:1},
+    {q:'What percentage of Earth is covered by water?',o:['51%','61%','71%','81%'],a:2},
+    {q:'Which planet rotates on its side?',o:['Neptune','Uranus','Saturn','Venus'],a:1},
+    {q:'What year was JavaScript created?',o:['1993','1995','1997','1999'],a:1},
+    {q:'What is the largest bone in the body?',o:['Tibia','Humerus','Femur','Pelvis'],a:2},
+    {q:'Who painted "The Starry Night"?',o:['Monet','Van Gogh','Picasso','Rembrandt'],a:1},
+    {q:'What is absolute zero in Celsius?',o:['-273.15','-300','-255.15','-200'],a:0},
+    {q:'Which company created the first smartphone?',o:['Apple','Nokia','IBM','Motorola'],a:2},
+  ];
+  let idx=0,score=0,total=10,answered=false;const qs=[...QS].sort(()=>Math.random()-0.5).slice(0,total);
+  modalContent.innerHTML=`<div class="modal-title">🏆 MEGA TRIVIA</div><div class="modal-subtitle" style="color:var(--gold)">10 hard questions — Must get ALL 10 correct!</div><div class="modal-reward" style="font-size:1rem">🪙 +${reward.toLocaleString()} credits</div><div class="modal-instructions" id="mtInfo">Question 1/${total} — ❌ = Game Over</div><div class="trivia-question" id="mtQ"></div><div class="trivia-options" id="mtOpts"></div><div id="mtRes"></div>`;
+  function show(){
+    answered=false;
+    if(idx>=total&&score>=total){
+      document.getElementById('mtRes').innerHTML=`<div class="modal-result win" style="font-size:1.4rem">🏆 PERFECT 10/10! +${reward.toLocaleString()} CREDITS! 🏆</div>`;
+      awardCredits(reward,`MEGA TRIVIA (10/10)`);setTimeout(closeModal,3000);return;
+    }
+    if(idx>=total){document.getElementById('mtRes').innerHTML=`<div class="modal-result lose">❌ ${score}/${total} — Need perfect score!</div>`;setTimeout(closeModal,2500);return;}
+    document.getElementById('mtInfo').textContent=`Question ${idx+1}/${total} — Score: ${score}/${idx} — One wrong = over!`;
+    document.getElementById('mtQ').textContent=qs[idx].q;
+    document.getElementById('mtOpts').innerHTML=qs[idx].o.map((o,i)=>`<button class="trivia-opt" data-i="${i}">${o}</button>`).join('');
+    document.querySelectorAll('#mtOpts .trivia-opt').forEach(b=>b.addEventListener('click',()=>{
+      if(answered)return;answered=true;const ci=parseInt(b.dataset.i);
+      if(ci===qs[idx].a){score++;b.classList.add('correct-answer');idx++;setTimeout(show,800);}
+      else{b.classList.add('wrong-answer');document.querySelectorAll('#mtOpts .trivia-opt').forEach(x=>{if(parseInt(x.dataset.i)===qs[idx].a)x.classList.add('correct-answer');});
+        document.getElementById('mtRes').innerHTML=`<div class="modal-result lose">💀 WRONG! Game over at ${score}/${total}. Need PERFECT to win 10,000!</div>`;setTimeout(closeModal,3000);}
+    }));
   }
-  list.innerHTML = historyData.map(h=>{
-    const t=h.time.toLocaleTimeString();
-    return `
-      <div class="history-item">
-        <div class="hi-text">
-          <div class="hi-label">${h.label}</div>
-          <div class="hi-time">${t}</div>
-        </div>
-        <div class="hi-amount">+${h.amount.toLocaleString()}</div>
-      </div>
-    `;
-  }).join('');
+  show();
 }
-
-/* ═══════════════════════════════════════════
-   NAV HELPERS
-   ═══════════════════════════════════════════ */
-document.getElementById('navAvatar')?.addEventListener('click',()=>{
-  window.location.href='profile.html';
-});
-
-const hamburger=document.getElementById('hamburger');
-const mobileMenu=document.getElementById('mobileMenu');
-hamburger?.addEventListener('click',()=>{
-  hamburger.classList.toggle('open');
-  mobileMenu.classList.toggle('open');
-});
-
-window.addEventListener('scroll',()=>{
-  document.getElementById('navbar')?.classList.toggle('scrolled', window.scrollY>20);
-});
 </script>
 </body>
 </html>
