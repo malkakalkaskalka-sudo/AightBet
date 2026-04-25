@@ -3,6 +3,22 @@
   var exempt=['ban.html','maintenance.html','support.html','index.html',''];
   if(exempt.indexOf(page)!==-1)return;
 
+  // ── LQM: apply instantly from localStorage to avoid flash, then sync from DB ──
+  (function(){
+    var lqmStyle=document.createElement('style');
+    lqmStyle.id='lqm-style';
+    lqmStyle.textContent=
+      'body.lqm .bg-gradient,body.lqm .orb,body.lqm .grid-overlay,body.lqm #particles{display:none!important}'+
+      'body.lqm *,body.lqm *::before,body.lqm *::after{animation:none!important;transition:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;will-change:auto!important}'+
+      'body.lqm .navbar{background:rgba(10,10,15,.97)!important}';
+    if(!document.getElementById('lqm-style'))document.head.appendChild(lqmStyle);
+
+    // Apply immediately from localStorage so there's no animation flash on load
+    if(localStorage.getItem('aightbet-lqm')==='true'){
+      document.body?document.body.classList.add('lqm'):document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('lqm');});
+    }
+  })();
+
   function waitForFirebase(cb){
     if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0){cb();return;}
     var tries=0;
@@ -27,7 +43,7 @@
       }
     });
 
-    // Ban check + global messages
+    // Ban check + global messages + LQM sync
     auth.onAuthStateChanged(function(u){
       if(!u)return;
       if(u.email==='support@support.com')return;
@@ -36,6 +52,13 @@
         if(snap.val()===true){
           window.location.href='ban.html';
         }
+      });
+
+      // ── LQM: sync from DB (source of truth), update localStorage to match ──
+      rtdb.ref('users/'+u.uid+'/lqm').once('value',function(snap){
+        var lqmOn=snap.val()===true;
+        document.body.classList.toggle('lqm',lqmOn);
+        localStorage.setItem('aightbet-lqm',lqmOn?'true':'false');
       });
 
       // Global messages — check for unseen messages

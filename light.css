@@ -1,0 +1,144 @@
+/* Light theme overrides */
+
+/* Light theme variables */
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: rgba(15,23,42,.04);
+  --surface2: rgba(15,23,42,.06);
+  --border: rgba(15,23,42,.1);
+  --border2: rgba(15,23,42,.2);
+  --accent: #8b5cf6;
+  --accent2: #06b6d4;
+  --accent3: #ec4899;
+  --glow: rgba(139,92,246,.25);
+  --text: #0f172a;
+  --muted: #475569;
+  --gold: #b45309;
+  --radius: 16px;
+}
+
+body[data-theme="light"],
+:root[data-theme="light"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Keep navbar dark in light mode */
+:root[data-theme="light"] .navbar,
+:root[data-theme="light"] .navbar.scrolled {
+  background: rgba(10,10,15,0.85) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── CK Widget: light mode overrides ──────────────────── */
+:root[data-theme="light"] #ck-widget .ck-card,
+body[data-theme="light"]  #ck-widget .ck-card {
+  background: rgba(255,255,255,.82);
+  border-color: rgba(190,24,93,.18);
+  box-shadow: 0 2px 10px rgba(244,114,182,.09);
+  color: #1e1b2e;
+}
+:root[data-theme="light"] .ck-card .cw-val,
+body[data-theme="light"]  .ck-card .cw-val {
+  color: #1e1b2e;
+}
+:root[data-theme="light"] .ck-card .cw-lbl,
+body[data-theme="light"]  .ck-card .cw-lbl {
+  color: var(--accent, #8b5cf6);
+}
+:root[data-theme="light"] .ck-card .cw-sub,
+body[data-theme="light"]  .ck-card .cw-sub {
+  color: #9ca3af;
+}
+:root[data-theme="light"] .ck-card .cw-bar,
+body[data-theme="light"]  .ck-card .cw-bar {
+  background: rgba(0,0,0,.08);
+}
+
+/* Credits button */
+:root[data-theme="light"] #ck-credits-btn,
+body[data-theme="light"]  #ck-credits-btn {
+  background: linear-gradient(135deg, #fce7f3, #f0fdf4);
+  border-color: rgba(190,24,93,.33);
+  box-shadow: 0 2px 10px rgba(244,114,182,.09);
+}
+:root[data-theme="light"] #ck-credits-btn .cbtn-val,
+body[data-theme="light"]  #ck-credits-btn .cbtn-val {
+  color: #1e1b2e;
+}
+:root[data-theme="light"] #ck-credits-btn .cbtn-lbl,
+:root[data-theme="light"] #ck-credits-btn .cbtn-cd,
+body[data-theme="light"]  #ck-credits-btn .cbtn-lbl,
+body[data-theme="light"]  #ck-credits-btn .cbtn-cd {
+  color: #be185d;
+}
+:root[data-theme="light"] #ck-credits-btn .cbtn-sub,
+body[data-theme="light"]  #ck-credits-btn .cbtn-sub {
+  color: #9ca3af;
+}
+
+/* Toast */
+:root[data-theme="light"] #ck-toast,
+body[data-theme="light"]  #ck-toast {
+  background: rgba(255,248,254,.97);
+  border-color: rgba(190,24,93,.16);
+  border-left-color: #be185d;
+  box-shadow: 0 16px 48px rgba(0,0,0,.12), 0 0 40px -10px rgba(190,24,93,.28);
+}
+:root[data-theme="light"] #ck-toast .ck-tt,
+body[data-theme="light"]  #ck-toast .ck-tt {
+  color: #1e1b2e;
+}
+:root[data-theme="light"] #ck-toast .ck-note,
+body[data-theme="light"]  #ck-toast .ck-note {
+  color: #6b7280;
+}
+:root[data-theme="light"] #ck-toast .ck-note::before,
+body[data-theme="light"]  #ck-toast .ck-note::before {
+  color: #be185d;
+}
+:root[data-theme="light"] #ck-toast .ck-tv,
+body[data-theme="light"]  #ck-toast .ck-tv {
+  color: #be185d;
+  background: rgba(190,24,93,.10);
+  border-color: rgba(190,24,93,.22);
+}
+
+/* Badge + toggle */
+:root[data-theme="light"] #ck-badge,
+:root[data-theme="light"] #ck-lm-toggle,
+body[data-theme="light"]  #ck-badge,
+body[data-theme="light"]  #ck-lm-toggle {
+  background: rgba(255,255,255,.75);
+  box-shadow: 0 2px 12px rgba(244,114,182,.18);
+}
+
+/* ── Low Quality Mode – light theme overrides ─────── */
+:root[data-theme="light"] .lqm-row,
+body[data-theme="light"]  .lqm-row {
+  border-top-color: var(--border);
+}
+:root[data-theme="light"] .lqm-row .theme-row-label svg,
+body[data-theme="light"]  .lqm-row .theme-row-label svg {
+  stroke: #b45309;
+}
+:root[data-theme="light"] .toggle-track.lqm-track,
+body[data-theme="light"]  .toggle-track.lqm-track {
+  background: rgba(0,0,0,.12);
+}
+:root[data-theme="light"] .toggle input:checked~.toggle-track.lqm-track,
+body[data-theme="light"]  .toggle input:checked~.toggle-track.lqm-track {
+  background: #b45309;
+}
+:root[data-theme="light"] #lqmToggle:checked~.toggle-thumb svg,
+body[data-theme="light"]  #lqmToggle:checked~.toggle-thumb svg {
+  stroke: #b45309;
+}
+/* LQM + light: keep cards readable without backdrop-filter */
+body[data-theme="light"].lqm .settings-card,
+body[data-theme="light"].lqm .profile-card {
+  background: rgba(255,255,255,.92) !important;
+}
+body[data-theme="light"].lqm .navbar {
+  background: rgba(10,10,15,.97) !important;
+}

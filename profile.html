@@ -156,6 +156,28 @@
       .settings-card{padding:20px}
     }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+    /* ── Low Quality Mode ─────────────────────────────── */
+    .lqm-row{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+    .lqm-row .theme-row-label svg{stroke:#f59e0b}
+    .toggle-track.lqm-track{background:rgba(255,255,255,.1)}
+    .toggle input:checked~.toggle-track.lqm-track{background:#f59e0b}
+    /* When LQM is active, kill all heavy rendering */
+    body.lqm .bg-gradient,
+    body.lqm .orb,
+    body.lqm .grid-overlay,
+    body.lqm #particles{display:none!important}
+    body.lqm *,body.lqm *::before,body.lqm *::after{
+      animation:none!important;
+      transition:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      will-change:auto!important;
+    }
+    body.lqm .navbar{background:rgba(10,10,15,.97)!important}
+    body.lqm .settings-card,body.lqm .profile-card{background:rgba(255,255,255,.06)!important}
+    /* LQM badge shown in toggle thumb when active */
+    #lqmToggle:checked~.toggle-thumb svg{stroke:#f59e0b}
   </style>
 </head>
 <body>
@@ -226,6 +248,16 @@
               <div class="theme-row-sub">Switch between dark and light theme</div>
             </div>
             <label class="toggle"><input type="checkbox" id="themeToggle"/><div class="toggle-track"></div><div class="toggle-thumb"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></div></label>
+          </div>
+          <div class="theme-row lqm-row">
+            <div>
+              <div class="theme-row-label">
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Low Quality Mode
+              </div>
+              <div class="theme-row-sub">Disable animations &amp; effects for slow devices</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="lqmToggle"/><div class="toggle-track lqm-track"></div><div class="toggle-thumb"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></label>
           </div>
         </div>
 
@@ -359,12 +391,40 @@ auth.onAuthStateChanged(u=>{
     applyTheme(theme,false);
     const toggle=document.getElementById('themeToggle');
     if(toggle) toggle.checked = theme === 'light';
+
+    // lqm
+    const lqmOn = data.lqm ?? (localStorage.getItem('aightbet-lqm') === 'true');
+    applyLQM(lqmOn, false);
+    const lqmToggle=document.getElementById('lqmToggle');
+    if(lqmToggle) lqmToggle.checked = !!lqmOn;
   });
 });
 
 /* === THEME TOGGLE === */
 document.getElementById('themeToggle')?.addEventListener('change',e=>{
   applyTheme(e.target.checked ? 'light' : 'dark');
+});
+
+/* === LOW QUALITY MODE === */
+function applyLQM(on, persist=true){
+  if (window.__ckApplyLQM) window.__ckApplyLQM(on);
+  else { document.body.classList.toggle('lqm', on); localStorage.setItem('aightbet-lqm', on ? 'true' : 'false'); }
+  if(persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({lqm: on});
+}
+
+// Restore LQM on load
+(()=>{
+  const saved = localStorage.getItem('aightbet-lqm');
+  if(saved === 'true'){
+    document.body.classList.add('lqm');
+    const tog = document.getElementById('lqmToggle');
+    if(tog) tog.checked = true;
+  }
+})();
+
+document.getElementById('lqmToggle')?.addEventListener('change', e=>{
+  applyLQM(e.target.checked);
+  showToast(e.target.checked ? '⚡ Low Quality Mode on – animations disabled.' : '✨ Full quality restored.', 'success', 3000);
 });
 
 /* === AVATAR UPLOAD (stores base64 in RTDB, not Auth) === */

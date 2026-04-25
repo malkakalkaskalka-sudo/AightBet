@@ -606,6 +606,11 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
 
     let time = 0;
     function tick() {
+      if (document.body && document.body.classList.contains('lqm')) {
+        ctx.clearRect(0, 0, W, H);
+        requestAnimationFrame(tick);
+        return;
+      }
       ctx.clearRect(0, 0, W, H);
       time++;
       pool.forEach((p, i) => {
@@ -959,6 +964,54 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
   }
 
   injectStyles();
+
+  /* ── Global Low Quality Mode ──────────────────────────
+     Reads localStorage on every page that loads update.js.
+     body.lqm kills animations, backdrop-filters, orbs, and
+     the petal canvas without touching any other behaviour.
+  ─────────────────────────────────────────────────────── */
+  (function injectLQMStyles() {
+    const s = document.createElement('style');
+    s.id = 'ck-lqm-styles';
+    s.textContent = `
+      body.lqm .bg-gradient,
+      body.lqm .orb,
+      body.lqm .grid-overlay,
+      body.lqm #particles,
+      body.lqm #ck-canvas { display: none !important; }
+
+      body.lqm *,
+      body.lqm *::before,
+      body.lqm *::after {
+        animation: none !important;
+        transition: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        will-change: auto !important;
+      }
+      body.lqm .navbar { background: rgba(10,10,15,.97) !important; }
+      body.lqm .settings-card,
+      body.lqm .profile-card { background: rgba(255,255,255,.06) !important; }
+      body[data-theme="light"].lqm .settings-card,
+      body[data-theme="light"].lqm .profile-card { background: rgba(255,255,255,.92) !important; }
+      body[data-theme="light"].lqm .navbar { background: rgba(10,10,15,.97) !important; }
+    `;
+    document.head.appendChild(s);
+  })();
+
+  /* Apply LQM immediately from localStorage on every page */
+  function ckApplyLQM(on) {
+    document.body && document.body.classList.toggle('lqm', on);
+    try { localStorage.setItem('aightbet-lqm', on ? 'true' : 'false'); } catch {}
+  }
+  window.__ckApplyLQM = ckApplyLQM;
+
+  try {
+    if (localStorage.getItem('aightbet-lqm') === 'true') {
+      if (document.body) document.body.classList.add('lqm');
+      else document.addEventListener('DOMContentLoaded', () => document.body.classList.add('lqm'));
+    }
+  } catch {}
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
