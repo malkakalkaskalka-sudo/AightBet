@@ -269,9 +269,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-<script src="checker.js"></script>
 
 
+
+<script src="update.js"></script>
 <script>
 /* === FIREBASE INIT === */
 const firebaseConfig = {
@@ -288,7 +289,9 @@ firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 const auth = firebase.auth();
 const rtdb = firebase.database();
-
+</script>
+<script src="checker.js"></script>
+<script>
 /* === TOAST === */
 function showToast(msg, type='error', dur=4000){
   const el=document.getElementById('toast');
@@ -302,6 +305,15 @@ function showToast(msg, type='error', dur=4000){
 function applyTheme(theme, persist=true){
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('aightbet-theme', theme);
+  // Sync with update.js so its styles also update
+  localStorage.setItem('ck-lightmode', theme === 'light' ? 'true' : 'false');
+  // Tell update.js to re-inject its styles
+  const old = document.getElementById('ck-styles');
+  if (old) old.remove();
+  if (window.__ckFirebase !== undefined) {
+    // Re-trigger update.js style injection if it's loaded
+    window.dispatchEvent(new Event('ck-theme-changed'));
+  }
   if (persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({ theme });
 }
 

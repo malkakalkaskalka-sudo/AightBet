@@ -156,6 +156,23 @@
       .spinner-item .si-img{width:44px;height:44px}
       .items-preview{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
     }
+
+    /* ── CASE INVENTORY SECTION ── */
+    .inv-section{max-width:1100px;margin:0 auto;padding:0 24px 60px}
+    .inv-heading{font-size:1.05rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--text)}
+    .inv-heading svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2}
+    .inv-badge-count{display:inline-flex;align-items:center;padding:2px 10px;border-radius:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2);color:var(--green);font-size:.6rem;font-weight:700;margin-left:4px}
+    .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+    .inv-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;transition:transform .2s,border-color .2s;position:relative;overflow:hidden}
+    .inv-card:hover{transform:translateY(-3px);border-color:var(--border2)}
+    .inv-card .ic-img{width:64px;height:64px;object-fit:contain;margin:0 auto 8px;display:block;border-radius:8px}
+    .inv-card .ic-name{font-size:.72rem;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .inv-card .ic-val{font-size:.65rem;color:var(--gold);font-weight:600;margin-bottom:2px}
+    .inv-card .ic-rar{font-size:.48rem;font-weight:800;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.4px;display:inline-block;margin-bottom:5px}
+    .inv-card .ic-source{font-size:.5rem;color:var(--muted)}
+    .inv-card .ic-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+    .inv-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.88rem;grid-column:1/-1}
+    .inv-empty span{font-size:2.5rem;display:block;margin-bottom:10px}
   </style>
 </head>
 <body>
@@ -228,6 +245,17 @@
     <section class="cases-wrapper">
       <div class="case-grid" id="caseGrid"></div>
     </section>
+
+  <!-- INVENTORY SECTION -->
+  <section class="inv-section">
+    <div class="inv-heading">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      My Inventory
+      <span class="inv-badge-count" id="invBadge">0 items</span>
+    </div>
+    <div class="inv-grid" id="invGrid"></div>
+  </section>
+
   </main>
 
   <footer class="footer">&copy; 2026 AightBet. Fake casino – no real money.</footer>
@@ -1054,6 +1082,24 @@
 
     await adjustCredits(winner.value);
 
+    // ── SAVE TO INVENTORY ──
+    if (currentUser) {
+      try {
+        const invEntry = {
+          name: winner.name,
+          img: winner.img,
+          value: winner.value,
+          rarity: winner.rarity,
+          source: c.name,
+          openedAt: Date.now()
+        };
+        const invKey = winner.name.replace(/[^a-zA-Z0-9]/g, '_');
+        await rtdb.ref('users/' + currentUser.uid + '/caseInventory/' + invKey).set(invEntry);
+      } catch (e) {
+        console.error('[INV] Failed to save inventory:', e);
+      }
+    }
+
     openBtn.style.display = 'none';
     openAgainBtn.style.display = '';
     openAgainBtn.textContent = `Open Again (${c.price} 🪙)`;
@@ -1075,6 +1121,59 @@
   });
 
   /* ── Particles ── */
+
+  /* ── INVENTORY RENDER ── */
+  const RARITY_STYLES = {
+    common:    {color:'#94a3b8', bg:'rgba(148,163,184,.1)'},
+    uncommon:  {color:'#22c55e', bg:'rgba(34,197,94,.1)'},
+    rare:      {color:'#3b82f6', bg:'rgba(59,130,246,.1)'},
+    epic:      {color:'#8b5cf6', bg:'rgba(139,92,246,.1)'},
+    legendary: {color:'#f59e0b', bg:'rgba(245,158,11,.1)'},
+    mythic:    {color:'#ef4444', bg:'rgba(239,68,68,.1)'},
+  };
+
+  function renderInventory(inv) {
+    const grid = document.getElementById('invGrid');
+    const badge = document.getElementById('invBadge');
+    if (!grid) return;
+   const seen = new Set();
+const items = Object.values(inv || {}).filter(item => {
+  if (seen.has(item.name)) return false;
+  seen.add(item.name);
+  return true;
+});
+    badge.textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
+    grid.innerHTML = '';
+    if (!items.length) {
+      grid.innerHTML = '<div class="inv-empty"><span>📦</span>Nothing yet — open a case to get started!</div>';
+      return;
+    }
+    const order = {mythic:0, legendary:1, epic:2, rare:3, uncommon:4, common:5};
+    items.sort((a,b) => (order[a.rarity]||5) - (order[b.rarity]||5));
+    items.forEach(item => {
+      const rs = RARITY_STYLES[item.rarity] || RARITY_STYLES.common;
+      const card = document.createElement('div');
+      card.className = 'inv-card';
+      card.innerHTML = `
+        <img class="ic-img" src="${item.img}" alt="${item.name}" onerror="this.style.opacity='.3'"/>
+        <div class="ic-name" title="${item.name}">${item.name}</div>
+        <div class="ic-val">🪙 ${(item.value||0).toLocaleString()}</div>
+        <div class="ic-rar" style="color:${rs.color};background:${rs.bg}">${item.rarity}</div>
+        <div class="ic-source">📦 ${item.source || 'Case'}</div>
+        <div class="ic-bar" style="background:${rs.color}"></div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Listen for inventory changes in realtime
+  auth.onAuthStateChanged(u => {
+    if (!u) return;
+    rtdb.ref('users/' + u.uid + '/caseInventory').on('value', snap => {
+      renderInventory(snap.val() || {});
+    });
+  });
+
   (()=>{const canvas=document.getElementById('particles');const ctx=canvas.getContext('2d');let W,H,p=[],ms={x:-9999,y:-9999};const COUNT=Math.min(60,Math.round(window.innerWidth*0.04));const COLORS=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function resize(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*d;canvas.height=H*d;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.4+.15,c:COLORS[Math.random()*COLORS.length|0]};}function init(){resize();p=[];for(let i=0;i<COUNT;i++)p.push(mk());}function draw(){ctx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<10000){a.vx+=dx*.015/Math.sqrt(d);a.vy+=dy*.015/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fillStyle=a.c+a.a+')';ctx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<16000){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=a.c+(0.06*(1-ld/16000))+')';ctx.lineWidth=0.4;ctx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',resize);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
   </script>
 </body>

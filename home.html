@@ -579,6 +579,11 @@
     .support-chat-input::placeholder{color:var(--muted)}
     .support-chat-send{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s}
     .support-chat-send:hover{transform:translateY(-1px)}
+    /* Unread dot on FAB when support has replied */
+    .fab-unread-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:var(--gold);border-radius:50%;border:2px solid var(--bg);animation:pulse 1.5s ease-in-out infinite;}
+    .support-fab{position:relative}
+    /* Support reply tag */
+    .s-tag-support{background:rgba(34,197,94,.15);color:#4ade80}
     @media(max-width:768px){
       .support-fab-group{top:calc(var(--nav-h-mobile) + 12px);right:12px}
       .support-fab{width:38px;height:38px;font-size:1rem}
@@ -589,35 +594,7 @@
 
  
 
-/* ───────── YOUTUBE BUTTON ───────── */
-.youtube-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 18px;
-  /*─── CHANGE COLOR HERE ───*/
-  background: rgb(255, 123, 0);
-  border: 1px solid rgb(136, 61, 0);
-  /*─────────────────────────*/
-  border-radius: 50px;
-  /*─── CHANGE TEXT COLOR HERE ───*/
-  color: #000000;
-  /*─────────────────────────────*/
-  font-family: var(--font); font-size: .85rem; font-weight: 700;
-  cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  transition: background .2s, transform .15s, box-shadow .25s;
-  box-shadow: 0 4px 16px -4px rgba(255, 255, 255, 0.3);
-  position: fixed; bottom: 20px; left: 20px; z-index: 95;
-  text-decoration: none;
-}
-.youtube-btn:hover {
-  background: rgb(255, 251, 0); transform: translateY(-2px);
-  box-shadow: 0 6px 24px -4px rgb(251, 255, 0);
-}
-.youtube-btn img {
-  width: 20px; height: 20px; object-fit: contain;
-}
-@media(max-width:768px){
-  .youtube-btn { bottom: 12px; left: 12px; }
-}
+
     /* ───────── RESPONSIVE ───────── */
     @media (max-width: 768px) {
       .nav-links, .nav-credits-desktop { display: none !important; }
@@ -749,7 +726,7 @@
         <div class="stat-label">Players Online</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num" id="statGames">6</div>
+        <div class="stat-num" id="statGames">30</div>
         <div class="stat-label">Games</div>
       </div>
       <div class="stat-card">
@@ -905,13 +882,7 @@
     </div>
   </div>
 
-<!-- ════════ YOUTUBE BUTTON ════════ -->
-<a href="https://www.pornhub.com" target="_blank" class="youtube-btn" id="youtubeBtn">
-  <!--─── CHANGE LOGO IMAGE HERE (replace src path) ───-->
-  <img src="Images/logo1.png" alt="YouTube" />
-  <!--─── CHANGE BUTTON NAME HERE ───-->
-  Pornhub
-</a>
+
   <!-- Footer -->
   <footer class="footer">
     &copy; 2026 AightBet. This is a fake casino – no real money involved. Play responsibly (or don't, it's fake).
@@ -923,6 +894,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 
   <script src="checker.js"></script>
+  <script src="update.js"></script>
 
   <script>
       const firebaseConfig = {
@@ -1100,107 +1072,194 @@
         toggle: () => apply(localStorage.getItem(KEY) === 'dark' ? 'light' : 'dark')
       };
     })();
-  </script>
 
-    <script>
     /* ══════════ SUPPORT CHAT WIDGET ══════════ */
     (() => {
-      const overlay = document.getElementById('supportChatOverlay');
-      const body = document.getElementById('supportChatBody');
-      const input = document.getElementById('supportChatInput');
-      const sendBtn = document.getElementById('supportChatSend');
-      const title = document.getElementById('supportChatTitle');
-      let chatType = 'help';
-      let chatListener = null;
+      const overlay  = document.getElementById('supportChatOverlay');
+      const body     = document.getElementById('supportChatBody');
+      const input    = document.getElementById('supportChatInput');
+      const sendBtn  = document.getElementById('supportChatSend');
+      const title    = document.getElementById('supportChatTitle');
+      const fabHelp  = document.getElementById('fabHelp');
+      const fabBug   = document.getElementById('fabBug');
 
-      document.getElementById('fabHelp').addEventListener('click', () => {
-        chatType = 'help';
-        title.textContent = '💬 Help & Support';
-        openSupportChat();
-      });
+      let chatType      = 'help';
+      let msgListener   = null;   // live messages listener (stays alive in background)
+      let metaListener  = null;   // live meta listener for unread badge
+      let isOpen        = false;
+      let currentUid    = null;
+      let userName      = 'User';
 
-      document.getElementById('fabBug').addEventListener('click', () => {
-        chatType = 'bug';
-        title.textContent = '🐛 Report a Bug';
-        openSupportChat();
-      });
+      /* ── helpers ── */
+      function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+      function ago(ts) {
+        if (!ts) return '';
+        const d = Date.now() - ts;
+        if (d < 60000) return 'just now';
+        if (d < 3600000) return Math.floor(d / 60000) + 'm ago';
+        if (d < 86400000) return Math.floor(d / 3600000) + 'h ago';
+        return Math.floor(d / 86400000) + 'd ago';
+      }
 
-      document.getElementById('supportChatClose').addEventListener('click', closeSupportChat);
-      overlay.addEventListener('click', e => { if (e.target === overlay) closeSupportChat(); });
+      /* ── unread badge on FABs ── */
+      function setBadge(hasUnread) {
+        [fabHelp, fabBug].forEach(fab => {
+          let dot = fab.querySelector('.fab-unread-dot');
+          if (hasUnread) {
+            if (!dot) {
+              dot = document.createElement('span');
+              dot.className = 'fab-unread-dot';
+              fab.appendChild(dot);
+            }
+          } else {
+            if (dot) dot.remove();
+          }
+        });
+      }
 
-      function openSupportChat() {
+      /* ── start background listeners once user is known ── */
+      function startListeners(uid) {
+        if (msgListener) return; // already running
+        currentUid = uid;
+
+        // Watch messages in real-time (always)
+        msgListener = rtdb.ref('supportChats/' + uid + '/messages')
+          .orderByChild('timestamp')
+          .on('value', snap => {
+            renderMessages(snap);
+            // When chat is open, clear unread from our side (user reading)
+            if (isOpen) {
+              rtdb.ref('supportChats/' + uid + '/meta/userUnread').set(false);
+            }
+          });
+
+        // Watch meta for unread badge (support replied while chat was closed)
+        metaListener = rtdb.ref('supportChats/' + uid + '/meta/userUnread')
+          .on('value', snap => {
+            const hasUnread = !!snap.val();
+            setBadge(hasUnread);
+            if (hasUnread && isOpen) {
+              // Auto-clear if chat is already open
+              rtdb.ref('supportChats/' + uid + '/meta/userUnread').set(false);
+            }
+          });
+      }
+
+      /* ── render messages into the panel ── */
+      function renderMessages(snap) {
+        if (!snap || !snap.exists()) {
+          body.innerHTML = `<div class="support-chat-empty">${
+            chatType === 'bug'
+              ? "Describe the bug and our team will get back to you!"
+              : "Send a message and support will reply as soon as possible!"
+          }</div>`;
+          return;
+        }
+        const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+        body.innerHTML = '';
+        snap.forEach(child => {
+          const m = child.val();
+          const isUser = m.sender === 'user';
+          const bubble = document.createElement('div');
+          bubble.className = 'support-msg ' + (isUser ? 'sent' : 'received');
+          let tagHtml = '';
+          if (isUser && m.type) {
+            const tc = m.type === 'bug' ? 's-tag-bug' : 's-tag-help';
+            const tl = m.type === 'bug' ? '🐛 Bug' : '💬 Help';
+            tagHtml = `<div class="s-tag ${tc}">${tl}</div>`;
+          } else if (!isUser) {
+            tagHtml = `<div class="s-tag s-tag-support">🛡️ Support</div>`;
+          }
+          bubble.innerHTML = `${tagHtml}${esc(m.text)}<div class="s-ts">${ago(m.timestamp)}</div>`;
+          body.appendChild(bubble);
+        });
+        if (wasAtBottom) body.scrollTop = body.scrollHeight;
+      }
+
+      /* ── open chat panel ── */
+      function openSupportChat(type) {
+        chatType = type;
+        title.textContent = type === 'bug' ? '🐛 Report a Bug' : '💬 Help & Support';
         overlay.classList.add('open');
+        isOpen = true;
+
         const u = auth.currentUser;
         if (!u) return;
-        if (chatListener) rtdb.ref('supportChats/' + u.uid + '/messages').off('value', chatListener);
-        chatListener = rtdb.ref('supportChats/' + u.uid + '/messages').orderByChild('timestamp').on('value', snap => {
-          body.innerHTML = '';
-          if (!snap.exists()) {
-            body.innerHTML = `<div class="support-chat-empty">${chatType === 'bug' ? 'Describe the bug you found and we\'ll look into it!' : 'Send a message and support will reply as soon as possible!'}</div>`;
-            return;
-          }
-          snap.forEach(child => {
-            const m = child.val();
-            const bubble = document.createElement('div');
-            bubble.className = 'support-msg ' + (m.sender === 'user' ? 'sent' : 'received');
-            const tagClass = m.type === 'bug' ? 's-tag-bug' : 's-tag-help';
-            const tagLabel = m.type === 'bug' ? '🐛 Bug' : '💬 Help';
-            const tagHtml = m.type ? `<div class="s-tag ${tagClass}">${tagLabel}</div>` : '';
-            bubble.innerHTML = `${tagHtml}${escapeHTMLChat(m.text)}<div class="s-ts">${m.timestamp ? timeAgoChat(m.timestamp) : ''}</div>`;
-            body.appendChild(bubble);
-          });
-          body.scrollTop = body.scrollHeight;
-        });
+        startListeners(u.uid);
+
+        // Clear unread badge since user is now looking at chat
+        rtdb.ref('supportChats/' + u.uid + '/meta/userUnread').set(false);
+        setBadge(false);
+
+        body.scrollTop = body.scrollHeight;
         input.focus();
       }
 
+      /* ── close chat panel ── */
       function closeSupportChat() {
         overlay.classList.remove('open');
-        if (chatListener) {
-          const u = auth.currentUser;
-          if (u) rtdb.ref('supportChats/' + u.uid + '/messages').off('value', chatListener);
-          chatListener = null;
-        }
+        isOpen = false;
       }
 
+      /* ── send message ── */
       async function sendSupportMsg() {
         const text = input.value.trim();
         if (!text) return;
         const u = auth.currentUser;
         if (!u) return;
         input.value = '';
+        sendBtn.disabled = true;
 
-        let userName = 'User';
+        // Fetch username once if we don't have it yet
+        if (userName === 'User') {
+          try {
+            const snap = await rtdb.ref('users/' + u.uid).once('value');
+            const d = snap.val() || {};
+            userName = d.username || d.nickname || u.displayName || u.email || 'User';
+          } catch (e) {}
+        }
+
         try {
-          const snap = await rtdb.ref('users/' + u.uid).once('value');
-          const d = snap.val() || {};
-          userName = d.username || d.nickname || u.displayName || u.email || 'User';
-        } catch (e) {}
+          // Write message
+          await rtdb.ref('supportChats/' + u.uid + '/messages').push({
+            text: text,
+            sender: 'user',
+            type: chatType,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+          });
 
-        await rtdb.ref('supportChats/' + u.uid + '/meta').update({
-          uid: u.uid,
-          name: userName,
-          email: u.email || '',
-          lastMessageAt: firebase.database.ServerValue.TIMESTAMP,
-          hasUnread: true,
-          status: 'open',
-          lastMessage: text,
-          type: chatType
-        });
+          // Update meta so support panel shows it
+          await rtdb.ref('supportChats/' + u.uid + '/meta').update({
+            uid: u.uid,
+            name: userName,
+            email: u.email || '',
+            lastMessageAt: firebase.database.ServerValue.TIMESTAMP,
+            hasUnread: true,          // flag for support panel
+            userUnread: false,        // user is looking at chat, not unread for them
+            status: 'open',
+            lastMessage: text,
+            type: chatType
+          });
+        } catch (e) {
+          console.error('Send failed', e);
+        }
 
-        await rtdb.ref('supportChats/' + u.uid + '/messages').push({
-          text: text,
-          sender: 'user',
-          type: chatType,
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
+        sendBtn.disabled = false;
       }
 
+      /* ── wire up events ── */
+      fabHelp.addEventListener('click', () => openSupportChat('help'));
+      fabBug.addEventListener('click',  () => openSupportChat('bug'));
+      document.getElementById('supportChatClose').addEventListener('click', closeSupportChat);
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeSupportChat(); });
       sendBtn.addEventListener('click', sendSupportMsg);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') sendSupportMsg(); });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMsg(); } });
 
-      function escapeHTMLChat(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-      function timeAgoChat(ts) { const d = Date.now() - ts; if (d < 60000) return 'just now'; if (d < 3600000) return Math.floor(d / 60000) + 'm ago'; if (d < 86400000) return Math.floor(d / 3600000) + 'h ago'; return Math.floor(d / 86400000) + 'd ago'; }
+      /* ── start listeners once Firebase auth is ready ── */
+      auth.onAuthStateChanged(u => {
+        if (u) startListeners(u.uid);
+      });
+
     })();
   </script>
 </body>

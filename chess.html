@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Chess</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(139,92,246,.12), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(236,72,153,.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6,182,212,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
+
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--accent); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent3); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent2); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
+
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100; display: flex; align-items: center; padding: 0 24px; background: rgba(10,10,15,.6); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-bottom: 1px solid var(--border); transition: background .3s; }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: .9rem; font-weight: 600; color: var(--muted); border-radius: 10px; transition: color .2s, background .2s; cursor: pointer; border: none; background: transparent; font-family: var(--font); }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-credits { display: flex; align-items: center; gap: 6px; padding: 8px 16px; margin-left: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: background .2s, transform .15s; }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 14px; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s; overflow: hidden; flex-shrink: 0; }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px); flex-direction: column; padding: 24px; gap: 8px; animation: fadeSlideDown .3s ease; }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    .main { position: relative; z-index: 10; padding-top: calc(var(--nav-h) + 20px); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+    .page-header { text-align: center; padding: 32px 24px 14px; }
+    .page-header h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; animation: fadeSlideIn .5s ease both; }
+    .page-header h1 .grad { background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradMove 4s ease-in-out infinite; }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p { color: var(--muted); font-size: .95rem; max-width: 520px; margin: 0 auto; animation: fadeSlideIn .5s ease .1s both; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .game-container { width: 100%; max-width: 900px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; display: flex; gap: 24px; }
+
+    .chess-board-wrapper { flex: 1; min-width: 0; }
+    .chess-info { flex: 0 0 280px; display: flex; flex-direction: column; gap: 16px; }
+
+    .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: fadeSlideIn .4s ease; }
+    .result-banner.win { display: block; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+    .result-banner.lose { display: block; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+    .result-banner.draw { display: block; background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); }
+    .result-banner .rb-label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .result-banner.win .rb-label { color: #4ade80; }
+    .result-banner.lose .rb-label { color: #f87171; }
+    .result-banner.draw .rb-label { color: #60a5fa; }
+    .result-banner .rb-amount { font-size: 1.5rem; font-weight: 900; }
+    .result-banner.win .rb-amount { color: #22c55e; }
+    .result-banner.lose .rb-amount { color: #ef4444; }
+    .result-banner.draw .rb-amount { color: #3b82f6; }
+    .result-banner .rb-detail { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+    .difficulty-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .diff-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .diff-header .diff-title {
+      font-size: .75rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .diff-header .diff-level {
+      font-size: .82rem; font-weight: 800;
+      padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: .3px;
+    }
+    .diff-level.easy { color: #4ade80; background: rgba(34,197,94,.1); }
+    .diff-level.medium { color: #facc15; background: rgba(250,204,21,.1); }
+    .diff-level.hard { color: #fb923c; background: rgba(251,146,60,.1); }
+    .diff-level.extreme { color: #f87171; background: rgba(248,113,113,.1); }
+
+    .diff-track {
+      width: 100%; height: 6px;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .diff-fill {
+      height: 100%; border-radius: 3px;
+      transition: width .4s ease, background .4s ease;
+    }
+    .diff-fill.easy { width: 20%; background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .diff-fill.medium { width: 40%; background: linear-gradient(90deg, #eab308, #facc15); }
+    .diff-fill.hard { width: 60%; background: linear-gradient(90deg, #f97316, #fb923c); }
+    .diff-fill.extreme { width: 100%; background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .diff-stats {
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .diff-stat {
+      font-size: .7rem; color: var(--muted); font-weight: 500;
+    }
+    .diff-stat span { font-weight: 700; color: var(--text); }
+
+    /* CHESS BOARD */
+    .chess-board {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+      aspect-ratio: 1;
+      margin-bottom: 16px;
+    }
+
+    .chess-square {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all .2s;
+      border: 2px solid transparent;
+    }
+
+    .chess-square.light { background: rgba(255,255,255,.08); }
+    .chess-square.dark { background: rgba(255,255,255,.03); }
+
+    .chess-square.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(139,92,246,.3);
+      background: rgba(139,92,246,.15);
+    }
+
+    .chess-square.valid-move::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: rgba(34,197,94,.6);
+      border-radius: 50%;
+    }
+
+    .chess-square.capture-move::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(239,68,68,.6);
+      border-radius: 50%;
+    }
+
+    .chess-square.check { 
+      box-shadow: inset 0 0 20px rgba(239,68,68,.4);
+      background: rgba(239,68,68,.1);
+    }
+
+    .piece {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .turn-indicator {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .turn-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+    .turn-name { font-size: 1.1rem; font-weight: 800; }
+    .turn-name.white { color: var(--text); }
+    .turn-name.black { color: var(--accent3); }
+
+    .timer-display {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .timer-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+    .timer-value { font-size: 2rem; font-weight: 900; font-family: 'Courier New', monospace; }
+    .timer-value.warning { color: var(--gold); }
+    .timer-value.danger { color: var(--red); }
+
+    .captured-pieces {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .captured-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .captured-list { display: flex; flex-wrap: wrap; gap: 4px; min-height: 32px; }
+    .captured-piece { width: 28px; height: 28px; }
+
+    .move-history {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .move-history-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+    .move-item { font-size: .8rem; padding: 4px 6px; color: var(--text); margin-bottom: 2px; border-left: 2px solid var(--border); padding-left: 8px; }
+    .move-item.white-move { border-left-color: var(--accent2); }
+    .move-item.black-move { border-left-color: var(--accent3); }
+
+    .controls-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .control-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .control-group label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .bet-input-wrap { display: flex; align-items: center; gap: 6px; }
+    .bet-input-wrap button { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; font-family: var(--font); }
+    .bet-input-wrap button:hover { border-color: var(--accent); background: rgba(139,92,246,.08); }
+    .bet-input-wrap input { flex: 1; text-align: center; padding: 8px; font-size: 1rem; font-weight: 700; color: var(--gold); background: transparent; border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font); min-width: 0; }
+    .bet-input-wrap input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+    .quick-bets { display: flex; gap: 4px; margin-top: 8px; }
+    .quick-bet { flex: 1; padding: 6px; font-size: .7rem; font-weight: 600; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .info-display { text-align: center; }
+    .info-multi { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+    .info-chance { font-size: .8rem; color: var(--accent2); font-weight: 600; margin-top: 4px; }
+    .info-profit { font-size: .78rem; color: var(--green); font-weight: 600; margin-top: 2px; }
+
+    .action-buttons { display: flex; gap: 10px; }
+    .btn-play { flex: 1; padding: 14px; font-size: .95rem; font-weight: 800; border: none; border-radius: 10px; cursor: pointer; font-family: var(--font); transition: all .2s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-play.primary { background: linear-gradient(135deg, var(--accent), var(--accent3)); color: #fff; box-shadow: 0 4px 20px -4px rgba(139,92,246,.35); }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(139,92,246,.45); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+    .btn-play.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .btn-play.secondary:hover { background: var(--surface2); }
+
+    .footer { position: relative; z-index: 10; text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; width: 100%; }
+
+    @media (max-width: 1024px) {
+      .game-container { flex-direction: column; }
+      .chess-info { flex: none; width: 100%; }
+      .controls-panel { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 24px 16px 10px; }
+      .game-container { padding: 0 12px 36px; }
+      .chess-board { padding: 16px; gap: 1px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
+
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html"><img src="Images/logo.png" alt="AightBet" /><span>AightBet</span></a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+      <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+      <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+      <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCount">0</span></a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Store</a>
+    <a href="games.html" class="nav-link active"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>Games</a>
+    <a href="social.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Social</a>
+    <a href="profile.html" class="nav-link"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="credits.html" class="nav-credits"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg><span id="creditsCountMobile">0</span></a>
+  </div>
+
+  <main class="main">
+    <section class="page-header">
+      <h1>Play <span class="grad">Chess</span></h1>
+      <p>Bet and play chess against AI. Higher bets = stronger opponent, better payout.</p>
+    </section>
+
+    <div style="
+  position:relative;z-index:10;
+  max-width:900px;margin:0 auto 0;
+  padding:8px 20px 0;
+  animation:fadeSlideIn .4s ease both;
+">
+  <a href="chess-online.html" style="
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(236,72,153,.10));
+    border:1px solid rgba(139,92,246,.25);
+    border-radius:14px;
+    padding:14px 20px;
+    text-decoration:none;
+    gap:14px;
+    transition:border-color .2s,transform .15s,box-shadow .2s;
+    flex-wrap:wrap;
+  "
+  onmouseover="this.style.borderColor='rgba(139,92,246,.5)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px -8px rgba(139,92,246,.3)'"
+  onmouseout="this.style.borderColor='rgba(139,92,246,.25)';this.style.transform='';this.style.boxShadow=''">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.6rem">♟</span>
+      <div>
+        <div style="font-weight:900;font-size:1rem;color:#e2e8f0">Play Online Chess</div>
+        <div style="font-size:.8rem;color:#94a3b8;font-weight:600;margin-top:2px">Challenge real players · Set your bet · Winner takes the pot</div>
+      </div>
+    </div>
+    <span style="
+      background:linear-gradient(135deg,#8b5cf6,#ec4899);
+      color:#fff;font-weight:800;font-size:.82rem;
+      padding:8px 16px;border-radius:9px;
+      white-space:nowrap;flex-shrink:0;
+    ">Play Online →</span>
+  </a>
+</div>
+<br>
+
+    <div class="game-container">
+      <div class="chess-board-wrapper">
+        <div class="result-banner" id="resultBanner">
+          <div class="rb-label" id="rbLabel"></div>
+          <div class="rb-amount" id="rbAmount"></div>
+          <div class="rb-detail" id="rbDetail"></div>
+        </div>
+
+        <div class="difficulty-bar" id="diffBar">
+          <div class="diff-header">
+            <span class="diff-title">Difficulty</span>
+            <span class="diff-level easy" id="diffLevel">Easy</span>
+          </div>
+        
+          <div class="diff-track"><div class="diff-fill easy" id="diffFill"></div></div>
+          <div class="diff-stats">
+            <div class="diff-stat">AI Level: <span id="diffAI">1</span></div>
+            <div class="diff-stat">Time: <span id="diffTime">30s</span></div>
+            <div class="diff-stat">Payout: <span id="diffPayout">2.80x</span></div>
+          </div>
+        </div>
+<br>
+        <div class="chess-board" id="chessBoard"></div>
+
+        <div class="controls-panel">
+          <div class="control-group">
+            <label>Bet Amount</label>
+            <div class="bet-input-wrap">
+              <button id="betHalf">½</button>
+              <input type="number" id="betInput" value="10" min="1" />
+              <button id="betDouble">2x</button>
+            </div>
+            <div class="quick-bets">
+              <button class="quick-bet" data-bet="5">5</button>
+              <button class="quick-bet" data-bet="25">25</button>
+              <button class="quick-bet" data-bet="50">50</button>
+              <button class="quick-bet" data-bet="100">100</button>
+              <button class="quick-bet" data-bet="250">250</button>
+              <button class="quick-bet" data-bet="500">500</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <label>Game Info</label>
+            <div class="info-display">
+              <div class="info-multi" id="infoMulti">2.80x</div>
+              <div class="info-chance" id="infoChance">Win chance: ~45%</div>
+              <div class="info-profit" id="infoProfit">Profit on win: +18</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons" style="gap: 10px; margin-top: 16px;">
+          <button class="btn-play primary" id="btnStart">START GAME</button>
+          <button class="btn-play secondary" id="btnResign" disabled>RESIGN</button>
+        </div>
+      </div>
+
+      <div class="chess-info">
+        <div class="turn-indicator">
+          <div class="turn-label">Current Turn</div>
+          <div class="turn-name white" id="turnName">White (You)</div>
+        </div>
+
+        <div class="timer-display">
+          <div class="timer-label">Time Remaining</div>
+          <div class="timer-value" id="timerValue">30.0</div>
+        </div>
+
+        <div class="captured-pieces">
+          <div class="captured-label">Captured by You</div>
+          <div class="captured-list" id="capturedBlack"></div>
+        </div>
+
+        <div class="captured-pieces">
+          <div class="captured-label">Captured by AI</div>
+          <div class="captured-list" id="capturedWhite"></div>
+        </div>
+
+        <div class="move-history">
+          <div class="move-history-label">Moves</div>
+          <div id="moveHistory"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
+
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) rtdb.ref('users/'+currentUser.uid).update({ theme });
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+    rtdb.ref('users/' + u.uid).on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      document.getElementById('creditsCount').textContent = userCredits.toLocaleString();
+      document.getElementById('creditsCountMobile').textContent = userCredits.toLocaleString();
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+      applyTheme(data.theme || localStorage.getItem('aightbet-theme') || 'dark', false);
+    });
+  });
+
+  (() => { const n=document.getElementById('navbar'); let t=false; window.addEventListener('scroll',()=>{if(!t){requestAnimationFrame(()=>{n.classList.toggle('scrolled',window.scrollY>20);t=false;});t=true;}}); })();
+  (() => { const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu'); h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');}); m.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',()=>{h.classList.remove('open');m.classList.remove('open');})); })();
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ═══════════════ CHESS GAME ════════════════ */
+  (() => {
+    const TIERS = [
+      { name: 'easy',    label: 'Easy',    minBet: 1,   aiLevel: 1, timeLimit: 30, multi: 1.20, chance: 45 },
+      { name: 'medium',  label: 'Medium',  minBet: 16,  aiLevel: 3, timeLimit: 20, multi: 2.00, chance: 35 },
+      { name: 'hard',    label: 'Hard',    minBet: 51,  aiLevel: 5, timeLimit: 12, multi: 3.50, chance: 25 },
+      { name: 'extreme', label: 'Extreme', minBet: 151, aiLevel: 8, timeLimit: 5,  multi: 10.00, chance: 15 },
+    ];
+
+   const PIECE_IMAGES = {
+  'wp': 'Images/pieces/pawn-white.png',
+  'wn': 'Images/pieces/knight-white.png',
+  'wb': 'Images/pieces/bishop-white.png',
+  'wr': 'Images/pieces/rook-white.png',
+  'wq': 'Images/pieces/queen-white.png',
+  'wk': 'Images/pieces/king-white.png',
+
+  'bp': 'Images/pieces/pawn-black.png',
+  'bn': 'Images/pieces/knight-black.png',
+  'bb': 'Images/pieces/bishop-black.png',
+  'br': 'Images/pieces/rook-black.png',
+  'bq': 'Images/pieces/queen-black.png',
+  'bk': 'Images/pieces/king-black.png',
+};
+
+    let game = new Chess();
+    let state = 'idle';
+    let selectedSquare = null;
+    let betAmount = 0;
+    let currentTier = TIERS[0];
+    let timeLeft = 30;
+    let timerInterval = null;
+    let moveHistory = [];
+    let aiThinking = false;
+
+    const chessBoard = document.getElementById('chessBoard');
+    const btnStart = document.getElementById('btnStart');
+    const btnResign = document.getElementById('btnResign');
+    const betInput = document.getElementById('betInput');
+    const resultBanner = document.getElementById('resultBanner');
+    const rbLabel = document.getElementById('rbLabel');
+    const rbAmount = document.getElementById('rbAmount');
+    const rbDetail = document.getElementById('rbDetail');
+    const timerValue = document.getElementById('timerValue');
+    const turnName = document.getElementById('turnName');
+    const diffLevel = document.getElementById('diffLevel');
+    const diffFill = document.getElementById('diffFill');
+    const diffAI = document.getElementById('diffAI');
+    const diffTime = document.getElementById('diffTime');
+    const diffPayout = document.getElementById('diffPayout');
+    const infoMulti = document.getElementById('infoMulti');
+    const infoChance = document.getElementById('infoChance');
+    const infoProfit = document.getElementById('infoProfit');
+    const capturedWhite = document.getElementById('capturedWhite');
+    const capturedBlack = document.getElementById('capturedBlack');
+    const moveHistoryEl = document.getElementById('moveHistory');
+
+    function getBet() { return Math.max(1, Math.floor(Number(betInput.value) || 1)); }
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function getTier(bet) {
+      let tier = TIERS[0];
+      for (const t of TIERS) if (bet >= t.minBet) tier = t;
+      return tier;
+    }
+
+    function updateDifficulty() {
+      const bet = getBet();
+      const tier = getTier(bet);
+      currentTier = tier;
+
+      diffLevel.textContent = tier.label;
+      diffLevel.className = 'diff-level ' + tier.name;
+      diffFill.className = 'diff-fill ' + tier.name;
+      diffAI.textContent = tier.aiLevel;
+      diffTime.textContent = tier.timeLimit + 's';
+      diffPayout.textContent = tier.multi.toFixed(2) + 'x';
+
+      infoMulti.textContent = tier.multi.toFixed(2) + 'x';
+      infoChance.textContent = 'Win chance: ~' + tier.chance + '%';
+      infoProfit.textContent = 'Profit on win: +' + Math.floor(bet * tier.multi - bet).toLocaleString();
+    }
+
+    function drawBoard() {
+      chessBoard.innerHTML = '';
+      const board = game.board();
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const square = String.fromCharCode(97 + c) + (8 - r);
+          const piece = board[r][c];
+          const isLight = (r + c) % 2 === 0;
+
+          const squareEl = document.createElement('div');
+          squareEl.className = 'chess-square ' + (isLight ? 'light' : 'dark');
+          squareEl.dataset.square = square;
+
+          if (selectedSquare === square) squareEl.classList.add('selected');
+          if (game.in_check() && piece && piece.type === 'k' && piece.color === game.turn()) squareEl.classList.add('check');
+
+          if (selectedSquare) {
+            const moves = game.moves({ square: selectedSquare, verbose: true });
+            for (const move of moves) {
+              if (move.to === square) {
+                squareEl.classList.add(move.captured ? 'capture-move' : 'valid-move');
+              }
+            }
+          }
+
+          if (piece) {
+            const img = document.createElement('img');
+            img.src = PIECE_IMAGES[piece.color + piece.type];
+            img.className = 'piece';
+            img.alt = piece.color + piece.type;
+            squareEl.appendChild(img);
+          }
+
+          squareEl.addEventListener('click', () => onSquareClick(square));
+          chessBoard.appendChild(squareEl);
+        }
+      }
+    }
+
+    function onSquareClick(square) {
+      if (state !== 'playing' || game.turn() !== 'w' || aiThinking) return;
+
+      const piece = game.get(square);
+
+      if (selectedSquare === square) {
+        selectedSquare = null;
+        drawBoard();
+        return;
+      }
+
+      if (selectedSquare) {
+        // Check if this is a pawn promotion move
+        const movingPiece = game.get(selectedSquare);
+        const isPromotion = movingPiece && movingPiece.type === 'p' && movingPiece.color === 'w' && square[1] === '8';
+
+        if (isPromotion) {
+          showPromotionDialog(selectedSquare, square);
+          return;
+        }
+
+        const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+        if (move) {
+          selectedSquare = null;
+          stopTimer();
+          addMoveToHistory(move);
+          updateCaptured();
+          drawBoard();
+          updateTurnDisplay();
+          
+          if (game.game_over()) {
+            endGame();
+          } else {
+            aiThinking = true;
+            setTimeout(() => makeAIMove(), 400);
+          }
+        } else {
+          // Invalid move — try selecting a new piece
+          if (piece && piece.color === 'w') {
+            selectedSquare = square;
+            drawBoard();
+          } else {
+            selectedSquare = null;
+            drawBoard();
+          }
+        }
+      } else {
+        if (piece && piece.color === 'w') {
+          selectedSquare = square;
+          drawBoard();
+        }
+      }
+    }
+
+    function showPromotionDialog(from, to) {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#1a1a2e;border:1px solid rgba(139,92,246,.4);border-radius:16px;padding:24px;text-align:center;';
+      box.innerHTML = '<div style="color:#e2e8f0;font-weight:800;margin-bottom:16px;font-size:1rem;">Promote Pawn</div>';
+      const pieces = [
+        { type: 'q', label: '♛ Queen' },
+        { type: 'r', label: '♜ Rook' },
+        { type: 'b', label: '♝ Bishop' },
+        { type: 'n', label: '♞ Knight' },
+      ];
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:12px;';
+      pieces.forEach(p => {
+        const btn = document.createElement('button');
+        btn.textContent = p.label;
+        btn.style.cssText = 'padding:10px 16px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:8px;color:#e2e8f0;font-size:.9rem;cursor:pointer;font-weight:700;transition:background .2s;';
+        btn.onmouseover = () => btn.style.background = 'rgba(139,92,246,.3)';
+        btn.onmouseout = () => btn.style.background = 'rgba(139,92,246,.15)';
+        btn.onclick = () => {
+          document.body.removeChild(overlay);
+          const move = game.move({ from, to, promotion: p.type });
+          if (move) {
+            selectedSquare = null;
+            stopTimer();
+            addMoveToHistory(move);
+            updateCaptured();
+            drawBoard();
+            updateTurnDisplay();
+            if (game.game_over()) {
+              endGame();
+            } else {
+              aiThinking = true;
+              setTimeout(() => makeAIMove(), 400);
+            }
+          }
+        };
+        row.appendChild(btn);
+      });
+      box.appendChild(row);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    }
+
+    /* ── MINIMAX AI ENGINE ── */
+    const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+
+    // Piece-square tables for positional evaluation (from black's perspective, flipped for white)
+    const PST = {
+      p: [
+         0,  0,  0,  0,  0,  0,  0,  0,
+        50, 50, 50, 50, 50, 50, 50, 50,
+        10, 10, 20, 30, 30, 20, 10, 10,
+         5,  5, 10, 25, 25, 10,  5,  5,
+         0,  0,  0, 20, 20,  0,  0,  0,
+         5, -5,-10,  0,  0,-10, -5,  5,
+         5, 10, 10,-20,-20, 10, 10,  5,
+         0,  0,  0,  0,  0,  0,  0,  0
+      ],
+      n: [
+        -50,-40,-30,-30,-30,-30,-40,-50,
+        -40,-20,  0,  0,  0,  0,-20,-40,
+        -30,  0, 10, 15, 15, 10,  0,-30,
+        -30,  5, 15, 20, 20, 15,  5,-30,
+        -30,  0, 15, 20, 20, 15,  0,-30,
+        -30,  5, 10, 15, 15, 10,  5,-30,
+        -40,-20,  0,  5,  5,  0,-20,-40,
+        -50,-40,-30,-30,-30,-30,-40,-50
+      ],
+      b: [
+        -20,-10,-10,-10,-10,-10,-10,-20,
+        -10,  0,  0,  0,  0,  0,  0,-10,
+        -10,  0,  5, 10, 10,  5,  0,-10,
+        -10,  5,  5, 10, 10,  5,  5,-10,
+        -10,  0, 10, 10, 10, 10,  0,-10,
+        -10, 10, 10, 10, 10, 10, 10,-10,
+        -10,  5,  0,  0,  0,  0,  5,-10,
+        -20,-10,-10,-10,-10,-10,-10,-20
+      ],
+      r: [
+         0,  0,  0,  0,  0,  0,  0,  0,
+         5, 10, 10, 10, 10, 10, 10,  5,
+        -5,  0,  0,  0,  0,  0,  0, -5,
+        -5,  0,  0,  0,  0,  0,  0, -5,
+        -5,  0,  0,  0,  0,  0,  0, -5,
+        -5,  0,  0,  0,  0,  0,  0, -5,
+        -5,  0,  0,  0,  0,  0,  0, -5,
+         0,  0,  0,  5,  5,  0,  0,  0
+      ],
+      q: [
+        -20,-10,-10, -5, -5,-10,-10,-20,
+        -10,  0,  0,  0,  0,  0,  0,-10,
+        -10,  0,  5,  5,  5,  5,  0,-10,
+         -5,  0,  5,  5,  5,  5,  0, -5,
+          0,  0,  5,  5,  5,  5,  0, -5,
+        -10,  5,  5,  5,  5,  5,  0,-10,
+        -10,  0,  5,  0,  0,  0,  0,-10,
+        -20,-10,-10, -5, -5,-10,-10,-20
+      ],
+      k: [
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -20,-30,-30,-40,-40,-30,-30,-20,
+        -10,-20,-20,-20,-20,-20,-20,-10,
+         20, 20,  0,  0,  0,  0, 20, 20,
+         20, 30, 10,  0,  0, 10, 30, 20
+      ]
+    };
+
+    function squareToIndex(sq) {
+      const col = sq.charCodeAt(0) - 97;
+      const row = 8 - parseInt(sq[1]);
+      return row * 8 + col;
+    }
+
+    function evaluateBoard() {
+      let score = 0;
+      const board = game.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = board[r][c];
+          if (!p) continue;
+          const idx = r * 8 + c;
+          const pstIdx = p.color === 'b' ? idx : (7 - r) * 8 + c;
+          const val = PIECE_VALUES[p.type] + (PST[p.type] ? PST[p.type][pstIdx] : 0);
+          score += p.color === 'b' ? val : -val;
+        }
+      }
+      return score;
+    }
+
+    function minimax(depth, alpha, beta, maximizing) {
+      if (depth === 0 || game.game_over()) {
+        if (game.in_checkmate()) return maximizing ? -100000 : 100000;
+        if (game.in_draw() || game.in_stalemate() || game.in_threefold_repetition()) return 0;
+        return evaluateBoard();
+      }
+      const moves = game.moves({ verbose: true });
+      // Move ordering: captures first for better pruning
+      moves.sort((a, b) => (b.captured ? 1 : 0) - (a.captured ? 1 : 0));
+
+      if (maximizing) {
+        let best = -Infinity;
+        for (const m of moves) {
+          game.move(m);
+          best = Math.max(best, minimax(depth - 1, alpha, beta, false));
+          game.undo();
+          alpha = Math.max(alpha, best);
+          if (beta <= alpha) break;
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (const m of moves) {
+          game.move(m);
+          best = Math.min(best, minimax(depth - 1, alpha, beta, true));
+          game.undo();
+          beta = Math.min(beta, best);
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+    }
+
+    function getAIDepth() {
+      // aiLevel 1→depth 1, 3→depth 2, 5→depth 3, 8→depth 4
+      if (currentTier.aiLevel <= 1) return 1;
+      if (currentTier.aiLevel <= 3) return 2;
+      if (currentTier.aiLevel <= 5) return 3;
+      return 4;
+    }
+
+    async function makeAIMove() {
+      if (game.game_over()) { endGame(); return; }
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) { endGame(); return; }
+
+      const depth = getAIDepth();
+      const randomFactor = Math.max(0, (3 - currentTier.aiLevel) * 80); // randomness at low levels
+
+      let bestMove = null;
+      let bestScore = -Infinity;
+
+      // Move ordering: captures first
+      moves.sort((a, b) => (b.captured ? 1 : 0) - (a.captured ? 1 : 0));
+
+      for (const m of moves) {
+        game.move(m);
+        // Add noise for lower difficulty
+        const noise = randomFactor > 0 ? (Math.random() * randomFactor * 2 - randomFactor) : 0;
+        const score = minimax(depth - 1, -Infinity, Infinity, false) + noise;
+        game.undo();
+        if (score > bestScore) { bestScore = score; bestMove = m; }
+      }
+
+      if (!bestMove) bestMove = moves[Math.floor(Math.random() * moves.length)];
+
+      game.move(bestMove);
+      addMoveToHistory(bestMove);
+      updateCaptured();
+      drawBoard();
+      updateTurnDisplay();
+      aiThinking = false;
+
+      if (game.game_over()) {
+        endGame();
+      } else {
+        // Resume player's turn timer
+        if (currentTier.timeLimit > 0) startTimer();
+      }
+    }
+
+    function startTimer() {
+      // Timer = per-move time limit for the human player only
+      timeLeft = currentTier.timeLimit;
+      clearInterval(timerInterval);
+      if (currentTier.timeLimit <= 0) return;
+      timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame('timeout');
+        }
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function updateTimerDisplay() {
+      timerValue.textContent = timeLeft.toFixed(1);
+      timerValue.className = 'timer-value';
+      if (timeLeft <= 5) timerValue.classList.add('danger');
+      else if (timeLeft <= 10) timerValue.classList.add('warning');
+    }
+
+    function updateTurnDisplay() {
+      if (game.turn() === 'w') {
+        turnName.textContent = 'White (You)';
+        turnName.className = 'turn-name white';
+      } else {
+        turnName.textContent = 'Black (AI)';
+        turnName.className = 'turn-name black';
+      }
+    }
+
+    function addMoveToHistory(move) {
+      const notation = move.san || move.from + move.to;
+      const isWhite = move.color === 'w';
+      moveHistory.push({ notation, isWhite });
+      updateMoveHistory();
+    }
+
+    function updateMoveHistory() {
+      moveHistoryEl.innerHTML = '';
+      moveHistory.forEach((m, i) => {
+        const el = document.createElement('div');
+        el.className = 'move-item ' + (m.isWhite ? 'white-move' : 'black-move');
+        el.textContent = (m.isWhite ? Math.floor(i/2 + 1) + '.' : '') + ' ' + m.notation;
+        moveHistoryEl.appendChild(el);
+      });
+      moveHistoryEl.scrollTop = moveHistoryEl.scrollHeight;
+    }
+
+    function updateCaptured() {
+      capturedWhite.innerHTML = '';
+      capturedBlack.innerHTML = '';
+
+      const board = game.board();
+      const startCounts = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+      const onBoard = { w: {}, b: {} };
+      ['p','n','b','r','q','k'].forEach(t => { onBoard.w[t] = 0; onBoard.b[t] = 0; });
+
+      board.forEach(row => row.forEach(piece => {
+        if (piece) onBoard[piece.color][piece.type]++;
+      }));
+
+      // Pieces captured by player (black pieces missing from board)
+      Object.keys(startCounts).forEach(t => {
+        const captured = startCounts[t] - onBoard.b[t];
+        for (let i = 0; i < captured; i++) {
+          const img = document.createElement('img');
+          img.src = PIECE_IMAGES['b' + t];
+          img.className = 'captured-piece';
+          capturedBlack.appendChild(img); // shown in "Captured by You" section
+        }
+      });
+
+      // Pieces captured by AI (white pieces missing from board)
+      Object.keys(startCounts).forEach(t => {
+        const captured = startCounts[t] - onBoard.w[t];
+        for (let i = 0; i < captured; i++) {
+          const img = document.createElement('img');
+          img.src = PIECE_IMAGES['w' + t];
+          img.className = 'captured-piece';
+          capturedWhite.appendChild(img); // shown in "Captured by AI" section
+        }
+      });
+    }
+
+    async function startGame() {
+      const bet = getBet();
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        rbLabel.textContent = 'NOT ENOUGH CREDITS';
+        rbAmount.textContent = '';
+        rbDetail.textContent = 'You need more credits to place this bet.';
+        return;
+      }
+
+      betAmount = bet;
+      currentTier = getTier(bet);
+      updateDifficulty();
+
+      state = 'playing';
+      game = new Chess();
+      moveHistory = [];
+      selectedSquare = null;
+      aiThinking = false;
+
+      resultBanner.style.display = 'none';
+      btnStart.disabled = true;
+      btnResign.disabled = false;
+      btnStart.textContent = 'GAME RUNNING';
+
+      // Deduct bet immediately
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      drawBoard();
+      updateMoveHistory();
+      updateCaptured();
+      updateTurnDisplay();
+      startTimer(); // White (player) goes first
+    }
+
+    async function endGame(reason = null) {
+      state = 'ended';
+      stopTimer();
+      btnStart.disabled = false;
+      btnResign.disabled = true;
+      btnStart.textContent = 'PLAY AGAIN';
+
+      let won = false;
+      let reason_text = '';
+      let isDraw = false;
+
+      if (reason === 'timeout') {
+        won = false;
+        reason_text = 'Time ran out - You lose';
+      } else if (game.in_checkmate()) {
+        // The side whose turn it is is in checkmate — so the OTHER side won.
+        // game.turn() is the side that is checkmated.
+        if (game.turn() === 'b') {
+          won = true;  // Black is in checkmate → White (player) wins
+          reason_text = 'Checkmate – You win! ♛';
+        } else {
+          won = false; // White is in checkmate → Black (AI) wins
+          reason_text = 'Checkmate – AI wins';
+        }
+      } else if (game.in_stalemate()) {
+        isDraw = true;
+        reason_text = 'Stalemate – Draw';
+      } else if (game.in_threefold_repetition()) {
+        isDraw = true;
+        reason_text = 'Threefold Repetition – Draw';
+      } else if (game.insufficient_material()) {
+        isDraw = true;
+        reason_text = 'Insufficient Material – Draw';
+      } else if (game.in_draw()) {
+        isDraw = true;
+        reason_text = 'Draw';
+      }
+
+      if (isDraw) {
+        // Return the bet (add it back since it was already deducted)
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + betAmount);
+        resultBanner.className = 'result-banner draw';
+        rbLabel.textContent = 'DRAW';
+        rbAmount.textContent = 'Bet returned';
+        rbDetail.textContent = currentTier.label + ' | AI Level ' + currentTier.aiLevel + ' | ' + reason_text;
+        saveStats(false, 0);
+      } else if (won) {
+        // Bet already deducted; add full payout on top of (userCredits - betAmount)
+        const payout = Math.floor(betAmount * currentTier.multi);
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        resultBanner.className = 'result-banner win';
+        rbLabel.textContent = 'VICTORY';
+        rbAmount.textContent = '+' + (payout - betAmount).toLocaleString() + ' credits';
+        rbDetail.textContent = currentTier.label + ' | AI Level ' + currentTier.aiLevel + ' | ' + reason_text;
+        saveStats(true, payout);
+      } else {
+        // Bet already deducted — nothing more to do
+        resultBanner.className = 'result-banner lose';
+        rbLabel.textContent = 'DEFEAT';
+        rbAmount.textContent = '-' + betAmount.toLocaleString() + ' credits';
+        rbDetail.textContent = currentTier.label + ' | AI Level ' + currentTier.aiLevel + ' | ' + reason_text;
+        saveStats(false, 0);
+      }
+
+      resultBanner.style.display = 'block';
+    }
+
+    function resign() {
+      if (state !== 'playing') return;
+      state = 'ended';
+      stopTimer();
+
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount);
+
+      resultBanner.className = 'result-banner lose';
+      rbLabel.textContent = 'RESIGNED';
+      rbAmount.textContent = '-' + betAmount.toLocaleString() + ' credits';
+      rbDetail.textContent = 'You resigned – AI wins';
+      resultBanner.style.display = 'block';
+
+      btnStart.disabled = false;
+      btnResign.disabled = true;
+      btnStart.textContent = 'PLAY AGAIN';
+
+      saveStats(false, 0);
+    }
+
+    function saveStats(won, payout) {
+      if (!currentUser) return;
+      const ref = rtdb.ref('users/' + currentUser.uid + '/games/chess');
+      ref.child('totalPlayed').transaction(v => (v || 0) + 1);
+      ref.child('totalWagered').transaction(v => (v || 0) + betAmount);
+      if (won) {
+        ref.child('totalWon').transaction(v => (v || 0) + payout);
+        ref.child('wins').transaction(v => (v || 0) + 1);
+        ref.child('biggestWin').transaction(v => Math.max(v || 0, payout));
+      } else {
+        ref.child('losses').transaction(v => (v || 0) + 1);
+      }
+    }
+
+    document.getElementById('betHalf').addEventListener('click', () => {
+      if (state !== 'idle' && state !== 'ended') return;
+      betInput.value = Math.max(1, Math.floor(getBet() / 2));
+      updateDifficulty();
+    });
+
+    document.getElementById('betDouble').addEventListener('click', () => {
+      if (state !== 'idle' && state !== 'ended') return;
+      betInput.value = Math.min(getBet() * 2, userCredits);
+      updateDifficulty();
+    });
+
+    betInput.addEventListener('input', () => {
+      if (state !== 'idle' && state !== 'ended') return;
+      updateDifficulty();
+    });
+
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (state !== 'idle' && state !== 'ended') return;
+        betInput.value = b.dataset.bet;
+        updateDifficulty();
+      });
+    });
+
+    btnStart.addEventListener('click', () => {
+      if (state === 'playing') return;
+      startGame();
+    });
+
+    btnResign.addEventListener('click', resign);
+
+    updateDifficulty();
+  })();
+
+  /* PARTICLES */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(139,92,246,', 'rgba(236,72,153,', 'rgba(6,182,212,'];
+    function resize() { const d=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; canvas.width=W*d; canvas.height=H*d; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.setTransform(d,0,0,d,0,0); }
+    function make() { return { x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a:Math.random()*.35+.15, c:COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
+    init(); draw();
+  })();
+  </script>
+</body>
+</html>

@@ -317,7 +317,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="checker.js"></script>
+
+ <script src="update.js"></script>
 
 <script>
 const firebaseConfig={apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29",measurementId:"G-EB6SF28HZK"};
@@ -326,9 +327,12 @@ const auth=firebase.auth(),rtdb=firebase.database();
 let currentUser=null,currentCredits=0,claiming=false;
 const historyData=[];
 
+
 function applyTheme(t,p=true){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('aightbet-theme',t);if(p&&currentUser)rtdb.ref('users/'+currentUser.uid).update({theme:t});}
 applyTheme(localStorage.getItem('aightbet-theme')||'dark',false);
-
+</script>
+<script src="checker.js"></script>
+<script>
 function showToast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3000);}
 
 const CD_KEY='aightbet-cooldowns';

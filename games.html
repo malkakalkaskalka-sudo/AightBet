@@ -29,7 +29,7 @@
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
-
+ 
     body {
       font-family: var(--font);
       background: var(--bg);
@@ -339,6 +339,7 @@
     .game-card[data-game="lootboxrush"]  .game-bg { background: linear-gradient(135deg, #a855f7, #f59e0b); }
     .game-card[data-game="spacedice"]    .game-bg { background: linear-gradient(135deg, #1e3a5f, #06b6d4); }
     .game-card[data-game="durak"]        .game-bg { background: linear-gradient(135deg, #e11d48, #7c3aed); }
+     .game-card[data-game="chess"]        .game-bg { background: linear-gradient(135deg, #e2dbdd, #070113); }
 
     .game-info { padding: 16px 18px 18px; }
     .game-info h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 5px; }
@@ -518,7 +519,7 @@
     <!-- Page Header -->
     <section class="page-header">
       <h1>Pick Your <span class="grad">Game</span></h1>
-      <p>29 games, zero real money. Choose your poison and start stacking credits.</p>
+      <p>30 games, zero real money. Choose your poison and start stacking credits.</p>
     </section>
 
     <!-- Search & Filters -->
@@ -540,7 +541,7 @@
 
     <!-- Games Grid -->
     <section class="games-section">
-      <div class="games-count" id="gamesCount">Showing 29 games</div>
+      <div class="games-count" id="gamesCount">Showing 30 games</div>
 
       <div class="game-grid" id="gameGrid">
 
@@ -1096,6 +1097,25 @@
     </div>
   </div>
 </a>
+        <!-- Chess -->
+        <a href="chess.html" class="game-card" data-game="chess" data-tags="strategy,new" data-name="Chess">
+          <div class="game-thumb">
+            <div class="game-bg"></div>
+            <div class="game-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 3l6 6H5V3zm6 6V5h3l5-5-6 6H5zM3 21h18v2H3v-2zm14-9l1.5 2H21l-4-6-4 6h2.5L14 12zM4.5 12L3 15h5.5l-1.5-3zm10-1.5 3-3-3 3zm-7.5 0L3 6v6h4.5L5 10.5z"/></svg>
+            </div>
+          </div>
+          <div class="game-info">
+            <h3>Chess</h3>
+            <p>Take on the AI in this timeless strategy game. Higher bets equal tougher opponents.</p>
+            <div class="game-meta">
+              <span class="game-tag new">NEW</span>
+              <span class="game-tag">STRATEGY</span>
+               <span class="game-tag" style="background:rgba(236,72,153,.12);color:#f472b6;">ONLINE</span>
+              <span class="game-players"><span class="live-dot"></span> 20 playing</span>
+            </div>
+          </div>
+        </a>
 
 
 
@@ -1123,7 +1143,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-<script src="checker.js"></script>
+
+
+ <script src="update.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
@@ -1140,6 +1162,7 @@ firebase.analytics();
 const auth = firebase.auth();
 const rtdb = firebase.database();
 
+
 function applyTheme(theme, persist=true) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('aightbet-theme', theme);
@@ -1149,7 +1172,9 @@ function applyTheme(theme, persist=true) {
 }
 
 let currentUser = null;
-
+</script>
+<script src="checker.js"></script>
+<script>
 // Apply immediately on load from localStorage (fast paint)
 applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
 

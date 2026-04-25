@@ -331,13 +331,33 @@ else if(activeTab==='rigged') renderRigged(c);
         renderStats();renderContent();
       });
       loadMessages();
-      rtdb.ref('supportChats').on('value',s=>{
-        allSupportChats=s.val()||{};
-        const unreadCount=Object.values(allSupportChats).filter(c=>c.meta&&c.meta.hasUnread).length;
-        const badge=document.getElementById('chatBadge');
-        if(unreadCount>0){badge.textContent=unreadCount;badge.style.display='flex';}else{badge.style.display='none';}
-        if(activeTab==='chats')renderContent();
-      });
+    rtdb.ref('supportChats').on('value', snap => {
+  allSupportChats = {};
+  snap.forEach(childSnap => {
+    const uid = childSnap.key;
+    const val = childSnap.val() || {};
+    let messages = {};
+    if(val.messages && typeof val.messages === 'object') {
+      messages = val.messages;
+    }
+    allSupportChats[uid] = { ...val, messages };
+  });
+
+  // ✅ Update the Chats badge
+  const unreadCount = Object.values(allSupportChats).filter(c => c.meta && c.meta.hasUnread).length;
+  const chatBadge = document.getElementById('chatBadge');
+  if (chatBadge) {
+    if (unreadCount > 0) {
+      chatBadge.textContent = unreadCount;
+      chatBadge.style.display = 'flex';
+    } else {
+      chatBadge.style.display = 'none';
+    }
+  }
+
+  renderStats();  // ✅ Also refresh stats
+  if(activeTab === 'chats') renderContent();
+});
     }
 
     function getUserName(uid){const d=allUsers[uid]||{};return d.username||d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
@@ -438,6 +458,9 @@ else if(activeTab==='rigged') renderRigged(c);
     async function deleteGlobalMsg(id){if(!confirm('Delete this message?'))return;await rtdb.ref('globalMessages/'+id).remove();toast('Message deleted','success');}
 
     /* ═══ SUPPORT CHATS ═══ */
+    // Track which chat UIDs are currently expanded
+    const openChatBodies = new Set();
+
     function renderChats(c){
       const entries=Object.entries(allSupportChats);
       const chats=entries
@@ -462,11 +485,19 @@ else if(activeTab==='rigged') renderRigged(c);
         const av=u.avatar||u.photoURL;
         const hasUnread=!!meta.hasUnread;
         const chatTypeLabel=meta.type==='bug'?'🐛 Bug':'💬 Help';
+        const isExpanded=openChatBodies.has(chat.uid);
 
-        let msgs=[];
-        if(chat.messages&&typeof chat.messages==='object'){
-          msgs=Object.entries(chat.messages).map(([id,m])=>({id,...m})).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-        }
+       let msgs = [];
+const messages = chat.messages || {};
+// Always treat as object, never array, as Firebase .push() guarantees object keys
+msgs = Object.entries(messages).map(([id, m]) => ({
+  id,
+  ...m
+}));
+// Remove deleted/null
+msgs = msgs.filter(m => m && m.text);
+// Sort by timestamp ascending
+msgs = msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
         h+=`<div class="chat-card ${hasUnread?'has-unread':''}" data-uid="${chat.uid}">
           <div class="chat-card-header" data-toggle-uid="${chat.uid}">
@@ -476,28 +507,30 @@ else if(activeTab==='rigged') renderRigged(c);
               <div class="chat-card-meta">${chat.uid.substring(0,10)}… · ${msgs.length} message${msgs.length!==1?'s':''} · ${meta.lastMessageAt?timeAgo(meta.lastMessageAt):''}</div>
             </div>
             ${hasUnread?'<div class="chat-card-unread">NEW</div>':''}
+            <span style="margin-left:4px;color:var(--muted);font-size:.75rem">${isExpanded?'▲':'▼'}</span>
           </div>
-          <div class="chat-card-body" id="chatBody_${chat.uid}">`;
+          <div class="chat-card-body" id="chatBody_${chat.uid}" style="display:${isExpanded?'flex':'none'}">`;
 
         if(!msgs.length){
-          h+=`<div style="text-align:center;padding:16px;color:var(--muted);font-size:.78rem">No messages in this chat yet.</div>`;
+          h+=`<div style="text-align:center;padding:16px;color:var(--muted);font-size:.78rem">No messages yet. Waiting for the user to send one.</div>`;
         }else{
           msgs.forEach(m=>{
             const isUser=(m.sender==='user');
             const tagClass=m.type==='bug'?'cm-tag-bug':'cm-tag-help';
             const tagLabel=m.type==='bug'?'🐛 Bug':'💬 Help';
             const tagHtml=(m.type&&isUser)?`<div class="cm-tag ${tagClass}">${tagLabel}</div>`:'';
+            const senderLabel=isUser?`👤 ${escapeHTML(nm)}`:'🛡️ Support';
             h+=`<div class="chat-msg ${isUser?'from-user':'from-support'}">
               ${tagHtml}
               ${escapeHTML(m.text)}
-              <div class="cm-ts">${isUser?escapeHTML(nm):'Support'} · ${m.timestamp?timeAgo(m.timestamp):''}</div>
+              <div class="cm-ts">${senderLabel} · ${m.timestamp?timeAgo(m.timestamp):''}</div>
             </div>`;
           });
         }
 
         h+=`<div class="chat-reply-row">
               <input class="chat-reply-input" id="chatReply_${chat.uid}" placeholder="Reply to ${escapeHTML(nm)}..." />
-              <button class="chat-reply-btn" data-reply-uid="${chat.uid}">Reply</button>
+              <button class="chat-reply-btn" data-reply-uid="${chat.uid}">Send Reply</button>
             </div>
           </div>
         </div>`;
@@ -505,32 +538,45 @@ else if(activeTab==='rigged') renderRigged(c);
       h+='</div>';
       c.innerHTML=h;
 
+      // Re-scroll expanded chats to bottom
+      openChatBodies.forEach(uid=>{
+        const bodyEl=document.getElementById('chatBody_'+uid);
+        if(bodyEl)bodyEl.scrollTop=bodyEl.scrollHeight;
+      });
+
       // Attach toggle listeners
       c.querySelectorAll('[data-toggle-uid]').forEach(header=>{
         header.addEventListener('click',function(){
           const uid=this.dataset.toggleUid;
-          const body=document.getElementById('chatBody_'+uid);
-          if(!body)return;
-          const isOpen=body.style.display==='flex';
-          body.style.display=isOpen?'none':'flex';
-          if(!isOpen){
+          const bodyEl=document.getElementById('chatBody_'+uid);
+          if(!bodyEl)return;
+          const isOpen=bodyEl.style.display==='flex';
+          if(isOpen){
+            bodyEl.style.display='none';
+            openChatBodies.delete(uid);
+          }else{
+            bodyEl.style.display='flex';
+            openChatBodies.add(uid);
             rtdb.ref('supportChats/'+uid+'/meta/hasUnread').set(false);
-            body.scrollTop=body.scrollHeight;
+            setTimeout(()=>{bodyEl.scrollTop=bodyEl.scrollHeight;},50);
+            // Focus reply input
+            const inp=document.getElementById('chatReply_'+uid);
+            if(inp)inp.focus();
           }
         });
       });
 
-           // Attach reply button listeners
+      // Attach reply button listeners
       c.querySelectorAll('[data-reply-uid]').forEach(btn=>{
         btn.addEventListener('click',function(){
           doSendChatReply(this.dataset.replyUid);
         });
       });
 
-      // Attach enter key listeners on reply inputs
+      // Attach enter key on reply inputs
       c.querySelectorAll('.chat-reply-input').forEach(input=>{
         input.addEventListener('keydown',function(e){
-          if(e.key==='Enter'){
+          if(e.key==='Enter'&&!e.shiftKey){
             e.preventDefault();
             const uid=this.id.replace('chatReply_','');
             doSendChatReply(uid);
@@ -547,6 +593,7 @@ else if(activeTab==='rigged') renderRigged(c);
       const text=input.value.trim();
       if(!text)return;
       input.value='';
+      input.disabled=true;
       try{
         await rtdb.ref('supportChats/'+uid+'/messages').push({
           text:text,
@@ -556,10 +603,13 @@ else if(activeTab==='rigged') renderRigged(c);
         await rtdb.ref('supportChats/'+uid+'/meta').update({
           lastMessageAt:firebase.database.ServerValue.TIMESTAMP,
           lastMessage:'Support: '+text,
-          hasUnread:false
+          hasUnread:false,      // support has now read everything
+          userUnread:true       // notify the user there's a new reply
         });
         toast('Reply sent!','success');
       }catch(e){toast('Error: '+e.message);}
+      input.disabled=false;
+      input.focus();
     }
 
     /* ═══ SETTINGS ═══ */
