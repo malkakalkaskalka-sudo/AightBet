@@ -180,6 +180,14 @@
     body.lqm .settings-card,body.lqm .profile-card{background:rgba(255,255,255,.06)!important}
     /* LQM badge shown in toggle thumb when active */
     #lqmToggle:checked~.toggle-thumb svg{stroke:#f59e0b}
+
+    /* ── Super Low Quality Mode (secret) ─────────────────── */
+    body.slqm .bg-gradient,body.slqm .orb,body.slqm .grid-overlay,body.slqm #particles,body.slqm .main,body.slqm .navbar,body.slqm .footer{filter:blur(6px)}
+    #slqm-exit{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 28px;font-size:.9rem;font-weight:700;color:#fff;background:rgba(239,68,68,.9);border:1px solid rgba(239,68,68,.6);border-radius:12px;cursor:pointer;font-family:var(--font);display:none;filter:none!important}
+    #slqm-exit.visible{display:block}
+    .slqm-btn{padding:8px 14px;font-size:.78rem;font-weight:700;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;display:none;flex-shrink:0}
+    .slqm-btn.visible{display:block}
+    .slqm-btn:hover{background:rgba(239,68,68,.18);transform:translateY(-1px)}
   </style>
 </head>
 <body>
@@ -191,6 +199,7 @@
   <div class="orb orb-3"></div>
   <canvas id="particles"></canvas>
   <div class="toast" id="toast"></div>
+  <button id="slqm-exit">Exit Super Low Quality Mode</button>
 
   <!-- NAVBAR -->
   <nav class="navbar" id="navbar">
@@ -260,6 +269,9 @@
               <div class="theme-row-sub">Disable animations &amp; effects for slow devices</div>
             </div>
             <label class="toggle"><input type="checkbox" id="lqmToggle"/><div class="toggle-track lqm-track"></div><div class="toggle-thumb"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></label>
+          </div>
+          <div id="slqmBtnRow" style="margin-top:12px;display:none">
+            <button class="slqm-btn visible" id="slqmBtn">⚡⚡ Super Low Quality Mode</button>
           </div>
           <div class="theme-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
             <div>
@@ -438,6 +450,43 @@ document.getElementById('lqmToggle')?.addEventListener('change', e=>{
   applyLQM(e.target.checked);
   showToast(e.target.checked ? '⚡ Low Quality Mode on – animations disabled.' : '✨ Full quality restored.', 'success', 3000);
 });
+
+/* === SECRET: SUPER LOW QUALITY MODE (5x tap lightning icon) === */
+(()=>{
+  let _taps=0,_timer=null;
+  // The lightning SVG is inside .lqm-row .theme-row-label
+  const lqmLabel=document.querySelector('.lqm-row .theme-row-label');
+  if(!lqmLabel)return;
+  lqmLabel.addEventListener('click',()=>{
+    clearTimeout(_timer);
+    _taps++;
+    _timer=setTimeout(()=>{ _taps=0; },1200);
+    if(_taps>=5){
+      _taps=0;
+      clearTimeout(_timer);
+      const row=document.getElementById('slqmBtnRow');
+      row.style.display=row.style.display==='none'?'block':'none';
+    }
+  });
+
+  // Apply / remove SLQM
+  function applySlqm(on){
+    document.body.classList.toggle('slqm',on);
+    document.getElementById('slqm-exit').classList.toggle('visible',on);
+    localStorage.setItem('aightbet-slqm', on?'true':'false');
+    if(currentUser) rtdb.ref('users/'+currentUser.uid).update({slqm: on});
+    if(on){
+      document.getElementById('slqmBtnRow').style.display='block';
+      if(window.__easterEggUnlocked) window.__easterEggUnlocked('slqm');
+    }
+  }
+
+  document.getElementById('slqmBtn').addEventListener('click',()=>applySlqm(true));
+  document.getElementById('slqm-exit').addEventListener('click',()=>applySlqm(false));
+
+  // Restore on load (localStorage first, DB sync happens via checker.js)
+  if(localStorage.getItem('aightbet-slqm')==='true') applySlqm(true);
+})();
 
 /* === AVATAR UPLOAD (stores base64 in RTDB, not Auth) === */
 document.getElementById('avatarInput').addEventListener('change',async e=>{

@@ -278,6 +278,7 @@
   auth.onAuthStateChanged(u=>{
     if(!u){location.href='index.html';return;}
     currentUser=u;
+    checkSecretCaseUnlock();
     rtdb.ref('users/'+u.uid).on('value',snap=>{
       const data=snap.val()||{};
       const credits=data.credits||0;
@@ -840,6 +841,122 @@
 
     
   ];
+
+  /* ═══════════════════════════════════════════════════════════════
+     SECRET CASE — Easter Egg #3 (press 6+7 simultaneously, 3×)
+     ═══════════════════════════════════════════════════════════════ */
+
+  const SECRET_CASE = {
+    id:'secret_egg', name:'Dildo Case', img:'Images/cases/67.png', price:0,
+    gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
+    desc:'A mysterious case hidden in the shadows. You found it — now open it for free!',
+    secret: true,
+    items:[
+      {name:'Butt Plug',         img:'Images/cases/secret/k.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'Small Dildo',       img:'Images/cases/secret/kk.png', value:1500, rarity:'rare', weight:18},
+      {name:'Dildo',       img:'Images/cases/secret/kkk.png', value:3000, rarity:'epic', weight:10},
+      {name:'Big Dildo',       img:'Images/cases/secret/kkkk.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Huge Dildo',    img:'Images/cases/secret/kkkkk.png',           value:25000,  rarity:'mythic',   weight:1.5},
+      {name:'Penis',        img:'Images/cases/secret/kkkkkk.png',      value:100000, rarity:'mythic',   weight:0.2},
+    ]
+  };
+
+  let secretCaseUnlocked = false;
+
+  function checkSecretCaseUnlock() {
+    if (!currentUser) return;
+    firebase.database().ref('users/' + currentUser.uid + '/easterEggs/secretcase').once('value', function(snap) {
+      if (snap.val() === true) {
+        secretCaseUnlocked = true;
+        injectSecretCase();
+      }
+    });
+  }
+
+  function injectSecretCase() {
+    if (document.getElementById('secret-case-card')) return;
+    if (!CASES.find(c => c.id === 'secret_egg')) CASES.push(SECRET_CASE);
+    renderSecretCaseCard();
+  }
+
+  function renderSecretCaseCard() {
+    const c = SECRET_CASE;
+    const card = document.createElement('div');
+    card.id = 'secret-case-card';
+    card.className = 'case-card';
+    card.style.cssText = 'border-color:rgba(245,158,11,.4);box-shadow:0 0 30px -8px rgba(245,158,11,.25)';
+    card.innerHTML = `
+      <div class="case-thumb">
+        <div class="case-bg" style="background:${c.gradient}"></div>
+        <img class="case-img" src="${c.img}" alt="${c.name}" onerror="this.style.display='none'"/>
+      </div>
+      <div class="case-info">
+        <h3>${c.name}</h3>
+        <p>${c.desc}</p>
+        <div class="case-meta">
+          <div class="case-price" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.25);color:#8b5cf6">&#x1F193; FREE</div>
+          <div class="case-count">${c.items.length} secret items</div>
+        </div>
+        <div class="case-rarity-dots">${rarityDots(c.items)}</div>
+      </div>
+    `;
+    card.style.setProperty('--glow-color', '#f59e0b');
+    card.addEventListener('click', () => openModal(c));
+    caseGrid.prepend(card);
+  }
+
+  (function() {
+    let combo6 = false, combo7 = false;
+    let comboCount = 0;
+    let comboTimeout = null;
+
+    function resetCombo() { comboCount = 0; combo6 = false; combo7 = false; }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '6') combo6 = true;
+      if (e.key === '7') combo7 = true;
+      if (combo6 && combo7) {
+        combo6 = false; combo7 = false;
+        comboCount++;
+        clearTimeout(comboTimeout);
+        comboTimeout = setTimeout(resetCombo, 3000);
+        if (comboCount >= 3) {
+          comboCount = 0;
+          clearTimeout(comboTimeout);
+          triggerSecretCaseEgg();
+        }
+      }
+    });
+    document.addEventListener('keyup', function(e) {
+      if (e.key === '6') combo6 = false;
+      if (e.key === '7') combo7 = false;
+    });
+  })();
+
+  function triggerSecretCaseEgg() {
+    if (secretCaseUnlocked) {
+      const card = document.getElementById('secret-case-card');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.transition = 'box-shadow .3s';
+        card.style.boxShadow = '0 0 60px 10px rgba(245,158,11,.6)';
+        setTimeout(() => { card.style.boxShadow = '0 0 30px -8px rgba(245,158,11,.25)'; }, 1000);
+      }
+      return;
+    }
+    secretCaseUnlocked = true;
+    injectSecretCase();
+    if (window.__easterEggUnlocked) window.__easterEggUnlocked('secretcase');
+    setTimeout(function() {
+      const card = document.getElementById('secret-case-card');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.transition = 'box-shadow .3s';
+        card.style.boxShadow = '0 0 60px 10px rgba(245,158,11,.8)';
+        setTimeout(() => { card.style.boxShadow = '0 0 30px -8px rgba(245,158,11,.25)'; }, 1200);
+      }
+    }, 300);
+  }
 
   /* ═══════════════════════════════════════════════════════════════
      RENDER CASE CARDS

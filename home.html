@@ -633,7 +633,7 @@
 
   <!-- ════════ NAVBAR ════════ -->
   <nav class="navbar" id="navbar">
-    <a class="nav-logo" href="home.html">
+    <a class="nav-logo" href="home.html" id="logoEasterEgg">
       <img src="Images/logo.png" alt="AightBet" />
       <span>AightBet</span>
     </a>
@@ -1260,6 +1260,25 @@
         if (u) startListeners(u.uid);
       });
 
+    })();
+
+    /* === SECRET: HACKER MODE (10x tap logo) === */
+    (()=>{
+      let _taps=0,_timer=null;
+      const logo=document.getElementById('logoEasterEgg');
+      if(!logo)return;
+      logo.addEventListener('click',e=>{
+        e.preventDefault();
+        clearTimeout(_timer);
+        _taps++;
+        _timer=setTimeout(()=>{ _taps=0; },1500);
+        if(_taps>=10){
+          _taps=0;
+          clearTimeout(_timer);
+          const isOn=localStorage.getItem('aightbet-hacker')==='true';
+          window.__setHackerMode(!isOn);
+        }
+      });
     })();
   </script>
 </body>
