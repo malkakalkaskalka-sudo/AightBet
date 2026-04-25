@@ -115,6 +115,8 @@
     .btn-danger:hover{background:rgba(239,68,68,.15);transform:translateY(-1px)}
 
     .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+    .btn-cache-help{flex-shrink:0;padding:8px 16px;font-size:.8rem;font-weight:700;color:var(--accent2);background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;white-space:nowrap;text-decoration:none}
+    .btn-cache-help:hover{background:rgba(6,182,212,.15);transform:translateY(-1px)}
 
     .nav-credits {
   display: flex;
@@ -258,6 +260,16 @@
               <div class="theme-row-sub">Disable animations &amp; effects for slow devices</div>
             </div>
             <label class="toggle"><input type="checkbox" id="lqmToggle"/><div class="toggle-track lqm-track"></div><div class="toggle-thumb"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></label>
+          </div>
+          <div class="theme-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div>
+              <div class="theme-row-label">
+                <svg viewBox="0 0 24 24" style="stroke:var(--accent2)"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                Site not updating?
+              </div>
+              <div class="theme-row-sub">Learn how to clear your browser cache</div>
+            </div>
+            <a href="tut.html" class="btn-cache-help">How to fix</a>
           </div>
         </div>
 

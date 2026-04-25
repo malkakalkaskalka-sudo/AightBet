@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AightBet – Clear Cache</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--accent:#8b5cf6;--accent2:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--radius:16px;--font:'Segoe UI',system-ui,-apple-system,sans-serif}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:48px 20px 60px}
+
+    .back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:.85rem;font-weight:600;text-decoration:none;margin-bottom:32px;align-self:flex-start;transition:color .2s}
+    .back:hover{color:var(--text)}
+    .back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+    .header{text-align:center;margin-bottom:36px}
+    .icon-wrap{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(6,182,212,.2));border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+    .icon-wrap svg{width:30px;height:30px;stroke:var(--accent2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    h1{font-size:1.7rem;font-weight:900;letter-spacing:-.5px;margin-bottom:8px}
+    h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .subtitle{color:var(--muted);font-size:.95rem;max-width:420px;line-height:1.5}
+
+    .cards{width:100%;max-width:560px;display:flex;flex-direction:column;gap:16px}
+
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px}
+    .card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+    .card-icon.android{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2)}
+    .card-icon.ios{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+    .card-icon.desktop{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.2)}
+    .card-title{font-size:1rem;font-weight:800}
+    .card-sub{font-size:.75rem;color:var(--muted);margin-top:1px}
+
+    ol{list-style:none;counter-reset:steps;display:flex;flex-direction:column;gap:10px}
+    ol li{counter-increment:steps;display:flex;align-items:flex-start;gap:12px;font-size:.88rem;line-height:1.55;color:var(--text)}
+    ol li::before{content:counter(steps);min-width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);color:var(--accent);font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+    .key{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;padding:1px 7px;font-size:.78rem;font-weight:700;font-family:monospace;color:var(--text)}
+
+    .tip{margin-top:20px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);border-radius:10px;padding:12px 14px;font-size:.8rem;color:var(--muted);line-height:1.5;display:flex;gap:10px;align-items:flex-start}
+    .tip svg{width:15px;height:15px;stroke:var(--accent2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px}
+  </style>
+</head>
+<body>
+
+  <a class="back" href="profile.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Profile
+  </a>
+
+  <div class="header">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+    </div>
+    <h1>Clear Your <span>Cache</span></h1>
+    <p class="subtitle">If the site looks outdated or a feature isn't working, clearing your cache usually fixes it.</p>
+  </div>
+
+  <div class="cards">
+
+    <!-- Android -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon android">🤖</div>
+        <div>
+          <div class="card-title">Android — Chrome</div>
+          <div class="card-sub">Most common on Android</div>
+        </div>
+      </div>
+      <ol>
+        <li>Tap the <strong>three dots</strong> (⋮) in the top-right corner</li>
+        <li>Go to <strong>Settings → Privacy and security</strong></li>
+        <li>Tap <strong>Clear browsing data</strong></li>
+        <li>Check <strong>Cached images and files</strong> (uncheck others if you want)</li>
+        <li>Tap <strong>Clear data</strong> — done ✓</li>
+      </ol>
+    </div>
+
+    <!-- iPhone Safari -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ios">🍎</div>
+        <div>
+          <div class="card-title">iPhone — Safari</div>
+          <div class="card-sub">Default iPhone browser</div>
+        </div>
+      </div>
+      <ol>
+        <li>Open the <strong>Settings app</strong> (not Safari itself)</li>
+        <li>Scroll down and tap <strong>Safari</strong></li>
+        <li>Tap <strong>Clear History and Website Data</strong></li>
+        <li>Confirm — done ✓</li>
+      </ol>
+    </div>
+
+    <!-- iPhone Chrome -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ios">🌐</div>
+        <div>
+          <div class="card-title">iPhone — Chrome</div>
+          <div class="card-sub">If you use Chrome on iOS</div>
+        </div>
+      </div>
+      <ol>
+        <li>Tap the <strong>three dots</strong> (⋯) at the bottom</li>
+        <li>Go to <strong>Settings → Privacy</strong></li>
+        <li>Tap <strong>Clear Browsing Data</strong></li>
+        <li>Check <strong>Cached Images and Files</strong></li>
+        <li>Tap <strong>Clear Browsing Data</strong> — done ✓</li>
+      </ol>
+    </div>
+
+    <!-- Desktop -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon desktop">🖥️</div>
+        <div>
+          <div class="card-title">Desktop — Chrome / Edge</div>
+          <div class="card-sub">Windows or Mac</div>
+        </div>
+      </div>
+      <ol>
+        <li>Press <span class="key">Ctrl</span> + <span class="key">Shift</span> + <span class="key">R</span> for a quick hard reload <em>(easiest)</em></li>
+        <li>Or open DevTools with <span class="key">F12</span>, then <strong>right-click</strong> the reload button 🔄 and pick <strong>"Empty Cache and Hard Reload"</strong></li>
+        <li>Or press <span class="key">Ctrl</span> + <span class="key">Shift</span> + <span class="key">Del</span>, check <strong>Cached images and files</strong>, click <strong>Clear data</strong></li>
+      </ol>
+      <div style="margin-top:10px;font-size:.78rem;color:var(--muted)">On Mac use <span class="key">Cmd</span> instead of <span class="key">Ctrl</span></div>
+    </div>
+
+    <div class="tip">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      After clearing cache, reload the page and the site should be fully up to date. If you still see issues, try logging out and back in.
+    </div>
+
+  </div>
+
+</body>
+</html>
