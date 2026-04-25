@@ -205,7 +205,7 @@
             <button class="tb" data-act="setIntro" style="color:var(--gold);border-color:rgba(245,158,11,.3)"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>🎬 Intro</button>
             <button class="tb" data-act="setMusic" id="musicToolbarBtn" style="color:var(--green);border-color:rgba(34,197,94,.3)"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>🎵 Music</button>
             <div class="toolbar-sep"></div>
-            <button class="tb" data-act="moveUp"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Forward</button><button class="tb" data-act="moveDown"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>Back</button><button class="tb" data-act="delete" style="color:var(--red)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>
+            <button class="tb" data-act="delete" style="color:var(--red)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>
           </div>
           <div class="palette" id="palette"></div>
           <div class="props-panel" id="propsPanel">
@@ -394,8 +394,6 @@
   {id:'alt',cat:'video',name:'Zesturdy',desc:'Toms K. Being zesty',rarity:'mythic',price:100000,type:'video',val:'Zesturdy.mp4'},
   {id:'valt',cat:'video',name:'Paula Romanova',desc:'This creature should be studied, btw crazy edit tho',rarity:'mythic',price:100000,type:'video',val:'edit.mp4'},
   {id:'zalt',cat:'video',name:'Roblox Condo',desc:'W in the charrt',rarity:'mythic',price:100000,type:'video',val:'condo.mp4'},
-  {id:'kalt',cat:'video',name:'Lovley Toms K.',desc:'I can feel the love through the screen',rarity:'mythic',price:100000,type:'video',val:'tomk.mp4'},
-   {id:'malt',cat:'video',name:'Adrian Kissin',desc:'I can guarantee this is not AI',rarity:'mythic',price:100000,type:'video',val:'adrian.mp4'},
   
   // ───── INTROS (5) — crazy AMV-style animated stingers ─────
   {id:'intro_shockwave',cat:'intros',name:'SHOCKWAVE IGNITE',desc:'Title DETONATES on screen. Three shockwave rings rip outward. WHITE BANG. Four cards explode into corners. Absolutely unhinged.',rarity:'mythic',price:25000,type:'intro',val:'shockwave_ignite',topics:['STATS','WINS','FLEX','LEGEND']},
@@ -834,7 +832,7 @@
         });
       });
     }
-    else if(act==='moveUp'){if(selIdx!==null&&selIdx<BD.items.length-1){const tmp=BD.items[selIdx];BD.items[selIdx]=BD.items[selIdx+1];BD.items[selIdx+1]=tmp;selIdx++;} else toast('Already on top');}else if(act==='moveDown'){if(selIdx!==null&&selIdx>0){const tmp=BD.items[selIdx];BD.items[selIdx]=BD.items[selIdx-1];BD.items[selIdx-1]=tmp;selIdx--;} else toast('Already at bottom');}else if(act==='delete'){if(selIdx!==null){BD.items.splice(selIdx,1);selIdx=null;document.getElementById('propsPanel').classList.remove('open');}else toast('Select an item on the banner first');}
+    else if(act==='delete'){if(selIdx!==null){BD.items.splice(selIdx,1);selIdx=null;document.getElementById('propsPanel').classList.remove('open');}else toast('Select an item on the banner first');}
   });
 
   document.getElementById('bannerSaveBtn').addEventListener('click',async()=>{try{const d={...BD};d.heightRatio=BH_RATIO;if(d.items)d.items=d.items.map(i=>{const c={...i};delete c._img;return c;});await rtdb.ref('users/'+CU.uid+'/banner').set(JSON.stringify(d));toast('Banner saved!','success');}catch(e){toast('Failed: '+e.message);}});
