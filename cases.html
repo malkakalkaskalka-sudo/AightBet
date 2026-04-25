@@ -847,9 +847,9 @@
      ═══════════════════════════════════════════════════════════════ */
 
   const SECRET_CASE = {
-    id:'secret_egg', name:'Dildo Case', img:'Images/cases/67.png', price:0,
+    id:'secret_egg', name:'Dildo Case', img:'Images/cases/67.png', price:1000,
     gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
-    desc:'A mysterious case hidden in the shadows. You found it — now open it for free!',
+    desc:'Case for your everyday toy!',
     secret: true,
     items:[
       {name:'Butt Plug',         img:'Images/cases/secret/k.png',       value:500,    rarity:'uncommon', weight:30},
@@ -894,7 +894,7 @@
         <h3>${c.name}</h3>
         <p>${c.desc}</p>
         <div class="case-meta">
-          <div class="case-price" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.25);color:#8b5cf6">&#x1F193; FREE</div>
+          <div class="case-price" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.25);color:#8b5cf6">🪙 1000</div>
           <div class="case-count">${c.items.length} secret items</div>
         </div>
         <div class="case-rarity-dots">${rarityDots(c.items)}</div>
