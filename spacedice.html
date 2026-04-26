@@ -135,7 +135,7 @@
       </div></div>
       <div class="controls-panel">
         <div class="control-group"><label>Bet (Fuel Cost)</label><div class="bet-input-wrap"><button id="betHalf">½</button><input type="number" id="betInput" value="10" min="1"/><button id="betDouble">2x</button></div><div class="quick-bets"><button class="quick-bet" data-bet="5">5</button><button class="quick-bet" data-bet="10">10</button><button class="quick-bet" data-bet="25">25</button><button class="quick-bet" data-bet="50">50</button><button class="quick-bet" data-bet="100">100</button><button class="quick-bet" data-bet="500">500</button></div></div>
-        <div class="control-group"><label>Info</label><div class="info-display"><div class="info-multi">~1.5x per planet</div><div class="info-detail">Click planets in range to rob<br>20%=1cop 50%=3cops 75%=lasers+walls<br>Crash police/barricade=instant bust<br>Planet crash=-25HP, bullet=-10HP</div></div></div>
+        <div class="control-group"><label>Info</label><div class="info-display"><div class="info-multi">~0.15x per planet</div><div class="info-detail">Click planets in range to rob<br>20%=1cop 50%=3cops 75%=lasers+walls<br>Crash police/barricade=instant bust<br>Planet crash=-25HP, bullet=-10HP</div></div></div>
       </div>
       <div class="action-row"><button class="btn-play primary" id="btnLaunch">LAUNCH HEIST</button><button class="btn-play success" id="btnCashout" style="display:none">CASH OUT</button></div>
       <div class="history-section"><h3>Heist Log</h3><div class="history-list" id="historyList"><span style="font-size:.75rem;color:var(--muted)">No heists yet</span></div></div>
@@ -197,7 +197,7 @@
     function spawnPlanet(){
       const side=Math.random()<.5?'left':'right';
       const lx=side==='left'?R(W*.12,W*.38):R(W*.62,W*.88);
-      const lM=R(.5,2.5),loot=Math.max(1,Math.round(betAmt*lM)),tAdd=RI(6,16);
+      const lM=R(.08,.25),loot=Math.max(1,Math.round(betAmt*lM)),tAdd=RI(6,16);
       planets.push({x:lx,y:-50,r:R(18,28),loot,tAdd,color:PCOLS[RI(0,11)],name:PNAMES[RI(0,19)],desc:PDESCS[RI(0,11)],hasRing:Math.random()<.25,looted:false,anim:0,hover:false});
     }
     function spawnPolice(){police.push({x:R(30,W-30),y:H+40,vx:0,vy:0,shootTimer:R(60,120),alive:true});}
