@@ -311,7 +311,7 @@
 
         <!-- Danger -->
         <div class="settings-card danger-zone">
-          <div class="settings-title"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone</div>
+          <div class="settings-title"><svg id="deleteZoneIcon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone</div>
           <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Permanent. Cannot be undone.</p>
           <button class="btn-danger" id="deleteAccountBtn">Delete Account</button>
         </div>
@@ -578,6 +578,565 @@ document.getElementById('navAvatar').addEventListener('click',()=>{location.href
 
 // Particles (unchanged minimal)
 (()=>{const cv=document.getElementById('particles'),cx=cv.getContext('2d');let W,H,p=[],ms={x:-9e3,y:-9e3};const N=Math.min(50,Math.round(innerWidth*.035)),C=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function rs(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,a:Math.random()*.35+.15,c:C[Math.random()*3|0]};}function init(){rs();p=[];for(let i=0;i<N;i++)p.push(mk());}function draw(){cx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<1e4){a.vx+=dx*.012/Math.sqrt(d);a.vy+=dy*.012/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;cx.beginPath();cx.arc(a.x,a.y,a.r,0,Math.PI*2);cx.fillStyle=a.c+a.a+')';cx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<14e3){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle=a.c+(.05*(1-ld/14e3))+')';cx.lineWidth=.4;cx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',rs);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     EASTER EGG #3 — "GHOST IN THE MACHINE"
+     1. Click the ⚠ danger zone icon
+     2. Type D-E-L-E-T-E on keyboard
+     3. Fake deletion screen appears with 60s countdown
+     4. Support chat intercepts with fake responses for 45s
+     5. Last 15s: support asks "What do you want?"
+     6. Reply → "typing..." forever until time runs out
+     7. Screen glitches, swirls, goes fullscreen black terminal
+     8. Terminal types the secret message + awards egg
+════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const EGG_KEY      = 'aightbet-egg-ghostmachine';
+  const SEQ_WORD     = 'DELETE';
+  const TOTAL_MS     = 60000;   // 60s countdown
+  const PHASE2_AT    = 15000;   // last 15s = phase 2 of support
+  const GLITCH_AT    = 0;       // glitch starts when timer hits 0
+
+  /* ── State ── */
+  let iconClicked  = false;
+  let seqBuffer    = '';
+  let seqTimer     = null;
+  let eggRunning   = false;
+
+  /* ── Step 1: click the danger zone icon ── */
+  const icon = document.getElementById('deleteZoneIcon');
+  if (!icon) return;
+
+  icon.addEventListener('click', function (e) {
+    if (eggRunning) return;
+    e.stopPropagation();
+    iconClicked = true;
+    // Reset after 8s if no typing
+    clearTimeout(seqTimer);
+    seqTimer = setTimeout(function () { iconClicked = false; seqBuffer = ''; }, 8000);
+  });
+
+  /* ── Step 2: keyboard listener for D-E-L-E-T-E ── */
+  document.addEventListener('keydown', function (e) {
+    if (!iconClicked || eggRunning) return;
+    const key = e.key.toUpperCase();
+    if (!'DELETE'.includes(key)) { seqBuffer = ''; return; }
+    if (key === SEQ_WORD[seqBuffer.length]) {
+      seqBuffer += key;
+    } else {
+      seqBuffer = key === SEQ_WORD[0] ? key : '';
+    }
+    clearTimeout(seqTimer);
+    seqTimer = setTimeout(function () { iconClicked = false; seqBuffer = ''; }, 8000);
+    if (seqBuffer === SEQ_WORD) {
+      seqBuffer  = '';
+      iconClicked = false;
+      eggRunning  = true;
+      clearTimeout(seqTimer);
+      launchEgg();
+    }
+  });
+
+  /* ════════════════════════════════════
+     MAIN EGG SEQUENCE
+  ════════════════════════════════════ */
+  function launchEgg() {
+    /* Inject all styles */
+    const st = document.createElement('style');
+    st.id = 'egg3-styles';
+    st.textContent = `
+      #egg3-overlay {
+        position: fixed; inset: 0; z-index: 99999;
+        background: #0a0a0f;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        color: #e2e8f0;
+        animation: egg3-fadein .5s ease forwards;
+      }
+      @keyframes egg3-fadein { from{opacity:0} to{opacity:1} }
+
+      #egg3-box {
+        background: rgba(239,68,68,.06);
+        border: 1px solid rgba(239,68,68,.25);
+        border-radius: 20px;
+        padding: 48px 40px;
+        max-width: 480px; width: 90%;
+        text-align: center;
+        position: relative;
+      }
+      #egg3-icon { font-size: 3rem; margin-bottom: 16px; }
+      #egg3-title {
+        font-size: 1.5rem; font-weight: 800;
+        color: #ef4444; margin-bottom: 10px;
+      }
+      #egg3-sub {
+        font-size: .95rem; color: #94a3b8;
+        line-height: 1.6; margin-bottom: 28px;
+      }
+      #egg3-timer-wrap {
+        font-size: .82rem; color: #94a3b8;
+        margin-bottom: 20px;
+      }
+      #egg3-timer-num {
+        font-size: 2.2rem; font-weight: 900;
+        color: #ef4444; display: block;
+        font-variant-numeric: tabular-nums;
+      }
+      #egg3-timer-bar-track {
+        width: 100%; height: 4px;
+        background: rgba(239,68,68,.12);
+        border-radius: 4px; overflow: hidden;
+        margin-top: 10px;
+      }
+      #egg3-timer-bar {
+        height: 100%; width: 100%;
+        background: linear-gradient(90deg, #ef4444, #f97316);
+        border-radius: 4px;
+        transition: width .9s linear;
+      }
+
+      /* ── Fake support panel ── */
+      #egg3-support {
+        position: fixed; bottom: 24px; right: 24px;
+        width: 320px; max-height: 400px;
+        background: rgba(10,10,15,.97);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 16px;
+        display: flex; flex-direction: column;
+        overflow: hidden;
+        z-index: 100000;
+        box-shadow: 0 20px 60px rgba(0,0,0,.6);
+        animation: egg3-slidein .4s ease forwards;
+      }
+      @keyframes egg3-slidein {
+        from { transform: translateY(40px); opacity:0; }
+        to   { transform: translateY(0);    opacity:1; }
+      }
+      #egg3-sup-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        font-size: .9rem; font-weight: 700;
+        display: flex; align-items: center; gap: 8px;
+      }
+      #egg3-sup-body {
+        flex: 1; overflow-y: auto;
+        padding: 14px; display: flex;
+        flex-direction: column; gap: 10px;
+      }
+      .egg3-bubble {
+        max-width: 85%; padding: 10px 14px;
+        border-radius: 14px; font-size: .85rem;
+        line-height: 1.5; animation: egg3-bubblin .3s ease;
+      }
+      @keyframes egg3-bubblin {
+        from { opacity:0; transform:translateY(6px); }
+        to   { opacity:1; transform:translateY(0); }
+      }
+      .egg3-bubble.sys {
+        background: rgba(139,92,246,.15);
+        border: 1px solid rgba(139,92,246,.2);
+        color: #c4b5fd; align-self: flex-start;
+      }
+      .egg3-bubble.usr {
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.1);
+        color: #e2e8f0; align-self: flex-end;
+      }
+      .egg3-typing-dots span {
+        display: inline-block; width: 6px; height: 6px;
+        background: #c4b5fd; border-radius: 50%; margin: 0 2px;
+        animation: egg3-dot .9s infinite;
+      }
+      .egg3-typing-dots span:nth-child(2){animation-delay:.2s}
+      .egg3-typing-dots span:nth-child(3){animation-delay:.4s}
+      @keyframes egg3-dot {
+        0%,80%,100%{transform:scale(.6);opacity:.4}
+        40%{transform:scale(1);opacity:1}
+      }
+      #egg3-sup-input-row {
+        display: flex; gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid rgba(255,255,255,.07);
+      }
+      #egg3-sup-input {
+        flex: 1; padding: 9px 12px;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 10px; color: #e2e8f0;
+        font-size: .85rem; font-family: inherit; outline: none;
+      }
+      #egg3-sup-send {
+        padding: 9px 14px; border-radius: 10px;
+        background: rgba(139,92,246,.2);
+        border: 1px solid rgba(139,92,246,.3);
+        color: #c4b5fd; font-weight: 700;
+        cursor: pointer; font-size: .85rem;
+        font-family: inherit;
+        transition: background .2s;
+      }
+      #egg3-sup-send:hover { background: rgba(139,92,246,.35); }
+
+      /* ── Glitch effects ── */
+      @keyframes egg3-shake {
+        0%,100%{transform:translate(0,0) rotate(0deg)}
+        10%{transform:translate(-8px,4px) rotate(-.5deg)}
+        20%{transform:translate(10px,-6px) rotate(.4deg)}
+        30%{transform:translate(-12px,8px) rotate(-.8deg)}
+        40%{transform:translate(14px,-10px) rotate(.6deg)}
+        50%{transform:translate(-16px,12px) rotate(-1deg)}
+        60%{transform:translate(18px,-14px) rotate(.9deg)}
+        70%{transform:translate(-20px,16px) rotate(-1.2deg)}
+        80%{transform:translate(22px,-18px) rotate(1.1deg)}
+        90%{transform:translate(-24px,20px) rotate(-1.5deg)}
+      }
+      @keyframes egg3-flicker {
+        0%,100%{opacity:1} 10%{opacity:.7} 20%{opacity:.3}
+        30%{opacity:.9} 50%{opacity:.1} 60%{opacity:.8}
+        70%{opacity:.2} 80%{opacity:.95} 90%{opacity:.4}
+      }
+      @keyframes egg3-hue {
+        0%{filter:hue-rotate(0deg) saturate(1)}
+        50%{filter:hue-rotate(180deg) saturate(3)}
+        100%{filter:hue-rotate(360deg) saturate(1)}
+      }
+      @keyframes egg3-swirl {
+        0%{transform:scale(1) rotate(0deg);filter:blur(0)}
+        50%{transform:scale(1.3) rotate(180deg);filter:blur(8px)}
+        100%{transform:scale(0) rotate(720deg);filter:blur(30px);opacity:0}
+      }
+
+      /* ── Final terminal ── */
+      #egg3-terminal {
+        position: fixed; inset: 0; z-index: 999999;
+        background: #000; color: #00ff41;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: clamp(.85rem, 1.8vw, 1.05rem);
+        padding: 48px 5vw;
+        display: flex; flex-direction: column;
+        overflow: hidden;
+      }
+      #egg3-terminal::before {
+        content:'';
+        position:fixed;inset:0;
+        background:repeating-linear-gradient(
+          0deg,rgba(0,0,0,.1) 0,rgba(0,0,0,.1) 1px,
+          transparent 1px,transparent 2px
+        );
+        pointer-events:none;z-index:1;
+      }
+      #egg3-term-out { position:relative;z-index:2; }
+      .egg3-term-line {
+        display:block; white-space:pre-wrap;
+        line-height:1.8; opacity:0;
+        animation:egg3-tline .25s ease forwards;
+      }
+      @keyframes egg3-tline {
+        from{opacity:0;transform:translateX(-4px)}
+        to{opacity:1;transform:translateX(0)}
+      }
+      #egg3-cursor {
+        display:inline-block; width:10px; height:1.1em;
+        background:#00ff41; vertical-align:text-bottom;
+        animation:egg3-blink .7s step-end infinite;
+        margin-left:2px;
+      }
+      @keyframes egg3-blink{0%,100%{opacity:1}50%{opacity:0}}
+    `;
+    document.head.appendChild(st);
+
+    /* ── Build deletion screen ── */
+    const overlay = document.createElement('div');
+    overlay.id = 'egg3-overlay';
+
+    overlay.innerHTML = `
+      <div id="egg3-box">
+        <div id="egg3-icon">⚠️</div>
+        <div id="egg3-title">Account Deleted</div>
+        <div id="egg3-sub">
+          Your account has been deleted.<br>
+          If you want to recover it, please talk to support.<br><br>
+          <strong style="color:#ef4444">You have 1 minute left until your account is permanently deleted.</strong>
+        </div>
+        <div id="egg3-timer-wrap">
+          <span id="egg3-timer-num">1:00</span>
+          Time remaining
+          <div id="egg3-timer-bar-track"><div id="egg3-timer-bar"></div></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    /* ── Build fake support panel ── */
+    const sup = document.createElement('div');
+    sup.id = 'egg3-support';
+    sup.innerHTML = `
+      <div id="egg3-sup-header">🛡️ Support</div>
+      <div id="egg3-sup-body"></div>
+      <div id="egg3-sup-input-row">
+        <input id="egg3-sup-input" placeholder="Type a message..." autocomplete="off"/>
+        <button id="egg3-sup-send">Send</button>
+      </div>
+    `;
+    document.body.appendChild(sup);
+
+    const supBody  = document.getElementById('egg3-sup-body');
+    const supInput = document.getElementById('egg3-sup-input');
+    const supSend  = document.getElementById('egg3-sup-send');
+
+    /* ── Countdown logic ── */
+    const startTime   = Date.now();
+    let   phase2Done  = false;  // "What do you want?" sent
+    let   userReplied = false;  // user sent at least one reply in phase2
+    let   typingBubble = null;
+
+    function getElapsed() { return Date.now() - startTime; }
+    function getRemaining() { return Math.max(0, TOTAL_MS - getElapsed()); }
+
+    /* Update timer display */
+    const timerNum = document.getElementById('egg3-timer-num');
+    const timerBar = document.getElementById('egg3-timer-bar');
+
+    function updateTimer() {
+      const rem = getRemaining();
+      const s = Math.ceil(rem / 1000);
+      const mm = Math.floor(s / 60);
+      const ss = s % 60;
+      timerNum.textContent = mm + ':' + String(ss).padStart(2,'0');
+      timerBar.style.width = (rem / TOTAL_MS * 100) + '%';
+      // Pulse red when < 15s
+      if (rem < PHASE2_AT) timerNum.style.animation = 'egg3-flicker .4s infinite';
+    }
+
+    const tickInterval = setInterval(function () {
+      updateTimer();
+      const rem = getRemaining();
+
+      /* Phase 2: last 15s — support asks "What do you want?" */
+      if (rem <= PHASE2_AT && !phase2Done) {
+        phase2Done = true;
+        removeTyping();
+        addBubble('sys', 'What do you want?');
+      }
+
+      /* Time up → glitch sequence */
+      if (rem <= 0) {
+        clearInterval(tickInterval);
+        startGlitch();
+      }
+    }, 250);
+
+    /* ── Add chat bubble ── */
+    function addBubble(type, text) {
+      const b = document.createElement('div');
+      b.className = 'egg3-bubble ' + type;
+      b.textContent = text;
+      supBody.appendChild(b);
+      supBody.scrollTop = supBody.scrollHeight;
+      return b;
+    }
+
+    /* ── Typing indicator ── */
+    function showTyping() {
+      removeTyping();
+      typingBubble = document.createElement('div');
+      typingBubble.className = 'egg3-bubble sys egg3-typing-dots';
+      typingBubble.innerHTML = '<span></span><span></span><span></span>';
+      supBody.appendChild(typingBubble);
+      supBody.scrollTop = supBody.scrollHeight;
+    }
+    function removeTyping() {
+      if (typingBubble && typingBubble.parentNode) typingBubble.parentNode.removeChild(typingBubble);
+      typingBubble = null;
+    }
+
+    /* ── Show initial support message after a short delay ── */
+    setTimeout(function () {
+      addBubble('sys', 'Support is not available right now. Please wait a little bit later.');
+    }, 1200);
+
+    /* ── Handle user sending messages ── */
+    function handleSend() {
+      const txt = supInput.value.trim();
+      if (!txt) return;
+      supInput.value = '';
+      addBubble('usr', txt);
+      const rem = getRemaining();
+
+      if (rem > PHASE2_AT) {
+        /* Phase 1: blanket rejection for first 45s */
+        setTimeout(function () {
+          addBubble('sys', 'Support is not available right now. Please wait a little bit later.');
+        }, 900);
+      } else {
+        /* Phase 2: "typing..." forever until time runs out */
+        if (!userReplied) {
+          userReplied = true;
+          setTimeout(function () { showTyping(); }, 700);
+        }
+        /* If they keep sending, just stay in typing state */
+      }
+    }
+
+    supSend.addEventListener('click', handleSend);
+    supInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
+    });
+
+    /* ════════════════════════════════════
+       GLITCH → SWIRL → TERMINAL
+    ════════════════════════════════════ */
+    function startGlitch() {
+      /* Remove support panel */
+      if (sup.parentNode) sup.parentNode.removeChild(sup);
+
+      const box = document.getElementById('egg3-box');
+      if (!box) return;
+
+      /* Phase A: shaking + flicker for 3s */
+      overlay.style.animation = 'egg3-shake .15s infinite, egg3-flicker .08s infinite, egg3-hue 1s infinite';
+
+      /* Phase B at 2s: intensify */
+      setTimeout(function () {
+        overlay.style.animation = 'egg3-shake .08s infinite, egg3-flicker .04s infinite, egg3-hue .4s infinite';
+      }, 2000);
+
+      /* Phase C at 4s: swirl into void */
+      setTimeout(function () {
+        overlay.style.transition = 'none';
+        overlay.style.animation  = 'egg3-swirl 1.2s ease forwards';
+      }, 4000);
+
+      /* Phase D at 5.2s: black screen then terminal */
+      setTimeout(function () {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        launchTerminal();
+      }, 5300);
+    }
+
+    /* ════════════════════════════════════
+       FAKE TERMINAL
+    ════════════════════════════════════ */
+    function launchTerminal() {
+      /* Go fullscreen */
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+
+      const term = document.createElement('div');
+      term.id = 'egg3-terminal';
+
+      const out = document.createElement('div');
+      out.id = 'egg3-term-out';
+      term.appendChild(out);
+
+      /* Blinking cursor line */
+      const cursorLine = document.createElement('span');
+      cursorLine.className = 'egg3-term-line';
+      cursorLine.style.opacity = '1';
+      const cursor = document.createElement('span');
+      cursor.id = 'egg3-cursor';
+      cursor.textContent = '_';
+      cursorLine.appendChild(cursor);
+      out.appendChild(cursorLine);
+
+      document.body.appendChild(term);
+
+      /* Get username */
+      let uname = 'USER';
+      try {
+        const u = firebase.auth().currentUser;
+        if (u) uname = (u.displayName || u.email || 'USER').split('@')[0].toUpperCase();
+      } catch(e) {}
+
+      /* Lines to type — with typewriter effect */
+      const LINES = [
+        { text: '',                                          delay: 1200,  color: '#00ff41' },
+        { text: 'SYSTEM://  RECOVERY PROTOCOL INITIATED',   delay: 1800,  color: '#ff4444' },
+        { text: '──────────────────────────────────────',   delay: 2600,  color: '#333'    },
+        { text: '',                                          delay: 3000,  color: '#00ff41' },
+        { text: 'Something is wrong in the Ba#$%^t',        delay: 3400,  color: '#ffff00' },
+        { text: 'I think you should check it out.',         delay: 5800,  color: '#ffff00' },
+        { text: '',                                          delay: 7200,  color: '#00ff41' },
+        { text: 'Your account has been recovered.',         delay: 7800,  color: '#00ff41' },
+        { text: 'And you have found the 3rd easter egg.',   delay: 10000, color: '#00ffff' },
+        { text: '',                                          delay: 11200, color: '#00ff41' },
+        { text: '[ EGG AWARDED: GHOST_IN_THE_MACHINE ]',   delay: 11800, color: '#00ff41' },
+      ];
+
+      function addTermLine(text, color) {
+        const ln = document.createElement('span');
+        ln.className = 'egg3-term-line';
+        ln.style.color = color || '#00ff41';
+        ln.textContent = text;
+        out.insertBefore(ln, cursorLine);
+        out.scrollTop = out.scrollHeight;
+      }
+
+      /* Typewriter for a single line */
+      function typewriteLine(text, color, doneCb) {
+        const ln = document.createElement('span');
+        ln.className = 'egg3-term-line';
+        ln.style.color = color || '#00ff41';
+        ln.style.opacity = '1';
+        ln.textContent = '';
+        out.insertBefore(ln, cursorLine);
+        let i = 0;
+        const iv = setInterval(function () {
+          ln.textContent += text[i];
+          i++;
+          out.scrollTop = out.scrollHeight;
+          if (i >= text.length) { clearInterval(iv); if(doneCb) doneCb(); }
+        }, 38);
+      }
+
+      /* Schedule all lines */
+      LINES.forEach(function (l) {
+        setTimeout(function () {
+          if (!l.text) { addTermLine('', l.color); return; }
+          typewriteLine(l.text, l.color);
+        }, l.delay);
+      });
+
+      /* Save egg to DB after the reveal */
+      setTimeout(function () {
+        try {
+          const u = firebase.auth().currentUser;
+          if (u) firebase.database().ref('users/' + u.uid + '/eastereggs2/ghostmachine').set(true);
+        } catch(e) {}
+
+        /* Exit fullscreen button */
+        const exitBtn = document.createElement('button');
+        exitBtn.textContent = '[ PRESS ANY KEY TO EXIT ]';
+        exitBtn.style.cssText =
+          'position:fixed;bottom:36px;left:50%;transform:translateX(-50%);' +
+          'background:transparent;border:1px solid #00ff41;color:#00ff41;' +
+          'font-family:"Courier New",monospace;font-size:.9rem;padding:10px 24px;' +
+          'cursor:pointer;z-index:2;letter-spacing:.08em;transition:background .2s;';
+        exitBtn.addEventListener('mouseenter', function(){ exitBtn.style.background='#00ff41'; exitBtn.style.color='#000'; });
+        exitBtn.addEventListener('mouseleave', function(){ exitBtn.style.background='transparent'; exitBtn.style.color='#00ff41'; });
+        exitBtn.addEventListener('click', cleanup);
+        document.addEventListener('keydown', cleanup, { once: true });
+        term.appendChild(exitBtn);
+      }, 13000);
+
+      function cleanup() {
+        if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
+        term.style.transition = 'opacity .8s';
+        term.style.opacity    = '0';
+        setTimeout(function () {
+          if (term.parentNode) term.parentNode.removeChild(term);
+          const st = document.getElementById('egg3-styles');
+          if (st) st.parentNode.removeChild(st);
+          eggRunning = false;
+        }, 800);
+      }
+    }
+  }
+})();
 </script>
 </body>
 </html>

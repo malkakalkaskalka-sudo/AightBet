@@ -931,8 +931,13 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         '🌼 Nature\'s on your side!',
         '🍀 Lucky petal found!',
       ];
-      cardC.querySelector('.cw-val').textContent = pool[randInt(0, pool.length - 1)];
+      const chosen = pool[randInt(0, pool.length - 1)];
+      cardC.querySelector('.cw-val').textContent = chosen;
       cardC.querySelector('.cw-sub').textContent = 'Refreshed!';
+      // Track for easter egg: if the vibe is "Spring favours the bold!" set a window flag + timestamp
+      if (chosen === '🌺 Spring favours the bold!') {
+        window.__springBoldActive = Date.now();
+      }
     });
     container.appendChild(cardC);
 

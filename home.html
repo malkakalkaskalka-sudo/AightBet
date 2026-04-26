@@ -885,7 +885,7 @@
 
   <!-- Footer -->
   <footer class="footer">
-    &copy; 2026 AightBet. This is a fake casino – no real money involved. Play responsibly (or don't, it's fake).
+    <span id="footer-copyright">&copy;</span> 2026 AightBet. This is a fake casino – no real money involved. Play responsibly (or don't, it's fake).
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1280,6 +1280,606 @@
         }
       });
     })();
+
+    /* ═══════════════════════════════════════════════════════════
+       EASTER EGG #SH1 — "BLOOD OATH"
+       Category 2, key: superblood
+       Sequence (all within 60s of entering hacker mode):
+         1. Click the © in the footer
+         2. Spring Vibe card must show "Spring favours the bold!"
+         3. Click the featured icon in the featured banner
+       On success: 20s blood screen with audio + slow creepy text,
+       then Super Hacker mode activates.
+    ═══════════════════════════════════════════════════════════ */
+    (()=>{
+      /* ── State ── */
+      const SH_KEY = 'aightbet-super-hacker';
+      let seqStep = 0;          // 0=idle, 1=copyright clicked, 2=spring bold seen
+      let seqTimer = null;      // 60s deadline
+      let seqHackerEntry = 0;   // when hacker mode was last entered
+
+      /* ── Helper: reset sequence ── */
+      function resetSeq(reason) {
+        seqStep = 0;
+        clearTimeout(seqTimer);
+        seqTimer = null;
+      }
+
+      /* ── Start 60s countdown when hacker mode turns ON ── */
+      const origSetHacker = window.__setHackerMode;
+      window.__setHackerMode = function(on) {
+        origSetHacker && origSetHacker(on);
+        if (on) {
+          seqHackerEntry = Date.now();
+          resetSeq('hacker on');
+          seqTimer = setTimeout(() => { resetSeq('timeout'); }, 60000);
+        } else {
+          resetSeq('hacker off');
+        }
+      };
+
+      /* Check if we're currently in hacker mode */
+      function inHacker() {
+        return document.body.classList.contains('hacker');
+      }
+
+      /* ── Step 1: Click the © copyright text in footer ── */
+      const footerCopy = document.getElementById('footer-copyright');
+      if (footerCopy) {
+        footerCopy.style.cursor = 'default'; // don't hint
+        footerCopy.addEventListener('click', function(e) {
+          if (!inHacker()) return;
+          if (seqStep !== 0) return; // already started or done
+          if (!seqTimer) return;     // outside the 60s window
+          seqStep = 1;
+          console.debug('[SH] Step 1 done: copyright clicked');
+        });
+      }
+
+      /* ── Step 2: Detect "Spring favours the bold!" from update.js ── */
+      // We poll the window flag set by update.js
+      setInterval(function() {
+        if (!inHacker()) return;
+        if (seqStep !== 1) return;
+        if (!window.__springBoldActive) return;
+        // Make sure it was set AFTER hacker mode was entered
+        if (window.__springBoldActive > seqHackerEntry) {
+          seqStep = 2;
+          console.debug('[SH] Step 2 done: 🌺 Spring favours the bold!');
+        }
+      }, 200);
+
+      /* ── Step 3: Click the featured icon ── */
+      const featuredIcon = document.querySelector('.featured-icon');
+      if (featuredIcon) {
+        featuredIcon.addEventListener('click', function(e) {
+          if (!inHacker()) return;
+          if (seqStep !== 2) return;
+          if (!seqTimer) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          clearTimeout(seqTimer);
+          seqTimer = null;
+          seqStep = 0;
+          console.debug('[SH] Step 3 done: featured icon clicked — SEQUENCE COMPLETE');
+          triggerBloodScreen();
+        }, true);
+      }
+
+      /* ── Blood Screen ── */
+      function triggerBloodScreen() {
+        // Prevent double-trigger
+        if (document.getElementById('sh-blood-screen')) return;
+
+        const screen = document.createElement('div');
+        screen.id = 'sh-blood-screen';
+        screen.style.cssText =
+          'position:fixed;inset:0;z-index:999999;background:#000;display:flex;' +
+          'flex-direction:column;align-items:center;justify-content:center;overflow:hidden;' +
+          'font-family:monospace;';
+
+        // Blood drip canvas
+        const canvas = document.createElement('canvas');
+        canvas.id = 'sh-blood-canvas';
+        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;';
+        screen.appendChild(canvas);
+
+        // Red vignette overlay
+        const vign = document.createElement('div');
+        vign.style.cssText =
+          'position:absolute;inset:0;z-index:1;pointer-events:none;' +
+          'background:radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(120,0,0,.6) 100%);';
+        screen.appendChild(vign);
+
+        // Message container
+        const msgBox = document.createElement('div');
+        msgBox.id = 'sh-msg-box';
+        msgBox.style.cssText =
+          'position:relative;z-index:2;text-align:center;padding:40px 24px;max-width:700px;';
+        screen.appendChild(msgBox);
+
+        document.body.appendChild(screen);
+
+        // Inject styles
+        if (!document.getElementById('sh-blood-style')) {
+          const st = document.createElement('style');
+          st.id = 'sh-blood-style';
+          st.textContent = `
+            #sh-blood-screen {
+              animation: sh-screen-fade-in .8s ease forwards;
+            }
+            @keyframes sh-screen-fade-in {
+              from { opacity: 0; }
+              to   { opacity: 1; }
+            }
+            .sh-line {
+              display: block;
+              opacity: 0;
+              font-size: clamp(1.1rem, 3vw, 2rem);
+              font-weight: 900;
+              letter-spacing: .06em;
+              line-height: 1.55;
+              text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+              animation: sh-line-appear 1.4s ease forwards;
+              color: #cc0000;
+            }
+            .sh-line:nth-child(2) { color: #dd2222; animation-delay: .4s; }
+            .sh-line:nth-child(3) { color: #ff0000; animation-delay: 0s; font-size: clamp(.9rem, 2.2vw, 1.5rem); }
+            @keyframes sh-line-appear {
+              0%   { opacity: 0; transform: translateY(12px) scale(.97); filter: blur(8px); }
+              30%  { opacity: .4; filter: blur(3px); }
+              60%  { opacity: .8; filter: blur(1px); transform: translateY(0) scale(1.01); }
+              80%  { opacity: 1; filter: blur(0); }
+              90%  { transform: translateX(-2px); }
+              95%  { transform: translateX(2px); }
+              100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+            }
+            .sh-glitch {
+              position: relative;
+              display: inline-block;
+            }
+            .sh-glitch::before,
+            .sh-glitch::after {
+              content: attr(data-text);
+              position: absolute;
+              top: 0; left: 0;
+              width: 100%; height: 100%;
+            }
+            .sh-glitch::before {
+              color: #ff0000;
+              animation: sh-glitch-1 3s infinite;
+              clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+              transform: translate(-2px, -1px);
+            }
+            .sh-glitch::after {
+              color: #00ff41;
+              animation: sh-glitch-2 3s infinite;
+              clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+              transform: translate(2px, 1px);
+            }
+            @keyframes sh-glitch-1 {
+              0%,90%,100% { transform: translate(-2px,-1px); opacity: .7; }
+              91%          { transform: translate(3px, 1px) skewX(2deg); opacity: 1; }
+              93%          { transform: translate(-3px,-1px); }
+              95%          { transform: translate(2px, 2px) skewX(-1deg); }
+            }
+            @keyframes sh-glitch-2 {
+              0%,88%,100% { transform: translate(2px,1px); opacity: .5; }
+              89%          { transform: translate(-3px,-2px) skewX(-2deg); opacity: .9; }
+              92%          { transform: translate(3px, 1px); }
+              94%          { transform: translate(-2px,-2px) skewX(1deg); }
+            }
+
+          `;
+          document.head.appendChild(st);
+        }
+
+
+        initBloodDrip(canvas);
+
+        // Play creepy sound (11s) — using a free-to-use eerie tone via Web Audio
+        playBloodSound();
+
+        // Show text lines on a staggered schedule
+        const LINES = [
+          { text: "I'm watching you.", delay: 2200 },
+          { text: "You can't escape me.", delay: 5500 },
+          { text: "I will drink your blood.", delay: 9200 },
+        ];
+
+        LINES.forEach(function(line) {
+          setTimeout(function() {
+            const el = document.createElement('span');
+            el.className = 'sh-line';
+            const inner = document.createElement('span');
+            inner.className = 'sh-glitch';
+            inner.setAttribute('data-text', line.text);
+            inner.textContent = line.text;
+            el.appendChild(inner);
+            msgBox.appendChild(el);
+          }, line.delay);
+        });
+
+        // After 20s: remove screen, activate super hacker
+        setTimeout(function() {
+          screen.style.transition = 'opacity 1.2s ease';
+          screen.style.opacity = '0';
+          setTimeout(function() {
+            if (screen.parentNode) screen.parentNode.removeChild(screen);
+            // Activate Super Hacker mode
+            if (window.__activateSuperHacker) window.__activateSuperHacker();
+            // Award the egg
+           // Save to DB under eastereggs2
+const _u1 = firebase.auth().currentUser;
+if (_u1) firebase.database().ref('users/' + _u1.uid + '/eastereggs2/superblood').set(true);
+          }, 1200);
+        }, 20000);
+      }
+
+      /* ── Blood drip canvas ── */
+      function initBloodDrip(canvas) {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener('resize', function() {
+          canvas.width  = window.innerWidth;
+          canvas.height = window.innerHeight;
+        });
+        const ctx = canvas.getContext('2d');
+        const drops = [];
+
+        function makeDrop() {
+          return {
+            x: Math.random() * canvas.width,
+            y: -Math.random() * 120,
+            vy: 0.6 + Math.random() * 2.2,
+            width: 2 + Math.random() * 8,
+            length: 20 + Math.random() * 80,
+            alpha: 0.4 + Math.random() * 0.5,
+            hue: 0,
+            sat: 80 + Math.random() * 20,
+            lum: 15 + Math.random() * 15,
+            poolY: null,
+            poolR: 0,
+            poolAlpha: 0,
+          };
+        }
+
+        for (let i = 0; i < 35; i++) {
+          const d = makeDrop();
+          d.y = Math.random() * canvas.height; // pre-seed
+          drops.push(d);
+        }
+
+        // Spawn more over time
+        let spawnTimer = setInterval(function() {
+          if (!document.getElementById('sh-blood-screen')) { clearInterval(spawnTimer); return; }
+          if (drops.length < 80) drops.push(makeDrop());
+        }, 250);
+
+        function tick() {
+          if (!document.getElementById('sh-blood-screen')) return;
+          ctx.fillStyle = 'rgba(0,0,0,0.12)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          drops.forEach(function(d, i) {
+            if (d.poolY !== null) {
+              // Spread pool
+              d.poolR = Math.min(d.poolR + 0.4, d.width * 3);
+              d.poolAlpha = Math.min(d.poolAlpha + 0.04, d.alpha * 0.7);
+              ctx.beginPath();
+              ctx.ellipse(d.x, d.poolY, d.poolR, d.poolR * 0.35, 0, 0, Math.PI * 2);
+              ctx.fillStyle = `hsla(${d.hue},${d.sat}%,${d.lum}%,${d.poolAlpha})`;
+              ctx.fill();
+              return;
+            }
+
+            // Draw drip
+            ctx.beginPath();
+            ctx.moveTo(d.x, d.y);
+            ctx.lineTo(d.x, d.y + d.length);
+            ctx.lineWidth = d.width;
+            ctx.strokeStyle = `hsla(${d.hue},${d.sat}%,${d.lum}%,${d.alpha})`;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Teardrop tip
+            ctx.beginPath();
+            ctx.arc(d.x, d.y + d.length, d.width * 0.8, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${d.hue},${d.sat}%,${d.lum + 5}%,${d.alpha})`;
+            ctx.fill();
+
+            d.y += d.vy;
+
+            if (d.y + d.length > canvas.height) {
+              d.poolY = canvas.height;
+              d.poolR = 0;
+              d.poolAlpha = 0;
+            }
+          });
+
+          requestAnimationFrame(tick);
+        }
+        tick();
+      }
+
+      /* ── Creepy Audio via Web Audio API (no external file needed) ── */
+      function playBloodSound() {
+  try {
+    // ── Your custom sound ──
+    const sfx = new Audio('easter.mp3');
+    sfx.volume = 0.8;
+    sfx.play().catch(e => console.debug('[SH] SFX failed:', e));
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+
+          function playTone(freq, startTime, duration, gainVal, type) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, startTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.3, startTime + duration);
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(gainVal, startTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+          }
+
+          // Deep drones + dissonance — 11 seconds total
+          const t = ctx.currentTime;
+          playTone(55,  t,       11, 0.18, 'sawtooth');   // deep drone
+          playTone(58,  t,       11, 0.12, 'sawtooth');   // slight dissonance
+          playTone(27,  t,       11, 0.22, 'sine');        // sub bass
+          playTone(110, t + 0.5, 4,  0.08, 'square');     // mid growl
+          playTone(82,  t + 2,   6,  0.10, 'sawtooth');
+          playTone(45,  t + 4,   5,  0.14, 'sine');
+          playTone(65,  t + 5,   5,  0.09, 'sawtooth');
+          playTone(36,  t + 7,   4,  0.16, 'sine');
+          playTone(73,  t + 8,   3,  0.07, 'square');
+          playTone(28,  t + 9,   2,  0.20, 'sine');        // final deep rumble
+
+          // Noise burst for heartbeat effect
+          function heartbeat(startTime) {
+            const bufSize = ctx.sampleRate * 0.08;
+            const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) {
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.2));
+            }
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(0.15, startTime);
+            g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+            // Low-pass for thud
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 120;
+            src.connect(filter);
+            filter.connect(g);
+            g.connect(ctx.destination);
+            src.start(startTime);
+          }
+
+          // Heartbeats: 1.0, 1.6, 4.0, 4.6, 8.0, 8.6 seconds
+          [1.0, 1.6, 4.0, 4.6, 8.0, 8.6].forEach(function(offset) {
+            heartbeat(t + offset);
+          });
+
+        } catch(e) {
+          console.debug('[SH] Audio failed:', e);
+        }
+      }
+
+      // If hacker mode is already on when page loads, start the timer
+      if (localStorage.getItem('aightbet-hacker') === 'true') {
+        seqHackerEntry = Date.now();
+        seqTimer = setTimeout(function() { resetSeq('timeout'); }, 60000);
+      }
+    })();
   </script>
+  <script>
+/* ═══════════════════════════════════════════════════════════
+   EASTER EGG #2 — "INTERROGATION"
+   Spam the ? help FAB for 5 seconds to trigger.
+   A fullscreen fake terminal interrogates you, then
+   reveals a secret link to unlock the egg.
+═══════════════════════════════════════════════════════════ */
+(function () {
+  const FAB_CLICKS_NEEDED = 20;   // clicks needed within the 5s window
+  const SPAM_WINDOW_MS    = 5000; // 5 second window
+  const EGG_KEY           = 'aightbet-egg-interrogation';
+
+  let clickTimes = [];
+  let twitchInterval = null;
+  let triggered = false;
+
+  const fab = document.getElementById('fabHelp');
+  if (!fab) return;
+
+  /* ── Twitch animation ── */
+  function startTwitch(intensity) {
+    if (twitchInterval) clearInterval(twitchInterval);
+    twitchInterval = setInterval(function () {
+      const x = (Math.random() - 0.5) * intensity * 10;
+      const y = (Math.random() - 0.5) * intensity * 10;
+      const r = (Math.random() - 0.5) * intensity * 15;
+      fab.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+    }, 40);
+  }
+
+  function stopTwitch() {
+    if (twitchInterval) clearInterval(twitchInterval);
+    twitchInterval = null;
+    fab.style.transform = '';
+    fab.style.transition = 'transform 0.3s ease';
+  }
+
+  /* ── Track spam clicks ── */
+  fab.addEventListener('click', function () {
+    if (triggered) return;
+    const now = Date.now();
+    clickTimes.push(now);
+    clickTimes = clickTimes.filter(t => now - t < SPAM_WINDOW_MS);
+
+    // Intensity 0–1 based on how many clicks in window
+    const intensity = Math.min(clickTimes.length / FAB_CLICKS_NEEDED, 1);
+    if (intensity > 0.1) startTwitch(intensity);
+
+    // Check trigger condition
+    if (clickTimes.length >= FAB_CLICKS_NEEDED) {
+      triggered = true;
+      stopTwitch();
+      clickTimes = [];
+      setTimeout(launchTerminal, 300);
+    }
+  }, true);
+
+  /* ── Get username ── */
+  function getUsername() {
+    try {
+      const auth = firebase.auth();
+      const u = auth.currentUser;
+      if (!u) return 'USER';
+      return (u.displayName || u.email || 'USER').split('@')[0].toUpperCase();
+    } catch (e) { return 'USER'; }
+  }
+
+  /* ── Terminal ── */
+  function launchTerminal() {
+    // Fullscreen
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+
+    const username = getUsername();
+
+    // Build screen
+    const screen = document.createElement('div');
+    screen.id = 'itg-screen';
+    screen.style.cssText = `
+      position: fixed; inset: 0; z-index: 9999999;
+      background: #000; color: #00ff41;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+      padding: 40px 5vw;
+      overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-start;
+      animation: itg-fade-in 0.8s ease forwards;
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes itg-fade-in { from { opacity:0; } to { opacity:1; } }
+      #itg-screen::before {
+        content: '';
+        position: fixed; inset: 0;
+        background: repeating-linear-gradient(
+          0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px,
+          transparent 1px, transparent 2px
+        );
+        pointer-events: none; z-index: 1;
+      }
+      .itg-line {
+        display: block; white-space: pre-wrap;
+        line-height: 1.7; opacity: 0;
+        animation: itg-line-in 0.3s ease forwards;
+      }
+      @keyframes itg-line-in {
+        from { opacity:0; transform: translateX(-6px); }
+        to   { opacity:1; transform: translateX(0); }
+      }
+      #itg-link-btn {
+        display: inline-block;
+        margin-top: 18px;
+        color: #00ff41;
+        border: 1px solid #00ff41;
+        padding: 8px 22px;
+        cursor: pointer;
+        font-family: 'Courier New', monospace;
+        font-size: 1rem;
+        background: transparent;
+        letter-spacing: 0.08em;
+        transition: background 0.2s, color 0.2s;
+        animation: itg-line-in 0.4s ease forwards;
+        opacity: 0;
+      }
+      #itg-link-btn:hover { background: #00ff41; color: #000; }
+    `;
+    document.head.appendChild(style);
+
+    const output = document.createElement('div');
+    output.id = 'itg-output';
+    output.style.cssText = 'position:relative;z-index:2;';
+    screen.appendChild(output);
+    document.body.appendChild(screen);
+
+    // Lines to type out
+    const LINES = [
+      { text: 'SYSTEM INTRUSION DETECTED', delay: 600,  color: '#ff0000', prefix: '[!!] ' },
+      { text: 'Initializing secure channel...', delay: 1800, color: '#00ff41' },
+      { text: '', delay: 2600 },
+      { text: 'Who sent you?', delay: 3000, color: '#ffff00', prefix: '> ' },
+      { text: 'Why are you here?', delay: 4800, color: '#ffff00', prefix: '> ' },
+      { text: 'How did you find this terminal?', delay: 6400, color: '#ffff00', prefix: '> ' },
+      { text: 'Are you aware of what you are doing?', delay: 8200, color: '#ffff00', prefix: '> ' },
+      { text: 'This was not meant to be found.', delay: 10200, color: '#ff4444', prefix: '[WARN] ' },
+      { text: '', delay: 11400 },
+      { text: `Okay ${username}, don't you think these messages are a little strange?`, delay: 12000, color: '#00ffff', prefix: '>> ' },
+      { text: 'Maybe you should follow the link below.', delay: 14200, color: '#00ffff' },
+    ];
+
+    function addLine(text, color, prefix) {
+      const line = document.createElement('span');
+      line.className = 'itg-line';
+      line.style.color = color || '#00ff41';
+      line.textContent = (prefix || '') + text;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    // Type lines on schedule
+    LINES.forEach(function (l) {
+      setTimeout(function () {
+        addLine(l.text, l.color, l.prefix);
+      }, l.delay);
+    });
+
+    // Show the secret button after final line
+    setTimeout(function () {
+      const btn = document.createElement('button');
+      btn.id = 'itg-link-btn';
+      btn.textContent = '[ UNLOCK_SECRET.exe ]';
+      output.appendChild(btn);
+
+      btn.addEventListener('click', function () {
+        btn.textContent = '[ ACCESS GRANTED ]';
+        btn.style.color = '#00ff41';
+        btn.style.borderColor = '#00ff41';
+
+        setTimeout(function () {
+          // Award egg
+         localStorage.setItem(EGG_KEY, 'true');
+// Save to DB under eastereggs2
+const _u2 = firebase.auth().currentUser;
+if (_u2) firebase.database().ref('users/' + _u2.uid + '/eastereggs2/interrogation').set(true);
+
+          // Exit fullscreen and remove screen
+          if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+          screen.style.transition = 'opacity 1s ease';
+          screen.style.opacity = '0';
+          setTimeout(function () {
+            if (screen.parentNode) screen.parentNode.removeChild(screen);
+            triggered = false; // allow re-trigger if needed
+          }, 1000);
+        }, 1200);
+      });
+    }, 15500);
+  }
+})();
+</script>
 </body>
 </html>

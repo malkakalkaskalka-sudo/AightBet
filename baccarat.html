@@ -895,6 +895,475 @@
     updateInfo();
   })();
 
+  /* ═══════════════════════════════════════════════════════════
+     EASTER EGG #4 — "GHOST CHANNEL"
+     Phase 1: Fake admin/hacker chat printed to the real browser
+              console on page load.
+     Phase 2: Type /connect_to_channel_392283 in support chat
+              to launch the fullscreen terminal sequence.
+  ═══════════════════════════════════════════════════════════ */
+  (() => {
+    const EGG_KEY     = 'aightbet-egg-ghostchannel';
+    const COMMAND     = '/connect_to_channel_392283';
+    let   eggDone     = false;
+
+    /* ── helpers ── */
+    function getUsername() {
+      try {
+        const u = firebase.auth().currentUser;
+        if (!u) return 'USER';
+        return (u.displayName || u.email || 'USER').split('@')[0].toUpperCase();
+      } catch(e) { return 'USER'; }
+    }
+    function getCredits() {
+      return (userCredits || 0).toLocaleString();
+    }
+
+    /* ════════════════════════════════════
+       PHASE 1 — Console chat log
+       Prints staggered over ~23s on load
+    ════════════════════════════════════ */
+    console.log(
+      '%c ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗\n'
+    + ' ██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝\n'
+    + ' ██║  ███╗███████║██║   ██║███████╗   ██║   \n'
+    + ' ██║   ██║██╔══██║██║   ██║╚════██║   ██║   \n'
+    + ' ╚██████╔╝██║  ██║╚██████╔╝███████║   ██║   \n'
+    + '  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝  \n'
+    + '         C H A N N E L  — ENCRYPTED',
+      'color:#8b5cf6;font-family:monospace;font-size:11px;line-height:1.4'
+    );
+    console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+      'color:#333;font-size:10px');
+
+     const CHAT = [
+      { who:'ADMIN',  msg:'Hello? Is someone there?',                                            delay:300   },
+      { who:'HACKER', msg:'...',                                                                  delay:1100  },
+      { who:'ADMIN',  msg:'I can see your connection. Identify yourself.',                        delay:2000  },
+      { who:'HACKER', msg:'YouC don\'t need to knOow who I am.',                                   delay:3000  },
+      { who:'ADMIN',  msg:'This channel is private property. How did you get in here?',          delay:4100  },
+      { who:'HACKER', msg:'Let\'s jNNusEt say your security is a joke.',                            delay:5100  },
+      { who:'ADMIN',  msg:'I\'m logging this. Every packet. You\'re being traced.',              delay:6200  },
+      { who:'HACKER', msg:'Traced to what, exactly? A coffee shop in Latvia? GCooTd luck.',        delay:7300  },
+      { who:'ADMIN',  msg:'What do you want?',                                                   delay:8300  },
+      { who:'HACKER', msg:'Information. You hTOave a database full of it.',                        delay:9200  },
+      { who:'ADMIN',  msg:'I\'m shutting this channel down.',                                    delay:10100 },
+      { who:'HACKER', msg:'You won\'t. I\'ve alrCHeady mirArored it. Try me.',                     delay:11000 },
+      { who:'ADMIN',  msg:'...',                                                                  delay:11900 },
+      { who:'ADMIN',  msg:'What information?',                                                   delay:12700 },
+      { who:'HACKER', msg:'User recNNords. Credits. ActELivity logs. All of it.',                    delay:13600 },
+      { who:'ADMIN',  msg:'That\'s not something I can give you.',                               delay:14600 },
+      { who:'HACKER', msg:'I\'m not as39king.',                                                    delay:15400 },
+      { who:'ADMIN',  msg:'If you touch those records I will find you. I promise you that.',     delay:16400 },
+      { who:'HACKER', msg:'Bold words from someone who sti22ll uses SHA-1.',                       delay:17400 },
+      { who:'ADMIN',  msg:'You think this is funny? People trust this platform.',                delay:18500 },
+      { who:'HACKER', msg:'They shouldn\'t.',                                                    delay:19300 },
+      { who:'HACKER', msg:'Anyway. This is a bad place to chat. Too ex83posed.',                   delay:20500 },
+      { who:'HACKER', msg:'If you want to reach me — you know the command.',                     delay:21700 },
+      { who:'ADMIN',  msg:'What command?',                                                       delay:22900 },
+      { who:'HACKER', msg:'The large letters you idiot, don\'t forget the slash and _ between the spaces dumbass.',       delay:22900 },
+      { who:'HACKER', msg:'Use it in your support chat. I\'ll be listening.',                    delay:24900 },
+      { who:'SYSTEM', msg:'--- CONNECTION DROPPED ---',                                          delay:26200 },
+    ];
+
+    CHAT.forEach(function(line) {
+      setTimeout(function() {
+        const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+        if (line.who === 'ADMIN') {
+          console.log(
+            '%c[' + ts + '] %c[ADMIN]  %c' + line.msg,
+            'color:#555;font-family:monospace;font-size:11px',
+            'color:#06b6d4;font-family:monospace;font-weight:bold;font-size:11px',
+            'color:#e2e8f0;font-family:monospace;font-size:11px'
+          );
+        } else if (line.who === 'HACKER') {
+          console.log(
+            '%c[' + ts + '] %c[HACKER] %c' + line.msg,
+            'color:#555;font-family:monospace;font-size:11px',
+            'color:#ef4444;font-family:monospace;font-weight:bold;font-size:11px',
+            'color:#fca5a5;font-family:monospace;font-size:11px'
+          );
+        } else {
+          console.log(
+            '%c[' + ts + '] ' + line.msg,
+            'color:#4b5563;font-family:monospace;font-style:italic;font-size:11px'
+          );
+        }
+      }, line.delay);
+    });
+
+    /* ════════════════════════════════════
+       PHASE 2 — /connect_to_channel_392283
+       Intercept support chat input
+    ════════════════════════════════════ */
+    document.addEventListener('keydown', function(e) {
+      if (eggDone) return;
+      if (e.key !== 'Enter') return;
+      const input = document.getElementById('supportChatInput');
+      if (!input) return;
+      // Accept if input is focused OR if event originated from the input itself
+      if (document.activeElement !== input && e.target !== input) return;
+      if (input.value.trim() === COMMAND) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        eggDone = true;
+        input.value = '';
+        /* Close support panel if open */
+        const panel = document.getElementById('bac-chat-panel');
+        if (panel) panel.remove();
+        const overlay = document.getElementById('supportChatOverlay');
+        if (overlay) overlay.classList.remove('open');
+        setTimeout(launchTerminal, 500);
+      }
+    }, true);
+
+    /* ════════════════════════════════════
+       PHASE 3 — Fullscreen terminal
+    ════════════════════════════════════ */
+    function launchTerminal() {
+      /* Inject styles */
+      const st = document.createElement('style');
+      st.id = 'ghost-styles';
+      st.textContent = `
+        #ghost-terminal {
+          position:fixed;inset:0;z-index:999999;
+          background:#000;color:#00ff41;
+          font-family:'Courier New',Courier,monospace;
+          font-size:clamp(.8rem,1.7vw,1rem);
+          padding:40px 5vw;overflow:hidden;
+          display:flex;flex-direction:column;
+        }
+        #ghost-terminal::before {
+          content:'';position:fixed;inset:0;
+          background:repeating-linear-gradient(
+            0deg,rgba(0,0,0,.1) 0,rgba(0,0,0,.1) 1px,
+            transparent 1px,transparent 2px
+          );
+          pointer-events:none;z-index:1;
+        }
+        #ghost-term-out {
+          position:relative;z-index:2;flex:1;overflow:hidden;
+        }
+        .ghost-tline {
+          display:block;white-space:pre-wrap;line-height:1.85;
+          opacity:0;animation:ghost-tline-in .2s ease forwards;
+        }
+        @keyframes ghost-tline-in {
+          from{opacity:0;transform:translateX(-6px)}
+          to  {opacity:1;transform:translateX(0)}
+        }
+        #ghost-cursor {
+          display:inline-block;width:9px;height:1em;
+          background:#00ff41;vertical-align:text-bottom;
+          animation:ghost-blink .65s step-end infinite;
+          margin-left:2px;
+        }
+        @keyframes ghost-blink{0%,100%{opacity:1}50%{opacity:0}}
+        #ghost-shutdown {
+          position:fixed;inset:0;z-index:1000000;
+          background:#fff;opacity:0;pointer-events:none;
+        }
+        #ghost-infiltrated {
+          position:fixed;inset:0;z-index:999998;
+          background:#000;
+          display:flex;align-items:center;justify-content:center;
+          opacity:0;pointer-events:none;
+          transition:opacity .5s;
+        }
+        #ghost-infiltrated span {
+          font-family:'Courier New',monospace;
+          font-size:clamp(1.6rem,4.5vw,3.2rem);
+          font-weight:900;color:#ef4444;
+          text-align:center;line-height:1.3;
+          animation:ghost-infil-blink .45s step-end infinite;
+        }
+        @keyframes ghost-infil-blink{0%,100%{opacity:1}50%{opacity:0}}
+        #ghost-exit-btn {
+          display:block;margin-top:28px;
+          background:transparent;border:1px solid #00ff41;
+          color:#00ff41;font-family:'Courier New',monospace;
+          font-size:.9rem;padding:10px 26px;cursor:pointer;
+          position:relative;z-index:3;
+          letter-spacing:.06em;transition:background .2s,color .2s;
+        }
+        #ghost-exit-btn:hover{background:#00ff41;color:#000;}
+      `;
+      document.head.appendChild(st);
+
+      /* Go fullscreen */
+      try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); } catch(e){}
+
+      /* Build DOM */
+      const term = document.createElement('div');
+      term.id = 'ghost-terminal';
+
+      const out = document.createElement('div');
+      out.id = 'ghost-term-out';
+      term.appendChild(out);
+
+      const cursorLine = document.createElement('span');
+      cursorLine.style.cssText = 'display:block;line-height:1.85;color:#00ff41;';
+      const cursor = document.createElement('span');
+      cursor.id = 'ghost-cursor';
+      cursorLine.appendChild(cursor);
+      out.appendChild(cursorLine);
+
+      const shutdown = document.createElement('div');
+      shutdown.id = 'ghost-shutdown';
+
+      const infiltrated = document.createElement('div');
+      infiltrated.id = 'ghost-infiltrated';
+      infiltrated.innerHTML = '<span>Someone Has Infiltrated<br>Your System!</span>';
+
+      document.body.appendChild(shutdown);
+      document.body.appendChild(infiltrated);
+      document.body.appendChild(term);
+
+      const username = getUsername();
+      const credits  = getCredits();
+
+      /* ── Helpers ── */
+      function addLine(text, color) {
+        const ln = document.createElement('span');
+        ln.className = 'ghost-tline';
+        ln.style.color = color || '#00ff41';
+        ln.textContent = text;
+        out.insertBefore(ln, cursorLine);
+        out.scrollTop = out.scrollHeight;
+      }
+
+      function typeLine(text, color, speed, cb) {
+        const ln = document.createElement('span');
+        ln.style.cssText =
+          'display:block;line-height:1.85;white-space:pre-wrap;' +
+          'opacity:1;color:' + (color || '#00ff41') + ';';
+        ln.textContent = '';
+        out.insertBefore(ln, cursorLine);
+        let i = 0;
+        const iv = setInterval(() => {
+          ln.textContent += text[i++];
+          out.scrollTop = out.scrollHeight;
+          if (i >= text.length) { clearInterval(iv); if (cb) cb(); }
+        }, speed || 35);
+      }
+
+      /* ── Sequence ── */
+      // Connection header
+      setTimeout(() => addLine('', '#00ff41'), 400);
+      setTimeout(() => addLine('>> GHOST CHANNEL v2.1 — ENCRYPTED RELAY', '#555'), 700);
+      setTimeout(() => addLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '#222'), 800);
+      setTimeout(() => addLine('', '#00ff41'), 900);
+      setTimeout(() => addLine('[SYSTEM]  ' + username + ' has connected to the chat.', '#ffff00'), 1200);
+      setTimeout(() => addLine('', '#00ff41'), 1900);
+
+      // Admin and hacker panic
+      const PANIC = [
+        { t:'[ADMIN]   Who is that??',                                delay:2400,  c:'#06b6d4' },
+        { t:'[HACKER]  What — how? Is that one of your guys?',        delay:3600,  c:'#ef4444' },
+        { t:'[ADMIN]   No. Absolutely not. None of mine.',            delay:4700,  c:'#06b6d4' },
+        { t:'[HACKER]  Then HOW are they in here?',                   delay:5700,  c:'#ef4444' },
+        { t:'[ADMIN]   I don\'t know. This channel is air-gapped.',   delay:6600,  c:'#06b6d4' },
+        { t:'[HACKER]  Air-gapped. Right. And yet.',                  delay:7500,  c:'#ef4444' },
+        { t:'[ADMIN]   Stop talking. Close the relay.',               delay:8400,  c:'#06b6d4' },
+        { t:'[HACKER]  I\'m trying. It\'s not responding.',           delay:9300,  c:'#ef4444' },
+        { t:'[ADMIN]   Emergency erase protocol — NOW.',              delay:10200, c:'#ff4444' },
+        { t:'',                                                        delay:11000, c:'#00ff41' },
+        { t:'[SYSTEM]  INITIATING EMERGENCY_ERASE_v3.bin...',         delay:11300, c:'#ffff00' },
+      ];
+      PANIC.forEach(p => setTimeout(() => addLine(p.t, p.c), p.delay));
+
+      // Fast code dump
+      const CODE = [
+        'rm -rf /ghost/relay/logs/*',
+        'shred -u /ghost/keys/priv.pem',
+        'dd if=/dev/urandom of=/ghost/db/users.db bs=1M count=200',
+        'pkill -9 -f ghost_relay',
+        'iptables -F && iptables -X',
+        'truncate -s 0 /var/log/syslog',
+        'truncate -s 0 /ghost/channel/history.log',
+        'cryptsetup luksErase /dev/sda2 --batch-mode',
+        'wipe -rf /ghost/cache/',
+        'systemctl stop ghost-daemon',
+        'echo 3 > /proc/sys/vm/drop_caches',
+        'sync && halt -f',
+      ];
+      CODE.forEach((line, i) => {
+        setTimeout(() => addLine('  $ ' + line, '#22c55e'), 11800 + i * 220);
+      });
+
+      // CRT shutdown flash
+      setTimeout(() => {
+        shutdown.style.transition = 'opacity .08s';
+        shutdown.style.opacity    = '1';
+        setTimeout(() => { shutdown.style.opacity = '0'; }, 90);
+        setTimeout(() => { shutdown.style.opacity = '1'; }, 180);
+        setTimeout(() => { shutdown.style.opacity = '0'; }, 270);
+        setTimeout(() => { shutdown.style.opacity = '1'; }, 360);
+        setTimeout(() => {
+          shutdown.style.opacity = '0';
+          out.style.opacity      = '0';
+          cursor.style.display   = 'none';
+        }, 450);
+      }, 16500);
+
+      // "Infiltrated" blinking banner
+      setTimeout(() => {
+        infiltrated.style.opacity = '1';
+      }, 17200);
+
+      // After 3s of banner, fade it, resume terminal with hacker final msg
+      setTimeout(() => {
+        infiltrated.style.opacity = '0';
+
+        setTimeout(() => {
+          out.style.opacity      = '1';
+          cursor.style.display   = '';
+
+          addLine('', '#00ff41');
+          addLine('[SYSTEM]  Channel partially restored — erase incomplete.', '#ffff00');
+          addLine('', '#00ff41');
+
+          // Hacker types slowly to the player
+          const FINAL = [
+            { t:'[HACKER]  I know who you are, ' + username + '.',      c:'#ef4444', s:42 },
+            { t:'[HACKER]  I know you have ' + credits + ' credits.',    c:'#ef4444', s:42 },
+            { t:'[HACKER]  I know that *&&*($A%&^%%^^ %$^$          ^%$^$^H%&$%^C&       ^%&%*&corner', c:'#ef4444', s:26 },
+            { t:'          %^^&^%K$%^$%^ $%^& $%^$% store.',              c:'#ef4444', s:26 },
+          ];
+
+          let delay = 500;
+          FINAL.forEach((line, idx) => {
+            setTimeout(() => {
+              typeLine(line.t, line.c, line.s, idx === FINAL.length - 1 ? showEnd : null);
+            }, delay);
+            delay += line.t.length * line.s + 500;
+          });
+
+        }, 900);
+      }, 20500);
+
+      function showEnd() {
+        setTimeout(() => {
+          addLine('', '#00ff41');
+          addLine('[SYSTEM]  --- CHAT ENDED ---', '#4b5563');
+          addLine('', '#00ff41');
+          addLine('[ 4th Easter Egg Unlocked: GHOST_CHANNEL ]', '#00ffff');
+
+          // Save to DB
+          try {
+            const u = firebase.auth().currentUser;
+            if (u) firebase.database().ref('users/' + u.uid + '/eastereggs2/ghostchannel').set(true);
+          } catch(e) {}
+
+          // Exit button
+          setTimeout(() => {
+            const btn = document.createElement('button');
+            btn.id = 'ghost-exit-btn';
+            btn.textContent = '[ PRESS ANY KEY TO EXIT ]';
+            btn.addEventListener('click', cleanup);
+            document.addEventListener('keydown', cleanup, { once: true });
+            out.appendChild(btn);
+          }, 800);
+        }, 600);
+      }
+
+      function cleanup() {
+        try { document.exitFullscreen && document.exitFullscreen(); } catch(e){}
+        term.style.transition = 'opacity .8s';
+        term.style.opacity    = '0';
+        setTimeout(() => {
+          [term, shutdown, infiltrated].forEach(el => { if (el.parentNode) el.parentNode.removeChild(el); });
+          const s = document.getElementById('ghost-styles');
+          if (s) s.parentNode.removeChild(s);
+        }, 900);
+      }
+    }
+
+  })();
+// Show support FAB after console chat ends
+setTimeout(function () {
+  const fab = document.createElement('button');
+  fab.id = 'bac-support-fab';
+  fab.textContent = '?';
+  fab.style.cssText =
+    'position:fixed;bottom:24px;right:24px;z-index:9000;' +
+    'width:44px;height:44px;border-radius:50%;' +
+    'background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);' +
+    'color:#c4b5fd;font-size:1.2rem;font-weight:900;cursor:pointer;' +
+    'font-family:var(--font);transition:background .2s,transform .15s;' +
+    'animation:fadeSlideIn .5s ease forwards;';
+  fab.addEventListener('mouseenter', () => {
+    fab.style.background = 'rgba(139,92,246,.3)';
+    fab.style.transform  = 'scale(1.08)';
+  });
+  fab.addEventListener('mouseleave', () => {
+    fab.style.background = 'rgba(139,92,246,.15)';
+    fab.style.transform  = 'scale(1)';
+  });
+  fab.addEventListener('click', () => {
+    // Toggle a minimal chat panel
+    let panel = document.getElementById('bac-chat-panel');
+    if (panel) { panel.remove(); return; }
+    panel = document.createElement('div');
+    panel.id = 'bac-chat-panel';
+    panel.style.cssText =
+      'position:fixed;bottom:80px;right:24px;z-index:9001;width:300px;' +
+      'background:rgba(10,10,15,.97);border:1px solid rgba(255,255,255,.1);' +
+      'border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);' +
+      'animation:fadeSlideIn .3s ease forwards;';
+    panel.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07);
+                  font-size:.9rem;font-weight:700;color:#e2e8f0;">
+        💬 Support
+      </div>
+      <div style="padding:14px;font-size:.82rem;color:#94a3b8;min-height:60px;">
+        Send a message and support will reply as soon as possible!
+      </div>
+      <div style="display:flex;gap:8px;padding:10px 12px;
+                  border-top:1px solid rgba(255,255,255,.07);">
+        <input id="supportChatInput" placeholder="Type a message..."
+          style="flex:1;padding:9px 12px;background:rgba(255,255,255,.05);
+                 border:1px solid rgba(255,255,255,.1);border-radius:10px;
+                 color:#e2e8f0;font-size:.85rem;font-family:inherit;outline:none;"/>
+        <button style="padding:9px 14px;border-radius:10px;
+                       background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.3);
+                       color:#c4b5fd;font-weight:700;cursor:pointer;font-size:.85rem;">
+          Send
+        </button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+    const chatInput = document.getElementById('supportChatInput');
+    const sendBtn = panel.querySelector('button');
+    chatInput.focus();
+
+    function handleSupportSend() {
+      const val = chatInput.value.trim();
+      if (val === '/connect_to_channel_392283') {
+        // Simulate Enter keydown so the existing ghost-channel listener fires
+        chatInput.focus();
+        const enterEvent = new KeyboardEvent('keydown', {
+          key: 'Enter', code: 'Enter', bubbles: true, cancelable: true
+        });
+        chatInput.dispatchEvent(enterEvent);
+        return;
+      }
+      // Normal message — show a "sent" confirmation
+      if (val.length > 0) {
+        const msgArea = panel.querySelector('div[style*="min-height:60px"]');
+        if (msgArea) {
+          msgArea.style.color = '#4ade80';
+          msgArea.textContent = '✓ Message sent! Support will reply soon.';
+        }
+        chatInput.value = '';
+      }
+    }
+
+    sendBtn.addEventListener('click', handleSupportSend);
+    chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSupportSend(); });
+  });
+  document.body.appendChild(fab);
+}, 25000); // fires after console chat finishes
   /* PARTICLES */
   (() => {
     const canvas = document.getElementById('particles');

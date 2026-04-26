@@ -230,6 +230,9 @@
 
       // Global messages — check for unseen messages
       checkGlobalMessages(u.uid);
+
+      // ── Check if all 5 secret eggs collected → award 10M credits once ──
+      checkEgg2Reward(u.uid);
     });
   });
 
@@ -442,5 +445,321 @@
       });
     });
   };
+
+  /* ══════════════════════════════════════════════════════════════
+     CATEGORY 2 EASTER EGGS — 5 hidden, reward = 10,000,000 credits
+     Keys: superblood, [4 more TBD]
+     These are tracked under easterEggs2 so they never interfere
+     with the original 3 eggs.
+  ══════════════════════════════════════════════════════════════ */
+
+  // ── Check all 5 secret eggs on login and award credits if not yet claimed ──
+  function checkEgg2Reward(uid) {
+    var rtdb2 = firebase.database();
+    var eggRef = rtdb2.ref('users/' + uid + '/eastereggs2');
+    eggRef.once('value', function(snap) {
+      var eggs = snap.val() || {};
+      var allKeys = ['superblood', 'hackerterminal', 'ghostchannel', 'ghostmachine', 'interrogation'];
+      var count = allKeys.filter(function(k){ return eggs[k] === true; }).length;
+      if (count >= 5 && !eggs.rewardClaimed) {
+        eggRef.update({ rewardClaimed: true }, function() {
+          rtdb2.ref('users/' + uid + '/credits').transaction(function(c) {
+            return (c || 0) + 10000000;
+          }, function() {
+            setTimeout(showEgg2RewardPopup, 500);
+          });
+        });
+      }
+    });
+  }
+
+  window.__easterEgg2Unlocked = function(eggKey) {
+    waitForFirebase(function() {
+      var auth2 = firebase.auth();
+      var rtdb2 = firebase.database();
+      var u = auth2.currentUser;
+      if (!u) return;
+
+      var eggRef = rtdb2.ref('users/' + u.uid + '/eastereggs2');
+      eggRef.once('value', function(snap) {
+        var eggs = snap.val() || {};
+        var allKeys = ['superblood', 'hackerterminal', 'ghostchannel', 'ghostmachine', 'interrogation'];
+
+        // Mark egg as unlocked (even if already set, update is idempotent)
+        var update = {};
+        update[eggKey] = true;
+        eggRef.update(update, function() {
+          var newEggs = Object.assign({}, eggs, update);
+          var count = allKeys.filter(function(k){ return newEggs[k] === true; }).length;
+
+          // Only show unlock popup if this egg was newly unlocked
+          if (!eggs[eggKey]) {
+            showEgg2UnlockPopup(count, eggKey);
+          }
+
+          // Award credits if all 5 collected and not yet claimed
+          if (count >= 5 && !eggs.rewardClaimed) {
+            eggRef.update({ rewardClaimed: true }, function() {
+              rtdb2.ref('users/' + u.uid + '/credits').transaction(function(c) {
+                return (c || 0) + 10000000;
+              }, function() {
+                setTimeout(showEgg2RewardPopup, 1800);
+              });
+            });
+          }
+        });
+      });
+    });
+  };
+
+  function showEgg2UnlockPopup(count, eggKey) {
+    var names = { superblood: '🩸 Super Hacker' };
+    var label = names[eggKey] || eggKey;
+
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-end;justify-content:center;padding:32px;pointer-events:none';
+
+    var card = document.createElement('div');
+    card.style.cssText = 'background:rgba(5,0,0,.97);border:1px solid rgba(180,0,0,.5);border-radius:18px;padding:20px 24px;max-width:400px;width:100%;pointer-events:auto;animation:eggSlideUp .4s cubic-bezier(.22,1,.36,1);font-family:monospace;box-shadow:0 8px 40px rgba(200,0,0,.3),0 0 60px rgba(200,0,0,.1)';
+
+    var dots = '';
+    for (var i = 0; i < 5; i++) {
+      var filled = i < count;
+      dots += '<span style="font-size:1.3rem;opacity:' + (filled ? '1' : '0.2') + '">' + (filled ? '🩸' : '○') + '</span>';
+    }
+
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+        '<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b0000,#cc0000);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">🩸</div>' +
+        '<div>' +
+          '<div style="font-size:.72rem;font-weight:700;color:#cc0000;text-transform:uppercase;letter-spacing:.1em">Secret Egg Found!</div>' +
+          '<div style="font-size:1rem;font-weight:800;color:#ff4444">' + label + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+        dots +
+        '<span style="font-size:.75rem;color:#880000;margin-left:4px">' + count + '/5 Secret Eggs</span>' +
+      '</div>' +
+      '<div style="font-size:.72rem;color:#660000;margin-top:6px">Find all 5 for a special reward...</div>';
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    if (!document.getElementById('egg-anim-style')) {
+      var style = document.createElement('style');
+      style.id = 'egg-anim-style';
+      style.textContent = '@keyframes eggSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}';
+      document.head.appendChild(style);
+    }
+
+    setTimeout(function() {
+      card.style.transition = 'opacity .4s, transform .4s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 400);
+    }, 5000);
+  }
+
+  function showEgg2RewardPopup() {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:monospace';
+
+    var card = document.createElement('div');
+    card.style.cssText = 'background:rgba(5,0,0,.99);border:1px solid rgba(200,0,0,.5);border-radius:22px;max-width:440px;width:100%;padding:36px 28px;text-align:center;animation:eggSlideUp .45s cubic-bezier(.22,1,.36,1);box-shadow:0 0 100px rgba(200,0,0,.2)';
+
+    card.innerHTML =
+      '<div style="font-size:3.5rem;margin-bottom:12px">🩸</div>' +
+      '<div style="font-size:1.5rem;font-weight:900;color:#cc0000;margin-bottom:6px">All Secret Eggs Found!</div>' +
+      '<div style="font-size:.9rem;color:#660000;margin-bottom:20px">You discovered all 5 hidden secrets.<br>I\'m impressed. Here\'s your reward:</div>' +
+      '<div style="background:rgba(150,0,0,.1);border:1px solid rgba(150,0,0,.3);border-radius:14px;padding:18px;margin-bottom:22px">' +
+        '<div style="font-size:2.2rem;font-weight:900;color:#cc0000">🩸 10,000,000</div>' +
+        '<div style="font-size:.82rem;color:#660000;margin-top:4px">Credits added to your account</div>' +
+      '</div>' +
+      '<button id="egg2RewardDismiss" style="width:100%;padding:13px;font-size:.95rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#8b0000,#cc0000);border:none;border-radius:12px;cursor:pointer;font-family:monospace">I knew it. 🩸</button>';
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    card.querySelector('#egg2RewardDismiss').addEventListener('click', function() {
+      overlay.style.transition = 'opacity .3s';
+      overlay.style.opacity = '0';
+      setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     SUPER HACKER MODE
+     Activated after the blood sequence easter egg.
+     Adds: creepy twitching colored BG letters, blood-red overlay tint.
+  ══════════════════════════════════════════════════════════════ */
+  (function() {
+    if (document.getElementById('super-hacker-style')) return;
+
+    var s = document.createElement('style');
+    s.id = 'super-hacker-style';
+    s.textContent = `
+      /* ── Super Hacker: creepy BG letter layer ── */
+      #sh-letters {
+        position: fixed; inset: 0; z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        display: none;
+      }
+      body.super-hacker #sh-letters { display: block; }
+
+      .sh-letter {
+        position: absolute;
+        font-family: monospace;
+        font-weight: 900;
+        font-size: clamp(18px, 3vw, 40px);
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+        animation: sh-twitch var(--d, 2s) var(--delay, 0s) infinite;
+        color: var(--c, #00ff41);
+        text-shadow: 0 0 8px var(--c, #00ff41);
+      }
+
+      @keyframes sh-twitch {
+        0%   { opacity: 0;    transform: translate(0,0) rotate(0deg) scale(1); }
+        5%   { opacity: var(--op, 0.12); transform: translate(var(--tx1,2px), var(--ty1,-1px)) rotate(var(--r1, 1deg)) scale(1.02); }
+        10%  { opacity: 0;    transform: translate(0,0); }
+        15%  { opacity: var(--op, 0.12); transform: translate(var(--tx2,-3px), var(--ty2,2px)) rotate(var(--r2,-2deg)) scale(0.98); }
+        20%  { opacity: 0;    transform: translate(0,0); }
+        30%  { opacity: var(--op, 0.12); transform: translate(var(--tx1,2px), var(--ty1,-1px)) rotate(var(--r1,1deg)); }
+        35%  { opacity: 0;    transform: translate(0,0); }
+        50%  { opacity: var(--op, 0.18); transform: translate(var(--tx2,-3px), var(--ty2,2px)) rotate(var(--r2,-2deg)) scale(1.05); }
+        55%  { opacity: 0;    transform: translate(1px,-1px); }
+        70%  { opacity: var(--op, 0.1); transform: translate(0,0) rotate(0deg); }
+        85%  { opacity: 0;    transform: translate(var(--tx1,2px), var(--ty2,2px)); }
+        95%  { opacity: var(--op, 0.15); transform: translate(0,0) rotate(var(--r1,1deg)); }
+        100% { opacity: 0;    transform: translate(0,0) rotate(0deg); }
+      }
+
+      /* Blood-red tint on the hacker canvas when super active */
+      body.super-hacker #hacker-canvas {
+        filter: hue-rotate(-30deg) saturate(1.2) !important;
+        opacity: 0.7 !important;
+      }
+
+      /* Navbar subtle red pulsing border */
+      body.super-hacker .navbar {
+        border-bottom-color: rgba(200,0,0,.25) !important;
+        animation: sh-navbar-pulse 3s ease-in-out infinite !important;
+      }
+      @keyframes sh-navbar-pulse {
+        0%,100% { border-bottom-color: rgba(200,0,0,.1) !important; }
+        50%      { border-bottom-color: rgba(200,0,0,.45) !important; }
+      }
+
+      /* Exit button update in super mode */
+      body.super-hacker #hacker-exit {
+        color: #ff3333 !important;
+        border-color: rgba(200,0,0,.4) !important;
+        text-shadow: 0 0 8px rgba(200,0,0,.5) !important;
+      }
+    `;
+    document.head.appendChild(s);
+
+    /* Letter layer canvas */
+    var lettersDiv = document.createElement('div');
+    lettersDiv.id = 'sh-letters';
+    var SH_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*<>{}[]|\\?/';
+    var SH_COLORS = ['#00ff41','#ff0000','#cc0000','#ff3333','#ff6666','#00cc33','#008822','#ff9900'];
+    var shLetters = [];
+
+    function buildLetters() {
+      lettersDiv.innerHTML = '';
+      shLetters = [];
+      var cols = Math.floor(window.innerWidth / 52) + 2;
+      var rows = Math.floor(window.innerHeight / 52) + 2;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var el = document.createElement('span');
+          el.className = 'sh-letter';
+          var ch = SH_CHARS[Math.floor(Math.random() * SH_CHARS.length)];
+          el.textContent = ch;
+          var col = SH_COLORS[Math.floor(Math.random() * SH_COLORS.length)];
+          var dur = (1.5 + Math.random() * 4).toFixed(2);
+          var delay = (Math.random() * 5).toFixed(2);
+          var op = (0.06 + Math.random() * 0.16).toFixed(2);
+          var tx1 = (Math.random() * 6 - 3).toFixed(1);
+          var ty1 = (Math.random() * 6 - 3).toFixed(1);
+          var tx2 = (Math.random() * 6 - 3).toFixed(1);
+          var ty2 = (Math.random() * 6 - 3).toFixed(1);
+          var r1  = (Math.random() * 6 - 3).toFixed(1);
+          var r2  = (Math.random() * 6 - 3).toFixed(1);
+          el.style.cssText =
+            'left:' + (c * 52) + 'px;top:' + (r * 52) + 'px;' +
+            '--c:' + col + ';--d:' + dur + 's;--delay:' + delay + 's;--op:' + op + ';' +
+            '--tx1:' + tx1 + 'px;--ty1:' + ty1 + 'px;--tx2:' + tx2 + 'px;--ty2:' + ty2 + 'px;' +
+            '--r1:' + r1 + 'deg;--r2:' + r2 + 'deg;';
+          lettersDiv.appendChild(el);
+          shLetters.push(el);
+        }
+      }
+    }
+
+    /* Periodically mutate random letters so they change character + color */
+    var shMutateTimer = null;
+    function startSHMutate() {
+      if (shMutateTimer) return;
+      shMutateTimer = setInterval(function() {
+        if (!document.body.classList.contains('super-hacker')) { clearInterval(shMutateTimer); shMutateTimer = null; return; }
+        var picks = Math.floor(shLetters.length * 0.05);
+        for (var i = 0; i < picks; i++) {
+          var el = shLetters[Math.floor(Math.random() * shLetters.length)];
+          if (!el) continue;
+          el.textContent = SH_CHARS[Math.floor(Math.random() * SH_CHARS.length)];
+          el.style.setProperty('--c', SH_COLORS[Math.floor(Math.random() * SH_COLORS.length)]);
+        }
+      }, 400);
+    }
+
+    function activateSuperHacker() {
+      if (!document.body.classList.contains('super-hacker')) {
+        document.body.classList.add('super-hacker');
+        if (!document.getElementById('sh-letters')) document.body.appendChild(lettersDiv);
+        buildLetters();
+        startSHMutate();
+        localStorage.setItem('aightbet-super-hacker', 'true');
+      }
+    }
+
+    function deactivateSuperHacker() {
+      document.body.classList.remove('super-hacker');
+      localStorage.setItem('aightbet-super-hacker', 'false');
+      clearInterval(shMutateTimer);
+      shMutateTimer = null;
+    }
+
+    window.__activateSuperHacker = activateSuperHacker;
+    window.__deactivateSuperHacker = deactivateSuperHacker;
+
+    function injectSH() {
+      document.body.appendChild(lettersDiv);
+      if (localStorage.getItem('aightbet-super-hacker') === 'true') {
+        // Only activate if also in hacker mode
+        if (localStorage.getItem('aightbet-hacker') === 'true') {
+          activateSuperHacker();
+        } else {
+          localStorage.setItem('aightbet-super-hacker', 'false');
+        }
+      }
+    }
+
+    document.body ? injectSH() : document.addEventListener('DOMContentLoaded', injectSH);
+
+    /* Deactivate super hacker if hacker mode exits */
+    var origSetHacker = window.__setHackerMode;
+    window.__setHackerMode = function(on) {
+      if (origSetHacker) origSetHacker(on);
+      if (!on) deactivateSuperHacker();
+    };
+
+    window.addEventListener('resize', function() {
+      if (document.body.classList.contains('super-hacker')) buildLetters();
+    });
+  })();
 
 })();
