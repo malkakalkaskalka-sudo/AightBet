@@ -228,6 +228,24 @@
         if(window.__setHackerMode) window.__setHackerMode(on);
       });
 
+     // ── EASTEREGG1: Both gunman + bigeye → secret cosmetic reward ──
+      rtdb.ref('users/'+u.uid+'/easteregg1').on('value',function(snap){
+        var ee1=snap.val()||{};
+        if(ee1.gunman===true && ee1.bigeye===true){
+          // Always grant inventory — set(true) is idempotent, safe to run every time
+          var grants={};
+          grants['users/'+u.uid+'/inventory/ne_phantom']=true;
+          grants['users/'+u.uid+'/inventory/intro_resurrection']=true;
+          grants['users/'+u.uid+'/inventory/px_chaos']=true;
+          rtdb.ref().update(grants);
+          // Only show the popup once
+          if(!ee1.secretRewardClaimed){
+            rtdb.ref('users/'+u.uid+'/easteregg1/secretRewardClaimed').set(true);
+            setTimeout(showEasterEgg1SecretPopup,800);
+          }
+        }
+      });
+
       // Global messages — check for unseen messages
       checkGlobalMessages(u.uid);
 
@@ -761,5 +779,156 @@
       if (document.body.classList.contains('super-hacker')) buildLetters();
     });
   })();
+
+  /* ══════════════════════════════════════════════════════════════
+     EASTEREGG1 SECRET REWARD POPUP
+     Fires once when both gunman + bigeye are found.
+     Shows an insane particle-burst reveal with the 3 secret rewards.
+  ══════════════════════════════════════════════════════════════ */
+  function showEasterEgg1SecretPopup(){
+    if(!document.getElementById('ee1s-anim')){
+      var s=document.createElement('style');
+      s.id='ee1s-anim';
+      s.textContent=
+        '@keyframes ee1sFadeIn{from{opacity:0}to{opacity:1}}'+
+        '@keyframes ee1sCardIn{from{opacity:0;transform:translateY(50px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}'+
+        '@keyframes ee1sPulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.0),0 0 60px rgba(139,92,246,.25)}50%{box-shadow:0 0 0 18px rgba(139,92,246,.0),0 0 100px rgba(139,92,246,.5)}}'+
+        '@keyframes ee1sShimmer{0%{background-position:300% center}100%{background-position:-300% center}}'+
+        '@keyframes ee1sTitlePop{0%{opacity:0;transform:scale(.4) rotate(-4deg)}65%{transform:scale(1.1) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}'+
+        '@keyframes ee1sItemIn{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}'+
+        '@keyframes ee1sParticleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--ee1tx),var(--ee1ty)) scale(0) rotate(var(--ee1rot))}}'+
+        '@keyframes ee1sFlashBg{0%{opacity:0}15%{opacity:1}100%{opacity:0}}'+
+        '@keyframes ee1sBtnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}'+
+        '@keyframes ee1sOrbit{0%{transform:rotate(0deg) translateX(var(--ee1orb)) rotate(0deg)}100%{transform:rotate(360deg) translateX(var(--ee1orb)) rotate(-360deg)}}';
+      document.head.appendChild(s);
+    }
+
+    var overlay=document.createElement('div');
+    overlay.id='ee1s-overlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Segoe UI,system-ui,-apple-system,sans-serif;animation:ee1sFadeIn .6s ease;overflow:hidden';
+
+    // BG flash
+    var flash=document.createElement('div');
+    flash.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(139,92,246,.55) 0%,transparent 70%);animation:ee1sFlashBg 1.2s ease forwards';
+    overlay.appendChild(flash);
+
+    // 120 particle burst
+    var pLayer=document.createElement('div');
+    pLayer.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:hidden';
+    var COLS=['#8b5cf6','#06b6d4','#ec4899','#f59e0b','#22c55e','#fff','#a78bfa','#34d399','#f472b6'];
+    for(var pi=0;pi<120;pi++){
+      var pel=document.createElement('div');
+      var psize=(3+Math.random()*12)|0;
+      var angle=Math.random()*360;
+      var dist=150+Math.random()*700;
+      var tx=Math.cos(angle*Math.PI/180)*dist;
+      var ty=Math.sin(angle*Math.PI/180)*dist;
+      var dur=(0.5+Math.random()*1.4).toFixed(2);
+      var delay=(Math.random()*0.6).toFixed(2);
+      var col=COLS[(Math.random()*COLS.length)|0];
+      var rot=((Math.random()*720-360)|0)+'deg';
+      var shape=Math.random()>.4?'50%':(Math.random()>.5?'3px':'0');
+      pel.style.cssText='position:absolute;left:50%;top:50%;width:'+psize+'px;height:'+psize+'px;'+
+        'background:'+col+';border-radius:'+shape+';'+
+        'margin-left:'+(-psize/2)+'px;margin-top:'+(-psize/2)+'px;'+
+        '--ee1tx:'+tx+'px;--ee1ty:'+ty+'px;--ee1rot:'+rot+';'+
+        'animation:ee1sParticleFly '+dur+'s '+delay+'s cubic-bezier(.15,.5,.35,1) both';
+      pLayer.appendChild(pel);
+    }
+    overlay.appendChild(pLayer);
+
+    // 3 orbiting glow orbs
+    var ORB_COLS=['rgba(139,92,246,.9)','rgba(6,182,212,.9)','rgba(236,72,153,.9)'];
+    for(var oi=0;oi<3;oi++){
+      var orb=document.createElement('div');
+      var orbSize=10+oi*4;
+      var orbRadius=230+oi*50;
+      orb.style.cssText='position:absolute;left:50%;top:50%;width:'+orbSize+'px;height:'+orbSize+'px;'+
+        'border-radius:50%;background:'+ORB_COLS[oi]+';'+
+        'box-shadow:0 0 20px '+ORB_COLS[oi]+',0 0 40px '+ORB_COLS[oi]+';'+
+        'margin-left:'+(-orbSize/2)+'px;margin-top:'+(-orbSize/2)+'px;'+
+        '--ee1orb:'+orbRadius+'px;'+
+        'animation:ee1sOrbit '+(4+oi*1.5)+'s '+(oi*.5)+'s linear infinite;pointer-events:none;z-index:1';
+      overlay.appendChild(orb);
+    }
+
+    // Card
+    var card=document.createElement('div');
+    card.style.cssText='position:relative;z-index:5;background:rgba(8,6,18,.98);'+
+      'border:1px solid rgba(139,92,246,.6);border-radius:28px;max-width:500px;width:100%;padding:40px 32px 32px;text-align:center;'+
+      'animation:ee1sCardIn .7s cubic-bezier(.22,1,.36,1) .15s both, ee1sPulseGlow 3s ease 1.5s infinite;'+
+      'box-shadow:0 0 0 1px rgba(139,92,246,.1) inset,0 30px 80px rgba(0,0,0,.8)';
+
+    var ring=document.createElement('div');
+    ring.style.cssText='position:absolute;inset:6px;border-radius:24px;border:1px solid rgba(139,92,246,.07);pointer-events:none';
+    card.appendChild(ring);
+
+    var icon=document.createElement('div');
+    icon.style.cssText='font-size:3.5rem;margin-bottom:4px;display:block;animation:ee1sTitlePop .7s cubic-bezier(.22,1,.36,1) .4s both;line-height:1';
+    icon.textContent='💀';
+    card.appendChild(icon);
+
+    var badge=document.createElement('div');
+    badge.style.cssText='font-size:.65rem;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:#8b5cf6;margin-bottom:12px;animation:ee1sTitlePop .5s ease .55s both';
+    badge.textContent='SECRET UNLOCKED';
+    card.appendChild(badge);
+
+    var title=document.createElement('div');
+    title.style.cssText='font-size:1.75rem;font-weight:900;letter-spacing:-1.5px;margin-bottom:8px;'+
+      'background:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4,#f59e0b,#22c55e,#8b5cf6);'+
+      'background-size:400%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;'+
+      'animation:ee1sShimmer 3s linear infinite, ee1sTitlePop .55s ease .65s both';
+    title.textContent='YOU FOUND THEM BOTH';
+    card.appendChild(title);
+
+    var sub=document.createElement('div');
+    sub.style.cssText='font-size:.88rem;color:#94a3b8;line-height:1.65;margin-bottom:28px;animation:ee1sTitlePop .5s ease .75s both';
+    sub.innerHTML='The Gunman. The Eye. Both found.<br>These 3 items exist <em>nowhere</em> in the store.<br><span style="color:#8b5cf6;font-weight:700">You cannot buy them. Only finders get them.</span>';
+    card.appendChild(sub);
+
+   var rewards=[
+  {icon:'🔥',color:'rgba(236,72,153,.12)',border:'rgba(236,72,153,.5)',accent:'#f472b6',cat:'PARTICLES',name:'Insane Particles',desc:'The most unhinged particle effect on the platform. Nothing even comes close.',delay:'.85s'},
+  {icon:'💀',color:'rgba(139,92,246,.1)', border:'rgba(139,92,246,.4)',accent:'#a78bfa',cat:'NAME FX',name:'INSANEE Name FX',desc:'A name effect so broken it shouldn\'t exist. You can\'t buy this. Ever.',delay:'1s'},
+  {icon:'⚡',color:'rgba(245,158,11,.1)', border:'rgba(245,158,11,.4)',accent:'#fbbf24',cat:'INTRO',name:'CRAZY MINDBLOWING Intro',desc:'Absolutely deranged. Screen-shaking, jaw-dropping. Pure insanity.',delay:'1.15s'},
+];
+    var rewardWrap=document.createElement('div');
+    rewardWrap.style.cssText='display:flex;flex-direction:column;gap:10px;margin-bottom:28px;text-align:left';
+    rewards.forEach(function(r){
+      var row=document.createElement('div');
+      row.style.cssText='background:'+r.color+';border:1px solid '+r.border+';border-radius:14px;padding:14px 16px;'+
+        'display:flex;align-items:center;gap:14px;animation:ee1sItemIn .5s ease '+r.delay+' both';
+      var ico=document.createElement('div');
+      ico.style.cssText='font-size:1.4rem;flex-shrink:0;width:40px;height:40px;border-radius:10px;'+
+        'background:'+r.color+';border:1px solid '+r.border+';display:flex;align-items:center;justify-content:center';
+      ico.textContent=r.icon;
+      var text=document.createElement('div');
+      text.innerHTML='<div style="font-size:.58rem;font-weight:800;letter-spacing:.12em;color:'+r.accent+';text-transform:uppercase;margin-bottom:2px">'+r.cat+'</div>'+
+        '<div style="font-size:.92rem;font-weight:900;color:#f1f5f9;margin-bottom:2px">'+r.name+'</div>'+
+        '<div style="font-size:.72rem;color:#64748b">'+r.desc+'</div>';
+      row.appendChild(ico);
+      row.appendChild(text);
+      rewardWrap.appendChild(row);
+    });
+    card.appendChild(rewardWrap);
+
+    var btn=document.createElement('button');
+    btn.id='ee1sDismissBtn';
+    btn.style.cssText='width:100%;padding:15px;font-size:.95rem;font-weight:800;color:#fff;'+
+      'background:linear-gradient(135deg,#8b5cf6,#06b6d4);border:none;border-radius:14px;cursor:pointer;'+
+      'font-family:inherit;letter-spacing:.04em;'+
+      'box-shadow:0 4px 24px rgba(139,92,246,.5);transition:transform .2s,box-shadow .2s';
+    btn.textContent='I\'m built different. 💀';
+    btn.addEventListener('mouseover',function(){this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(139,92,246,.7)';});
+    btn.addEventListener('mouseout',function(){this.style.transform='';this.style.boxShadow='0 4px 24px rgba(139,92,246,.5)';});
+    btn.addEventListener('click',function(){
+      overlay.style.transition='opacity .4s ease';
+      overlay.style.opacity='0';
+      setTimeout(function(){ if(overlay.parentNode) overlay.parentNode.removeChild(overlay); },400);
+    });
+    card.appendChild(btn);
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  }
 
 })();
