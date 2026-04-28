@@ -188,6 +188,21 @@
     .slqm-btn{padding:8px 14px;font-size:.78rem;font-weight:700;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;display:none;flex-shrink:0}
     .slqm-btn.visible{display:block}
     .slqm-btn:hover{background:rgba(239,68,68,.18);transform:translateY(-1px)}
+
+    /* ── RECORDINGS SECTION ─────────────────────────────── */
+    .rec-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:32px 0}
+    .rec-list{display:flex;flex-direction:column;gap:10px}
+    .rec-item{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color .2s}
+    .rec-item:hover{border-color:var(--border2)}
+    .rec-icon{width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rec-icon svg{width:18px;height:18px;stroke:#f87171;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .rec-info{flex:1;min-width:0}
+    .rec-name{font-size:.88rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rec-meta{font-size:.72rem;color:var(--muted);margin-top:2px}
+    .rec-dl-btn{padding:8px 14px;font-size:.78rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;white-space:nowrap;flex-shrink:0}
+    .rec-dl-btn:hover{background:rgba(239,68,68,.18);transform:translateY(-1px)}
+    .rec-del-btn{padding:8px 10px;font-size:.78rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;white-space:nowrap;flex-shrink:0}
+    .rec-del-btn:hover{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2)}
   </style>
 </head>
 <body>
@@ -307,6 +322,18 @@
           <div class="form-group"><label class="form-label">New Password (min 6)</label><input class="form-input" type="password" id="newPass" placeholder="New password" minlength="6"/></div>
           <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="confirmNewPass" placeholder="Confirm"/></div>
           <button class="btn-save" id="savePassBtn">Update Password</button>
+        </div>
+
+        <!-- Recordings -->
+        <div class="settings-card" id="recordingsCard">
+          <div class="settings-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" style="fill:#f87171"/></svg>
+            Recordings
+          </div>
+          <div id="recListWrap">
+            <div class="rec-empty" id="recEmpty">No recordings yet. Hit the red button on any page to start!</div>
+            <div class="rec-list" id="recList"></div>
+          </div>
         </div>
 
         <!-- Danger -->
@@ -1128,5 +1155,247 @@ document.getElementById('navAvatar').addEventListener('click',()=>{location.href
   }
 })();
 </script>
+
+<!--
+ ╔══════════════════════════════════════════════════════════════════╗
+ ║  PROFILE.HTML — RECORDINGS IIFE REPLACEMENT                     ║
+ ║                                                                  ║
+ ║  In your profile.html, find the block that starts with:          ║
+ ║    /* ═══════════════════════════════════════════                 ║
+ ║       RECORDINGS — load + render on profile page                 ║
+ ║       ═══════════════════════════════════════════ */              ║
+ ║    (function(){                                                  ║
+ ║  and ends with:                                                  ║
+ ║    })();                                                         ║
+ ║                                                                  ║
+ ║  Replace that ENTIRE block with the <script> below.              ║
+ ║  (Copy only the contents inside the <script> tags)               ║
+ ╚══════════════════════════════════════════════════════════════════╝
+-->
+
+<script>
+/* ═══════════════════════════════════════════
+   RECORDINGS — load + render on profile page
+   (Updated: uses IndexedDB for blob storage)
+   ═══════════════════════════════════════════ */
+(function(){
+
+  /* ── IndexedDB helper (same as recorder.html) ── */
+  var RecDB = {
+    _db: null,
+    open: function(){
+      var self = this;
+      return new Promise(function(resolve, reject){
+        if(self._db){ resolve(self._db); return; }
+        var req = indexedDB.open('AightBetRecordings', 1);
+        req.onupgradeneeded = function(e){ e.target.result.createObjectStore('blobs'); };
+        req.onsuccess = function(e){ self._db = e.target.result; resolve(self._db); };
+        req.onerror = function(e){ reject(e); };
+      });
+    },
+    get: function(key){
+      return this.open().then(function(db){
+        return new Promise(function(resolve, reject){
+          var tx = db.transaction('blobs','readonly');
+          var req = tx.objectStore('blobs').get(key);
+          req.onsuccess = function(){ resolve(req.result); };
+          req.onerror = function(){ reject(req.error); };
+        });
+      });
+    },
+    remove: function(key){
+      return this.open().then(function(db){
+        return new Promise(function(resolve, reject){
+          var tx = db.transaction('blobs','readwrite');
+          tx.objectStore('blobs').delete(key);
+          tx.oncomplete = resolve;
+          tx.onerror = reject;
+        });
+      });
+    }
+  };
+
+  function formatDuration(sec){
+    if(!sec || isNaN(sec)) return '—';
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  function formatSize(bytes){
+    if(!bytes) return '—';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  }
+  function formatDate(iso){
+    if(!iso) return '';
+    try {
+      return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    } catch(e){ return iso; }
+  }
+
+  function renderRecordings(items){
+    var empty = document.getElementById('recEmpty');
+    var list  = document.getElementById('recList');
+    if(!list) return;
+    list.innerHTML = '';
+    if(!items || items.length === 0){
+      if(empty) empty.style.display = 'block';
+      return;
+    }
+    if(empty) empty.style.display = 'none';
+
+    var arr = items.slice().reverse();
+    arr.forEach(function(item){
+      var row = document.createElement('div');
+      row.className = 'rec-item';
+
+      var iconDiv = document.createElement('div');
+      iconDiv.className = 'rec-icon';
+      iconDiv.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#f87171" stroke="none"/></svg>';
+
+      var info = document.createElement('div');
+      info.className = 'rec-info';
+      info.innerHTML = '<div class="rec-name">' + (item.name || 'Recording') + '</div>' +
+        '<div class="rec-meta">' + formatDate(item.date) + ' &nbsp;&middot;&nbsp; ' + formatDuration(item.duration) + ' &nbsp;&middot;&nbsp; ' + formatSize(item.size) + '</div>';
+
+      var dlBtn = document.createElement('button');
+      dlBtn.className = 'rec-dl-btn';
+      dlBtn.textContent = 'Download';
+
+      dlBtn.addEventListener('click', function(){
+        var fileName = (item.name || 'recording') + '.' + (item.ext || 'webm');
+
+        /* Case 1: Old-style recording with base64 data URL in Firebase */
+        if(item.data){
+          var a = document.createElement('a');
+          a.href = item.data;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function(){ document.body.removeChild(a); }, 500);
+          return;
+        }
+
+        /* Case 2: New-style recording — load blob from IndexedDB */
+        dlBtn.textContent = 'Loading...';
+        dlBtn.disabled = true;
+
+        RecDB.get(item._fbKey).then(function(blob){
+          if(!blob){
+            alert('Recording data not found on this device. Recordings are stored locally in your browser.');
+            dlBtn.textContent = 'Download';
+            dlBtn.disabled = false;
+            return;
+          }
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function(){
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 500);
+          dlBtn.textContent = 'Download';
+          dlBtn.disabled = false;
+        }).catch(function(e){
+          console.error('Download failed:', e);
+          alert('Could not load recording from storage.');
+          dlBtn.textContent = 'Download';
+          dlBtn.disabled = false;
+        });
+      });
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'rec-del-btn';
+      delBtn.textContent = 'X';
+      delBtn.title = 'Delete recording';
+      delBtn.addEventListener('click', function(){
+        if(!confirm('Delete this recording?')) return;
+
+        /* Remove from Firebase */
+        if(item._fbKey && window.__recUid){
+          firebase.database().ref('users/' + window.__recUid + '/recordings/' + item._fbKey).remove();
+        }
+
+        /* Remove from IndexedDB */
+        if(item._fbKey){
+          RecDB.remove(item._fbKey).catch(function(){});
+        }
+
+        /* Remove from localStorage (legacy) */
+        try {
+          var stored = JSON.parse(localStorage.getItem('aightbet-recordings') || '[]');
+          stored = stored.filter(function(r){ return r.date !== item.date; });
+          localStorage.setItem('aightbet-recordings', JSON.stringify(stored));
+        } catch(e){}
+
+        /* Remove from key list */
+        try {
+          var keys = JSON.parse(localStorage.getItem('aightbet-rec-keys') || '[]');
+          keys = keys.filter(function(k){ return k !== item._fbKey; });
+          localStorage.setItem('aightbet-rec-keys', JSON.stringify(keys));
+        } catch(e){}
+
+        row.style.transition = 'opacity .3s';
+        row.style.opacity = '0';
+        setTimeout(function(){ if(row.parentNode) row.parentNode.removeChild(row); checkEmpty(); }, 300);
+      });
+
+      row.appendChild(iconDiv);
+      row.appendChild(info);
+      row.appendChild(dlBtn);
+      row.appendChild(delBtn);
+      list.appendChild(row);
+    });
+  }
+
+  function checkEmpty(){
+    var list = document.getElementById('recList');
+    var empty = document.getElementById('recEmpty');
+    if(list && empty){
+      empty.style.display = (list.children.length === 0) ? 'block' : 'none';
+    }
+  }
+
+  function loadRecordings(uid){
+    window.__recUid = uid;
+
+    firebase.database().ref('users/' + uid + '/recordings').on('value', function(snap){
+      var allItems = [];
+      var data = snap.val() || {};
+      Object.keys(data).forEach(function(k){
+        var r = data[k];
+        r._fbKey = k;
+        allItems.push(r);
+      });
+
+      /* Also merge legacy localStorage recordings (dedup by date) */
+      try {
+        var lsRecs = JSON.parse(localStorage.getItem('aightbet-recordings') || '[]');
+        var fbDates = allItems.map(function(r){ return r.date; });
+        lsRecs.forEach(function(r){
+          if(fbDates.indexOf(r.date) === -1) allItems.push(r);
+        });
+      } catch(e){}
+
+      allItems.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+      renderRecordings(allItems);
+    });
+  }
+
+  /* Wait for auth */
+  var waitAuth = setInterval(function(){
+    if(typeof auth !== 'undefined' && typeof firebase !== 'undefined'){
+      clearInterval(waitAuth);
+      auth.onAuthStateChanged(function(u){
+        if(u) loadRecordings(u.uid);
+      });
+    }
+  }, 100);
+})();
+</script>
+
 </body>
 </html>

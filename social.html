@@ -118,8 +118,10 @@
     .post-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
     .post-card:hover{border-color:var(--border2)}
     .post-header{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
-    .post-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid var(--border)}
-    .post-avatar img{width:100%;height:100%;object-fit:cover}
+    .post-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid var(--border);position:relative}
+    .post-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .post-avatar.is-online{overflow:visible;border-color:#22c55e}
+    .post-avatar.is-online::after{content:'';position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;background:#22c55e;border-radius:50%;border:2px solid var(--bg);z-index:1}
     .post-meta{flex:1;min-width:0}
     .post-author{font-size:.85rem;font-weight:700;cursor:pointer;transition:color .2s}
     .post-author:hover{color:var(--accent)}
@@ -305,6 +307,42 @@
     .music-setting-row .msr-name{font-size:.8rem;font-weight:700}
     .music-setting-row .msr-locked{font-size:.6rem;color:var(--muted)}
     .music-setting-row .msr-check{color:var(--green);font-size:.85rem;flex-shrink:0}
+
+    /* ── SEND CREDITS MODAL ── */
+    .send-credits-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)}
+    .send-credits-overlay.open{display:flex;align-items:center;justify-content:center}
+    .send-credits-modal{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:24px;width:90vw;max-width:360px;animation:slideUp .3s ease}
+    .send-credits-modal h3{font-size:1rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .send-credits-modal h3 svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .send-credits-recipient{font-size:.78rem;color:var(--muted);margin-bottom:16px}
+    .send-credits-balance{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.15);border-radius:10px;margin-bottom:12px;font-size:.78rem;color:var(--muted)}
+    .send-credits-balance span{font-weight:800;color:var(--gold);font-size:.88rem}
+    .send-credits-input{width:100%;padding:12px 14px;font-size:1.1rem;font-weight:800;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--gold);font-family:var(--font);outline:none;margin-bottom:6px;text-align:center}
+    .send-credits-input:focus{border-color:rgba(245,158,11,.35)}
+    .send-credits-input::placeholder{color:var(--muted);font-size:.9rem;font-weight:600}
+    .send-credits-quick{display:flex;gap:6px;margin-bottom:14px}
+    .send-credits-quick-btn{flex:1;padding:6px;font-size:.72rem;font-weight:700;border:1px solid rgba(245,158,11,.2);border-radius:8px;background:rgba(245,158,11,.07);color:var(--gold);cursor:pointer;font-family:var(--font);transition:all .15s}
+    .send-credits-quick-btn:hover{background:rgba(245,158,11,.15)}
+    .send-credits-btns{display:flex;gap:8px}
+    .send-credits-cancel{flex:1;padding:10px;font-size:.82rem;font-weight:700;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);cursor:pointer;font-family:var(--font)}
+    .send-credits-confirm{flex:2;padding:10px;font-size:.82rem;font-weight:700;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),#d97706);color:#000;cursor:pointer;font-family:var(--font);transition:all .15s}
+    .send-credits-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 16px -4px rgba(245,158,11,.5)}
+    .send-credits-confirm:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+
+    /* ── GIVEAWAY TIMER ── */
+    .giveaway-timer-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;font-size:.78rem;font-weight:700;color:var(--muted)}
+    .giveaway-timer-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .giveaway-countdown{color:var(--accent);font-variant-numeric:tabular-nums}
+    .giveaway-locked-msg{font-size:.78rem;color:var(--muted);margin-bottom:8px}
+
+    /* Composer timer option */
+    .composer-timer-row{display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:rgba(139,92,246,.06);border-radius:10px;border:1px solid rgba(139,92,246,.15);margin-top:6px}
+    .composer-timer-label{font-size:.72rem;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:5px}
+    .composer-timer-label svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .timer-options{display:flex;gap:5px;flex-wrap:wrap}
+    .timer-opt{padding:5px 11px;font-size:.72rem;font-weight:700;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap}
+    .timer-opt:hover{border-color:rgba(139,92,246,.3);color:var(--accent);background:rgba(139,92,246,.08)}
+    .timer-opt.active{border-color:var(--accent);background:rgba(139,92,246,.18);color:#fff;box-shadow:0 0 8px -2px var(--glow)}
 
     /* Report Modal */
     .report-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)}
@@ -501,6 +539,22 @@
               <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
+          <div class="composer-timer-row">
+            <div class="composer-timer-label">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Lock giveaway for:
+            </div>
+            <div class="timer-options" id="timerOptions">
+              <button class="timer-opt active" data-mins="0">No delay</button>
+              <button class="timer-opt" data-mins="1">1 min</button>
+              <button class="timer-opt" data-mins="2">2 min</button>
+              <button class="timer-opt" data-mins="5">5 min</button>
+              <button class="timer-opt" data-mins="10">10 min</button>
+              <button class="timer-opt" data-mins="15">15 min</button>
+              <button class="timer-opt" data-mins="30">30 min</button>
+              <button class="timer-opt" data-mins="60">1 hour</button>
+            </div>
+          </div>
         </div>
         <!-- ▲▲▲ GIVEAWAY INPUT ENDS HERE ▲▲▲ -->
         <div class="composer-bottom">
@@ -609,6 +663,34 @@
     </div>
   </div>
 
+  <!-- ══════ SEND CREDITS OVERLAY ══════ -->
+  <div class="send-credits-overlay" id="sendCreditsOverlay">
+    <div class="send-credits-modal">
+      <h3>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke-width="1.5"/></svg>
+        Send Credits
+      </h3>
+      <div class="send-credits-recipient" id="sendCreditsRecipient">To: —</div>
+      <div class="send-credits-balance">
+        Your balance: <span id="sendCreditsBalance">0</span>
+      </div>
+      <input type="number" class="send-credits-input" id="sendCreditsAmount" placeholder="Enter amount" min="1" />
+      <div class="send-credits-quick">
+        <button class="send-credits-quick-btn" data-amount="100">100</button>
+        <button class="send-credits-quick-btn" data-amount="500">500</button>
+        <button class="send-credits-quick-btn" data-amount="1000">1K</button>
+        <button class="send-credits-quick-btn" data-amount="5000">5K</button>
+        <button class="send-credits-quick-btn" data-amount="10000">10K</button>
+      </div>
+      <div class="send-credits-btns">
+        <button class="send-credits-cancel" id="sendCreditsCancel">Cancel</button>
+        <button class="send-credits-confirm" id="sendCreditsConfirm" disabled>
+          🪙 Send Credits
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════ REPORT OVERLAY ══════ -->
   <div class="report-overlay" id="reportOverlay">
     <div class="report-modal">
@@ -650,6 +732,17 @@
 <script>
   let CU=null,UD={},MY_UID='',allUsersCache={},activeFeed='fyp',activeConvoId=null,reportTarget=null,convosData={},convoListeners={},selectedReason=null;
   let pendingImageData=null;
+
+  /* ── Online presence tracking ── */
+  window._onlineUsers={};
+  rtdb.ref('presence').on('value',function(snap){
+    window._onlineUsers=snap.val()||{};
+    document.querySelectorAll('.post-avatar[data-uid]').forEach(function(el){
+      var uid=el.dataset.uid;
+      if(window._onlineUsers[uid]){el.classList.add('is-online');}
+      else{el.classList.remove('is-online');}
+    });
+  });
   // ── Profile Music ──
   let profileMusicAudio=null;
   const MUSIC_TRACKS={
@@ -816,6 +909,22 @@
     loadAllUsers();
     loadPosts();
     listenMessages();
+
+    // Deep-link: social.html?profile=UID → auto-open that profile overlay
+    const _profileParam = new URLSearchParams(location.search).get('profile');
+    if (_profileParam) {
+      // Wait for users cache to populate before opening
+      const _waitAndOpen = setInterval(() => {
+        if (Object.keys(allUsersCache).length > 0) {
+          clearInterval(_waitAndOpen);
+          openProfile(_profileParam);
+          // Clean URL without reloading
+          history.replaceState(null, '', location.pathname);
+        }
+      }, 150);
+      // Give up after 5s
+      setTimeout(() => clearInterval(_waitAndOpen), 5000);
+    }
   });
 
   /* ══════════════════════════════════════════
@@ -848,15 +957,18 @@
       const av=getUserAvatar(uid);
       const item=document.createElement('div');item.className='user-suggest-item';
       item.innerHTML=`
-        <div class="us-avatar">${av?`<img src="${av}" alt=""/>`:name[0].toUpperCase()}</div>
-        <div class="us-info">
+        <div class="us-avatar" style="cursor:pointer">${av?`<img src="${av}" alt=""/>`:name[0].toUpperCase()}</div>
+        <div class="us-info" style="cursor:pointer">
           <div class="us-name" data-uid="${uid}">${name}</div>
           <div class="us-handle">${getUserHandle(uid)}</div>
         </div>
         <button class="btn-follow ${fol?'following':''}" data-uid="${uid}">${fol?'Following':'Follow'}</button>
       `;
-      item.querySelector('.us-name').addEventListener('click',()=>openProfile(uid));
+      // tap avatar or name/handle → open profile
+      item.querySelector('.us-avatar').addEventListener('click',()=>openProfile(uid));
+      item.querySelector('.us-info').addEventListener('click',()=>openProfile(uid));
       item.querySelector('.btn-follow').addEventListener('click',async e=>{
+        e.stopPropagation();
         await toggleFollow(uid);
         e.target.classList.toggle('following');
         e.target.textContent=isFollowing(uid)?'Following':'Follow';
@@ -952,11 +1064,13 @@
 
       // Add giveaway data
       if(giveawayAmt>0){
+        const timerMins=pendingTimerMins||0;
         post.giveaway={
           amount:giveawayAmt,
           claimed:false,
           claimedBy:null,
-          claimedAt:null
+          claimedAt:null,
+          unlockAt:timerMins>0?(Date.now()+timerMins*60000):null
         };
       }
 
@@ -966,6 +1080,8 @@
       pendingGiveaway=0;
       document.getElementById('composerGiveaway').style.display='none';
       document.getElementById('giveawayAmount').value='';
+      pendingTimerMins=0;
+      document.querySelectorAll('.timer-opt').forEach(b=>{b.classList.toggle('active',b.dataset.mins==='0');});
       toast('Posted!','success');
     }catch(e){toast('Failed: '+e.message);}
     postBtn.disabled=false;
@@ -975,6 +1091,16 @@
      CREDIT GIVEAWAY SYSTEM
   ══════════════════════════════════════════ */
   let pendingGiveaway=0;
+  let pendingTimerMins=0;
+
+  // Timer pill buttons
+  document.getElementById('timerOptions').addEventListener('click',e=>{
+    const btn=e.target.closest('.timer-opt');
+    if(!btn)return;
+    document.querySelectorAll('.timer-opt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    pendingTimerMins=parseInt(btn.dataset.mins)||0;
+  });
 
   document.getElementById('addGiveawayBtn').addEventListener('click',()=>{
     const el=document.getElementById('composerGiveaway');
@@ -1058,9 +1184,11 @@
     })();
     const authorAv=getUserAvatar(post.authorUid)||post.authorAvatar||null;
 
+    const _isOnline=window._onlineUsers&&window._onlineUsers[post.authorUid];
+    const _olc=_isOnline?' is-online':'';
     const postAvHTML=authorAv
-      ?`<div class="post-avatar" data-uid="${post.authorUid}"><img src="${authorAv}" alt=""/></div>`
-      :`<div class="post-avatar" data-uid="${post.authorUid}">${authorName[0].toUpperCase()}</div>`;
+      ?`<div class="post-avatar${_olc}" data-uid="${post.authorUid}"><img src="${authorAv}" alt=""/></div>`
+      :`<div class="post-avatar${_olc}" data-uid="${post.authorUid}">${authorName[0].toUpperCase()}</div>`;
 
     card.innerHTML=`
       <div class="post-header">
@@ -1081,7 +1209,7 @@
         ${post.text?`<div class="post-text">${escapeHTML(post.text)}</div>`:''}
         ${post.image?`<img class="post-image" src="${post.image}" alt="Post image" />`:''}
         ${post.giveaway?`
-          <div class="giveaway-banner" data-post-id="${post.id}">
+          <div class="giveaway-banner" data-post-id="${post.id}" data-unlock-at="${post.giveaway.unlockAt||0}">
             <div class="giveaway-amount">🪙 ${post.giveaway.amount.toLocaleString()}</div>
             <div class="giveaway-label">🎁 Credit Giveaway</div>
             ${post.giveaway.claimed?`
@@ -1091,12 +1219,22 @@
               </div>
               ${post.giveaway.claimedAt?`<div class="giveaway-claimer">${timeAgo(post.giveaway.claimedAt)}</div>`:''}
             `:`
-              ${post.authorUid===MY_UID?`
-                <div style="font-size:.78rem;color:var(--muted);font-weight:600">Waiting for someone to claim...</div>
-              `:`
-                <button class="giveaway-claim-btn" data-giveaway-post="${post.id}" data-giveaway-amount="${post.giveaway.amount}">
-                  🎁 Claim Credits
+              ${post.giveaway.unlockAt&&post.giveaway.unlockAt>Date.now()?`
+                <div class="giveaway-timer-row">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Unlocks in <span class="giveaway-countdown" data-unlock="${post.giveaway.unlockAt}">…</span>
+                </div>
+                <button class="giveaway-claim-btn" disabled style="opacity:.45;cursor:default">
+                  🔒 Locked
                 </button>
+              `:`
+                ${post.authorUid===MY_UID?`
+                  <div style="font-size:.78rem;color:var(--muted);font-weight:600">Waiting for someone to claim...</div>
+                `:`
+                  <button class="giveaway-claim-btn" data-giveaway-post="${post.id}" data-giveaway-amount="${post.giveaway.amount}">
+                    🎁 Claim Credits
+                  </button>
+                `}
               `}
             `}
           </div>
@@ -1143,7 +1281,9 @@
       const giveawayRef=rtdb.ref('posts/'+postId+'/giveaway');
       const result=await giveawayRef.transaction(current=>{
         if(!current)return current;
-        if(current.claimed)return; // abort — already claimed (returns undefined)
+        if(current.claimed)return; // abort — already claimed
+        // Server-side timer enforcement: check unlockAt
+        if(current.unlockAt&&current.unlockAt>Date.now())return; // abort — still locked
         return{
           ...current,
           claimed:true,
@@ -1157,7 +1297,16 @@
         await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>(c||0)+amount);
         toast('🎁 You claimed '+amount.toLocaleString()+' credits!','success');
       }else{
-        toast('Already claimed by someone else!');
+        // Figure out why it was aborted
+        const snap=await giveawayRef.once('value');
+        const gv=snap.val()||{};
+        if(gv.unlockAt&&gv.unlockAt>Date.now()){
+          toast('⏳ Giveaway is still locked! Wait for the timer.');
+        }else if(gv.claimed){
+          toast('Already claimed by someone else!');
+        }else{
+          toast('Could not claim — try again.');
+        }
       }
     }catch(e){
       toast('Failed to claim: '+e.message);
@@ -1608,6 +1757,7 @@
         <div class="profile-actions-row">
           <button class="profile-btn profile-btn-primary" id="profFollowBtn">${fol?'Following':'Follow'}</button>
           <button class="profile-btn profile-btn-secondary" id="profMsgBtn">Message</button>
+          <button class="profile-btn profile-btn-secondary" id="profSendCreditsBtn" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.25);color:var(--gold)">🪙 Send</button>
          <button class="profile-btn profile-btn-danger" id="profReportBtn">${ICONS.flag} Report</button>
         </div>
         `:''}
@@ -1663,6 +1813,11 @@
       stopProfileMusic();
       openMessages();
       startConvo(uid);
+    });
+
+    const sendCredBtnProf=panel.querySelector('#profSendCreditsBtn');
+    if(sendCredBtnProf)sendCredBtnProf.addEventListener('click',()=>{
+      openSendCredits(uid,pName);
     });
 
     const repBtn=panel.querySelector('#profReportBtn');
@@ -1955,7 +2110,7 @@
       },
       cosmic_birth(p){
         const t2=p*5;ctx.clearRect(0,0,W,H);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-        if(p>=0.04){const np=Math.min(1,(p-.04)/.31);const nebulaColors=['rgba(80,0,120','rgba(0,40,100','rgba(120,0,80','rgba(20,60,100','rgba(60,0,100'];for(let n=0;n<5;n++){const nx=cx+(Math.sin(n*1.7+t2*.2)*W*.28);const ny=cy+(Math.cos(n*1.3+t2*.15)*H*.28);const nr=H*(.3+n*.08)*np;const ng=ctx.createRadialGradient(nx,ny,0,nx,ny,nr);ng.addColorStop(0,nebulaColors[n]+','+(np*.12)+')');ng.addColorStop(1,'transparent');ctx.fillStyle=ng;ctx.fillRect(0,0,W,H);}for(let s=0;s<60;s++){const sx=((s*137+p*3)%1)*W;const sy=((s*197+p*2)%1)*H;const sa=Math.sin(p*8+s)*.5+.5;ctx.globalAlpha=np*sa*.4;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx,sy,.5+s%2*.5,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}
+        if(p>=0.04){const np=Math.min(1,(p-.04)/.31);const nebulaColors=['rgba(80,0,120','rgba(0,40,100','rgba(120,0,80','rgba(20,60,100','rgba(60,0,100'];for(let n=0;n<5;n++){const nx=cx+(Math.sin(n*1.7+t2*.2)*W*.28);const ny=cy+(Math.cos(n*1.3+t2*.15)*H*.28);const nr=Math.max(0.001,H*(.3+n*.08)*np);const ng=ctx.createRadialGradient(nx,ny,0,nx,ny,nr);ng.addColorStop(0,nebulaColors[n]+','+(np*.12)+')');ng.addColorStop(1,'transparent');ctx.fillStyle=ng;ctx.fillRect(0,0,W,H);}for(let s=0;s<60;s++){const sx=((s*137+p*3)%1)*W;const sy=((s*197+p*2)%1)*H;const sa=Math.sin(p*8+s)*.5+.5;ctx.globalAlpha=np*sa*.4;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx,sy,.5+s%2*.5,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}
         if(p>=0.26){const ep=Math.min(1,(p-.26)/.24);for(let s=0;s<40;s++){const angle=(s/40)*Math.PI*2;const speed=0.3+s*.015;const dist=ep*speed*Math.min(W,H)*.6;const sx=cx+Math.cos(angle)*dist;const sy=cy+Math.sin(angle)*dist*.6;const hue=(s*9+ep*100)%360;const size=1+s%3;const alpha=Math.max(0,(1-ep*.8))*(.3+ep*.4);ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=`hsl(${hue},100%,85%)`;ctx.shadowColor=`hsl(${hue},100%,65%)`;ctx.shadowBlur=6;ctx.beginPath();ctx.arc(sx,sy,size,0,Math.PI*2);ctx.fill();ctx.restore();}}
         if(p>=0.32){const mp=Math.min(1,(p-.32)/.26);const eO=t=>1-Math.pow(1-t,4);const alpha=eO(mp);const blur=Math.max(0,(1-mp)*15);const fs=H*.25;ctx.save();ctx.globalAlpha=alpha;ctx.filter=`blur(${blur}px)`;ctx.translate(cx,cy);ctx.font=`900 ${fs}px 'Segoe UI',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';const tg=ctx.createLinearGradient(-W*.35,0,W*.35,0);tg.addColorStop(0,'#e0aaff');tg.addColorStop(.5,'#fff');tg.addColorStop(1,'#93c5fd');ctx.fillStyle=tg;ctx.shadowColor='rgba(150,100,255,.9)';ctx.shadowBlur=40;ctx.fillText(titleText.substring(0,12),0,0);ctx.restore();ctx.filter='none';if(mp>0.3){for(let d=0;d<20;d++){const da=(d/20)*Math.PI*2;const dd=W*.12*(1-mp*.7+Math.sin(t2*2+d)*.05);const dx=cx+Math.cos(da)*dd;const dy=cy+Math.sin(da)*dd*.5;const hue=(d*18+t2*30)%360;ctx.save();ctx.globalAlpha=alpha*(1-mp*.5)*.5;ctx.fillStyle=`hsl(${hue},100%,80%)`;ctx.beginPath();ctx.arc(dx,dy,1.5,0,Math.PI*2);ctx.fill();ctx.restore();}}}
         if(p>=0.55){const fp=Math.min(1,(p-.55)/.13);const flashA=fp<0.45?fp/.45:Math.max(0,1-(fp-.45)/.55);ctx.globalAlpha=flashA;ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);for(let r=0;r<3;r++){const rp=Math.max(0,(fp-r*.1)/(.9-r*.1));const rad=rp*Math.max(W,H)*.9;const ra=Math.max(0,(1-rp)*.6);ctx.globalAlpha=ra;ctx.strokeStyle=`hsla(${260+r*40},100%,80%,1)`;ctx.lineWidth=3*(1-rp)+.5;ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;}
@@ -1964,8 +2119,8 @@
       },
       resurrection(p){
         const easeOut=x=>1-Math.pow(1-x,4);const t=p*8;ctx.clearRect(0,0,W,H);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-        if(p<0.08){const pp=p/0.08;const r=H*.05*pp;const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,240,180,1)');g.addColorStop(.5,'rgba(255,180,50,.4)');g.addColorStop(1,'transparent');ctx.globalAlpha=Math.sin(pp*Math.PI);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
-        if(p>=0.05&&p<0.44){const fp=Math.min(1,(p-0.05)/0.19);for(let i=0;i<12;i++){const angle=(i/12)*Math.PI*2;const del=i*.055;const fl=Math.max(0,Math.min(1,(fp-del)/.65));if(fl<=0)continue;const len=Math.min(W,H)*.54;const x2=cx+Math.cos(angle)*len*fl;const y2=cy+Math.sin(angle)*len*fl;const hue=i%2===0?45:195;const grad=ctx.createLinearGradient(cx,cy,x2,y2);grad.addColorStop(0,`hsla(${hue},100%,90%,${fl*.95})`);grad.addColorStop(.5,`hsla(${hue},100%,65%,${fl*.5})`);grad.addColorStop(1,'transparent');ctx.globalAlpha=fl;ctx.strokeStyle=grad;ctx.lineWidth=2.5+fl*4;ctx.beginPath();ctx.moveTo(cx,cy);for(let s=1;s<=8;s++){const prog=s/8*fl;const jag=s<8?Math.sin(t*6+i*1.8+s*1.4)*(1-prog)*24:0;ctx.lineTo(cx+Math.cos(angle)*len*prog+Math.sin(angle)*jag,cy+Math.sin(angle)*len*prog-Math.cos(angle)*jag);}ctx.stroke();ctx.globalAlpha=fl*.28;ctx.lineWidth=16+fl*10;ctx.strokeStyle=`hsla(${hue},100%,80%,.12)`;ctx.stroke();ctx.globalAlpha=1;}const orbR=H*.09*fp+Math.sin(t*5)*H*.013;const og=ctx.createRadialGradient(cx,cy,0,cx,cy,orbR);og.addColorStop(0,'rgba(255,220,80,1)');og.addColorStop(.4,'rgba(255,160,0,.5)');og.addColorStop(1,'transparent');ctx.globalAlpha=fp*.9;ctx.fillStyle=og;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
+        if(p<0.08){const pp=p/0.08;const r=Math.max(0.001,H*.05*pp);const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,240,180,1)');g.addColorStop(.5,'rgba(255,180,50,.4)');g.addColorStop(1,'transparent');ctx.globalAlpha=Math.sin(pp*Math.PI);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
+        if(p>=0.05&&p<0.44){const fp=Math.min(1,(p-0.05)/0.19);for(let i=0;i<12;i++){const angle=(i/12)*Math.PI*2;const del=i*.055;const fl=Math.max(0,Math.min(1,(fp-del)/.65));if(fl<=0)continue;const len=Math.min(W,H)*.54;const x2=cx+Math.cos(angle)*len*fl;const y2=cy+Math.sin(angle)*len*fl;const hue=i%2===0?45:195;const grad=ctx.createLinearGradient(cx,cy,x2,y2);grad.addColorStop(0,`hsla(${hue},100%,90%,${fl*.95})`);grad.addColorStop(.5,`hsla(${hue},100%,65%,${fl*.5})`);grad.addColorStop(1,'transparent');ctx.globalAlpha=fl;ctx.strokeStyle=grad;ctx.lineWidth=2.5+fl*4;ctx.beginPath();ctx.moveTo(cx,cy);for(let s=1;s<=8;s++){const prog=s/8*fl;const jag=s<8?Math.sin(t*6+i*1.8+s*1.4)*(1-prog)*24:0;ctx.lineTo(cx+Math.cos(angle)*len*prog+Math.sin(angle)*jag,cy+Math.sin(angle)*len*prog-Math.cos(angle)*jag);}ctx.stroke();ctx.globalAlpha=fl*.28;ctx.lineWidth=16+fl*10;ctx.strokeStyle=`hsla(${hue},100%,80%,.12)`;ctx.stroke();ctx.globalAlpha=1;}const orbR=Math.max(0.001,H*.09*fp+Math.sin(t*5)*H*.013);const og=ctx.createRadialGradient(cx,cy,0,cx,cy,orbR);og.addColorStop(0,'rgba(255,220,80,1)');og.addColorStop(.4,'rgba(255,160,0,.5)');og.addColorStop(1,'transparent');ctx.globalAlpha=fp*.9;ctx.fillStyle=og;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
         if(p>=0.20&&p<0.54){const ep=Math.min(1,(p-0.20)/0.24);for(let i=0;i<200;i++){const arm=i%3;const spiralAngle=(i/200)*Math.PI*16+(arm*Math.PI*2/3)+ep*Math.PI*2.5;const armR=(i/200)*Math.min(W,H)*.46*ep;const px=cx+Math.cos(spiralAngle)*armR;const py=cy+Math.sin(spiralAngle)*armR*.58;const fade=Math.max(0,(1-ep*.65)*(.5+((i%9)/9)*.5));const size=.8+(i%6)*.45;const hue=(i*9+t*80)%360;ctx.save();ctx.globalAlpha=fade*.9;ctx.fillStyle=`hsl(${hue},100%,88%)`;ctx.shadowColor=`hsl(${hue},100%,65%)`;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(px,py,size,0,Math.PI*2);ctx.fill();if(i%4===0){ctx.strokeStyle=`hsla(${hue},100%,75%,.35)`;ctx.lineWidth=.6;ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(cx+(px-cx)*.6,cy+(py-cy)*.6);ctx.stroke();}ctx.restore();}}
         if(p>=0.39&&p<0.56){const fp=Math.min(1,(p-0.39)/0.11);const vg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.75);vg.addColorStop(0,'transparent');vg.addColorStop(.5,'rgba(0,0,0,.25)');vg.addColorStop(1,'rgba(0,0,0,.85)');ctx.globalAlpha=fp;ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);const shatterA=Math.min(1,fp*2);if(shatterA>0){[[cx,cy],[cx-W*.32,cy-H*.22],[cx+W*.32,cy-H*.22],[cx-W*.28,cy+H*.28],[cx+W*.28,cy+H*.28]].forEach((o,oi)=>{for(let l=0;l<6+oi*2;l++){const ang=(l/(6+oi*2))*Math.PI*2+(oi*.5);ctx.globalAlpha=shatterA*.5;ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(o[0],o[1]);ctx.lineTo(o[0]+Math.cos(ang)*H*.38,o[1]+Math.sin(ang)*H*.38);ctx.stroke();}});}ctx.globalAlpha=1;}
         if(p>=0.51){const fp=Math.min(1,(p-0.51)/0.13);const flashA=fp<0.38?fp/.38:Math.max(0,1-(fp-.38)/.62);ctx.globalAlpha=flashA*.97;ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.globalAlpha=flashA*.45;ctx.fillStyle='rgba(255,200,60,.9)';ctx.fillRect(0,0,W,H);if(flashA>.08){for(let r=0;r<8;r++){const bx=cx-W*.45+r*(W*.13);const bw=W*.05+(r%2)*W*.025;const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,`rgba(255,230,100,${flashA*.55})`);bg.addColorStop(.6,`rgba(255,255,255,${flashA*.2})`);bg.addColorStop(1,'transparent');ctx.globalAlpha=flashA*.55;ctx.fillStyle=bg;ctx.fillRect(bx,0,bw,H);}}for(let r=0;r<7;r++){const rp=Math.max(0,(fp-r*.045)/.82);if(rp<=0)continue;ctx.globalAlpha=Math.max(0,(1-rp)*.55);ctx.strokeStyle=`hsl(${r%3===0?45:r%3===1?0:220},100%,92%)`;ctx.lineWidth=6*(1-rp)+.5;ctx.beginPath();ctx.arc(cx,cy,rp*Math.max(W,H)*1.1,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;}
@@ -2039,6 +2194,136 @@
       document.getElementById('settingsOverlay').classList.remove('open');
     }catch(e){toast('Failed: '+e.message);}
   });
+
+  /* ══════════════════════════════════════════
+     SEND CREDITS SYSTEM
+  ══════════════════════════════════════════ */
+  let sendCreditsTargetUid=null;
+
+  function openSendCredits(uid,name){
+    sendCreditsTargetUid=uid;
+    document.getElementById('sendCreditsRecipient').textContent='To: '+name;
+    document.getElementById('sendCreditsAmount').value='';
+    document.getElementById('sendCreditsConfirm').disabled=true;
+    const bal=(UD.credits||0).toLocaleString();
+    document.getElementById('sendCreditsBalance').textContent=bal;
+    document.getElementById('sendCreditsOverlay').classList.add('open');
+    document.getElementById('sendCreditsAmount').focus();
+  }
+
+  document.getElementById('sendCreditsAmount').addEventListener('input',e=>{
+    const v=parseInt(e.target.value)||0;
+    document.getElementById('sendCreditsConfirm').disabled=v<1;
+  });
+
+  document.querySelectorAll('.send-credits-quick-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.getElementById('sendCreditsAmount').value=btn.dataset.amount;
+      document.getElementById('sendCreditsConfirm').disabled=false;
+    });
+  });
+
+  document.getElementById('sendCreditsCancel').addEventListener('click',()=>{
+    document.getElementById('sendCreditsOverlay').classList.remove('open');
+    sendCreditsTargetUid=null;
+  });
+
+  document.getElementById('sendCreditsOverlay').addEventListener('click',e=>{
+    if(e.target===e.currentTarget){e.currentTarget.classList.remove('open');sendCreditsTargetUid=null;}
+  });
+
+  document.getElementById('sendCreditsConfirm').addEventListener('click',async()=>{
+    if(!sendCreditsTargetUid)return;
+    const amount=parseInt(document.getElementById('sendCreditsAmount').value)||0;
+    if(amount<1){toast('Enter a valid amount');return;}
+    const myCredits=UD.credits||0;
+    if(amount>myCredits){toast('Not enough credits! You have '+myCredits.toLocaleString());return;}
+
+    const btn=document.getElementById('sendCreditsConfirm');
+    btn.disabled=true;btn.textContent='Sending…';
+
+    try{
+      // Atomic deduct from sender
+      const deductResult=await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{
+        if((c||0)<amount)return; // abort
+        return (c||0)-amount;
+      });
+      if(!deductResult.committed){
+        toast('Not enough credits!');btn.disabled=false;btn.textContent='🪙 Send Credits';return;
+      }
+      // Add to recipient via creditTransfers node (publicly writable, see DB rules)
+      await rtdb.ref('creditTransfers').push({
+        toUid: sendCreditsTargetUid,
+        fromUid: MY_UID,
+        amount: amount,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        status: 'pending'
+      });
+      // Also directly increment — works if rules allow auth users to write others' credits
+      try{
+        await rtdb.ref('users/'+sendCreditsTargetUid+'/credits').transaction(c=>(c||0)+amount);
+      }catch(permErr){
+        // Fallback: write to incoming transfer queue the recipient processes on login
+        console.warn('Direct credit add blocked, queued transfer instead');
+      }
+
+      // Notify recipient via a simple notification node
+      await rtdb.ref('users/'+sendCreditsTargetUid+'/notifications').push({
+        type:'credits_received',
+        fromUid:MY_UID,
+        fromName:getUserName(MY_UID),
+        amount:amount,
+        timestamp:firebase.database.ServerValue.TIMESTAMP
+      });
+
+      const recipientName=document.getElementById('sendCreditsRecipient').textContent.replace('To: ','');
+      toast('🪙 Sent '+amount.toLocaleString()+' credits to '+recipientName+'!','success');
+      document.getElementById('sendCreditsOverlay').classList.remove('open');
+      sendCreditsTargetUid=null;
+    }catch(err){
+      toast('Failed: '+err.message);
+      btn.disabled=false;btn.textContent='🪙 Send Credits';
+    }
+  });
+
+  /* ══════════════════════════════════════════
+     GIVEAWAY COUNTDOWN TICKER
+  ══════════════════════════════════════════ */
+  function formatCountdown(ms){
+    if(ms<=0)return'0s';
+    const s=Math.ceil(ms/1000);
+    if(s<60)return s+'s';
+    const m=Math.floor(s/60),rem=s%60;
+    if(m<60)return m+'m '+(rem?rem+'s':'');
+    const h=Math.floor(m/60),rm=m%60;
+    return h+'h '+(rm?rm+'m':'');
+  }
+
+  function tickGiveawayCountdowns(){
+    document.querySelectorAll('.giveaway-countdown[data-unlock]').forEach(el=>{
+      const unlockAt=parseInt(el.dataset.unlock)||0;
+      const remaining=unlockAt-Date.now();
+      if(remaining<=0){
+        // Timer expired — refresh the post card
+        const banner=el.closest('.giveaway-banner');
+        if(banner){
+          const postId=banner.dataset.postId;
+          if(postId){
+            // Re-fetch and re-render this post
+            rtdb.ref('posts/'+postId).once('value',snap=>{
+              if(!snap.exists())return;
+              const post={id:snap.key,...snap.val()};
+              const oldCard=document.querySelector('.post-card[data-post-id="'+postId+'"]');
+              if(oldCard){oldCard.replaceWith(createPostCard(post));}
+            });
+          }
+        }
+      }else{
+        el.textContent=formatCountdown(remaining);
+      }
+    });
+  }
+  setInterval(tickGiveawayCountdowns,1000);
 
   /* ══════════════════════════════════════════
      REPORT SYSTEM

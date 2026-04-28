@@ -855,13 +855,19 @@
     </section>
   </main>
 
-  <!-- SUPPORT CHAT WIDGET -->
-  <div class="support-fab-group" id="supportFabGroup">
-    <button class="support-fab support-fab-help" id="fabHelp" title="Get Help">?</button>
-    <button class="support-fab support-fab-bug" id="fabBug" title="Report a Bug">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3.003 3.003 0 116 0v1M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 014-4h4a4 4 0 014 4v3c0 3.3-2.7 6-6 6zM12 20v2M6 13H2M22 13h-4M6 17l-2 2M18 17l2 2"/></svg>
-    </button>
-  </div>
+
+<div class="support-fab-group" id="supportFabGroup">
+  <button class="support-fab support-fab-help" id="fabHelp" aria-label="Help & Support"title="Get Help">?
+  </button>
+
+  <button class="support-fab support-fab-bug" id="fabBug" title="Report a Bug" aria-label="Report a Bug">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 2l1.88 1.88M14.12 3.88L16 2M9 7.13v-1a3.003 3.003 0 116 0v1"/>
+      <path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 014-4h4a4 4 0 014 4v3c0 3.3-2.7 6-6 6z"/>
+      <path d="M12 20v2M6 13H2M22 13h-4M6 17l-2 2M18 17l2 2"/>
+    </svg>
+  </button>
+</div>
 
   <!-- Support Chat Overlay -->
   <div class="support-chat-overlay" id="supportChatOverlay">
@@ -934,6 +940,22 @@
           av.textContent = (u.displayName || u.email || '?').charAt(0).toUpperCase();
         }
       });
+
+      // ── LIVE ONLINE COUNT (presence written by checker.js on every page) ──
+      rtdb.ref('presence').on('value', snap => {
+        const count = snap.numChildren();
+        const el = document.getElementById('statPlayers');
+        if (el) el.textContent = count.toLocaleString();
+        // Update hero badge
+        const badge = document.querySelector('.hero-badge');
+        if (badge) {
+          let dot = badge.querySelector('.dot');
+          if (!dot) { dot = document.createElement('span'); dot.className = 'dot'; }
+          badge.textContent = '';
+          badge.appendChild(dot);
+          badge.append('\u00a0' + count + ' Player' + (count !== 1 ? 's' : '') + ' Online');
+        }
+      });
     });
 
     /* ══════════ NAVBAR SCROLL EFFECT ══════════ */
@@ -988,7 +1010,7 @@
     }
 
     setTimeout(() => {
-      animateCounter(document.getElementById('statPlayers'), Math.floor(Math.random() * 300) + 80);
+      // statPlayers is live from Firebase presence — no fake counter needed
       animateCounter(document.getElementById('statBets'), Math.floor(Math.random() * 5000) + 1200);
       animateCounter(document.getElementById('statWon'), Math.floor(Math.random() * 500000) + 100000, 2000);
     }, 400);
@@ -1073,195 +1095,243 @@
       };
     })();
 
-    /* ══════════ SUPPORT CHAT WIDGET ══════════ */
     (() => {
-      const overlay  = document.getElementById('supportChatOverlay');
-      const body     = document.getElementById('supportChatBody');
-      const input    = document.getElementById('supportChatInput');
-      const sendBtn  = document.getElementById('supportChatSend');
-      const title    = document.getElementById('supportChatTitle');
-      const fabHelp  = document.getElementById('fabHelp');
-      const fabBug   = document.getElementById('fabBug');
+  const overlay  = document.getElementById('supportChatOverlay');
+  const body     = document.getElementById('supportChatBody');
+  const input    = document.getElementById('supportChatInput');
+  const sendBtn  = document.getElementById('supportChatSend');
+  const title    = document.getElementById('supportChatTitle');
+  const fabHelp  = document.getElementById('fabHelp');
+  const fabBug   = document.getElementById('fabBug');
 
-      let chatType      = 'help';
-      let msgListener   = null;   // live messages listener (stays alive in background)
-      let metaListener  = null;   // live meta listener for unread badge
-      let isOpen        = false;
-      let currentUid    = null;
-      let userName      = 'User';
+  let chatType      = 'help';
+  let msgListener   = null;
+  let metaListener  = null;
+  let isOpen        = false;
+  let currentUid    = null;
+  let currentPath   = null;
+  let userName      = 'User';
+  let helpUnread    = false;
+  let bugUnread     = false;
 
-      /* ── helpers ── */
-      function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-      function ago(ts) {
-        if (!ts) return '';
-        const d = Date.now() - ts;
-        if (d < 60000) return 'just now';
-        if (d < 3600000) return Math.floor(d / 60000) + 'm ago';
-        if (d < 86400000) return Math.floor(d / 3600000) + 'h ago';
-        return Math.floor(d / 86400000) + 'd ago';
-      }
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
 
-      /* ── unread badge on FABs ── */
-      function setBadge(hasUnread) {
-        [fabHelp, fabBug].forEach(fab => {
-          let dot = fab.querySelector('.fab-unread-dot');
-          if (hasUnread) {
-            if (!dot) {
-              dot = document.createElement('span');
-              dot.className = 'fab-unread-dot';
-              fab.appendChild(dot);
-            }
-          } else {
-            if (dot) dot.remove();
-          }
-        });
-      }
+  function ago(ts) {
+    if (!ts) return '';
+    const d = Date.now() - ts;
+    if (d < 60000) return 'just now';
+    if (d < 3600000) return Math.floor(d / 60000) + 'm ago';
+    if (d < 86400000) return Math.floor(d / 3600000) + 'h ago';
+    return Math.floor(d / 86400000) + 'd ago';
+  }
 
-      /* ── start background listeners once user is known ── */
-      function startListeners(uid) {
-        if (msgListener) return; // already running
-        currentUid = uid;
+  function getPath(type) {
+    return type === 'bug' ? 'bugReports' : 'supportChats';
+  }
 
-        // Watch messages in real-time (always)
-        msgListener = rtdb.ref('supportChats/' + uid + '/messages')
-          .orderByChild('timestamp')
-          .on('value', snap => {
-            renderMessages(snap);
-            // When chat is open, clear unread from our side (user reading)
-            if (isOpen) {
-              rtdb.ref('supportChats/' + uid + '/meta/userUnread').set(false);
-            }
-          });
+  function updateBadges() {
+    // Help badge
+    let helpDot = fabHelp.querySelector('.fab-unread-dot');
+    if (helpUnread) {
+      if (!helpDot) { helpDot = document.createElement('span'); helpDot.className = 'fab-unread-dot'; fabHelp.appendChild(helpDot); }
+    } else if (helpDot) { helpDot.remove(); }
+    // Bug badge
+    let bugDot = fabBug.querySelector('.fab-unread-dot');
+    if (bugUnread) {
+      if (!bugDot) { bugDot = document.createElement('span'); bugDot.className = 'fab-unread-dot'; fabBug.appendChild(bugDot); }
+    } else if (bugDot) { bugDot.remove(); }
+  }
 
-        // Watch meta for unread badge (support replied while chat was closed)
-        metaListener = rtdb.ref('supportChats/' + uid + '/meta/userUnread')
-          .on('value', snap => {
-            const hasUnread = !!snap.val();
-            setBadge(hasUnread);
-            if (hasUnread && isOpen) {
-              // Auto-clear if chat is already open
-              rtdb.ref('supportChats/' + uid + '/meta/userUnread').set(false);
-            }
-          });
-      }
+  function stopListeners() {
+    if (msgListener && currentPath && currentUid) {
+      rtdb.ref(currentPath + '/' + currentUid + '/messages').off('value', msgListener);
+    }
+    if (metaListener && currentPath && currentUid) {
+      rtdb.ref(currentPath + '/' + currentUid + '/meta/userUnread').off('value', metaListener);
+    }
+    msgListener = null;
+    metaListener = null;
+  }
 
-      /* ── render messages into the panel ── */
-      function renderMessages(snap) {
-        if (!snap || !snap.exists()) {
-          body.innerHTML = `<div class="support-chat-empty">${
-            chatType === 'bug'
-              ? "Describe the bug and our team will get back to you!"
-              : "Send a message and support will reply as soon as possible!"
-          }</div>`;
-          return;
+  function startChatListeners(uid, path) {
+    if (currentPath === path && msgListener) return;
+    stopListeners();
+    currentUid = uid;
+    currentPath = path;
+
+    msgListener = rtdb.ref(path + '/' + uid + '/messages')
+      .orderByChild('timestamp')
+      .on('value', snap => {
+        renderMessages(snap);
+        if (isOpen) {
+          rtdb.ref(path + '/' + uid + '/meta/userUnread').set(false);
         }
-        const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
-        body.innerHTML = '';
-        snap.forEach(child => {
-          const m = child.val();
-          const isUser = m.sender === 'user';
-          const bubble = document.createElement('div');
-          bubble.className = 'support-msg ' + (isUser ? 'sent' : 'received');
-          let tagHtml = '';
-          if (isUser && m.type) {
-            const tc = m.type === 'bug' ? 's-tag-bug' : 's-tag-help';
-            const tl = m.type === 'bug' ? '🐛 Bug' : '💬 Help';
-            tagHtml = `<div class="s-tag ${tc}">${tl}</div>`;
-          } else if (!isUser) {
-            tagHtml = `<div class="s-tag s-tag-support">🛡️ Support</div>`;
-          }
-          bubble.innerHTML = `${tagHtml}${esc(m.text)}<div class="s-ts">${ago(m.timestamp)}</div>`;
-          body.appendChild(bubble);
-        });
-        if (wasAtBottom) body.scrollTop = body.scrollHeight;
-      }
-
-      /* ── open chat panel ── */
-      function openSupportChat(type) {
-        chatType = type;
-        title.textContent = type === 'bug' ? '🐛 Report a Bug' : '💬 Help & Support';
-        overlay.classList.add('open');
-        isOpen = true;
-
-        const u = auth.currentUser;
-        if (!u) return;
-        startListeners(u.uid);
-
-        // Clear unread badge since user is now looking at chat
-        rtdb.ref('supportChats/' + u.uid + '/meta/userUnread').set(false);
-        setBadge(false);
-
-        body.scrollTop = body.scrollHeight;
-        input.focus();
-      }
-
-      /* ── close chat panel ── */
-      function closeSupportChat() {
-        overlay.classList.remove('open');
-        isOpen = false;
-      }
-
-      /* ── send message ── */
-      async function sendSupportMsg() {
-        const text = input.value.trim();
-        if (!text) return;
-        const u = auth.currentUser;
-        if (!u) return;
-        input.value = '';
-        sendBtn.disabled = true;
-
-        // Fetch username once if we don't have it yet
-        if (userName === 'User') {
-          try {
-            const snap = await rtdb.ref('users/' + u.uid).once('value');
-            const d = snap.val() || {};
-            userName = d.username || d.nickname || u.displayName || u.email || 'User';
-          } catch (e) {}
-        }
-
-        try {
-          // Write message
-          await rtdb.ref('supportChats/' + u.uid + '/messages').push({
-            text: text,
-            sender: 'user',
-            type: chatType,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-          });
-
-          // Update meta so support panel shows it
-          await rtdb.ref('supportChats/' + u.uid + '/meta').update({
-            uid: u.uid,
-            name: userName,
-            email: u.email || '',
-            lastMessageAt: firebase.database.ServerValue.TIMESTAMP,
-            hasUnread: true,          // flag for support panel
-            userUnread: false,        // user is looking at chat, not unread for them
-            status: 'open',
-            lastMessage: text,
-            type: chatType
-          });
-        } catch (e) {
-          console.error('Send failed', e);
-        }
-
-        sendBtn.disabled = false;
-      }
-
-      /* ── wire up events ── */
-      fabHelp.addEventListener('click', () => openSupportChat('help'));
-      fabBug.addEventListener('click',  () => openSupportChat('bug'));
-      document.getElementById('supportChatClose').addEventListener('click', closeSupportChat);
-      overlay.addEventListener('click', e => { if (e.target === overlay) closeSupportChat(); });
-      sendBtn.addEventListener('click', sendSupportMsg);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMsg(); } });
-
-      /* ── start listeners once Firebase auth is ready ── */
-      auth.onAuthStateChanged(u => {
-        if (u) startListeners(u.uid);
       });
 
-    })();
+    metaListener = rtdb.ref(path + '/' + uid + '/meta/userUnread')
+      .on('value', snap => {
+        const has = !!snap.val();
+        if (path === getPath('bug')) bugUnread = has;
+        else helpUnread = has;
+        updateBadges();
+        if (has && isOpen) {
+          rtdb.ref(path + '/' + uid + '/meta/userUnread').set(false);
+        }
+      });
+  }
 
+  function initUnreadWatchers(uid) {
+    rtdb.ref('supportChats/' + uid + '/meta/userUnread').on('value', snap => {
+      helpUnread = !!snap.val();
+      updateBadges();
+    });
+    rtdb.ref('bugReports/' + uid + '/meta/userUnread').on('value', snap => {
+      bugUnread = !!snap.val();
+      updateBadges();
+    });
+  }
+
+  function renderMessages(snap) {
+    if (!snap || !snap.exists()) {
+      body.innerHTML = `<div class="support-chat-empty">${
+        chatType === 'bug'
+          ? 'Describe the bug and our team will get back to you!'
+          : 'Send a message and support will reply as soon as possible!'
+      }</div>`;
+      return;
+    }
+
+    const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+    body.innerHTML = '';
+
+    snap.forEach(child => {
+      const m = child.val() || {};
+      const isUser = m.sender === 'user';
+      const bubble = document.createElement('div');
+      bubble.className = 'support-msg ' + (isUser ? 'sent' : 'received');
+
+      let tagHtml = '';
+      if (isUser && m.type) {
+        const tc = m.type === 'bug' ? 's-tag-bug' : 's-tag-help';
+        const tl = m.type === 'bug' ? '🐛 Bug' : '💬 Help';
+        tagHtml = `<div class="s-tag ${tc}">${tl}</div>`;
+      } else if (!isUser) {
+        tagHtml = `<div class="s-tag s-tag-support">🛡️ Support</div>`;
+      }
+
+      bubble.innerHTML = `${tagHtml}${esc(m.text)}<div class="s-ts">${ago(m.timestamp)}</div>`;
+      body.appendChild(bubble);
+    });
+
+    if (wasAtBottom) body.scrollTop = body.scrollHeight;
+  }
+
+  function openSupportChat(type) {
+    chatType = type;
+    const path = getPath(type);
+    title.textContent = type === 'bug' ? '🐛 Bug Report' : '💬 Help & Support';
+    input.placeholder = type === 'bug' ? 'Describe the bug...' : 'Type your message...';
+    overlay.classList.add('open');
+    isOpen = true;
+
+    const u = auth.currentUser;
+    if (!u) return;
+
+    startChatListeners(u.uid, path);
+    rtdb.ref(path + '/' + u.uid + '/meta/userUnread').set(false);
+    if (type === 'bug') bugUnread = false; else helpUnread = false;
+    updateBadges();
+
+    input.value = '';
+    body.scrollTop = body.scrollHeight;
+    input.focus();
+  }
+
+  function closeSupportChat() {
+    overlay.classList.remove('open');
+    isOpen = false;
+  }
+
+  async function sendSupportMsg() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    const u = auth.currentUser;
+    if (!u) return;
+
+    input.value = '';
+    sendBtn.disabled = true;
+
+    if (userName === 'User') {
+      try {
+        const snap = await rtdb.ref('users/' + u.uid).once('value');
+        const d = snap.val() || {};
+        userName = d.username || d.nickname || u.displayName || u.email || 'User';
+      } catch (e) {}
+    }
+
+    const path = getPath(chatType);
+
+    try {
+      await rtdb.ref(path + '/' + u.uid + '/messages').push({
+        text,
+        sender: 'user',
+        type: chatType,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      await rtdb.ref(path + '/' + u.uid + '/meta').update({
+        uid: u.uid,
+        name: userName,
+        email: u.email || '',
+        lastMessageAt: firebase.database.ServerValue.TIMESTAMP,
+        hasUnread: true,
+        userUnread: false,
+        status: 'open',
+        lastMessage: text,
+        type: chatType
+      });
+    } catch (e) {
+      console.error('Send failed', e);
+    }
+
+    sendBtn.disabled = false;
+  }
+
+  fabHelp.addEventListener('click', () => openSupportChat('help'));
+  fabBug.addEventListener('click', () => openSupportChat('bug'));
+  document.getElementById('supportChatClose').addEventListener('click', closeSupportChat);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeSupportChat(); });
+  sendBtn.addEventListener('click', sendSupportMsg);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendSupportMsg();
+    }
+  });
+
+  auth.onAuthStateChanged(u => {
+    if (u) {
+      initUnreadWatchers(u.uid);
+    } else {
+      stopListeners();
+      if (currentUid) {
+        rtdb.ref('supportChats/' + currentUid + '/meta/userUnread').off();
+        rtdb.ref('bugReports/' + currentUid + '/meta/userUnread').off();
+      }
+      currentUid = null;
+      currentPath = null;
+      isOpen = false;
+      helpUnread = false;
+      bugUnread = false;
+      updateBadges();
+    }
+  });
+})();
     /* === SECRET: HACKER MODE (10x tap logo) === */
     (()=>{
       let _taps=0,_timer=null;
@@ -1672,8 +1742,7 @@ if (_u1) firebase.database().ref('users/' + _u1.uid + '/eastereggs2/superblood')
         seqTimer = setTimeout(function() { resetSeq('timeout'); }, 60000);
       }
     })();
-  </script>
-  <script>
+ 
 
 (function () {
   const FAB_CLICKS_NEEDED = 20;   // clicks needed within the 5s window

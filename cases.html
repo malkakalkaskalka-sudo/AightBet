@@ -842,7 +842,7 @@
     
   ];
 
- 
+  
   const SECRET_CASE = {
     id:'secret_egg', name:'Dildo Case', img:'Images/cases/67.png', price:1000,
     gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
@@ -1211,6 +1211,23 @@
         await rtdb.ref('users/' + currentUser.uid + '/caseInventory/' + invKey).set(invEntry);
       } catch (e) {
         console.error('[INV] Failed to save inventory:', e);
+      }
+
+      // ── ANNOUNCE MYTHIC/LEGENDARY DROPS TO EVERYONE ──
+      if (winner.rarity === 'mythic' || winner.rarity === 'legendary') {
+        try {
+          const snap = await rtdb.ref('users/' + currentUser.uid).once('value');
+          const ud = snap.val() || {};
+          const userName = ud.username || ud.nickname || currentUser.displayName || currentUser.email || 'Someone';
+          await rtdb.ref('mythicDrops').push({
+            item: winner.name,
+            user: userName,
+            uid: currentUser.uid,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+          });
+        } catch (e) {
+          console.error('[MYTHIC] Failed to announce:', e);
+        }
       }
     }
 

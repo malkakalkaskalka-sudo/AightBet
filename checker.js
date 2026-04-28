@@ -1,7 +1,156 @@
 (function(){
   var page=window.location.pathname.split('/').pop().toLowerCase();
-  var exempt=['ban.html','maintenance.html','support.html','index.html',''];
+  var exempt=['ban.html','maintenance.html','support.html','index.html','recorder.html'];
   if(exempt.indexOf(page)!==-1)return;
+
+  // ── MOBILE OPTIMIZATION: inject responsive CSS for all pages ──
+  (function(){
+    if(document.getElementById('mobile-opt-style'))return;
+    var ms=document.createElement('style');
+    ms.id='mobile-opt-style';
+    ms.textContent=
+    /* ── Base resets ── */
+    '@media(max-width:768px){'+
+      'html,body{overflow-x:hidden!important;-webkit-text-size-adjust:100%}'+
+      '*{-webkit-tap-highlight-color:transparent}'+
+
+    /* ── Prevent iOS zoom on focus ── */
+      'input,select,textarea{font-size:16px!important}'+
+
+    /* ── Navbar ── */
+      '.navbar{padding:0 12px!important;height:var(--nav-h-mobile,56px)!important}'+
+      '.nav-logo span{font-size:.95rem!important}'+
+      '.nav-links{display:none!important}'+
+      '.nav-credits-desktop{display:none!important}'+
+      '.hamburger{display:flex!important}'+
+      '.nav-avatar{width:32px!important;height:32px!important}'+
+      '.mobile-menu{width:100%!important;left:0!important;right:0!important;border-radius:0 0 16px 16px!important}'+
+
+    /* ── Main content spacing ── */
+      'main,.main{padding-top:calc(var(--nav-h-mobile,56px) + 8px)!important}'+
+      '.page-header{padding:16px 16px 8px!important}'+
+      '.page-header h1{font-size:1.5rem!important}'+
+
+    /* ── Grid layouts → single column ── */
+      '.profile-container{grid-template-columns:1fr!important;gap:16px!important;padding:0 12px!important}'+
+      '.settings-panel{gap:12px!important}'+
+
+    /* ── Cards ── */
+      '.profile-card{position:relative!important;top:auto!important}'+
+      '.settings-card,.profile-card,.post-card,.card,[class*="card"]:not(.post-card):not(#mythic-slide){'+
+        'border-radius:14px!important;padding:16px!important}'+
+
+    /* ── Hero section ── */
+      '.hero{padding:40px 16px 32px!important;min-height:auto!important}'+
+      '.hero h1,.hero-title{font-size:2rem!important;line-height:1.2!important}'+
+      '.hero-sub{font-size:.9rem!important}'+
+      '.hero-stats{flex-wrap:wrap!important;gap:10px!important;justify-content:center!important}'+
+      '.hero-actions{flex-direction:column!important;gap:10px!important;align-items:stretch!important}'+
+      '.hero-actions a,.hero-actions button{width:100%!important;text-align:center!important;justify-content:center!important}'+
+
+    /* ── Game/case grids ── */
+      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]{'+
+        'grid-template-columns:repeat(2,1fr)!important;gap:10px!important;padding:0 12px!important}'+
+
+    /* ── Social feed ── */
+      '#postsContainer,.posts-container{padding:0 8px!important}'+
+      '.post-card{margin:0 0 10px!important;border-radius:14px!important}'+
+      '.post-header{padding:12px!important}'+
+      '.post-body{padding:0 12px 12px!important}'+
+      '.post-image{border-radius:10px!important}'+
+      '.post-actions{padding:8px 12px!important}'+
+      '.post-text{font-size:.9rem!important}'+
+      '.compose-card{margin:0 8px 12px!important;border-radius:14px!important}'+
+
+    /* ── Social sidebar ── */
+      '.social-sidebar,.sidebar-right,.sidebar-left{display:none!important}'+
+      '.social-layout,.feed-layout{grid-template-columns:1fr!important;max-width:100%!important}'+
+      '.feed-container{max-width:100%!important;padding:0!important}'+
+
+    /* ── DMs / Chat overlays ── */
+      '.dm-overlay,.chat-overlay,.profile-overlay,[class*="-overlay"]:not(.bg-gradient){'+
+        'padding:0!important}'+
+      '.dm-panel,.chat-panel,.profile-panel,[class*="-panel"]{'+
+        'width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important}'+
+
+    /* ── Modals ── */
+      '.modal-box{max-width:95vw!important;max-height:85vh!important;margin:auto!important;border-radius:16px!important;padding:20px 16px!important}'+
+      '.modal-overlay{padding:10px!important}'+
+
+    /* ── Case opening / spinner ── */
+      '.case-detail,.case-open-section{padding:0 12px!important}'+
+      '.reel-container,.spinner-container{max-width:100%!important;overflow:hidden!important}'+
+      '.won-display{padding:16px!important}'+
+      '.won-display .won-item-name{font-size:1.1rem!important}'+
+
+    /* ── Case battles ── */
+      '.battle-arena{flex-direction:column!important;gap:12px!important}'+
+      '.player-panel{width:100%!important;min-width:0!important}'+
+      '.battle-vs{margin:4px 0!important}'+
+      '.spinner-pair{flex-direction:column!important;gap:8px!important}'+
+      '.create-overlay-content{max-width:95vw!important;max-height:85vh!important;overflow-y:auto!important}'+
+      '.team-side{flex-direction:column!important}'+
+
+    /* ── Buttons — touch friendly ── */
+      'button,.btn,[class*="-btn"]{min-height:42px!important}'+
+      '.post-action-btn{min-height:36px!important;padding:8px 12px!important}'+
+
+    /* ── Stats row ── */
+      '.dash-stats,.stat-row,.stats-row,.hero-stats{'+
+        'flex-wrap:wrap!important;gap:8px!important;padding:12px!important}'+
+      '.dash-stat,.stat-card{min-width:calc(50% - 8px)!important;flex:none!important}'+
+
+    /* ── Tables ── */
+      'table{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}'+
+
+    /* ── Images ── */
+      'img{max-width:100%!important;height:auto!important}'+
+
+    /* ── Tabs scrollable ── */
+      '.dash-tabs,.tabs,.tab-row,[class*="-tabs"]{'+
+        'overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;flex-wrap:nowrap!important;padding:0 12px!important;gap:6px!important}'+
+      '.dash-tab,.tab,[class*="-tab"]:not([class*="-table"]){flex-shrink:0!important}'+
+
+    /* ── Forms ── */
+      '.form-group{margin-bottom:12px!important}'+
+      '.form-input,.form-textarea{width:100%!important;padding:12px!important}'+
+
+    /* ── FABs positioning ── */
+      '.support-fab-group{top:calc(var(--nav-h-mobile,56px) + 8px)!important;right:10px!important}'+
+      '.support-fab{width:38px!important;height:38px!important}'+
+      '#rec-fab{bottom:16px!important;left:12px!important}'+
+
+    /* ── Support chat ── */
+      '.support-chat-overlay{padding:0!important}'+
+      '.support-chat-panel{width:100%!important;max-width:100%!important;max-height:100dvh!important;border-radius:0!important}'+
+
+    /* ── Giveaway banners ── */
+      '.giveaway-banner{padding:14px!important;border-radius:12px!important}'+
+
+    /* ── Footer ── */
+      '.footer,footer{padding:16px 12px!important;font-size:.75rem!important;text-align:center!important}'+
+
+    /* ── Mythic drop banner ── */
+      '#mythic-slide{padding:8px 14px!important;gap:6px!important}'+
+      '#mythic-slide .ms-text{font-size:.78rem!important}'+
+
+    /* ── Scrollbars thin on mobile ── */
+      '::-webkit-scrollbar{width:4px!important;height:4px!important}'+
+
+    /* ── Smooth scroll ── */
+      'html{scroll-behavior:smooth!important}'+
+    '}'+
+
+    /* ── Extra small phones ── */
+    '@media(max-width:380px){'+
+      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]{grid-template-columns:1fr!important}'+
+      '.hero h1,.hero-title{font-size:1.6rem!important}'+
+      '.nav-logo span{font-size:.85rem!important}'+
+      '.post-action-btn span{display:none!important}'+
+    '}';
+
+    document.head.appendChild(ms);
+  })();
 
   // ── LQM: apply instantly from localStorage to avoid flash, then sync from DB ──
   (function(){
@@ -170,11 +319,11 @@
   })();
 
   function waitForFirebase(cb){
-    if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0){cb();return;}
+    if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0&&typeof firebase.auth==='function'){cb();return;}
     var tries=0;
     var interval=setInterval(function(){
       tries++;
-      if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0){
+      if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0&&typeof firebase.auth==='function'){
         clearInterval(interval);
         cb();
       }
@@ -204,6 +353,80 @@
         }
       });
 
+      // ── PRESENCE: track which user is online (by UID) ──
+      var presRef = rtdb.ref('presence/' + u.uid);
+      presRef.onDisconnect().remove();
+      presRef.set(true);
+
+      // ── MYTHIC DROP ANNOUNCEMENTS (auto — cases write to mythicDrops directly) ──
+      (function(){
+        // CSS for the slide banner
+        if(!document.getElementById('mythic-banner-style')){
+          var mbs = document.createElement('style');
+          mbs.id = 'mythic-banner-style';
+          mbs.textContent =
+            '#mythic-slide{position:fixed;top:0;left:0;right:0;z-index:99;' +
+            'transform:translateY(-100%);' +
+            'display:flex;align-items:center;justify-content:center;gap:10px;' +
+            'padding:10px 20px;' +
+            'background:linear-gradient(135deg,rgba(139,92,246,.92),rgba(236,72,153,.88));' +
+            'border-bottom:1px solid rgba(255,255,255,.15);' +
+            'backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);' +
+            'box-shadow:0 4px 24px rgba(139,92,246,.3);' +
+            'font-family:"Segoe UI",system-ui,sans-serif;' +
+            'transition:transform .45s cubic-bezier(.4,0,.2,1)}' +
+            '#mythic-slide.show{transform:translateY(var(--nav-h,64px))}' +
+            '#mythic-slide .ms-star{font-size:1.2rem;animation:ms-pop .5s ease}' +
+            '#mythic-slide .ms-text{font-size:.85rem;font-weight:700;color:#fff}' +
+            '#mythic-slide .ms-user{color:#e0f2fe;font-weight:800}' +
+            '#mythic-slide .ms-item{color:#fde68a;font-weight:900}' +
+            '@keyframes ms-pop{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.3) rotate(5deg)}100%{transform:scale(1) rotate(0)}}';
+          document.head.appendChild(mbs);
+        }
+
+        // Show the slide bar below navbar
+        function showMythicDropBanner(userName, itemName){
+          var old = document.getElementById('mythic-slide');
+          if(old) old.parentNode.removeChild(old);
+          var bar = document.createElement('div');
+          bar.id = 'mythic-slide';
+          bar.innerHTML =
+            '<span class="ms-star">&#10024;</span>' +
+            '<span class="ms-text">' +
+              '<span class="ms-user">' + escapeHTMLBasic(userName) + '</span>' +
+              ' just got ' +
+              '<span class="ms-item">' + escapeHTMLBasic(itemName) + '</span>' +
+            '</span>' +
+            '<span class="ms-star">&#10024;</span>';
+          document.body.appendChild(bar);
+          requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.classList.add('show'); }); });
+          setTimeout(function(){
+            bar.classList.remove('show');
+            setTimeout(function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); }, 500);
+          }, 5000);
+        }
+
+        // Listen for new mythicDrops (written by cases.html and case-battles.html)
+        var mythicInitDone = false;
+        var mythicSeenKeys = {};
+        rtdb.ref('mythicDrops').limitToLast(3).on('value', function(snap){
+          if(!mythicInitDone){
+            snap.forEach(function(child){ mythicSeenKeys[child.key] = true; });
+            mythicInitDone = true;
+            return;
+          }
+          snap.forEach(function(child){
+            if(!mythicSeenKeys[child.key]){
+              mythicSeenKeys[child.key] = true;
+              var drop = child.val();
+              if(drop && drop.item && drop.user){
+                showMythicDropBanner(drop.user, drop.item);
+              }
+            }
+          });
+        });
+      })();
+
       // ── LQM: sync from DB (source of truth), update localStorage to match ──
       rtdb.ref('users/'+u.uid+'/lqm').once('value',function(snap){
         var lqmOn=snap.val()===true;
@@ -220,6 +443,120 @@
         if(exitBtn)exitBtn.classList.toggle('visible',slqmOn);
         if(slqmOn&&window.__easterEggUnlocked) window.__easterEggUnlocked('slqm');
       });
+
+
+      (function(){
+    /* ── CSS ── */
+    var recStyle = document.createElement('style');
+    recStyle.id = 'rec-fab-style';
+    recStyle.textContent =
+      '#rec-fab{position:fixed;bottom:68px;left:24px;z-index:9998;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;-webkit-user-select:none}' +
+      '#rec-fab-btn{width:48px;height:48px;border-radius:50%;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,background .2s,box-shadow .25s}' +
+      '#rec-fab-btn:hover{transform:scale(1.1);background:rgba(239,68,68,.2);box-shadow:0 6px 24px -4px rgba(239,68,68,.4)}' +
+      '#rec-fab-btn .rec-dot{width:18px;height:18px;background:#ef4444;border-radius:50%;transition:all .2s}' +
+      '#rec-fab.recording #rec-fab-btn{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.5);box-shadow:0 0 20px rgba(239,68,68,.3)}' +
+      '#rec-fab.recording #rec-fab-btn .rec-dot{width:14px;height:14px;border-radius:3px;animation:rec-pulse 1s ease-in-out infinite}' +
+      '@keyframes rec-pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{opacity:.7;box-shadow:0 0 0 8px rgba(239,68,68,0)}}' +
+      '#rec-timer{display:none;padding:6px 12px;background:rgba(239,68,68,.15);backdrop-filter:blur(12px);border:1px solid rgba(239,68,68,.25);border-radius:8px;font-size:.78rem;font-weight:700;color:#f87171;font-variant-numeric:tabular-nums;letter-spacing:.02em;font-family:monospace}' +
+      '#rec-fab.recording #rec-timer{display:block}' +
+      '#rec-stop-label{display:none;font-size:.65rem;color:#f87171;font-weight:700;opacity:.7}' +
+      '#rec-fab.recording #rec-stop-label{display:block}' +
+      /* Hide on mobile if too crowded */
+      '@media(max-width:480px){#rec-fab{bottom:16px;left:16px}#rec-fab-btn{width:42px;height:42px}}';
+    if(!document.getElementById('rec-fab-style')) document.head.appendChild(recStyle);
+
+    /* ── HTML ── */
+    var fab = document.createElement('div');
+    fab.id = 'rec-fab';
+    fab.innerHTML =
+      '<div id="rec-fab-btn" title="Record this tab"><div class="rec-dot"></div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:2px">' +
+        '<div id="rec-timer">00:00</div>' +
+        '<div id="rec-stop-label">click to stop</div>' +
+      '</div>';
+
+    /* ── BroadcastChannel ── */
+    var bc = new BroadcastChannel('aightbet-recorder');
+    var isRecording = false;
+    var recStartTime = 0;
+    var timerInterval = null;
+    var recPopup = null;
+
+    function updateTimer(){
+      if(!recStartTime) return;
+      var elapsed = Math.floor((Date.now() - recStartTime) / 1000);
+      var m = Math.floor(elapsed / 60);
+      var s = elapsed % 60;
+      var el = document.getElementById('rec-timer');
+      if(el) el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    function setRecordingState(on, start){
+      isRecording = on;
+      if(on){
+        recStartTime = start || Date.now();
+        fab.classList.add('recording');
+        fab.querySelector('#rec-fab-btn').title = 'Stop recording';
+        clearInterval(timerInterval);
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+      } else {
+        fab.classList.remove('recording');
+        fab.querySelector('#rec-fab-btn').title = 'Record this tab';
+        clearInterval(timerInterval);
+        var el = document.getElementById('rec-timer');
+        if(el) el.textContent = '00:00';
+        recStartTime = 0;
+      }
+    }
+
+    /* ── Click handler ── */
+    function onFabClick(){
+      if(isRecording){
+        /* Send stop to popup */
+        bc.postMessage({ type: 'stop' });
+        setRecordingState(false);
+      } else {
+        /* Open recorder popup */
+       var w = 520, h = 460;
+        var left = (screen.width - w) / 2;
+        var top  = (screen.height - h) / 2;
+        recPopup = window.open(
+          'recorder.html',
+          'aightbet-recorder',
+          'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',resizable=no,scrollbars=no,menubar=no,toolbar=no,status=no'
+        );
+      }
+    }
+
+    /* ── BroadcastChannel listener ── */
+    bc.onmessage = function(e){
+      if(!e.data) return;
+      if(e.data.type === 'recording'){
+        setRecordingState(e.data.recording, e.data.startTime);
+      }
+      if(e.data.type === 'saved'){
+        setRecordingState(false);
+      }
+    };
+
+    /* ── Inject ── */
+    function inject(){
+      document.body.appendChild(fab);
+      fab.querySelector('#rec-fab-btn').addEventListener('click', onFabClick);
+
+      /* Check if a recording is already active (from sessionStorage, set by popup) */
+      if(sessionStorage.getItem('aightbet-rec-active') === '1'){
+        var st = parseInt(sessionStorage.getItem('aightbet-rec-start') || '0');
+        setRecordingState(true, st || Date.now());
+        /* Ping the popup to confirm it's still alive */
+        bc.postMessage({ type: 'ping' });
+      }
+    }
+
+    document.body ? inject() : document.addEventListener('DOMContentLoaded', inject);
+  })();
+
 
       // ── Hacker mode: sync from DB ──
       rtdb.ref('users/'+u.uid+'/hacker').once('value',function(snap){

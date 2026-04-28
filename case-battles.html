@@ -1267,6 +1267,21 @@
         const curTotal=(data.players[pid]?.total||0);
         await rtdb.ref('battles/'+activeBattle+'/players/'+pid+'/items/'+round).set(item);
         await rtdb.ref('battles/'+activeBattle+'/players/'+pid+'/total').set(curTotal+item.value);
+
+        // ── ANNOUNCE MYTHIC/LEGENDARY DROPS TO EVERYONE ──
+        if(item.rarity==='mythic'||item.rarity==='legendary'){
+          try{
+            const pSnap=await rtdb.ref('users/'+pid).once('value');
+            const pd=pSnap.val()||{};
+            const pName=pd.username||pd.nickname||pd.displayName||pd.email||'Someone';
+            await rtdb.ref('mythicDrops').push({
+              item:item.name,
+              user:pName,
+              uid:pid,
+              timestamp:firebase.database.ServerValue.TIMESTAMP
+            });
+          }catch(e){console.error('[MYTHIC]',e);}
+        }
       }
 
       const nextRound=round+1;

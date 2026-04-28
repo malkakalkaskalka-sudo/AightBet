@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AightBet Recorder</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a0f;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:12px;user-select:none}
+    .dot{width:14px;height:14px;background:#ef4444;border-radius:50%;animation:pulse 1s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+    #timer{font-size:2rem;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+    #status{font-size:.8rem;color:#94a3b8}
+    #stopBtn{margin-top:4px;padding:10px 28px;font-size:.85rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#ef4444,#b91c1c);border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:transform .15s}
+    #stopBtn:hover{transform:translateY(-1px)}
+    #stopBtn:disabled{opacity:.5;cursor:default;transform:none}
+    .row{display:flex;align-items:center;gap:8px}
+    #err{color:#fca5a5;font-size:.78rem;text-align:center;max-width:260px;display:none}
+  </style>
+</head>
+<body>
+  <div class="row"><div class="dot"></div><span style="font-size:.82rem;font-weight:700;color:#f87171">REC</span></div>
+  <div id="timer">00:00</div>
+  <div id="status">Recording your tab...</div>
+  <button id="stopBtn">Stop & Save</button>
+  <div id="err"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    /* ── Firebase (same config as your site) ── */
+    if(!firebase.apps.length){
+      firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
+    }
+    var auth = firebase.auth(), rtdb = firebase.database();
+
+    /* ── IndexedDB helper ── */
+    var RecDB = {
+      _db: null,
+      open: function(){
+        var self = this;
+        return new Promise(function(resolve, reject){
+          if(self._db){ resolve(self._db); return; }
+          var req = indexedDB.open('AightBetRecordings', 1);
+          req.onupgradeneeded = function(e){ e.target.result.createObjectStore('blobs'); };
+          req.onsuccess = function(e){ self._db = e.target.result; resolve(self._db); };
+          req.onerror = function(e){ reject(e); };
+        });
+      },
+      save: function(key, blob){
+        return this.open().then(function(db){
+          return new Promise(function(resolve, reject){
+            var tx = db.transaction('blobs','readwrite');
+            tx.objectStore('blobs').put(blob, key);
+            tx.oncomplete = resolve;
+            tx.onerror = reject;
+          });
+        });
+      }
+    };
+
+    /* ── BroadcastChannel ── */
+    var bc = new BroadcastChannel('aightbet-recorder');
+
+    /* ── State ── */
+    var mediaRecorder = null;
+    var chunks = [];
+    var startTime = 0;
+    var timerInterval = null;
+    var stopped = false;
+
+    var timerEl  = document.getElementById('timer');
+    var statusEl = document.getElementById('status');
+    var stopBtn  = document.getElementById('stopBtn');
+    var errEl    = document.getElementById('err');
+
+    function showErr(msg){
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+
+    function updateTimer(){
+      var elapsed = Math.floor((Date.now() - startTime) / 1000);
+      var m = Math.floor(elapsed / 60);
+      var s = elapsed % 60;
+      timerEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    function broadcast(obj){
+      try { bc.postMessage(obj); } catch(e){}
+    }
+
+    /* ── Main recording logic ── */
+    async function startRecording(){
+      try {
+        /* 1. Capture the tab (video + tab audio) */
+        var displayStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: 'browser',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            frameRate: { ideal: 30 }
+          },
+          audio: true,
+          selfBrowserSurface: 'exclude',
+          systemAudio: 'exclude'
+        });
+
+        /* 2. Capture microphone (optional — don't fail if denied) */
+        var micStream = null;
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch(e){
+          console.log('Mic denied or unavailable, recording without mic');
+        }
+
+        /* 3. Merge audio tracks using AudioContext */
+        var tracks = displayStream.getVideoTracks().slice();
+
+        var hasTabAudio  = displayStream.getAudioTracks().length > 0;
+        var hasMicAudio  = micStream && micStream.getAudioTracks().length > 0;
+
+        if(hasTabAudio || hasMicAudio){
+          var audioCtx = new AudioContext();
+          var dest = audioCtx.createMediaStreamDestination();
+          if(hasTabAudio){
+            audioCtx.createMediaStreamSource(displayStream).connect(dest);
+          }
+          if(hasMicAudio){
+            audioCtx.createMediaStreamSource(micStream).connect(dest);
+          }
+          dest.stream.getAudioTracks().forEach(function(t){ tracks.push(t); });
+        }
+
+        var combinedStream = new MediaStream(tracks);
+
+        /* 4. Detect best mime type */
+        var mimeType = 'video/webm;codecs=vp8,opus';
+        if(!MediaRecorder.isTypeSupported(mimeType)){
+          mimeType = 'video/webm';
+          if(!MediaRecorder.isTypeSupported(mimeType)){
+            mimeType = '';
+          }
+        }
+
+        /* 5. Create MediaRecorder */
+        var options = { mimeType: mimeType };
+        if(!mimeType) options = {};
+        mediaRecorder = new MediaRecorder(combinedStream, options);
+        chunks = [];
+
+        mediaRecorder.ondataavailable = function(e){
+          if(e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = function(){
+          saveRecording();
+        };
+
+        /* If user stops sharing via browser UI */
+        displayStream.getVideoTracks()[0].addEventListener('ended', function(){
+          if(!stopped) doStop();
+        });
+
+        /* 6. Start */
+        mediaRecorder.start(1000); /* chunk every 1s for safety */
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 1000);
+
+        /* Notify all pages */
+        sessionStorage.setItem('aightbet-rec-active','1');
+        sessionStorage.setItem('aightbet-rec-start', String(startTime));
+        broadcast({ type:'recording', recording:true, startTime:startTime });
+        statusEl.textContent = 'Recording your tab...';
+
+      } catch(e){
+        console.error('Recording failed:', e);
+        if(e.name === 'NotAllowedError'){
+          showErr('Recording cancelled. Close this window and try again.');
+        } else {
+          showErr('Error: ' + e.message);
+        }
+        broadcast({ type:'recording', recording:false });
+        stopBtn.disabled = true;
+      }
+    }
+
+    function doStop(){
+      if(stopped) return;
+      stopped = true;
+      stopBtn.disabled = true;
+      stopBtn.textContent = 'Saving...';
+      statusEl.textContent = 'Saving recording...';
+      clearInterval(timerInterval);
+
+      if(mediaRecorder && mediaRecorder.state !== 'inactive'){
+        mediaRecorder.stop();
+      } else {
+        saveRecording();
+      }
+
+      /* Stop all tracks */
+      if(mediaRecorder && mediaRecorder.stream){
+        mediaRecorder.stream.getTracks().forEach(function(t){ t.stop(); });
+      }
+    }
+
+    async function saveRecording(){
+      broadcast({ type:'recording', recording:false });
+      sessionStorage.removeItem('aightbet-rec-active');
+      sessionStorage.removeItem('aightbet-rec-start');
+
+      if(!chunks.length){
+        showErr('No data recorded.');
+        setTimeout(function(){ window.close(); }, 1500);
+        return;
+      }
+
+      var blob = new Blob(chunks, { type: chunks[0].type || 'video/webm' });
+      var durationSec = Math.round((Date.now() - startTime) / 1000);
+      var now = new Date();
+      var recName = 'Recording ' + now.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+      /* Generate a unique key */
+      var recKey = 'rec_' + Date.now() + '_' + Math.random().toString(36).substring(2,8);
+
+      /* Save blob to IndexedDB */
+      try {
+        await RecDB.save(recKey, blob);
+      } catch(e){
+        console.error('IndexedDB save failed:', e);
+        showErr('Failed to save locally.');
+      }
+
+      /* Save metadata to Firebase */
+      var user = auth.currentUser;
+      if(user){
+        try {
+          await rtdb.ref('users/' + user.uid + '/recordings/' + recKey).set({
+            name: recName,
+            date: now.toISOString(),
+            duration: durationSec,
+            size: blob.size,
+            ext: 'webm',
+            storedIn: 'indexeddb'
+          });
+        } catch(e){
+          console.error('Firebase save failed:', e);
+        }
+      }
+
+      /* Also save key list to localStorage for profile fallback */
+      try {
+        var keys = JSON.parse(localStorage.getItem('aightbet-rec-keys') || '[]');
+        keys.push(recKey);
+        localStorage.setItem('aightbet-rec-keys', JSON.stringify(keys));
+      } catch(e){}
+
+      broadcast({ type:'saved', recKey:recKey });
+      statusEl.textContent = 'Saved! Closing...';
+      setTimeout(function(){ window.close(); }, 1200);
+    }
+
+    /* ── Stop button ── */
+    stopBtn.addEventListener('click', doStop);
+
+    /* ── Listen for stop command from main pages ── */
+    bc.onmessage = function(e){
+      if(e.data && e.data.type === 'stop') doStop();
+      if(e.data && e.data.type === 'ping') broadcast({ type:'recording', recording:!stopped && !!mediaRecorder, startTime:startTime });
+    };
+
+    /* ── Save on popup close ── */
+    window.addEventListener('beforeunload', function(){
+      if(!stopped && mediaRecorder && mediaRecorder.state !== 'inactive'){
+        doStop();
+      }
+    });
+
+    /* ── Auto-start ── */
+    startRecording();
+  </script>
+</body>
+</html>
