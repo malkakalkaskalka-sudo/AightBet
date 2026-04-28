@@ -324,12 +324,7 @@
     return d.innerHTML;
   }
 
-  // ── EASTER EGG SYSTEM ──
-  // Easter eggs:
-  //   egg1 = "hacker"  — home page logo x10  → triggers hacker mode
-  //   egg2 = "slqm"    — profile page SLQM    → triggers super low quality mode
-  //   egg3 = "secretcase" — cases page 6+7 x3 → reveals secret case
-  // When all 3 are unlocked → award 5,000,000 credits ONCE.
+  
 
   window.__easterEggUnlocked = function(eggKey) {
     waitForFirebase(function() {
@@ -464,12 +459,7 @@
     });
   };
 
-  /* ══════════════════════════════════════════════════════════════
-     CATEGORY 2 EASTER EGGS — 5 hidden, reward = 10,000,000 credits
-     Keys: superblood, [4 more TBD]
-     These are tracked under easterEggs2 so they never interfere
-     with the original 3 eggs.
-  ══════════════════════════════════════════════════════════════ */
+ 
 
   // ── Check all 5 secret eggs on login and award credits if not yet claimed ──
   function checkEgg2Reward(uid) {
@@ -605,11 +595,7 @@
     });
   }
 
-  /* ══════════════════════════════════════════════════════════════
-     SUPER HACKER MODE
-     Activated after the blood sequence easter egg.
-     Adds: creepy twitching colored BG letters, blood-red overlay tint.
-  ══════════════════════════════════════════════════════════════ */
+  
   (function() {
     if (document.getElementById('super-hacker-style')) return;
 

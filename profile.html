@@ -580,17 +580,7 @@ document.getElementById('navAvatar').addEventListener('click',()=>{location.href
 (()=>{const cv=document.getElementById('particles'),cx=cv.getContext('2d');let W,H,p=[],ms={x:-9e3,y:-9e3};const N=Math.min(50,Math.round(innerWidth*.035)),C=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function rs(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,a:Math.random()*.35+.15,c:C[Math.random()*3|0]};}function init(){rs();p=[];for(let i=0;i<N;i++)p.push(mk());}function draw(){cx.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;const dx=a.x-ms.x,dy=a.y-ms.y,d=dx*dx+dy*dy;if(d<1e4){a.vx+=dx*.012/Math.sqrt(d);a.vy+=dy*.012/Math.sqrt(d);}a.vx*=.99;a.vy*=.99;if(a.x<-10)a.x=W+10;if(a.x>W+10)a.x=-10;if(a.y<-10)a.y=H+10;if(a.y>H+10)a.y=-10;cx.beginPath();cx.arc(a.x,a.y,a.r,0,Math.PI*2);cx.fillStyle=a.c+a.a+')';cx.fill();for(let j=i+1;j<p.length;j++){const b=p[j],ld=(a.x-b.x)**2+(a.y-b.y)**2;if(ld<14e3){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle=a.c+(.05*(1-ld/14e3))+')';cx.lineWidth=.4;cx.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',rs);addEventListener('mousemove',e=>{ms.x=e.clientX;ms.y=e.clientY;});addEventListener('touchmove',e=>{ms.x=e.touches[0].clientX;ms.y=e.touches[0].clientY;},{passive:true});init();draw();})();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════
-     EASTER EGG #3 — "GHOST IN THE MACHINE"
-     1. Click the ⚠ danger zone icon
-     2. Type D-E-L-E-T-E on keyboard
-     3. Fake deletion screen appears with 60s countdown
-     4. Support chat intercepts with fake responses for 45s
-     5. Last 15s: support asks "What do you want?"
-     6. Reply → "typing..." forever until time runs out
-     7. Screen glitches, swirls, goes fullscreen black terminal
-     8. Terminal types the secret message + awards egg
-════════════════════════════════════════════════════════════ -->
+
 <script>
 (function () {
   'use strict';

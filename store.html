@@ -429,11 +429,7 @@
   {id:'music_leg6',cat:'music',name:'The LEGENDARY CAT',   emoji:'👑', genre:'LEGENDARY',  url:'music/cat.mp3',     desc:'What a strange cat...',rarity:'legendary', price:800000,  type:'music', val:'music_leg6'},
   {id:'music_leg7',cat:'music',name:'Adrijans',   emoji:'👑', genre:'LEGENDARY',  url:'music/55.mp3',     desc:'What is blud laughing about?',rarity:'legendary', price:800000,  type:'music', val:'music_leg7'},
 
-  // ═══════════════════════════════════════════════════════════════
-  // 💀 SECRET EASTER EGG 1 REWARDS — not purchasable, not visible
-  //    Granted by checker.js when gunman + bigeye both found.
-  //    secret:true keeps them hidden from non-owners in the grid.
-  // ═══════════════════════════════════════════════════════════════
+  
   {id:'ne_phantom',cat:'effects',name:'INSANEE Name FX',desc:'A name effect so broken it shouldn\'t exist. Secret unlock only.',rarity:'secret',price:0,type:'nameEffect',val:'phantom',secret:true},
 {id:'intro_resurrection',cat:'intros',name:'CRAZY MINDBLOWING Intro',desc:'Absolutely deranged. Screen-shaking, jaw-dropping. Secret unlock only.',rarity:'secret',price:0,type:'intro',val:'resurrection',secret:true,topics:['CHAOS','VOID','RISE','FEAR']},
 {id:'px_chaos',cat:'particles',name:'Insane Particles',desc:'The most unhinged particle effect on the platform. Secret unlock only.',rarity:'secret',price:0,type:'particle',val:'chaos',secret:true},
@@ -1816,12 +1812,7 @@
   (()=>{const c=document.getElementById('particles'),x=c.getContext('2d');let W,H,p=[];const N=Math.min(25,Math.round(innerWidth*.02)),C=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function rs(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*d;c.height=H*d;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,a:Math.random()*.3+.1,c:C[Math.random()*3|0]};}function init(){rs();p=[];for(let i=0;i<N;i++)p.push(mk());}function draw(){x.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const q=p[i];q.x+=q.vx;q.y+=q.vy;q.vx*=.99;q.vy*=.99;if(q.x<-10)q.x=W+10;if(q.x>W+10)q.x=-10;if(q.y<-10)q.y=H+10;if(q.y>H+10)q.y=-10;x.beginPath();x.arc(q.x,q.y,q.r,0,Math.PI*2);x.fillStyle=q.c+q.a+')';x.fill();}requestAnimationFrame(draw);}addEventListener('resize',rs);init();draw();})();
   </script>
 
-  <!-- ═══════════════════════════════════════════════════════
-       EASTER EGG #5 — HACKER TERMINAL (Store Page)
-       Step 1: Click invisible button in bottom-right corner
-       Step 2: Type H → A → C → K on keyboard
-       Step 3: Watch the insane Admin vs Hacker code battle
-  ═══════════════════════════════════════════════════════ -->
+  
 
   <!-- Invisible corner trigger button -->
   <button id="eggCornerBtn" aria-hidden="true" tabindex="-1" style="position:fixed;bottom:0;right:0;width:48px;height:48px;z-index:9000;opacity:0;cursor:default;background:transparent;border:none;outline:none;"></button>
