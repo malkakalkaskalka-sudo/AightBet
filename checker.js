@@ -338,7 +338,22 @@
         window.location.href='maintenance.html';
       }
     });
-
+// ── FORCE REFRESH ──
+// ── FORCE REFRESH — paste inside the existing auth.onAuthStateChanged block ──
+var refreshKey = 'aightbet-refresh-seen';
+rtdb.ref('settings/forceRefresh').on('value', function(snap){
+  var val = snap.val();
+  if(!val) return;
+  var ts = String(val);
+  var seen = localStorage.getItem(refreshKey) || '0';
+  if(ts === '0') return;
+  if(ts !== seen){
+    localStorage.setItem(refreshKey, ts);
+    setTimeout(function(){
+      window.location.replace(window.location.origin + window.location.pathname + '?v=' + ts);
+    }, 100);
+  }
+});
     /* DEPRECATED: per-game announce helper. The credit-balance watcher
        (set up after auth, below) now handles all big-win detection
        automatically based on actual credit deltas. We keep this stub so
