@@ -426,10 +426,11 @@
       /* Win if roll > target, so winning numbers are (target+1)..6 */
       chance=(6-target)/6;
     }
-    if(chance<=0)return 0;
-    return Math.floor((1/chance)*(1-HOUSE_EDGE)*100)/100;
+   if(chance<=0)return 0;
+  // Near-guaranteed bets (Over 1 or Under 6) get capped at 1.05x
+  if(chance >= (5/6 - 0.01)) return 1.05;
+  return Math.floor((1/chance)*(1-HOUSE_EDGE)*100)/100;
   }
-
   function getWinChance(){
     if(mode==='under') return Math.round((target-1)/6*10000)/100;
     return Math.round((6-target)/6*10000)/100;
