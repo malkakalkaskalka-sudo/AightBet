@@ -989,7 +989,7 @@
 
       // Payout
       if (payout > 0) {
-      rtdb.ref('users/'+uid+'/credits').transaction(c => (c||0) + payout);
+      rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c => (c||0) + payout);
         resultBanner.className = 'result-banner win';
         resultLabel.textContent = 'YOU WON!';
         resultAmount.textContent = `+${payout.toLocaleString()} credits`;
