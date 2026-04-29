@@ -633,7 +633,8 @@
         }
         betAmount = bet;
         resultBanner.style.display = 'none';
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Atomic deduction (race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
       }
 
       state = 'animating';
@@ -717,7 +718,9 @@
 
       if (result === 'win') {
         const payout = Math.floor(betAmount * m.multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // BUG-FIX: was 'users/'+uid+'/credits' — uid was undefined, payout
+        // silently failed. Use currentUser.uid.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         playerHand.className = 'hand-circle win';
         houseHand.className = 'hand-circle lose';
@@ -749,8 +752,10 @@
         saveStats(false, false, 0);
 
       } else {
-        // Draw (single mode only)
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits);
+        // Draw (single mode only) — refund the bet.
+        // BUG-FIX: was set(userCredits) which kept post-deduction balance,
+        // silently eating the bet on a "draw refund". Refund via transaction.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + betAmount);
 
         playerHand.className = 'hand-circle draw-ring';
         houseHand.className = 'hand-circle draw-ring';

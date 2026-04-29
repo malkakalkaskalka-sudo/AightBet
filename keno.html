@@ -1,118 +1,1104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AightBet – Maintenance</title>
+  <link rel="stylesheet" href="css/light.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AightBet – Keno</title>
   <style>
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--accent:#8b5cf6;--accent2:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--gold:#f59e0b;--font:'Segoe UI',system-ui,-apple-system,sans-serif}
-    html{font-size:16px}
-    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.1),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.08),transparent)}
-    .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
-    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.25;z-index:0;animation:orbFloat 8s ease-in-out infinite alternate}
-    .orb-1{width:300px;height:300px;background:var(--accent);top:-80px;left:-60px}
-    .orb-2{width:240px;height:240px;background:var(--accent2);bottom:-60px;right:-40px;animation-delay:-3s}
-    @keyframes orbFloat{0%{transform:translate(0,0)}100%{transform:translate(25px,-35px)}}
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
 
-    .card{position:relative;z-index:10;background:var(--surface);backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:20px;padding:48px 36px;max-width:520px;width:90%;text-align:center}
+    html { font-size: 16px; scroll-behavior: smooth; }
 
-    .maint-icon{width:80px;height:80px;margin:0 auto 20px;background:rgba(245,158,11,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:spin 4s linear infinite}
-    .maint-icon svg{width:40px;height:40px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
 
-    .logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px}
-    .logo img{width:36px;height:36px;border-radius:8px}
-    .logo span{font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    a { color: inherit; text-decoration: none; }
 
-    h1{font-size:1.8rem;font-weight:900;margin-bottom:8px}
-    h1 .grad{background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .subtitle{font-size:1rem;color:var(--muted);margin-bottom:28px;line-height:1.6}
+    /* ───────── BACKGROUND ───────── */
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(6,182,212,.12), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(59,130,246,.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(139,92,246,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.08) translate(-2%,1%); } }
 
-    .status-bar{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.15);border-radius:12px;padding:16px;margin-bottom:24px}
-    .status-row{display:flex;align-items:center;gap:8px;font-size:.85rem;justify-content:center}
-    .status-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);animation:dotPulse 1.5s ease-in-out infinite}
-    @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-    .status-msg{font-weight:600;color:var(--gold)}
-    .status-detail{font-size:.8rem;color:var(--muted);margin-top:6px}
-    .status-detail span{font-weight:700;color:var(--text)}
+    #particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
-    .progress-wrap{margin-bottom:24px}
-    .progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:6px}
-    .progress-bar{width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:3px;animation:progressAnim 3s ease-in-out infinite;width:65%}
-    @keyframes progressAnim{0%{width:20%}50%{width:80%}100%{width:20%}}
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
 
-    .features{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px}
-    .feature{padding:6px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;font-size:.75rem;font-weight:600;color:var(--muted)}
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .3; z-index: 0; animation: orbFloat 8s ease-in-out infinite alternate; }
+    .orb-1 { width: 320px; height: 320px; background: var(--accent2); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent3); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) rotate(0deg); } 100% { transform: translate(25px,-35px) rotate(4deg); } }
 
-    .footer-text{font-size:.75rem;color:var(--muted);line-height:1.5}
+    /* ───────── NAVBAR ───────── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h); z-index: 100;
+      display: flex; align-items: center; padding: 0 24px;
+      background: rgba(10,10,15,.6);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      transition: background .3s;
+    }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
 
-    @media(max-width:480px){.card{padding:32px 20px}h1{font-size:1.5rem}}
+    .nav-logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .nav-logo img { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 0 6px rgba(139,92,246,.3)); }
+    .nav-logo span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg,#fff 30%,var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 18px; font-size: .9rem; font-weight: 600;
+      color: var(--muted); border-radius: 10px;
+      transition: color .2s, background .2s;
+      cursor: pointer; border: none; background: transparent; font-family: var(--font);
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-link.active { color: var(--accent); background: rgba(139,92,246,.1); }
+    .nav-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    .nav-credits {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; margin-left: 12px;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2);
+      border-radius: 10px; font-size: .85rem; font-weight: 700; color: var(--gold);
+      cursor: pointer; transition: background .2s, transform .15s;
+    }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%; margin-left: 14px;
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; color: #fff; cursor: pointer;
+      border: 2px solid rgba(255,255,255,.1); transition: border-color .2s, box-shadow .2s;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      z-index: 99; background: rgba(10,10,15,.95); backdrop-filter: blur(20px);
+      flex-direction: column; padding: 24px; gap: 8px;
+      animation: fadeSlideDown .3s ease;
+    }
+    .mobile-menu.open { display: flex; }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .mobile-menu .nav-link { padding: 16px 20px; font-size: 1.05rem; border-radius: 12px; }
+    .mobile-menu .nav-credits { margin: 8px 0 0 0; padding: 14px 20px; font-size: 1rem; border-radius: 12px; justify-content: center; }
+
+    /* ───────── MAIN ───────── */
+    .main {
+      position: relative; z-index: 10;
+      padding-top: calc(var(--nav-h) + 20px);
+      min-height: 100dvh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* ───────── PAGE HEADER ───────── */
+    .page-header {
+      text-align: center;
+      padding: 36px 24px 16px;
+    }
+    .page-header h1 {
+      font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+      font-weight: 900; letter-spacing: -1.5px;
+      margin-bottom: 8px;
+      animation: fadeSlideIn .5s ease both;
+    }
+    .page-header h1 .grad {
+      background: linear-gradient(135deg, var(--accent2), #3b82f6, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; background-size: 200% 200%;
+      animation: gradMove 4s ease-in-out infinite;
+    }
+    @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .page-header p {
+      color: var(--muted); font-size: .95rem; max-width: 460px; margin: 0 auto;
+      animation: fadeSlideIn .5s ease .1s both;
+    }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ───────── GAME CONTAINER ───────── */
+    .game-container {
+      width: 100%; max-width: 820px;
+      padding: 0 20px 48px;
+      animation: fadeSlideIn .5s ease .15s both;
+    }
+
+    /* ───────── KENO BOARD ───────── */
+    .keno-board {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .keno-cell {
+      aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(.7rem, 1.8vw, .95rem);
+      font-weight: 700;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .keno-cell:hover:not(.drawn):not(.disabled) {
+      border-color: var(--accent2);
+      background: rgba(6,182,212,.08);
+      transform: scale(1.06);
+    }
+    .keno-cell.selected {
+      background: rgba(6,182,212,.18);
+      border-color: var(--accent2);
+      color: var(--accent2);
+      box-shadow: 0 0 12px -3px rgba(6,182,212,.3);
+    }
+    .keno-cell.drawn {
+      background: rgba(59,130,246,.15);
+      border-color: rgba(59,130,246,.3);
+      color: #60a5fa;
+      cursor: default;
+    }
+    .keno-cell.hit {
+      background: rgba(34,197,94,.2);
+      border-color: rgba(34,197,94,.4);
+      color: #4ade80;
+      box-shadow: 0 0 16px -4px rgba(34,197,94,.4);
+      animation: hitPop .4s ease;
+    }
+    .keno-cell.miss {
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.25);
+      color: #f87171;
+      opacity: .7;
+    }
+    .keno-cell.disabled {
+      cursor: default;
+      opacity: .5;
+    }
+
+    @keyframes hitPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* ───────── CONTROLS ───────── */
+    .controls-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .control-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .control-group label {
+      display: block;
+      font-size: .75rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 8px;
+    }
+
+    .bet-input-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .bet-input-wrap button {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text); font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font);
+    }
+    .bet-input-wrap button:hover { border-color: var(--accent2); background: rgba(6,182,212,.1); }
+    .bet-input-wrap input {
+      flex: 1; text-align: center;
+      padding: 8px; font-size: 1rem; font-weight: 700;
+      color: var(--gold); background: transparent;
+      border: 1px solid var(--border); border-radius: 8px;
+      outline: none; font-family: var(--font);
+      min-width: 0;
+    }
+    .bet-input-wrap input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,.1); }
+
+    .quick-bets {
+      display: flex; gap: 4px; margin-top: 8px;
+    }
+    .quick-bet {
+      flex: 1; padding: 6px; font-size: .7rem; font-weight: 600;
+      text-align: center;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted); cursor: pointer;
+      transition: all .15s; font-family: var(--font);
+    }
+    .quick-bet:hover { color: var(--text); border-color: var(--border2); }
+
+    .picks-info {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .picks-count {
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--accent2);
+    }
+    .picks-max {
+      font-size: .8rem; color: var(--muted);
+    }
+
+    /* ───────── ACTION BUTTONS ───────── */
+    .action-row {
+      display: flex; gap: 10px; margin-bottom: 16px;
+    }
+
+    .btn-play {
+      flex: 1; padding: 16px;
+      font-size: 1rem; font-weight: 800;
+      border: none; border-radius: 12px;
+      cursor: pointer; font-family: var(--font);
+      transition: all .2s;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .btn-play.primary {
+      background: linear-gradient(135deg, var(--accent2), #3b82f6);
+      color: #fff;
+      box-shadow: 0 4px 20px -4px rgba(6,182,212,.4);
+    }
+    .btn-play.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px -4px rgba(6,182,212,.5); }
+    .btn-play.primary:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+    .btn-play.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      flex: 0 0 auto; padding: 16px 24px;
+    }
+    .btn-play.secondary:hover { color: var(--text); border-color: var(--border2); }
+
+    .btn-auto {
+      padding: 16px 24px;
+      font-size: .85rem; font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted); cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+    .btn-auto:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ───────── RESULT BANNER ───────── */
+    .result-banner {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      animation: fadeSlideIn .4s ease;
+    }
+    .result-banner.win {
+      display: block;
+      background: rgba(34,197,94,.08);
+      border: 1px solid rgba(34,197,94,.2);
+    }
+    .result-banner.lose {
+      display: block;
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.2);
+    }
+    .result-banner .result-label {
+      font-size: .8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .result-banner.win .result-label { color: #4ade80; }
+    .result-banner.lose .result-label { color: #f87171; }
+    .result-banner .result-amount {
+      font-size: 1.6rem; font-weight: 900;
+    }
+    .result-banner.win .result-amount { color: #22c55e; }
+    .result-banner.lose .result-amount { color: #ef4444; }
+    .result-hits {
+      font-size: .85rem; color: var(--muted); margin-top: 4px;
+    }
+
+    /* ───────── PAYOUT TABLE ───────── */
+    .payout-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .payout-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .payout-header:hover { background: var(--surface2); }
+    .payout-header h3 {
+      font-size: .85rem; font-weight: 700;
+      color: var(--text);
+    }
+    .payout-header svg {
+      width: 18px; height: 18px; stroke: var(--muted);
+      fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      transition: transform .3s;
+    }
+    .payout-header.open svg { transform: rotate(180deg); }
+
+    .payout-body {
+      display: none;
+      padding: 0 18px 16px;
+    }
+    .payout-body.open { display: block; }
+
+    .payout-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .payout-table th, .payout-table td {
+      padding: 8px 12px;
+      font-size: .78rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .payout-table th {
+      color: var(--muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      font-size: .7rem;
+    }
+    .payout-table td { color: var(--text); font-weight: 600; }
+    .payout-table td.multi { color: var(--gold); font-weight: 700; }
+    .payout-table tr:last-child td { border-bottom: none; }
+    .payout-table tr.active-row { background: rgba(6,182,212,.06); }
+
+    /* ───────── HISTORY ───────── */
+    .history-section {
+      margin-top: 16px;
+    }
+    .history-section h3 {
+      font-size: .85rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .history-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .history-item {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: .75rem; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .history-item.win { border-color: rgba(34,197,94,.2); color: #4ade80; background: rgba(34,197,94,.06); }
+    .history-item.lose { border-color: rgba(239,68,68,.15); color: #f87171; background: rgba(239,68,68,.04); }
+
+    /* ───────── DRAWING ANIMATION ───────── */
+    .keno-cell.drawing {
+      animation: drawBounce .3s ease;
+    }
+    @keyframes drawBounce {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* ───────── FOOTER ───────── */
+    .footer {
+      position: relative; z-index: 10;
+      text-align: center; padding: 32px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: .8rem;
+      width: 100%;
+    }
+
+    /* ───────── RESPONSIVE ───────── */
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 12px); }
+      .mobile-menu { top: var(--nav-h-mobile); }
+      .page-header { padding: 24px 16px 10px; }
+      .game-container { padding: 0 12px 36px; }
+      .keno-board { gap: 4px; }
+      .keno-cell { border-radius: 7px; font-size: clamp(.6rem, 2.5vw, .8rem); }
+      .controls-panel { grid-template-columns: 1fr; }
+      .action-row { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Background -->
   <div class="bg-gradient"></div>
   <div class="grid-overlay"></div>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="particles"></canvas>
 
-  <div class="card">
-    <div class="logo">
-      <img src="Images/logo.png" alt="AightBet"/>
+  <!-- ════════ NAVBAR ════════ -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html">
+      <img src="Images/logo.png" alt="AightBet" />
       <span>AightBet</span>
+    </a>
+    <div class="nav-links">
+      <a href="store.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Store
+      </a>
+      <a href="games.html" class="nav-link active">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+        Games
+      </a>
+      <a href="social.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Social
+      </a>
+      <a href="profile.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
     </div>
+    <a href="credits.html" class="nav-credits nav-credits-desktop">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCount">0</span>
+    </a>
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
-    <div class="maint-icon">
-      <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-    </div>
-
-    <h1><span class="grad">Under Maintenance</span></h1>
-    <p class="subtitle">We're making AightBet even better. Hang tight — we'll be back before you know it.</p>
-
-    <div class="status-bar">
-      <div class="status-row">
-        <span class="status-dot"></span>
-        <span class="status-msg">Maintenance in progress</span>
-      </div>
-      <div class="status-detail">Message: <span id="maintMsg">Scheduled maintenance. Please check back soon.</span></div>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Working on it...</span><span>Please wait</span></div>
-      <div class="progress-bar"><div class="progress-fill"></div></div>
-    </div>
-
-    <div class="features">
-      <div class="feature">Bug Fixes</div>
-      <div class="feature">New Features</div>
-      <div class="feature">Performance</div>
-      <div class="feature">Security Updates</div>
-    </div>
-
-    <div class="footer-text">
-      Follow us for updates. We'll be back online shortly.<br/>
-      &copy; 2026 AightBet
-    </div>
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="store.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Store
+    </a>
+    <a href="games.html" class="nav-link active">
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+      Games
+    </a>
+    <a href="social.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Social
+    </a>
+    <a href="profile.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+    <a href="credits.html" class="nav-credits">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCountMobile">0</span>
+    </a>
   </div>
 
+  <!-- ════════ MAIN ════════ -->
+  <main class="main">
+
+    <section class="page-header">
+      <h1>🎱 <span class="grad">Keno</span></h1>
+      <p>Pick up to 10 numbers, watch 20 get drawn. More matches = bigger payout.</p>
+    </section>
+
+    <div class="game-container">
+
+      <!-- Result Banner -->
+      <div class="result-banner" id="resultBanner">
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-amount" id="resultAmount"></div>
+        <div class="result-hits" id="resultHits"></div>
+      </div>
+
+      <!-- Keno Board -->
+      <div class="keno-board" id="kenoBoard"></div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="control-group">
+          <label>Bet Amount</label>
+          <div class="bet-input-wrap">
+            <button id="betHalf">½</button>
+            <input type="number" id="betInput" value="10" min="1" />
+            <button id="betDouble">2×</button>
+          </div>
+          <div class="quick-bets">
+            <button class="quick-bet" data-bet="5">5</button>
+            <button class="quick-bet" data-bet="10">10</button>
+            <button class="quick-bet" data-bet="25">25</button>
+            <button class="quick-bet" data-bet="50">50</button>
+            <button class="quick-bet" data-bet="100">100</button>
+            <button class="quick-bet" data-bet="500">500</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Your Picks</label>
+          <div class="picks-info">
+            <span class="picks-count" id="picksCount">0</span>
+            <span class="picks-max">/ 8 max</span>
+          </div>
+          <div class="quick-bets" style="margin-top:10px;">
+            <button class="quick-bet" id="btnQuickPick">Quick Pick</button>
+            <button class="quick-bet" id="btnClearPicks">Clear All</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-row">
+        <button class="btn-play primary" id="btnPlay" disabled>
+          Pick at least 1 number
+        </button>
+        <button class="btn-play secondary" id="btnAuto">Auto ×5</button>
+      </div>
+
+      <!-- Payout Table -->
+      <div class="payout-section">
+        <div class="payout-header" id="payoutToggle">
+          <h3>💰 Payout Table</h3>
+          <svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg>
+        </div>
+        <div class="payout-body" id="payoutBody">
+          <table class="payout-table" id="payoutTable">
+            <thead>
+              <tr>
+                <th>Hits</th>
+                <th>Multiplier</th>
+                <th>Payout</th>
+              </tr>
+            </thead>
+            <tbody id="payoutTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="history-section">
+        <h3>Recent Games</h3>
+        <div class="history-list" id="historyList">
+          <span style="font-size:.8rem; color:var(--muted);">No games yet</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2026 AightBet. Fake casino – no real money. Play responsibly (or don't, it's fake).
+  </footer>
+
+  <!-- ═══════════ SCRIPTS ═══════════ -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+  <script src="checker.js"></script>
+
   <script>
-  firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
-  const rtdb=firebase.database();
+  const firebaseConfig = {
+    apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+    authDomain: "gamle-53778.firebaseapp.com",
+    databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "gamle-53778",
+    storageBucket: "gamle-53778.firebasestorage.app",
+    messagingSenderId: "513958176524",
+    appId: "1:513958176524:web:c74a2e946da58507200b29",
+    measurementId: "G-EB6SF28HZK"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  const auth = firebase.auth();
+  const rtdb = firebase.database();
 
-  // Load custom maintenance message 
-  rtdb.ref('settings/maintenanceMessage').once('value',snap=>{
-    if(snap.val())document.getElementById('maintMsg').textContent=snap.val();
+  function applyTheme(theme, persist=true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aightbet-theme', theme);
+    if (persist && currentUser) {
+      rtdb.ref('users/'+currentUser.uid).update({ theme });
+    }
+  }
+
+  let currentUser = null;
+  let userCredits = 0;
+
+  applyTheme(localStorage.getItem('aightbet-theme') || 'dark', false);
+
+  auth.onAuthStateChanged(async u => {
+    if (!u) { window.location.href = 'index.html'; return; }
+    currentUser = u;
+    const avatar = document.getElementById('navAvatar');
+    const name = u.displayName || u.email || '?';
+
+    const userRef = rtdb.ref('users/' + u.uid);
+    userRef.on('value', snap => {
+      const data = snap.val() || {};
+      userCredits = data.credits || 0;
+      const c = userCredits.toLocaleString();
+      document.getElementById('creditsCount').textContent = c;
+      document.getElementById('creditsCountMobile').textContent = c;
+
+      const avatarUrl = data.avatar || u.photoURL || null;
+      if (avatarUrl) avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+      else avatar.textContent = name.charAt(0).toUpperCase();
+
+      const theme = data.theme || localStorage.getItem('aightbet-theme') || 'dark';
+      applyTheme(theme, false);
+    });
   });
 
-  // If maintenance is OFF, redirect back
-  rtdb.ref('settings/maintenance').on('value',snap=>{
-    if(snap.val()!==true)window.location.href='home.html';
-  });
+  /* ══════════ NAVBAR ══════════ */
+  (() => {
+    const nav = document.getElementById('navbar');
+    let t = false;
+    window.addEventListener('scroll', () => {
+      if (!t) { requestAnimationFrame(() => { nav.classList.toggle('scrolled', window.scrollY > 20); t = false; }); t = true; }
+    });
+  })();
+
+  (() => {
+    const h = document.getElementById('hamburger'), m = document.getElementById('mobileMenu');
+    h.addEventListener('click', () => { h.classList.toggle('open'); m.classList.toggle('open'); });
+    m.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => { h.classList.remove('open'); m.classList.remove('open'); }));
+  })();
+
+  document.getElementById('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+  /* ══════════ KENO GAME LOGIC ══════════ */
+  (() => {
+    const TOTAL_NUMBERS = 40;
+    const DRAW_COUNT = 12;
+    const MAX_PICKS = 8;
+    const DRAW_DELAY = 120; // ms per number drawn
+
+    // Payout multipliers indexed by [picks][hits]
+  const PAYOUTS = {
+  1: { 0: 0, 1: 4.5 },
+  2: { 0: 0, 1: 1.5, 2: 12 },
+  3: { 0: 0, 1: 1,   2: 3,  3: 60 },
+  4: { 0: 0, 1: 0.5, 2: 2,  3: 15,  4: 500 },
+  5: { 0: 0, 1: 0,   2: 1.5, 3: 8,  4: 100,  5: 5000 },
+  6: { 0: 0, 1: 0,   2: 1,  3: 4,   4: 40,   5: 700,    6: 25000 },
+  7: { 0: 0, 1: 0,   2: 0,  3: 2,   4: 20,   5: 300,    6: 8000,    7: 200000 },
+  8: { 0: 0, 1: 0,   2: 0,  3: 1,   4: 8,    5: 100,    6: 2500,    7: 50000,  8: 500000 },
+};
+
+    let selectedNumbers = new Set();
+    let drawnNumbers = new Set();
+    let isPlaying = false;
+    let autoPlays = 0;
+    let history = [];
+
+    const board = document.getElementById('kenoBoard');
+    const picksCountEl = document.getElementById('picksCount');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnAuto = document.getElementById('btnAuto');
+    const btnQuickPick = document.getElementById('btnQuickPick');
+    const btnClearPicks = document.getElementById('btnClearPicks');
+    const betInput = document.getElementById('betInput');
+    const resultBanner = document.getElementById('resultBanner');
+    const resultLabel = document.getElementById('resultLabel');
+    const resultAmount = document.getElementById('resultAmount');
+    const resultHits = document.getElementById('resultHits');
+    const payoutToggle = document.getElementById('payoutToggle');
+    const payoutBody = document.getElementById('payoutBody');
+    const payoutTbody = document.getElementById('payoutTbody');
+    const historyList = document.getElementById('historyList');
+
+    // Build board
+    function buildBoard() {
+      board.innerHTML = '';
+      for (let i = 1; i <= TOTAL_NUMBERS; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'keno-cell';
+        cell.textContent = i;
+        cell.dataset.num = i;
+        cell.addEventListener('click', () => togglePick(i, cell));
+        board.appendChild(cell);
+      }
+    }
+
+    function togglePick(num, cell) {
+      if (isPlaying) return;
+      if (drawnNumbers.size > 0) resetBoard();
+
+      if (selectedNumbers.has(num)) {
+        selectedNumbers.delete(num);
+        cell.classList.remove('selected');
+      } else {
+        if (selectedNumbers.size >= MAX_PICKS) return;
+        selectedNumbers.add(num);
+        cell.classList.add('selected');
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      picksCountEl.textContent = selectedNumbers.size;
+      if (selectedNumbers.size > 0 && !isPlaying) {
+        btnPlay.disabled = false;
+        btnPlay.textContent = `DRAW (${getBet()} credits)`;
+      } else if (!isPlaying) {
+        btnPlay.disabled = true;
+        btnPlay.textContent = 'Pick at least 1 number';
+      }
+      updatePayoutTable();
+    }
+
+    function getBet() {
+      return Math.max(1, Math.floor(Number(betInput.value) || 1));
+    }
+
+    function resetBoard() {
+      drawnNumbers.clear();
+      resultBanner.style.display = 'none';
+      resultBanner.className = 'result-banner';
+      document.querySelectorAll('.keno-cell').forEach(c => {
+        c.classList.remove('drawn', 'hit', 'miss', 'drawing', 'disabled');
+        if (selectedNumbers.has(Number(c.dataset.num))) {
+          c.classList.add('selected');
+        }
+      });
+    }
+
+    // Quick pick
+    btnQuickPick.addEventListener('click', () => {
+      if (isPlaying) return;
+      if (drawnNumbers.size > 0) resetBoard();
+      selectedNumbers.clear();
+      document.querySelectorAll('.keno-cell').forEach(c => c.classList.remove('selected'));
+
+      const nums = [];
+      for (let i = 1; i <= TOTAL_NUMBERS; i++) nums.push(i);
+      shuffle(nums);
+      for (let i = 0; i < MAX_PICKS; i++) {
+        selectedNumbers.add(nums[i]);
+        board.children[nums[i] - 1].classList.add('selected');
+      }
+      updateUI();
+    });
+
+    // Clear
+    btnClearPicks.addEventListener('click', () => {
+      if (isPlaying) return;
+      selectedNumbers.clear();
+      resetBoard();
+      document.querySelectorAll('.keno-cell').forEach(c => c.classList.remove('selected'));
+      updateUI();
+    });
+
+    // Bet controls
+    document.getElementById('betHalf').addEventListener('click', () => {
+      betInput.value = Math.max(1, Math.floor(getBet() / 2));
+      updateUI();
+    });
+    document.getElementById('betDouble').addEventListener('click', () => {
+      betInput.value = Math.min(getBet() * 2, userCredits);
+      updateUI();
+    });
+    betInput.addEventListener('input', updateUI);
+
+    document.querySelectorAll('.quick-bet[data-bet]').forEach(b => {
+      b.addEventListener('click', () => { betInput.value = b.dataset.bet; updateUI(); });
+    });
+
+    // Payout toggle
+    payoutToggle.addEventListener('click', () => {
+      payoutToggle.classList.toggle('open');
+      payoutBody.classList.toggle('open');
+    });
+
+    // Payout table
+    function updatePayoutTable() {
+      const picks = selectedNumbers.size || 1;
+      const table = PAYOUTS[picks];
+      if (!table) { payoutTbody.innerHTML = ''; return; }
+
+      const bet = getBet();
+      payoutTbody.innerHTML = '';
+      for (let hits = picks; hits >= 0; hits--) {
+        const multi = table[hits] || 0;
+        if (multi <= 0 && hits < picks - 2) continue;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${hits} / ${picks}</td>
+          <td class="multi">${multi}×</td>
+          <td>${multi > 0 ? (multi * bet).toLocaleString() : '0'}</td>
+        `;
+        payoutTbody.appendChild(tr);
+      }
+    }
+
+    // Auto play
+    btnAuto.addEventListener('click', () => {
+      if (isPlaying || selectedNumbers.size === 0) return;
+      autoPlays = 5;
+      playRound();
+    });
+
+    // Play
+    btnPlay.addEventListener('click', () => {
+      if (isPlaying || selectedNumbers.size === 0) return;
+      autoPlays = 0;
+      playRound();
+    });
+
+    function playRound() {
+      const bet = getBet();
+      if (bet > userCredits) {
+        resultBanner.className = 'result-banner lose';
+        resultBanner.style.display = 'block';
+        resultLabel.textContent = 'NOT ENOUGH CREDITS';
+        resultAmount.textContent = '';
+        resultHits.textContent = '';
+        return;
+      }
+
+      isPlaying = true;
+      resetBoard();
+      resultBanner.style.display = 'none';
+
+      // Deduct bet
+      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+
+      // Disable interactions
+      document.querySelectorAll('.keno-cell').forEach(c => {
+        if (!selectedNumbers.has(Number(c.dataset.num))) {
+          c.classList.add('disabled');
+        }
+      });
+      btnPlay.disabled = true;
+      btnPlay.textContent = 'Drawing...';
+
+      // Generate draw
+      const pool = [];
+      for (let i = 1; i <= TOTAL_NUMBERS; i++) pool.push(i);
+      shuffle(pool);
+      const drawn = pool.slice(0, DRAW_COUNT);
+
+      // Animate draw
+      let idx = 0;
+      const interval = setInterval(() => {
+        if (idx >= drawn.length) {
+          clearInterval(interval);
+          resolveRound(bet, drawn);
+          return;
+        }
+
+        const num = drawn[idx];
+        drawnNumbers.add(num);
+        const cell = board.children[num - 1];
+
+        cell.classList.add('drawing');
+        setTimeout(() => cell.classList.remove('drawing'), 250);
+
+        if (selectedNumbers.has(num)) {
+          cell.classList.add('hit');
+          cell.classList.remove('selected');
+        } else {
+          cell.classList.add('drawn');
+        }
+        idx++;
+      }, DRAW_DELAY);
+    }
+
+    function resolveRound(bet, drawn) {
+      const picks = selectedNumbers.size;
+      const hits = drawn.filter(n => selectedNumbers.has(n)).length;
+      const table = PAYOUTS[picks];
+      const multi = (table && table[hits]) || 0;
+      const payout = Math.floor(multi * bet);
+
+      // Mark misses
+      selectedNumbers.forEach(n => {
+        if (!drawnNumbers.has(n)) {
+          board.children[n - 1].classList.add('miss');
+          board.children[n - 1].classList.remove('selected');
+        }
+      });
+
+      // Payout
+      if (payout > 0) {
+      rtdb.ref('users/'+uid+'/credits').transaction(c => (c||0) + payout);
+        resultBanner.className = 'result-banner win';
+        resultLabel.textContent = 'YOU WON!';
+        resultAmount.textContent = `+${payout.toLocaleString()} credits`;
+        resultHits.textContent = `${hits} hit${hits !== 1 ? 's' : ''} out of ${picks} picks (${multi}× multiplier)`;
+      } else {
+        resultBanner.className = 'result-banner lose';
+        resultLabel.textContent = 'NO WIN';
+        resultAmount.textContent = `-${bet.toLocaleString()} credits`;
+        resultHits.textContent = `${hits} hit${hits !== 1 ? 's' : ''} out of ${picks} picks`;
+      }
+      resultBanner.style.display = 'block';
+
+      // History
+      addHistory(picks, hits, payout, bet);
+
+      // Save game stats
+      if (currentUser) {
+        const gameRef = rtdb.ref('users/' + currentUser.uid + '/games/keno');
+        gameRef.child('totalPlayed').transaction(v => (v || 0) + 1);
+        gameRef.child('totalWagered').transaction(v => (v || 0) + bet);
+        if (payout > 0) {
+          gameRef.child('totalWon').transaction(v => (v || 0) + payout);
+          gameRef.child('wins').transaction(v => (v || 0) + 1);
+        } else {
+          gameRef.child('losses').transaction(v => (v || 0) + 1);
+        }
+      }
+
+      isPlaying = false;
+      updateUI();
+
+      // Auto play continues
+      if (autoPlays > 1) {
+        autoPlays--;
+        btnAuto.textContent = `Auto ×${autoPlays}`;
+        setTimeout(() => {
+          if (autoPlays > 0 && selectedNumbers.size > 0) playRound();
+        }, 1200);
+      } else {
+        autoPlays = 0;
+        btnAuto.textContent = 'Auto ×5';
+      }
+    }
+
+    function addHistory(picks, hits, payout, bet) {
+      const isWin = payout > 0;
+      history.unshift({ picks, hits, payout, bet, win: isWin });
+      if (history.length > 20) history.pop();
+
+      historyList.innerHTML = '';
+      history.forEach(h => {
+        const el = document.createElement('div');
+        el.className = `history-item ${h.win ? 'win' : 'lose'}`;
+        el.textContent = h.win
+          ? `${h.hits}/${h.picks} → +${h.payout.toLocaleString()}`
+          : `${h.hits}/${h.picks} → -${h.bet.toLocaleString()}`;
+        historyList.appendChild(el);
+      });
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Init
+    buildBoard();
+    updateUI();
+    updatePayoutTable();
+  })();
+
+  /* ══════════ PARTICLES ══════════ */
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const COUNT = Math.min(40, Math.round(window.innerWidth * 0.03));
+    const COLORS = ['rgba(6,182,212,', 'rgba(59,130,246,', 'rgba(139,92,246,'];
+    function resize() {
+      const d = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      canvas.width = W * d; canvas.height = H * d;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function make() { return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.6+.4, vx:(Math.random()-.5)*.22, vy:(Math.random()-.5)*.22, a: Math.random()*.35+.15, c: COLORS[Math.random()*3|0] }; }
+    function init() { resize(); particles=[]; for(let i=0;i<COUNT;i++) particles.push(make()); }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++) {
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        const dx=p.x-mouse.x,dy=p.y-mouse.y,d=dx*dx+dy*dy;
+        if(d<10000){p.vx+=dx*.012/Math.sqrt(d);p.vy+=dy*.012/Math.sqrt(d);}
+        p.vx*=.99;p.vy*=.99;
+        if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.a+')';ctx.fill();
+        for(let j=i+1;j<particles.length;j++){const q=particles[j],ld=(p.x-q.x)**2+(p.y-q.y)**2;
+          if(ld<14000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=p.c+(.05*(1-ld/14000))+')';ctx.lineWidth=.4;ctx.stroke();}}
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize', resize);
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
+    init(); draw();
+  })();
   </script>
 </body>
 </html>

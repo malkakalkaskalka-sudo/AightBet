@@ -305,6 +305,15 @@
       }
     });
 
+    /* RENDER CONTENT — debounced + tab-aware so case opens / credit changes
+       elsewhere don't constantly wipe the support agent's current view. */
+    let _renderTimer = null;
+    function scheduleRender(force){
+      if(isUserTyping && !force) return;
+      clearTimeout(_renderTimer);
+      _renderTimer = setTimeout(renderContent, 150);
+    }
+
     /* RENDER CONTENT */
     function renderContent(){
       if(isUserTyping)return;
@@ -320,17 +329,36 @@
       else if(activeTab==='rigged') renderRigged(c);
     }
 
+    /* Map of which tabs depend on which data slice. Listener firings will
+       only re-render the active tab if it actually depends on that slice.
+       Most tabs DON'T need to redraw when a random user opens a case
+       (which fires the `users` listener constantly via credit/inventory
+       updates). Only the 'users' list tab and the 'rigged' user-dropdown
+       care about the users slice — and rigged is handled separately so
+       we keep it stable while admin is filling the form. */
+    const TAB_DEPS = {
+      users:    ['users'],
+      reports:  ['reports','resolved'],
+      appeals:  ['appeals'],
+      posts:    [],
+      rigged:   ['rigged'],
+    };
+    function renderIfTabDepends(slice){
+      const deps = TAB_DEPS[slice] || [];
+      if (deps.includes(activeTab)) scheduleRender();
+    }
+
     /* LOAD DASHBOARD */
     function loadDashboard(){
-      rtdb.ref('users').on('value',s=>{allUsers=s.val()||{};renderStats();renderContent();});
-      rtdb.ref('reports').on('value',s=>{allReports=s.val()||{};renderStats();renderContent();});
+      rtdb.ref('users').on('value',s=>{allUsers=s.val()||{};renderStats();renderIfTabDepends('users');});
+      rtdb.ref('reports').on('value',s=>{allReports=s.val()||{};renderStats();renderIfTabDepends('reports');});
       rtdb.ref('posts').on('value',s=>{allPosts=s.val()||{};});
       rtdb.ref('appeals').on('value',s=>{
         allAppeals=s.val()||{};
         const pending=Object.values(allAppeals).filter(a=>a.status==='pending').length;
         const badge=document.getElementById('appealBadge');
         if(pending>0){badge.textContent=pending;badge.style.display='flex';}else{badge.style.display='none';}
-        renderStats();renderContent();
+        renderStats();renderIfTabDepends('appeals');
       });
       loadMessages();
 
@@ -355,7 +383,7 @@
           else { chatBadge.style.display = 'none'; }
         }
         renderStats();
-        if(activeTab === 'chats') renderContent();
+        if(activeTab === 'chats') scheduleRender();
       }, err => { console.error('supportChats read error:', err); });
 
       /* BUG REPORTS listener */
@@ -379,13 +407,13 @@
           else { bugBadge.style.display = 'none'; }
         }
         renderStats();
-        if(activeTab === 'bugs') renderContent();
+        if(activeTab === 'bugs') scheduleRender();
       }, err => { console.error('bugReports read error:', err); });
 
       /* RIGGED DROPS listener */
       rtdb.ref('riggedDrops').on('value', s => {
         allRiggedDrops = s.val() || {};
-        if (activeTab === 'rigged') renderContent();
+        if (activeTab === 'rigged') scheduleRender();
       });
     }
 
@@ -846,29 +874,96 @@
       {id:'gabrielg', name:'Gabriel G. Case', items:['Shocked Gabriel G.','Tree Gabriel G.','Spider Gabriel G.','Confused Gabriel G.','Horse Gabriel G.']},
       {id:'adrian', name:'Adrian Case', items:['Gay Adrian','Tuff Adrian','Watermelon Adrian','Fluffy Fluffy Hair Adrian','Shitting Session Adrian','Agressive Adrian','Laughing Adrian','Fisherman Adrian','Fluffy Hair Adrian','Adrian And Adrian','Kebab Adrian','Flying Adrian','IT Adrian','Mogger Gamer Adrian','Forest Survival Adrian','Spooked Adrian','Lovely Adrian','Mogging Adrian','Welcome Home Adrian','Tongue Of Adrian','Gamer Adrian','Sleepy Adrian','Nerdy Adrian','Small Adrian','Close Up Adrian','Fresh Cut Adrian','Piercing Adrian','Story Time Adrian','Crazy Adrian','Peeking Adrian','Date-Ready Adrian','Bath Adrian','Persil Adrian','Triple Chin Adrian']},
       {id:'nick', name:'Nick Case', items:['Chef Nick','Like Nick','Bored Nick','Hyped Nick','Beautiful Nick','Zesty Nick','Washed Nick','Nick Pulling','Tuff Gamer Nick','Fairy Nick']},
+      {id:'dildo', name:'Dildo Case', items:['Butt Plug','Small Dildo','Dildo','Big Dildo','Huge Dildo','Penis']},
+      {id:'pp', name:'Pocket Pussy Case', items:['Pocket Pussy','FleshLight','3 In 1 Pocket Pussy','Half-Body Pocket Pussy','Sex Doll']},
+      {id:'tung', name:'Triple T Case', items:['Toy Tung','Roblox Tung','Regular Tung','Black Tung','Speed Tung','Tung Tung Evil','Tung Tung God']},
     ];
 
+    /* Flatten rig storage: supports new nested {uid:{caseId:rig}} AND legacy {uid:rig}. */
+    function flattenRigs(allRigs) {
+      const out = [];
+      Object.entries(allRigs || {}).forEach(([uid, val]) => {
+        if (!val) return;
+        if (val.forcedItemName) {
+          // legacy single-rig format
+          out.push({ uid, key: '__legacy__', rig: val });
+        } else {
+          Object.entries(val).forEach(([k, r]) => {
+            if (r && r.forcedItemName) out.push({ uid, key: k, rig: r });
+          });
+        }
+      });
+      return out;
+    }
+
     function renderRigged(c) {
+      // Capture current form selections so a re-render (e.g. another rig
+      // being added/removed elsewhere) doesn't wipe what the admin is doing.
+      const prev = {
+        user: document.getElementById('rigUser')?.value || '',
+        case: document.getElementById('rigCase')?.value || '',
+        item: document.getElementById('rigItem')?.value || '',
+        scope: document.getElementById('rigScope')?.value || 'all',
+      };
+
       const userEntries = Object.entries(allUsers).sort((a, b) => {
         const na = (a[1].username || a[1].email || a[0]).toLowerCase();
         const nb = (b[1].username || b[1].email || b[0]).toLowerCase();
         return na.localeCompare(nb);
       });
-      const activeRigs = Object.entries(allRiggedDrops);
-      let h = `<div class="rig-card"><div class="setting-title" style="margin-bottom:4px"><svg viewBox="0 0 24 24" style="stroke:var(--red)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Rig a User's Drops</div><div class="setting-desc">Force a specific user to ALWAYS get a specific item from a specific case.</div><div class="rig-form"><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Target User</label><select class="rig-select" id="rigUser"><option value="">-- Select User --</option>${userEntries.map(([uid, u]) => `<option value="${uid}">${escapeHTML(u.username || u.nickname || u.displayName || u.email || uid.substring(0, 10))}</option>`).join('')}</select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Case</label><select class="rig-select" id="rigCase"><option value="">-- Select Case --</option>${SUPPORT_CASES.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Forced Item</label><select class="rig-select" id="rigItem" disabled><option value="">-- Select a case first --</option></select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Apply to</label><select class="rig-select" id="rigScope"><option value="all">All cases of this type (always)</option><option value="once">Next open only (one-time)</option></select></div><button class="maint-save" id="rigSaveBtn" style="background:linear-gradient(135deg,var(--red),#b91c1c);align-self:flex-start">Set Rigged Drop</button></div></div>`;
-      h += `<div style="font-size:.9rem;font-weight:800;margin-bottom:10px">Active Rigs (${activeRigs.length})</div>`;
-      if (!activeRigs.length) {
+      const flatRigs = flattenRigs(allRiggedDrops).sort((a, b) => (b.rig.setAt || 0) - (a.rig.setAt || 0));
+      // Group by user for display
+      const byUser = {};
+      flatRigs.forEach(r => { (byUser[r.uid] = byUser[r.uid] || []).push(r); });
+      const userCount = Object.keys(byUser).length;
+
+      let h = `<div class="rig-card"><div class="setting-title" style="margin-bottom:4px"><svg viewBox="0 0 24 24" style="stroke:var(--red)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Rig a User's Drops</div><div class="setting-desc">Force a specific user to get a specific item from a specific case. You can set multiple rigs per user — one per case.</div><div class="rig-form"><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Target User</label><select class="rig-select" id="rigUser"><option value="">-- Select User --</option>${userEntries.map(([uid, u]) => `<option value="${uid}">${escapeHTML(u.username || u.nickname || u.displayName || u.email || uid.substring(0, 10))}</option>`).join('')}</select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Case</label><select class="rig-select" id="rigCase"><option value="">-- Select Case --</option>${SUPPORT_CASES.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Forced Item</label><select class="rig-select" id="rigItem" disabled><option value="">-- Select a case first --</option></select></div><div><label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">Apply to</label><select class="rig-select" id="rigScope"><option value="all">All cases of this type (always)</option><option value="once">Next open only (one-time)</option></select></div><button class="maint-save" id="rigSaveBtn" style="background:linear-gradient(135deg,var(--red),#b91c1c);align-self:flex-start">Set Rigged Drop</button></div></div>`;
+      h += `<div style="font-size:.9rem;font-weight:800;margin-bottom:10px">Active Rigs (${flatRigs.length} across ${userCount} user${userCount === 1 ? '' : 's'})</div>`;
+      if (!flatRigs.length) {
         h += `<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/></svg><div class="es-title">No active rigs</div><div style="font-size:.8rem">Set up a rigged drop above.</div></div>`;
       } else {
         h += '<div class="rig-active-list">';
-        activeRigs.forEach(([uid, rig]) => {
+        Object.entries(byUser).forEach(([uid, rigs]) => {
           const userName = getUserName(uid);
-          const caseName = SUPPORT_CASES.find(c => c.id === rig.caseId)?.name || rig.caseId;
-          h += `<div class="rig-entry"><div style="flex:1"><div class="re-user">${escapeHTML(userName)}</div><div class="re-detail">Case: <strong>${escapeHTML(caseName)}</strong> -> Item: <strong style="color:var(--gold)">${escapeHTML(rig.forcedItemName)}</strong></div><div class="re-detail">Scope: ${rig.scope === 'once' ? 'Next open only' : 'Always'} · Set ${timeAgo(rig.setAt)}</div></div><button class="r-btn delete" onclick="removeRig('${uid}')">Remove</button></div>`;
+          h += `<div class="rig-entry" style="flex-direction:column;align-items:stretch;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="re-user">${escapeHTML(userName)} <span style="font-size:.7rem;color:var(--muted);font-weight:600">· ${rigs.length} rig${rigs.length === 1 ? '' : 's'}</span></div><button class="r-btn delete" onclick="removeAllRigsForUser('${uid}')">Remove All</button></div>`;
+          rigs.forEach(({ key, rig }) => {
+            const caseName = SUPPORT_CASES.find(c => c.id === rig.caseId)?.name || rig.caseName || rig.caseId;
+            h += `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,0,0,.25);border-radius:8px;border:1px solid var(--border)"><div style="flex:1;min-width:0"><div class="re-detail">Case: <strong>${escapeHTML(caseName)}</strong> &rarr; Item: <strong style="color:var(--gold)">${escapeHTML(rig.forcedItemName)}</strong></div><div class="re-detail">Scope: ${rig.scope === 'once' ? 'Next open only' : 'Always'} · Set ${timeAgo(rig.setAt)}</div></div><button class="r-btn delete" onclick="removeRig('${uid}','${escapeAttr(key)}')">Remove</button></div>`;
+          });
+          h += `</div>`;
         });
         h += '</div>';
       }
       c.innerHTML = h;
+
+      // Restore previously selected values
+      if (prev.user) {
+        const userSel = document.getElementById('rigUser');
+        if (userSel && [...userSel.options].some(o => o.value === prev.user)) userSel.value = prev.user;
+      }
+      if (prev.case) {
+        const caseSel = document.getElementById('rigCase');
+        if (caseSel) caseSel.value = prev.case;
+      }
+      if (prev.scope) {
+        const scopeSel = document.getElementById('rigScope');
+        if (scopeSel) scopeSel.value = prev.scope;
+      }
+      // Re-populate item dropdown if a case is selected, then restore item
+      const initialCaseId = document.getElementById('rigCase').value;
+      if (initialCaseId) {
+        const caseData = SUPPORT_CASES.find(cc => cc.id === initialCaseId);
+        if (caseData) {
+          const itemSelect = document.getElementById('rigItem');
+          itemSelect.disabled = false;
+          itemSelect.innerHTML = '<option value="">-- Select Item --</option>' +
+            caseData.items.map(name => `<option value="${name}">${name}</option>`).join('');
+          if (prev.item && [...itemSelect.options].some(o => o.value === prev.item)) {
+            itemSelect.value = prev.item;
+          }
+        }
+      }
+
       document.getElementById('rigCase').addEventListener('change', function () {
         const itemSelect = document.getElementById('rigItem');
         const caseId = this.value;
@@ -888,16 +983,49 @@
         const caseInfo = SUPPORT_CASES.find(c => c.id === caseId);
         const caseName = caseInfo ? caseInfo.name : '';
         try {
-          await rtdb.ref('riggedDrops/' + uid).set({ caseId, caseName, forcedItemName: itemName, scope, setAt: Date.now(), setBy: auth.currentUser?.uid || 'support' });
+          // Migrate any legacy single-rig payload into the nested map first.
+          const curSnap = await rtdb.ref('riggedDrops/' + uid).once('value');
+          const cur = curSnap.val();
+          if (cur && cur.forcedItemName) {
+            await rtdb.ref('riggedDrops/' + uid).remove();
+            const legacyKey = cur.caseId || '__legacy__';
+            await rtdb.ref('riggedDrops/' + uid + '/' + legacyKey).set(cur);
+          }
+          await rtdb.ref('riggedDrops/' + uid + '/' + caseId).set({ caseId, caseName, forcedItemName: itemName, scope, setAt: Date.now(), setBy: auth.currentUser?.uid || 'support' });
           toast('Rig set! ' + getUserName(uid) + ' will get "' + itemName + '" from ' + caseName, 'success');
         } catch (e) { toast('Error: ' + e.message); }
       });
     }
 
-    async function removeRig(uid) {
-      if (!confirm('Remove rig for ' + getUserName(uid) + '?')) return;
-      await rtdb.ref('riggedDrops/' + uid).remove();
-      toast('Rig removed', 'success');
+    function escapeAttr(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+    async function removeRig(uid, key) {
+      if (!confirm('Remove this rig for ' + getUserName(uid) + '?')) return;
+      try {
+        if (!key || key === '__legacy__') {
+          // Legacy whole-node OR unknown key — wipe just the legacy single-rig fields
+          const curSnap = await rtdb.ref('riggedDrops/' + uid).once('value');
+          const cur = curSnap.val();
+          if (cur && cur.forcedItemName) {
+            await rtdb.ref('riggedDrops/' + uid).remove();
+          } else if (key) {
+            await rtdb.ref('riggedDrops/' + uid + '/' + key).remove();
+          } else {
+            await rtdb.ref('riggedDrops/' + uid).remove();
+          }
+        } else {
+          await rtdb.ref('riggedDrops/' + uid + '/' + key).remove();
+        }
+        toast('Rig removed', 'success');
+      } catch (e) { toast('Error: ' + e.message); }
+    }
+
+    async function removeAllRigsForUser(uid) {
+      if (!confirm('Remove ALL rigs for ' + getUserName(uid) + '?')) return;
+      try {
+        await rtdb.ref('riggedDrops/' + uid).remove();
+        toast('All rigs removed', 'success');
+      } catch (e) { toast('Error: ' + e.message); }
     }
 
     /* ACTIONS */

@@ -662,7 +662,7 @@
       btnRace.textContent = 'RACING...';
       resetTrack();
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       trackTitle.innerHTML = 'Race <span class="hl">in progress!</span>';
       raceTimer.className = 'race-timer live';
@@ -761,7 +761,8 @@
 
       if (won) {
         const payout = Math.floor(betAmount * myHorse.odds);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // BUG-FIX: bet was already deducted at race start; credit FULL gross.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         trackTitle.innerHTML = '<span class="hl">' + winnerHorse.name + '</span> wins! You picked correctly!';
         resultBanner.className = 'result-banner win';

@@ -1102,7 +1102,7 @@
       } else if (won) {
         // Bet already deducted; add full payout on top of (userCredits - betAmount)
         const payout = Math.floor(betAmount * currentTier.multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits + payout);
         resultBanner.className = 'result-banner win';
         rbLabel.textContent = 'VICTORY';
         rbAmount.textContent = '+' + (payout - betAmount).toLocaleString() + ' credits';

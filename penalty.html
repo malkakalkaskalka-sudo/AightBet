@@ -877,7 +877,7 @@
 
       if (won) {
         const payout = Math.floor(betAmount * m.multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+       rtdb.ref('users/'+uid+'/credits').transaction(c => (c||0) + payout);
         goalStatus.innerHTML = 'You <span class="hl-green">WIN</span> the shootout! ' + youGoals + '-' + oppGoals;
         resultBanner.className = 'result-banner win';
         rbLabel.textContent = 'SHOOTOUT WON';

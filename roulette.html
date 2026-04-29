@@ -143,20 +143,72 @@
 
     .footer{position:relative;z-index:10;text-align:center;padding:32px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
 
-    @media(max-width:900px){.game-top{grid-template-columns:1fr}}
-    @media(max-width:768px){
-      .nav-links,.nav-credits-desktop{display:none!important}
-      .hamburger{display:flex}
-      .navbar{height:var(--nav-h-mobile);padding:0 16px}
-      .main{padding-top:calc(var(--nav-h-mobile)+100px)}
-      .mobile-menu{top:var(--nav-h-mobile)}
-      .game-wrapper{padding:16px}
-      .wheel-container{width:220px;height:220px}
-      .number-grid{grid-template-columns:repeat(6,1fr)}
-      .outside-bets-2{grid-template-columns:repeat(3,1fr)}
-      .num-cell{padding:8px 2px;font-size:.7rem}
-      .outside-cell{padding:8px 4px;font-size:.7rem}
-    }
+   
+
+/* ─── TABLET & PHONE (≤900px): stack stats below + compact ─── */
+@media(max-width:900px){
+  .game-top{grid-template-columns:1fr!important;gap:12px}
+  .game-top > .game-panel{min-width:0!important;max-width:100%!important;overflow-x:clip!important;overflow-y:visible!important}
+  .game-top > .game-panel:nth-child(1){order:1}
+  .game-top > .game-panel:nth-child(2){order:2;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:10px;padding:14px}
+  .game-top > .game-panel:nth-child(2) .stat-card{margin-top:0!important;padding:10px 12px}
+  .game-top > .game-panel:nth-child(2) .stat-label{font-size:.65rem}
+  .game-top > .game-panel:nth-child(2) .stat-value{font-size:.95rem;word-break:break-all;overflow:hidden;text-overflow:ellipsis}
+
+  .number-grid{grid-template-columns:repeat(6,1fr)!important;gap:3px!important;width:100%!important;padding:0!important}
+  .outside-bets{grid-template-columns:repeat(3,1fr)!important;padding:0!important}
+  .outside-bets-2{grid-template-columns:repeat(3,1fr)!important;padding:0!important}
+  .num-cell{padding:8px 2px!important;font-size:.72rem!important;min-width:0!important;width:auto!important}
+  .outside-cell{padding:8px 4px!important;font-size:.72rem!important;min-width:0!important}
+
+  .game-wrapper{overflow-x:clip;width:100%;max-width:100%}
+  body{overflow-x:hidden}
+}
+
+/* ─── PHONE (≤768px) ─── */
+@media(max-width:768px){
+  .nav-links,.nav-credits-desktop{display:none!important}
+  .hamburger{display:flex}
+  .navbar{height:var(--nav-h-mobile);padding:0 16px}
+  .main{padding-top:var(--nav-h-mobile)!important}
+  .mobile-menu{top:var(--nav-h-mobile)}
+  .page-header{padding:24px 16px 8px!important}
+  .page-header p{font-size:.9rem}
+
+  .game-wrapper{padding:12px!important;gap:12px}
+  .game-panel{padding:14px!important;border-radius:14px}
+  .wheel-container{width:220px!important;height:220px!important;margin:0 auto 14px!important}
+  .wheel-result{font-size:1.5rem!important;min-height:46px;margin-bottom:8px}
+
+  .game-top > .game-panel:nth-child(2){grid-template-columns:repeat(2,1fr)!important;padding:12px!important;gap:8px}
+  .game-top > .game-panel:nth-child(2) .stat-card{padding:10px}
+  .game-top > .game-panel:nth-child(2) .stat-value{font-size:1rem!important}
+
+  .bet-area{gap:8px!important;justify-content:center!important;flex-wrap:wrap!important}
+  .bet-area .quick{display:flex!important;flex-wrap:wrap!important;gap:5px!important;justify-content:center!important}
+  .bet-area .quick button{padding:6px 9px!important;font-size:.78rem!important}
+  #betInput{width:80px!important;padding:8px!important;font-size:.95rem!important}
+  .controls{gap:8px!important;flex-wrap:wrap!important}
+  .btn{padding:10px 16px!important;font-size:.85rem!important}
+
+  .number-grid{grid-template-columns:repeat(6,1fr)!important;gap:3px!important;width:100%!important;padding:0!important}
+  .outside-bets{grid-template-columns:repeat(3,1fr)!important;padding:0!important}
+  .outside-bets-2{grid-template-columns:repeat(3,1fr)!important;padding:0!important}
+  .num-cell{padding:7px 1px!important;font-size:.68rem!important;min-width:0!important;width:auto!important}
+  .outside-cell{padding:8px 3px!important;font-size:.7rem!important;min-width:0!important}
+  .table-section{min-width:0!important;width:100%!important}
+}
+
+/* ─── SMALL PHONE (≤420px) ─── */
+@media(max-width:420px){
+  .wheel-container{width:200px!important;height:200px!important}
+  .number-grid{grid-template-columns:repeat(6,1fr)!important}
+  .num-cell{padding:6px 1px!important;font-size:.62rem!important}
+  .outside-cell{padding:7px 2px!important;font-size:.66rem!important}
+  .game-top > .game-panel:nth-child(2) .stat-value{font-size:.9rem!important}
+  .bet-area .quick button{padding:5px 7px!important;font-size:.72rem!important}
+  #betInput{width:70px!important}
+}
   </style>
 </head>
 <body>

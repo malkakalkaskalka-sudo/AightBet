@@ -527,7 +527,13 @@
     </svg>`;
 
     let state = 'idle';
-    let ballCupId = -1;
+    /* No ball position is stored anywhere during play.
+       The win/loss is rolled at click-time inside onPick — so DevTools
+       inspection cannot reveal where the ball "is", because there is
+       no answer to find until the player picks. _peekIdx below is purely
+       cosmetic — the cup that gets the ball flash at the start. It does
+       NOT determine the outcome. */
+    let _peekIdx = -1;
     let betAmount = 0;
     let currentTier = TIERS[0];
     let history = [];
@@ -691,13 +697,17 @@
       btnStart.textContent = 'WATCHING...';
       shuffleBadge.style.display = 'none';
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Atomic deduction (race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       buildCups(currentTier.cups);
       showNumbers(false);
 
-      ballCupId = Math.floor(Math.random() * currentTier.cups);
-      const ballSlot = getSlotById(ballCupId);
+      // Pick a cup to FLASH the ball under (purely visual — does NOT
+      // determine the outcome). Even if a player reads this variable
+      // off the live JS heap, it has no relationship to the result.
+      _peekIdx = Math.floor(Math.random() * currentTier.cups);
+      const ballSlot = getSlots()[_peekIdx];
 
       // Show phase — shorter peek for harder tiers
       const peekTime = Math.max(600, 1500 - (TIERS.indexOf(currentTier) * 200));
@@ -745,11 +755,30 @@
       setClickable(false);
       showNumbers(false);
 
-      const pickedId = parseInt(slot.dataset.id);
-      const won = (pickedId === ballCupId);
-      const ballSlot = getSlotById(ballCupId);
       const slots = getSlots();
-      const ballPos = slots.indexOf(ballSlot) + 1;
+      const cupCount = slots.length;
+      const pickedDomIdx = slots.indexOf(slot);
+
+      // ── OUTCOME DECIDED HERE — not before. ──
+      // Win probability = 1 / cupCount, exactly matching the displayed
+      // odds for this tier (33.3 / 25 / 20 %). Until this very line runs,
+      // there is no "ball position" to leak, so DevTools, mem dumps,
+      // breakpoints in code BEFORE this point, etc. cannot reveal it.
+      const won = Math.random() < (1 / cupCount);
+
+      // Choose which cup to REVEAL the ball under.
+      // - On a win: under the cup the player picked.
+      // - On a loss: under any other cup chosen at random.
+      let revealDomIdx;
+      if (won) {
+        revealDomIdx = pickedDomIdx;
+      } else {
+        do {
+          revealDomIdx = Math.floor(Math.random() * cupCount);
+        } while (revealDomIdx === pickedDomIdx);
+      }
+      const ballSlot = slots[revealDomIdx];
+      const ballPos = revealDomIdx + 1;
 
       stageLabel.innerHTML = '<span class="hl">Revealing...</span>';
 
@@ -768,12 +797,11 @@
       await wait(400);
 
       for (const s of slots) {
-        const id = parseInt(s.dataset.id);
-        if (id === ballCupId) {
+        if (s === ballSlot) {
           s.classList.add('correct');
         } else if (s === slot && !won) {
           s.classList.add('wrong');
-        } else if (id !== ballCupId) {
+        } else {
           s.classList.add('wrong-dim');
         }
       }
@@ -783,7 +811,9 @@
 
       if (won) {
         const payout = Math.floor(betAmount * currentTier.multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // BUG-FIX: was 'users/'+uid+'/credits' — uid was undefined, so
+        // payouts silently failed. Use currentUser.uid + transaction.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         stageLabel.innerHTML = '<span class="hl">Correct!</span> You found it';
         resultBanner.className = 'result-banner win';

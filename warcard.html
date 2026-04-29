@@ -632,7 +632,8 @@
       disableControls(true);
       clearTable();
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Deduct bet (atomic — race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       tableStatus.innerHTML = 'Dealing <span class="hl">cards</span>...';
 
@@ -649,7 +650,10 @@
       if (yourCard.power > dealerCard.power) {
         // WIN
         const payout = Math.floor(betAmount * 1.92);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // BUG-FIX: bet was already deducted at the start of dealHand, so just
+        // credit the FULL gross payout (not payout - betAmount). Use a
+        // transaction so it's race-safe even if userCredits is stale.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         yourStack.querySelector('.card').classList.add('winner-card');
         dealerStack.querySelector('.card').classList.add('loser-card');
@@ -704,8 +708,8 @@
       state = 'war-dealing';
       tableStatus.innerHTML = '⚔️ <span class="hl">WAR!</span> Burning cards...';
 
-      // Deduct war raise
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount);
+      // Deduct war raise (atomic)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - betAmount);
 
       await wait(400);
 
@@ -737,9 +741,10 @@
 
       // totalBet = original bet + war raise = betAmount * 2
       if (warYou.power >= warDealer.power) {
-        // Win war — payout = 2x original bet (you get back both bets + profit)
-        const payout = betAmount * 3; // return original + raise + original as winnings
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount * 2 + payout);
+        // Win war — payout = 3x original bet (gross). Original bet + war raise
+        // were already deducted, so credit the full gross.
+        const payout = betAmount * 3; // gross: original + raise + winnings
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         const lastYour = yourStack.querySelector('.card:last-of-type:not(.facedown)') || yourStack.lastElementChild;
         const lastDealer = dealerStack.querySelector('.card:last-of-type:not(.facedown)') || dealerStack.lastElementChild;
@@ -778,9 +783,10 @@
     function doSurrender() {
       warDecision.classList.remove('show');
 
-      // Lose half of original bet (refund half)
+      // Lose half of original bet (refund half). Bet was already fully
+      // deducted at dealHand, so just credit back the refund portion.
       const refund = Math.floor(betAmount / 2);
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + refund);
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + refund);
 
       tableStatus.innerHTML = 'Surrendered. <span class="hl">-' + (betAmount - refund) + '</span> credits';
 

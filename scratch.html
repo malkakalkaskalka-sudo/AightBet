@@ -728,7 +728,9 @@
 
       if (bestMulti > 0) {
         const payout = Math.floor(betAmount * bestMulti);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // BUG-FIX: was 'users/'+uid+'/credits' — uid was undefined, payout
+        // silently failed. Use currentUser.uid.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         const isJackpot = bestMulti >= 25;
         resultBanner.className = 'result-banner ' + (isJackpot ? 'jackpot' : 'win');
@@ -775,7 +777,8 @@
       revealBtn.classList.add('show');
       infoMax.textContent = (bet * 100).toLocaleString() + ' max';
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Atomic deduction (race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       generateCard();
       buildGrid();

@@ -503,7 +503,50 @@
   {name:'Nick Pulling',img:'Images/skins/nick/5.png',value:18000,rarity:'legendary',weight:2},
    {name:'Tuff Gamer Nick',      img:'Images/skins/nick/10.jpg',      value:18000,  rarity:'legendary',     weight:2},
   {name:'Fairy Nick',img:'Images/skins/nick/8.png',value:50000,rarity:'mythic',weight:0.1}
-]}
+]},
+
+ {
+    id:'dildo', name:'Dildo Case', img:'Images/cases/67.png', price:1000,
+    items:[
+      {name:'Butt Plug',         img:'Images/cases/secret/k.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'Small Dildo',       img:'Images/cases/secret/kk.png', value:1500, rarity:'rare', weight:18},
+      {name:'Dildo',       img:'Images/cases/secret/kkk.png', value:3000, rarity:'epic', weight:10},
+      {name:'Big Dildo',       img:'Images/cases/secret/kkkk.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Huge Dildo',    img:'Images/cases/secret/kkkkk.png',           value:25000,  rarity:'mythic',   weight:1.5},
+      {name:'Penis',        img:'Images/cases/secret/kkkkkk.png',      value:100000, rarity:'mythic',   weight:0.2},
+    ]
+  },
+  
+
+
+   
+    {
+    id:'pp', name:'Pocket Pussy Case', img:'Images/cases/pp.png', price:1000,
+   
+    items:[
+      {name:'Pocket Pussy',         img:'Images/skins/pp/pp1.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'FleshLight',       img:'Images/skins/pp/pp2.png', value:1500, rarity:'rare', weight:18},
+      {name:'3 In 1 Pocket Pussy',       img:'Images/skins/pp/pp3.png', value:3000, rarity:'epic', weight:10},
+      {name:'Half-Body Pocket Pussy',       img:'Images/skins/pp/pp4.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Sex Doll',    img:'Images/skins/pp/pp5.png',           value:100000,  rarity:'mythic',   weight:0.2},
+    ]
+  },
+
+
+
+  {
+    id:'tung', name:'Triple T Case', img:'Images/cases/tung.png', price:1000,
+   
+    items:[
+      {name:'Toy Tung',         img:'Images/skins/tung/tung1.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'Roblox Tung',       img:'Images/skins/tung/tung3.png', value:1500, rarity:'rare', weight:18},
+      {name:'Regular Tung',       img:'Images/skins/tung/tung2.png', value:3000, rarity:'epic', weight:10},
+      {name:'Black Tung',       img:'Images/skins/tung/tung5.png',       value:7500,   rarity:'legendary',weight:5},
+       {name:'Speed Tung',       img:'Images/skins/tung/tung4.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Tung Tung Evil',    img:'Images/skins/tung/7.jpg',           value:100000,  rarity:'mythic',   weight:0.2},
+      {name:'Tung Tung God',    img:'Images/skins/tung/6.jpg',           value:100000,  rarity:'mythic',   weight:0.2},
+    ]
+  },
 ];
 
   const CASE_MAP={};
@@ -1121,7 +1164,53 @@
     return items[items.length-1];
   }
 
-    async function generateRound(data, round) {
+  /* Pick an item for a player, honouring any rigged drop set on that user.
+     Supports both the legacy single-rig schema {forcedItemName,...} stored
+     directly under riggedDrops/{uid}, AND the new nested map schema
+     riggedDrops/{uid}/{caseId} = {forcedItemName,...}. */
+  async function pickItemForPlayer(pid, caseId, cd) {
+    try {
+      const rigSnap = await rtdb.ref('riggedDrops/' + pid).once('value');
+      const raw = rigSnap.val();
+
+      if (raw) {
+        const rigs = [];
+        if (raw.forcedItemName) {
+          rigs.push({ rig: raw, deletePath: 'riggedDrops/' + pid });
+        } else {
+          Object.entries(raw).forEach(([k, r]) => {
+            if (r && r.forcedItemName) {
+              rigs.push({ rig: r, deletePath: 'riggedDrops/' + pid + '/' + k });
+            }
+          });
+        }
+
+        const found = rigs.find(({ rig }) => {
+          const matchById = rig.caseId && rig.caseId === caseId;
+          const matchByName = rig.caseName && rig.caseName === cd.name;
+          return matchById || matchByName;
+        });
+
+        if (found) {
+          const forcedItem = cd.items.find(i => i.name === found.rig.forcedItemName);
+          if (forcedItem) {
+            console.log('[BATTLE RIG] FORCING', forcedItem.name, 'for', pid, 'case', cd.name);
+            if (found.rig.scope === 'once') {
+              await rtdb.ref(found.deletePath).remove();
+            }
+            return forcedItem;
+          } else {
+            console.warn('[BATTLE RIG] Item "' + found.rig.forcedItemName + '" not in case ' + cd.name);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Rig check failed for', pid, e);
+    }
+    return pickItem(cd.items);
+  }
+
+  async function generateRound(data, round) {
     if (spinning) return;
     const caseId = data.cases[round];
     const cd = CASE_MAP[caseId];
@@ -1131,31 +1220,7 @@
     const results = {};
 
     for (const pid of pids) {
-      let won = null;
-
-      try {
-        const rigSnap = await rtdb.ref('riggedDrops/' + pid).once('value');
-        const rig = rigSnap.val();
-
-        if (rig && rig.forcedItemName) {
-          const matchById = rig.caseId && rig.caseId === caseId;
-          const matchByName = rig.caseName && rig.caseName === cd.name;
-
-          if (matchById || matchByName) {
-            const forcedItem = cd.items.find(i => i.name === rig.forcedItemName);
-            if (forcedItem) {
-              won = forcedItem;
-              if (rig.scope === 'once') {
-                await rtdb.ref('riggedDrops/' + pid).remove();
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('Rig check failed for', pid, e);
-      }
-
-      if (!won) won = pickItem(cd.items);
+      const won = await pickItemForPlayer(pid, caseId, cd);
       results[pid] = { name: won.name, img: won.img, value: won.value, rarity: won.rarity };
     }
 
@@ -1295,10 +1360,10 @@
         const nextCd=CASE_MAP[nextCaseId];
         if(nextCd){
           const nextResults={};
-          pids.forEach(pid=>{
-            const won=pickItem(nextCd.items);
+          for(const pid of pids){
+            const won=await pickItemForPlayer(pid,nextCaseId,nextCd);
             nextResults[pid]={name:won.name,img:won.img,value:won.value,rarity:won.rarity};
-          });
+          }
           await rtdb.ref('battles/'+activeBattle+'/rounds/'+nextRound).set(nextResults);
         }
         await rtdb.ref('battles/'+activeBattle+'/currentRound').set(nextRound);
@@ -1375,6 +1440,22 @@
 
   function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
+  /* Push a big-win announcement (≥ 1M net) on behalf of any player.
+     Only the creator calls this from finishBattle so it fires once per battle. */
+  async function announceBigWinFor(pid, netAmount, source){
+    try {
+      if(!pid || !netAmount || netAmount < 1000000) return;
+      const snap = await rtdb.ref('users/'+pid).once('value');
+      const d = snap.val()||{};
+      const name = d.username||d.nickname||d.displayName||d.email||'Someone';
+      await rtdb.ref('mythicDrops').push({
+        type:'big_win', user:name, uid:pid,
+        amount: Math.floor(netAmount), source: source||'Case Battle',
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+    } catch(e){ console.warn('[BIGWIN]',e); }
+  }
+
   /* ═══════════════════════════════════════════
      FINISH BATTLE
      ═══════════════════════════════════════════ */
@@ -1406,7 +1487,11 @@
         winnerTeam=t1Total>t2Total?1:2;
         const winningPids=winnerTeam===1?t1pids:t2pids;
         const perWinner=Math.floor(totalPot/Math.max(winningPids.length,1));
-        for(const pid of winningPids) await adjCredits(pid, perWinner);
+        for(const pid of winningPids){
+          await adjCredits(pid, perWinner);
+          // Net = gross payout − own bet
+          announceBigWinFor(pid, perWinner - bet, '2v2 Case Battle');
+        }
       }
 
       await rtdb.ref('battles/'+activeBattle+'/winnerTeam').set(winnerTeam);
@@ -1423,7 +1508,9 @@
         for(const pid of pids) await adjCredits(pid, bet + (ps[pid].total||0));
       }else{
         winner=sorted[0];
-        await adjCredits(winner, bet*2 + allSkinsValue);
+        const gross = bet*2 + allSkinsValue;
+        await adjCredits(winner, gross);
+        announceBigWinFor(winner, gross - bet, '1v1 Case Battle');
       }
 
       await rtdb.ref('battles/'+activeBattle+'/winner').set(winner);

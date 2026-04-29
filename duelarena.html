@@ -92,6 +92,41 @@
 
     .game-container { width: 100%; max-width: 580px; padding: 0 20px 48px; animation: fadeSlideIn .5s ease .15s both; }
 
+    /* MODE TABS */
+    .mode-tabs { display: flex; gap: 8px; padding: 0 20px; margin-bottom: 8px; max-width: 580px; width: 100%; }
+    .mode-tab { flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border, rgba(255,255,255,.08)); background: rgba(255,255,255,.04); color: var(--muted); font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; font-family: var(--font); }
+    .mode-tab:hover { color: #fff; background: rgba(255,255,255,.07); }
+    .mode-tab.active { background: linear-gradient(135deg, var(--accent), #7c3aed); border-color: transparent; color: #fff; box-shadow: 0 4px 18px -6px var(--glow); }
+
+    /* ONLINE LOBBY */
+    .lobby-create { background: rgba(255,255,255,.04); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 14px; padding: 18px; margin-bottom: 20px; }
+    .lobby-create h3 { font-size: 1rem; margin-bottom: 12px; font-weight: 800; }
+    .lobby-create-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .lobby-create-row label { font-size: .75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+    .lobby-create-row input { flex: 1; min-width: 120px; padding: 10px 14px; background: rgba(0,0,0,.3); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 10px; color: var(--text); font-size: .95rem; font-weight: 700; font-family: var(--font); }
+    .lobby-create-row button { padding: 10px 22px; border: none; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; font-weight: 800; font-size: .9rem; cursor: pointer; transition: transform .15s; font-family: var(--font); }
+    .lobby-create-row button:hover { transform: translateY(-1px); }
+    .lobby-create-row button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .lobby-list h3 { font-size: 1rem; margin-bottom: 12px; font-weight: 800; }
+    .duel-row { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+    .duel-row .dr-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: .85rem; flex-shrink: 0; overflow: hidden; }
+    .duel-row .dr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .duel-row .dr-info { flex: 1; min-width: 0; }
+    .duel-row .dr-name { font-weight: 700; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .duel-row .dr-bet { font-size: .75rem; color: var(--gold); font-weight: 700; margin-top: 2px; }
+    .duel-row .dr-meta { font-size: .65rem; color: var(--muted); margin-top: 2px; }
+    .duel-row button { padding: 8px 16px; border: none; border-radius: 8px; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; font-weight: 700; font-size: .8rem; cursor: pointer; font-family: var(--font); transition: transform .15s; }
+    .duel-row button:hover { transform: translateY(-1px); }
+    .duel-row button.cancel { background: rgba(239,68,68,.15); color: #ef4444; border: 1px solid rgba(239,68,68,.3); }
+    .duel-empty { text-align: center; padding: 28px 14px; color: var(--muted); font-size: .85rem; background: rgba(255,255,255,.03); border-radius: 12px; border: 1px dashed var(--border, rgba(255,255,255,.08)); }
+    #onlineBattle .moves-grid .move-btn.disabled { opacity: .35; cursor: not-allowed; }
+    #oLeaveBtn { margin-top: 16px; width: 100%; padding: 12px; border: 1px solid rgba(239,68,68,.3); background: rgba(239,68,68,.1); color: #ef4444; border-radius: 10px; font-weight: 700; font-size: .9rem; cursor: pointer; font-family: var(--font); }
+    #oLeaveBtn:hover { background: rgba(239,68,68,.18); }
+    .turn-indicator { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: .7rem; font-weight: 700; margin-left: 8px; text-transform: uppercase; letter-spacing: .5px; }
+    .turn-indicator.your-turn { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .turn-indicator.their-turn { background: rgba(245,158,11,.15); color: var(--gold); border: 1px solid rgba(245,158,11,.3); }
+
     /* RESULT BANNER */
     .result-banner { display: none; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px; animation: bannerIn .4s ease; }
     @keyframes bannerIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
@@ -347,9 +382,15 @@
   <main class="main">
     <section class="page-header">
       <h1><span class="grad">Duel Arena</span></h1>
-      <p>Turn-based combat against an AI opponent. Pick your moves wisely -- attack, defend, heal, or go for a heavy strike. Last one standing wins.</p>
+      <p>Turn-based combat. Battle the AI, or duel real players online for double the pot.</p>
     </section>
 
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="ai" id="modeTabAi">VS AI</button>
+      <button class="mode-tab" data-mode="online" id="modeTabOnline">VS Players</button>
+    </div>
+
+    <div id="aiSection">
     <div class="game-container">
       <div class="result-banner" id="resultBanner">
         <div class="rb-label" id="rbLabel"></div>
@@ -399,19 +440,19 @@
               <span class="mv-cd"></span>
               <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M6 2L2 6l4 4"/><path d="M2 6h6"/><circle cx="15" cy="15" r="7"/><path d="M12 12l6 6"/><path d="M18 12l-6 6"/></svg></div>
               <div class="mv-name">Heavy</div>
-              <div class="mv-desc">18-28 / miss 35%</div>
+              <div class="mv-desc">18-28 / miss 45%</div>
             </div>
             <div class="move-btn defend disabled" data-move="defend">
               <span class="mv-cd"></span>
               <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
               <div class="mv-name">Defend</div>
-              <div class="mv-desc">Block 60-80%</div>
+              <div class="mv-desc">Block 55-75%</div>
             </div>
             <div class="move-btn heal disabled" data-move="heal">
               <span class="mv-cd"></span>
               <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
               <div class="mv-name">Heal</div>
-              <div class="mv-desc">+10-18 HP / 2 cd</div>
+              <div class="mv-desc">+6-12 HP / 3 cd</div>
             </div>
           </div>
         </div>
@@ -462,6 +503,98 @@
         </div>
       </div>
     </div>
+    </div><!-- /#aiSection -->
+
+    <div id="onlineSection" hidden>
+      <div class="game-container">
+        <!-- Lobby (when not in a battle) -->
+        <div id="onlineLobby">
+          <div class="lobby-create">
+            <h3>Create a Duel</h3>
+            <div class="lobby-create-row">
+              <label for="oBetInput">Bet</label>
+              <input type="number" id="oBetInput" value="50" min="1"/>
+              <button id="oCreateBtn">Create Duel</button>
+            </div>
+            <div style="font-size:.7rem;color:var(--muted);margin-top:8px">Both players ante up. Winner takes the full pot (2× bet).</div>
+          </div>
+          <div class="lobby-list">
+            <h3>Open Duels</h3>
+            <div id="oDuelList"><div class="duel-empty">No open duels — create one above.</div></div>
+          </div>
+        </div>
+
+        <!-- Battle (when in an active online duel) -->
+        <div id="onlineBattle" hidden>
+          <div class="result-banner" id="oResultBanner">
+            <div class="rb-label" id="oRbLabel"></div>
+            <div class="rb-amount" id="oRbAmount"></div>
+            <div class="rb-detail" id="oRbDetail"></div>
+          </div>
+
+          <div class="arena">
+            <div class="arena-status" id="oArenaStatus">Waiting for opponent...</div>
+            <div class="round-badge" id="oRoundBadge"><span>--</span></div>
+
+            <div class="fighters">
+              <div class="fighter you">
+                <div class="fighter-avatar" id="oP1Avatar">?</div>
+                <div class="fighter-name" id="oP1Name">YOU</div>
+                <div class="hp-wrap">
+                  <div class="hp-label"><span>HP</span><span id="oP1HpText">100/100</span></div>
+                  <div class="hp-bar"><div class="hp-fill" id="oP1HpFill" style="width:100%"></div></div>
+                </div>
+              </div>
+              <div class="vs-badge">VS</div>
+              <div class="fighter opp">
+                <div class="fighter-avatar" id="oP2Avatar">?</div>
+                <div class="fighter-name" id="oP2Name">OPPONENT</div>
+                <div class="hp-wrap">
+                  <div class="hp-label"><span>HP</span><span id="oP2HpText">100/100</span></div>
+                  <div class="hp-bar"><div class="hp-fill" id="oP2HpFill" style="width:100%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="battle-log" id="oBattleLog">
+              <div class="log-entry" style="opacity:.4">Battle log will appear here.</div>
+            </div>
+
+            <div class="move-section" id="oMoveSection">
+              <div class="move-label">Choose Your Move <span class="turn-indicator their-turn" id="oTurnIndicator">Waiting</span></div>
+              <div class="moves-grid" id="oMovesGrid">
+                <div class="move-btn attack disabled" data-move="attack">
+                  <span class="mv-cd"></span>
+                  <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg></div>
+                  <div class="mv-name">Attack</div>
+                  <div class="mv-desc">8-14 dmg</div>
+                </div>
+                <div class="move-btn heavy disabled" data-move="heavy">
+                  <span class="mv-cd"></span>
+                  <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M6 2L2 6l4 4"/><path d="M2 6h6"/><circle cx="15" cy="15" r="7"/><path d="M12 12l6 6"/><path d="M18 12l-6 6"/></svg></div>
+                  <div class="mv-name">Heavy</div>
+                  <div class="mv-desc">18-28 / miss 45%</div>
+                </div>
+                <div class="move-btn defend disabled" data-move="defend">
+                  <span class="mv-cd"></span>
+                  <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                  <div class="mv-name">Defend</div>
+                  <div class="mv-desc">Block 55-75%</div>
+                </div>
+                <div class="move-btn heal disabled" data-move="heal">
+                  <span class="mv-cd"></span>
+                  <div class="mv-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
+                  <div class="mv-name">Heal</div>
+                  <div class="mv-desc">+6-12 HP / 3 cd</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="oLeaveBtn">Leave / Forfeit</button>
+        </div>
+      </div>
+    </div><!-- /#onlineSection -->
   </main>
 
   <footer class="footer">2026 AightBet. Fake casino - no real money. Play responsibly (or don't, it's fake).</footer>
@@ -524,18 +657,18 @@
     const OPP_LETTERS=['S','I','F','G','D','T','B','W','R','V'];
 
     const DIFF={
-      easy:   {multi:1.5, oppHp:80,  oppMinDmg:5,  oppMaxDmg:10, oppHeavyMin:12, oppHeavyMax:20, oppHealMin:8,  oppHealMax:14, oppCritChance:.08, oppMissBonus:0,   label:'Easy'},
-      normal: {multi:2.0, oppHp:100, oppMinDmg:8,  oppMaxDmg:14, oppHeavyMin:16, oppHeavyMax:26, oppHealMin:10, oppHealMax:18, oppCritChance:.12, oppMissBonus:0,   label:'Normal'},
-      hard:   {multi:3.0, oppHp:130, oppMinDmg:10, oppMaxDmg:18, oppHeavyMin:20, oppHeavyMax:32, oppHealMin:12, oppHealMax:22, oppCritChance:.18, oppMissBonus:-.05, label:'Hard'},
-      boss:   {multi:5.0, oppHp:170, oppMinDmg:14, oppMaxDmg:22, oppHeavyMin:26, oppHeavyMax:40, oppHealMin:15, oppHealMax:26, oppCritChance:.22, oppMissBonus:-.10, label:'Boss'},
+      easy:   {multi:1.5, oppHp:130, oppMinDmg:9,  oppMaxDmg:16, oppHeavyMin:18, oppHeavyMax:30, oppHealMin:12, oppHealMax:20, oppCritChance:.14, oppMissBonus:-.04, label:'Easy'},
+      normal: {multi:2.0, oppHp:165, oppMinDmg:13, oppMaxDmg:22, oppHeavyMin:24, oppHeavyMax:40, oppHealMin:15, oppHealMax:24, oppCritChance:.20, oppMissBonus:-.06, label:'Normal'},
+      hard:   {multi:3.0, oppHp:210, oppMinDmg:18, oppMaxDmg:30, oppHeavyMin:32, oppHeavyMax:50, oppHealMin:18, oppHealMax:28, oppCritChance:.28, oppMissBonus:-.10, label:'Hard'},
+      boss:   {multi:5.0, oppHp:280, oppMinDmg:24, oppMaxDmg:38, oppHeavyMin:42, oppHeavyMax:62, oppHealMin:22, oppHealMax:32, oppCritChance:.36, oppMissBonus:-.16, label:'Boss'},
     };
 
     const PLAYER_HP=100;
     const P_ATK_MIN=8, P_ATK_MAX=14;
-    const P_HEAVY_MIN=18, P_HEAVY_MAX=28, P_HEAVY_MISS=.35;
-    const P_DEF_MIN=.60, P_DEF_MAX=.80;
-    const P_HEAL_MIN=10, P_HEAL_MAX=18, P_HEAL_CD=2;
-    const P_CRIT_CHANCE=.15, CRIT_MULTI=1.8;
+    const P_HEAVY_MIN=18, P_HEAVY_MAX=28, P_HEAVY_MISS=.45;
+    const P_DEF_MIN=.55, P_DEF_MAX=.75;
+    const P_HEAL_MIN=6, P_HEAL_MAX=12, P_HEAL_CD=3;
+    const P_CRIT_CHANCE=.10, CRIT_MULTI=1.8;
 
     let state='idle';
     let betAmount=0, difficulty='normal';
@@ -744,7 +877,9 @@
       if(won){
         oppAvatarEl.classList.add('dead');
         const payout=Math.floor(betAmount*diff.multi);
-        rtdb.ref('users/'+currentUser.uid+'/credits').set(userCredits-betAmount+payout);
+        // Bet was already deducted in startDuel via transaction below.
+        // Just credit the gross payout — net profit = payout - bet.
+        rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c=>(c||0)+payout);
         arenaStatus.innerHTML='<span class="hl-g">VICTORY!</span> '+OPP_NAMES[oppIdx]+' has fallen!';
         resultBanner.className='result-banner win';
         rbLabel.textContent='VICTORY -- '+diff.label.toUpperCase();
@@ -754,6 +889,10 @@
         log('<span class="le-you">You</span> defeated <span class="le-opp">'+OPP_NAMES[oppIdx]+'</span>!');
         addHistory('win',payout);
         saveStats(true,payout);
+        // Big-win broadcast (≥ 1M net profit)
+        if (typeof window.announceBigWin === 'function') {
+          window.announceBigWin(payout - betAmount, 'Duel Arena ('+diff.label+')');
+        }
       } else {
         youAvatarEl.classList.add('dead');
         arenaStatus.innerHTML='<span class="hl-r">DEFEATED!</span> '+OPP_NAMES[oppIdx]+' wins.';
@@ -800,7 +939,7 @@
       btnStart.textContent='FIGHTING...';
       battleLog.innerHTML='';
 
-      rtdb.ref('users/'+currentUser.uid+'/credits').set(userCredits-bet);
+      rtdb.ref('users/'+currentUser.uid+'/credits').transaction(c=>(c||0)-bet);
 
       updateHp();
       roundBadge.innerHTML='<span>Round 1</span>';
@@ -851,7 +990,485 @@
     }
   })();
 
-  /* PARTICLES */
+  /* ══════════ MODE TABS ══════════ */
+  (()=>{
+    const aiSec=document.getElementById('aiSection');
+    const onSec=document.getElementById('onlineSection');
+    document.querySelectorAll('.mode-tab').forEach(t=>{
+      t.addEventListener('click',()=>{
+        document.querySelectorAll('.mode-tab').forEach(x=>x.classList.toggle('active',x===t));
+        const m=t.dataset.mode;
+        aiSec.hidden=(m!=='ai');
+        onSec.hidden=(m!=='online');
+      });
+    });
+  })();
+
+  /* ══════════ ONLINE DUELS ══════════ */
+  (()=>{
+    // Combat constants — same as buffed AI mode
+    const HP_MAX=100;
+    const ATK_MIN=8, ATK_MAX=14;
+    const HEAVY_MIN=18, HEAVY_MAX=28, HEAVY_MISS=.45;
+    const DEF_MIN=.55, DEF_MAX=.75;
+    const HEAL_MIN=6, HEAL_MAX=12, HEAL_CD=3;
+    const CRIT=.10, CRIT_MULT=1.8;
+
+    let myUid=null, myName='Player', myAvatar=null;
+    let activeId=null, battleRef=null, battleListener=null;
+    let lobbyListener=null;
+    let lastLogIds=new Set();
+    let resolving=false;
+
+    const lobbyEl=document.getElementById('onlineLobby');
+    const battleEl=document.getElementById('onlineBattle');
+    const duelListEl=document.getElementById('oDuelList');
+    const oBetInput=document.getElementById('oBetInput');
+    const oCreateBtn=document.getElementById('oCreateBtn');
+    const oArenaStatus=document.getElementById('oArenaStatus');
+    const oRoundBadge=document.getElementById('oRoundBadge');
+    const oP1Avatar=document.getElementById('oP1Avatar');
+    const oP1Name=document.getElementById('oP1Name');
+    const oP1HpText=document.getElementById('oP1HpText');
+    const oP1HpFill=document.getElementById('oP1HpFill');
+    const oP2Avatar=document.getElementById('oP2Avatar');
+    const oP2Name=document.getElementById('oP2Name');
+    const oP2HpText=document.getElementById('oP2HpText');
+    const oP2HpFill=document.getElementById('oP2HpFill');
+    const oBattleLog=document.getElementById('oBattleLog');
+    const oMovesGrid=document.getElementById('oMovesGrid');
+    const oTurnIndicator=document.getElementById('oTurnIndicator');
+    const oResultBanner=document.getElementById('oResultBanner');
+    const oRbLabel=document.getElementById('oRbLabel');
+    const oRbAmount=document.getElementById('oRbAmount');
+    const oRbDetail=document.getElementById('oRbDetail');
+    const oLeaveBtn=document.getElementById('oLeaveBtn');
+
+    function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+    function escapeHTML(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+    auth.onAuthStateChanged(u=>{
+      if(!u) return;
+      myUid=u.uid;
+      rtdb.ref('users/'+u.uid).once('value').then(snap=>{
+        const d=snap.val()||{};
+        myName=d.username||d.nickname||u.displayName||u.email||'Player';
+        myAvatar=d.avatar||u.photoURL||null;
+      });
+      attachLobbyListener();
+    });
+
+    function attachLobbyListener(){
+      if(lobbyListener) return;
+      lobbyListener=rtdb.ref('duel-battles').orderByChild('status').equalTo('waiting');
+      lobbyListener.on('value',renderLobby);
+      // Also re-render when our active battle changes
+    }
+
+    function renderLobby(snap){
+      const data=snap.val()||{};
+      const entries=Object.entries(data).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+      if(!entries.length){
+        duelListEl.innerHTML='<div class="duel-empty">No open duels — create one above.</div>';
+        return;
+      }
+      duelListEl.innerHTML=entries.map(([id,d])=>{
+        const players=d.players||{};
+        const creatorUid=d.creator;
+        const creator=players[creatorUid]||{};
+        const initial=(creator.name||'?').charAt(0).toUpperCase();
+        const av=creator.avatar?`<img src="${escapeHTML(creator.avatar)}" alt=""/>`:initial;
+        const isMine=creatorUid===myUid;
+        const btn=isMine
+          ? `<button class="cancel" data-cancel="${id}">Cancel</button>`
+          : `<button data-join="${id}">Join</button>`;
+        return `<div class="duel-row"><div class="dr-avatar">${av}</div><div class="dr-info"><div class="dr-name">${escapeHTML(creator.name||'Player')}</div><div class="dr-bet">🪙 ${(d.bet||0).toLocaleString()} bet</div><div class="dr-meta">${isMine?'Your duel':'Waiting for challenger'}</div></div>${btn}</div>`;
+      }).join('');
+      duelListEl.querySelectorAll('[data-join]').forEach(b=>b.addEventListener('click',()=>joinDuel(b.dataset.join)));
+      duelListEl.querySelectorAll('[data-cancel]').forEach(b=>b.addEventListener('click',()=>cancelDuel(b.dataset.cancel)));
+    }
+
+    async function getCreditsNow(){
+      const s=await rtdb.ref('users/'+myUid+'/credits').once('value');
+      return s.val()||0;
+    }
+
+    oCreateBtn.addEventListener('click',async()=>{
+      if(!myUid) return;
+      const bet=Math.max(1,Math.floor(Number(oBetInput.value)||0));
+      const credits=await getCreditsNow();
+      if(credits<bet){ alert('Not enough credits! Need '+bet.toLocaleString()); return; }
+      oCreateBtn.disabled=true; oCreateBtn.textContent='Creating...';
+      try {
+        // Deduct bet up-front
+        const tx=await rtdb.ref('users/'+myUid+'/credits').transaction(c=>{
+          if((c||0)<bet) return; // abort
+          return (c||0)-bet;
+        });
+        if(!tx.committed){ oCreateBtn.disabled=false; oCreateBtn.textContent='Create Duel'; alert('Could not reserve credits.'); return; }
+        const ref=rtdb.ref('duel-battles').push();
+        await ref.set({
+          creator: myUid,
+          bet: bet,
+          status: 'waiting',
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          turn: '',
+          round: 0,
+          winner: null,
+          forfeitedBy: null,
+          players: { [myUid]: { name: myName, avatar: myAvatar||null } },
+          hp: { [myUid]: HP_MAX },
+          maxHp: { [myUid]: HP_MAX },
+          defending: { [myUid]: false },
+          healCd: { [myUid]: 0 }
+        });
+        enterBattle(ref.key);
+      } catch(e){
+        console.error('[ONLINE-DUEL create]',e);
+        alert('Error creating duel: '+e.message);
+      } finally {
+        oCreateBtn.disabled=false; oCreateBtn.textContent='Create Duel';
+      }
+    });
+
+    async function cancelDuel(id){
+      if(!confirm('Cancel this duel? Your bet will be refunded.')) return;
+      try {
+        const snap=await rtdb.ref('duel-battles/'+id).once('value');
+        const d=snap.val();
+        if(!d || d.creator!==myUid || d.status!=='waiting') return;
+        await rtdb.ref('users/'+myUid+'/credits').transaction(c=>(c||0)+(d.bet||0));
+        await rtdb.ref('duel-battles/'+id).remove();
+      } catch(e){ console.error('[ONLINE-DUEL cancel]',e); }
+    }
+
+    async function joinDuel(id){
+      if(!myUid) return;
+      try {
+        const snap=await rtdb.ref('duel-battles/'+id).once('value');
+        const d=snap.val();
+        if(!d || d.status!=='waiting' || d.creator===myUid) return;
+        const bet=d.bet||0;
+        const credits=await getCreditsNow();
+        if(credits<bet){ alert('Not enough credits! Need '+bet.toLocaleString()); return; }
+
+        // Reserve bet
+        const tx=await rtdb.ref('users/'+myUid+'/credits').transaction(c=>{
+          if((c||0)<bet) return;
+          return (c||0)-bet;
+        });
+        if(!tx.committed){ alert('Could not reserve credits.'); return; }
+
+        // Atomically claim the duel: only succeed if still waiting and no other joiner
+        const claim=await rtdb.ref('duel-battles/'+id).transaction(cur=>{
+          if(!cur || cur.status!=='waiting') return; // abort
+          if(cur.players && Object.keys(cur.players).length>=2) return;
+          cur.players=cur.players||{};
+          cur.players[myUid]={ name: myName, avatar: myAvatar||null };
+          cur.hp=cur.hp||{}; cur.hp[myUid]=HP_MAX;
+          cur.maxHp=cur.maxHp||{}; cur.maxHp[myUid]=HP_MAX;
+          cur.defending=cur.defending||{}; cur.defending[myUid]=false;
+          cur.healCd=cur.healCd||{}; cur.healCd[myUid]=0;
+          cur.status='playing';
+          cur.turn=cur.creator;
+          cur.round=1;
+          return cur;
+        });
+        if(!claim.committed){
+          // Refund
+          await rtdb.ref('users/'+myUid+'/credits').transaction(c=>(c||0)+bet);
+          alert('Could not join — duel is no longer available.');
+          return;
+        }
+        enterBattle(id);
+      } catch(e){
+        console.error('[ONLINE-DUEL join]',e);
+        alert('Error joining duel: '+e.message);
+      }
+    }
+
+    function enterBattle(id){
+      activeId=id;
+      battleRef=rtdb.ref('duel-battles/'+id);
+      lastLogIds=new Set();
+      lobbyEl.hidden=true;
+      battleEl.hidden=false;
+      oResultBanner.style.display='none';
+      oBattleLog.innerHTML='';
+
+      if(battleListener) battleListener.off();
+      battleListener=battleRef;
+      battleListener.on('value',onBattleChange);
+
+      // Mark presence; auto-forfeit on disconnect during play
+      battleRef.child('playersLeft/'+myUid).onDisconnect().set(true);
+    }
+
+    async function onBattleChange(snap){
+      const d=snap.val();
+      if(!d){ exitBattle(true); return; }
+      renderBattle(d);
+
+      // Auto-resolve forfeit by other player while playing
+      if(d.status==='playing' && d.winner==null){
+        const left=d.playersLeft||{};
+        const pids=Object.keys(d.players||{});
+        const otherPid=pids.find(p=>p!==myUid);
+        if(otherPid && left[otherPid]===true && !left[myUid]){
+          // Other player left, claim win
+          await tryResolveOnlineWin(myUid, otherPid, true);
+        }
+      }
+
+      // Catch-up payout: if game finished but no payout has happened yet,
+      // any client (typically the loser, since the winner triggers it
+      // immediately after the killing move) can also try — the `paid`
+      // transaction below guarantees the payout fires exactly once.
+      if(d.status==='finished' && d.winner && d.winner!=='draw' && d.paid!==true && !resolving){
+        const pids=Object.keys(d.players||{});
+        const loser=pids.find(p=>p!==d.winner)||null;
+        await tryResolveOnlineWin(d.winner, loser, !!d.forfeitedBy);
+      }
+    }
+
+    function renderBattle(d){
+      const pids=Object.keys(d.players||{});
+      const meIsP1=true;          // local view: "you" is always me
+      const oppId=pids.find(p=>p!==myUid)||null;
+      const meData=d.players[myUid]||{name:myName,avatar:myAvatar};
+      const oppData=oppId?(d.players[oppId]||{name:'Opponent'}):null;
+
+      // Avatars + names (local always P1)
+      function setAv(el,nameEl,nm,av){
+        nameEl.textContent=(nm||'?').toUpperCase();
+        el.innerHTML='';
+        if(av){ const im=document.createElement('img'); im.src=av; im.alt=''; el.appendChild(im); }
+        else el.textContent=(nm||'?').charAt(0).toUpperCase();
+      }
+      setAv(oP1Avatar,oP1Name,meData.name||'You',meData.avatar);
+      if(oppData) setAv(oP2Avatar,oP2Name,oppData.name,oppData.avatar);
+      else { oP2Avatar.textContent='?'; oP2Name.textContent='WAITING...'; }
+
+      // HP bars
+      const myHp=(d.hp||{})[myUid]??HP_MAX, myMax=(d.maxHp||{})[myUid]||HP_MAX;
+      const opHp=oppId?((d.hp||{})[oppId]??HP_MAX):HP_MAX;
+      const opMax=oppId?((d.maxHp||{})[oppId]||HP_MAX):HP_MAX;
+      oP1HpFill.style.width=Math.max(0,(myHp/myMax)*100)+'%';
+      oP1HpText.textContent=Math.max(0,myHp)+'/'+myMax;
+      oP2HpFill.style.width=Math.max(0,(opHp/opMax)*100)+'%';
+      oP2HpText.textContent=Math.max(0,opHp)+'/'+opMax;
+
+      // Round badge
+      oRoundBadge.innerHTML='<span>'+(d.status==='waiting'?'Waiting':('Round '+(d.round||1)))+'</span>';
+
+      // Status / move enabling
+      const finished=(d.status==='finished');
+      const myTurn=(d.status==='playing' && d.turn===myUid && !finished);
+      oTurnIndicator.classList.toggle('your-turn',myTurn);
+      oTurnIndicator.classList.toggle('their-turn',!myTurn);
+      oTurnIndicator.textContent = finished ? 'Finished' : (d.status==='waiting' ? 'Waiting' : (myTurn?'YOUR TURN':"OPP'S TURN"));
+
+      if(d.status==='waiting'){ oArenaStatus.innerHTML='Waiting for opponent to join...'; }
+      else if(finished){
+        if(d.winner===myUid) oArenaStatus.innerHTML='<span class="hl-g">VICTORY!</span>';
+        else if(d.winner==='draw') oArenaStatus.innerHTML='<span class="hl">DRAW</span>';
+        else oArenaStatus.innerHTML='<span class="hl-r">DEFEATED</span>';
+      } else {
+        oArenaStatus.innerHTML=myTurn?'<span class="hl">Your move</span>':'<span style="color:var(--muted)">Opponent thinking...</span>';
+      }
+
+      // Enable/disable moves
+      oMovesGrid.querySelectorAll('.move-btn').forEach(b=>{
+        const isHeal=b.dataset.move==='heal';
+        const onCd=isHeal && ((d.healCd||{})[myUid]||0)>0;
+        b.classList.toggle('disabled', !myTurn || onCd);
+        b.classList.toggle('on-cd',!!onCd);
+        const cdEl=b.querySelector('.mv-cd');
+        if(cdEl) cdEl.textContent= onCd ? ((d.healCd||{})[myUid]+'t') : '';
+      });
+
+      // Append new log entries
+      const log=d.log||{};
+      Object.entries(log).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0)).forEach(([id,le])=>{
+        if(lastLogIds.has(id)) return;
+        lastLogIds.add(id);
+        const el=document.createElement('div');
+        el.className='log-entry';
+        el.innerHTML='[R'+(le.round||1)+'] '+le.msg;
+        oBattleLog.insertBefore(el,oBattleLog.firstChild);
+        while(oBattleLog.children.length>50) oBattleLog.removeChild(oBattleLog.lastChild);
+      });
+
+      // Show result banner if finished
+      if(finished && oResultBanner.style.display!=='block'){
+        const bet=d.bet||0;
+        const won=(d.winner===myUid);
+        const drew=(d.winner==='draw');
+        oResultBanner.className='result-banner '+(won?'win':drew?'draw':'lose');
+        oRbLabel.textContent=won?'VICTORY':drew?'DRAW':'DEFEATED';
+        oRbAmount.textContent=won?('+'+bet.toLocaleString()+' credits'):drew?'Bet refunded':('-'+bet.toLocaleString()+' credits');
+        oRbDetail.textContent=d.forfeitedBy?(d.forfeitedBy===myUid?'You forfeited':'Opponent forfeited'):'';
+        oResultBanner.style.display='block';
+        oLeaveBtn.textContent='Back to Lobby';
+      } else if(d.status==='playing'){
+        oLeaveBtn.textContent='Leave / Forfeit';
+      }
+    }
+
+    oMovesGrid.addEventListener('click',e=>{
+      const btn=e.target.closest('.move-btn');
+      if(!btn || btn.classList.contains('disabled') || btn.classList.contains('on-cd')) return;
+      makeMove(btn.dataset.move);
+    });
+
+    async function makeMove(move){
+      if(!activeId || !battleRef || resolving) return;
+      const snap=await battleRef.once('value');
+      const d=snap.val();
+      if(!d || d.status!=='playing' || d.turn!==myUid || d.winner!=null) return;
+
+      const pids=Object.keys(d.players||{});
+      const oppId=pids.find(p=>p!==myUid);
+      if(!oppId) return;
+
+      const myHp=(d.hp||{})[myUid]??HP_MAX, myMax=(d.maxHp||{})[myUid]||HP_MAX;
+      const opHp=(d.hp||{})[oppId]??HP_MAX;
+      const opDef=(d.defending||{})[oppId]===true;
+      const myCd=(d.healCd||{})[myUid]||0;
+
+      let newOpHp=opHp, newMyHp=myHp, newMyDef=false, newMyCd=Math.max(0,myCd-1);
+      let logMsg='';
+
+      if(move==='attack'){
+        const defPct=opDef?(DEF_MIN+Math.random()*(DEF_MAX-DEF_MIN)):0;
+        let dmg=rand(ATK_MIN,ATK_MAX);
+        const isCrit=Math.random()<CRIT;
+        if(isCrit) dmg=Math.floor(dmg*CRIT_MULT);
+        if(defPct>0) dmg=Math.max(1,Math.floor(dmg*(1-defPct)));
+        newOpHp=opHp-dmg;
+        logMsg='<span class="le-you">'+escapeHTML(myName)+'</span> '+(isCrit?'lands a <span class="le-crit">CRITICAL</span> for ':'attacks for ')+'<span class="le-dmg">'+dmg+'</span>'+(opDef?' (blocked)':'')+'.';
+      } else if(move==='heavy'){
+        const miss=Math.random()<HEAVY_MISS;
+        if(miss){ logMsg='<span class="le-you">'+escapeHTML(myName)+'</span> swings heavy but <span class="le-miss">MISSES!</span>'; }
+        else {
+          const defPct=opDef?(DEF_MIN+Math.random()*(DEF_MAX-DEF_MIN)):0;
+          let dmg=rand(HEAVY_MIN,HEAVY_MAX);
+          const isCrit=Math.random()<CRIT*.8;
+          if(isCrit) dmg=Math.floor(dmg*CRIT_MULT);
+          if(defPct>0) dmg=Math.max(1,Math.floor(dmg*(1-defPct)));
+          newOpHp=opHp-dmg;
+          logMsg='<span class="le-you">'+escapeHTML(myName)+'</span> '+(isCrit?'lands a <span class="le-crit">DEVASTATING CRIT</span> for ':'heavy strikes for ')+'<span class="le-dmg">'+dmg+'</span>'+(opDef?' (blocked)':'')+'.';
+        }
+      } else if(move==='defend'){
+        newMyDef=true;
+        logMsg='<span class="le-you">'+escapeHTML(myName)+'</span> raises <span class="le-shield">shield</span>.';
+      } else if(move==='heal'){
+        if(myCd>0) return; // safety
+        const amt=rand(HEAL_MIN,HEAL_MAX);
+        newMyHp=Math.min(myMax,myHp+amt);
+        newMyCd=HEAL_CD;
+        logMsg='<span class="le-you">'+escapeHTML(myName)+'</span> heals <span class="le-heal">+'+amt+'</span> HP.';
+      } else { return; }
+
+      const updates={};
+      updates['hp/'+oppId]=newOpHp;
+      updates['hp/'+myUid]=newMyHp;
+      updates['defending/'+myUid]=newMyDef;
+      updates['defending/'+oppId]=false;
+      updates['healCd/'+myUid]=newMyCd;
+      updates['turn']=oppId;
+      updates['round']=(d.round||1)+1;
+      const lid=battleRef.child('log').push().key;
+      updates['log/'+lid]={ round:(d.round||1), msg:logMsg, ts: firebase.database.ServerValue.TIMESTAMP };
+
+      let win=false;
+      if(newOpHp<=0){
+        // I win immediately — set winner + status here, payout on transaction below.
+        updates['winner']=myUid;
+        updates['status']='finished';
+        win=true;
+      }
+
+      try { await battleRef.update(updates); } catch(e){ console.error('[ONLINE-DUEL move]',e); return; }
+
+      if(win){ await tryResolveOnlineWin(myUid, oppId, false); }
+    }
+
+    async function tryResolveOnlineWin(winnerUid, loserUid, forfeit){
+      if(resolving) return; resolving=true;
+      try {
+        // Use transaction on a 'paid' flag so payout fires once even if both clients race
+        const tx=await battleRef.child('paid').transaction(cur=>{
+          if(cur===true) return; // abort
+          return true;
+        });
+        if(!tx.committed) return;
+
+        const snap=await battleRef.once('value');
+        const d=snap.val();
+        if(!d) return;
+        const bet=d.bet||0;
+
+        if(forfeit){
+          await battleRef.update({ winner: winnerUid, status: 'finished', forfeitedBy: loserUid });
+        }
+
+        // Winner takes both bets (loser already paid theirs in)
+        await rtdb.ref('users/'+winnerUid+'/credits').transaction(c=>(c||0)+bet*2);
+
+        // Big-win broadcast (≥ 1M net = bet)
+        if (typeof window.announceBigWin === 'function' && winnerUid===myUid) {
+          window.announceBigWin(bet, 'Online Duel');
+        }
+
+        // Stats
+        try { await rtdb.ref('users/'+winnerUid+'/games/duelarena/onlineWins').transaction(v=>(v||0)+1); } catch(_){}
+        try { await rtdb.ref('users/'+loserUid+'/games/duelarena/onlineLosses').transaction(v=>(v||0)+1); } catch(_){}
+      } catch(e){ console.error('[ONLINE-DUEL resolve]',e); }
+      finally { resolving=false; }
+    }
+
+    oLeaveBtn.addEventListener('click',async()=>{
+      if(!activeId || !battleRef){ exitBattle(); return; }
+      const snap=await battleRef.once('value');
+      const d=snap.val();
+      if(!d){ exitBattle(); return; }
+
+      if(d.status==='waiting' && d.creator===myUid){
+        // Cancel the duel and refund
+        await rtdb.ref('users/'+myUid+'/credits').transaction(c=>(c||0)+(d.bet||0));
+        await battleRef.remove();
+        exitBattle();
+        return;
+      }
+
+      if(d.status==='playing' && d.winner==null){
+        // Forfeit
+        const pids=Object.keys(d.players||{});
+        const oppId=pids.find(p=>p!==myUid);
+        if(oppId){
+          await battleRef.child('playersLeft/'+myUid).set(true);
+          await tryResolveOnlineWin(oppId, myUid, true);
+        }
+      }
+      exitBattle();
+    });
+
+    function exitBattle(){
+      if(battleListener){ try { battleListener.off(); } catch(_){} battleListener=null; }
+      if(battleRef){ try { battleRef.child('playersLeft/'+myUid).onDisconnect().cancel(); } catch(_){} }
+      activeId=null; battleRef=null; lastLogIds=new Set();
+      battleEl.hidden=true; lobbyEl.hidden=false;
+      oResultBanner.style.display='none';
+    }
+
+    // Cleanup stale waiting duels on tab close (best-effort)
+    window.addEventListener('beforeunload',()=>{
+      if(activeId && battleRef){
+        try { battleRef.child('playersLeft/'+myUid).set(true); } catch(_){}
+      }
+    });
+  })();
   (()=>{
     const canvas=document.getElementById('particles');
     const ctx=canvas.getContext('2d');

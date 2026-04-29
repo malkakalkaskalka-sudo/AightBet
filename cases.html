@@ -88,6 +88,10 @@
       pointer-events: none;
     }
 
+    .case-category { max-width: 1100px; margin: 32px auto 12px; padding: 0 24px; }
+.case-category h2 { font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.case-category h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
     /* MODAL */
     .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px}
     .modal-overlay.open{display:flex}
@@ -112,6 +116,35 @@
     .spinner-item .si-name{font-size:.68rem;font-weight:700;color:var(--text);text-align:center;line-height:1.2;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .spinner-item .si-value{font-size:.62rem;font-weight:600;color:var(--muted)}
     .spinner-item.winner{background:rgba(245,158,11,.08)}
+
+    /* MULTI-OPEN */
+    .qty-selector{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+    .qty-btn{padding:8px 16px;border-radius:10px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;font-family:var(--font);min-width:52px}
+    .qty-btn:hover{border-color:var(--accent);background:rgba(139,92,246,.1)}
+    .qty-btn.active{background:linear-gradient(135deg,var(--accent),#7c3aed);border-color:transparent;color:#fff;box-shadow:0 4px 14px -4px var(--glow)}
+    .spinner-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .spinner-row{position:relative;width:100%;overflow:hidden;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid var(--border)}
+    .spinner-row .spinner-pointer{position:absolute;top:0;bottom:0;left:50%;width:3px;background:var(--gold);z-index:10;transform:translateX(-50%);box-shadow:0 0 12px rgba(245,158,11,.6);pointer-events:none}
+    .spinner-row .spinner-pointer::before,.spinner-row .spinner-pointer::after{content:'';position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent}
+    .spinner-row .spinner-pointer::before{top:-1px;border-top:10px solid var(--gold)}
+    .spinner-row .spinner-pointer::after{bottom:-1px;border-bottom:10px solid var(--gold)}
+    .spinner-row .spinner-track{display:flex;position:absolute;top:0;bottom:0;left:0;will-change:transform;transition:none}
+    .spinner-row.size-lg{height:140px}
+    .spinner-row.size-sm{height:96px}
+    .spinner-row.size-sm .spinner-item{width:90px;height:96px}
+    .spinner-row.size-sm .spinner-item .si-img{width:42px;height:42px}
+    .spinner-row.size-sm .spinner-item .si-name{font-size:.62rem;max-width:84px}
+    .spinner-row.size-sm .spinner-item .si-value{font-size:.58rem}
+    .won-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:12px 0;display:none}
+    .won-grid.visible{display:grid;animation:wonPop .5s ease}
+    .won-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;font-size:.75rem;position:relative;overflow:hidden}
+    .won-card .wc-img{width:56px;height:56px;object-fit:contain;margin:0 auto 6px;display:block;filter:drop-shadow(0 2px 10px rgba(0,0,0,.4))}
+    .won-card .wc-name{font-weight:800;font-size:.78rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .won-card .wc-val{font-size:.7rem;font-weight:700}
+    .won-card .wc-rar{font-size:.6rem;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:5px;display:inline-block;margin-top:4px}
+    .won-card .wc-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+    .won-summary{text-align:center;font-size:.85rem;font-weight:700;color:var(--muted);margin-top:8px}
+    .won-summary strong{color:var(--gold)}
 
     .won-display{text-align:center;padding:20px 0;display:none}
     .won-display.visible{display:block;animation:wonPop .5s ease}
@@ -219,10 +252,16 @@
       </div>
       <div class="modal-subtitle" id="modalSubtitle"></div>
       <div class="items-preview" id="itemsPreview"></div>
-      <div class="spinner-area" id="spinnerArea">
-        <div class="spinner-pointer"></div>
-        <div class="spinner-track" id="spinnerTrack"></div>
+      <div class="qty-selector" id="qtySelector">
+        <button class="qty-btn active" data-qty="1">1x</button>
+        <button class="qty-btn" data-qty="2">2x</button>
+        <button class="qty-btn" data-qty="3">3x</button>
+        <button class="qty-btn" data-qty="5">5x</button>
+        <button class="qty-btn" data-qty="10">10x</button>
       </div>
+      <div class="spinner-stack" id="spinnerStack"></div>
+      <div class="won-grid" id="wonGrid"></div>
+      <div class="won-summary" id="wonSummary" style="display:none"></div>
       <div class="won-display" id="wonDisplay">
         <img class="won-img" id="wonImg" src="" alt="Won Item"/>
         <div class="won-name" id="wonName"></div>
@@ -242,10 +281,8 @@
       <h1>Open <span class="grad">Cases</span></h1>
       <p>Unbox rare skins and items. Each case has unique loot – test your luck!</p>
     </section>
-    <section class="cases-wrapper">
-      <div class="case-grid" id="caseGrid"></div>
-    </section>
-
+    
+   <section class="cases-wrapper" id="casesWrapper"></section>
   <!-- INVENTORY SECTION -->
   <section class="inv-section">
     <div class="inv-heading">
@@ -278,7 +315,6 @@
   auth.onAuthStateChanged(u=>{
     if(!u){location.href='index.html';return;}
     currentUser=u;
-    checkSecretCaseUnlock();
     rtdb.ref('users/'+u.uid).on('value',snap=>{
       const data=snap.val()||{};
       const credits=data.credits||0;
@@ -636,7 +672,7 @@
       items:[
         {name:'HandBall Roj',    img:'Images/skins/roj2.png',    value:300,   rarity:'common',   weight:52},
         {name:'Like Roj',     img:'Images/skins/roj1.png',     value:500,   rarity:'uncommon',   weight:25},
-        {name:'Winner Roj',      img:'Images/skins/roj3.png',      value:800,   rarity:'rare', weight:15},
+        {name:'Winner Roj',      img:'Images/skins/roj3.png',      value:1000,   rarity:'rare', weight:15},
         {name:'Tuff Roj',     img:'Images/skins/roj4.png',     value:1500,   rarity:'epic', weight:5.9},
         {name:'Smoking Roj',      img:'Images/skins/roj6.png',      value:18000,  rarity:'legendary',     weight:2},
         {name:'Falling Roj',       img:'Images/skins/roj5.png',       value:50000,  rarity:'mythic',     weight:0.1},
@@ -656,18 +692,18 @@
         {name:'Confused Tom',     img:'Images/skins/tom/tom1.jpg',     value:500,   rarity:'uncommon', weight:5.9},
           {name:'Lost tom',     img:'Images/skins/tom/tom (2).jpg',     value:500,   rarity:'uncommon', weight:5.9},
             {name:'Alpha Tom',     img:'Images/skins/tom/tomathy (2).jpg',     value:500,   rarity:'uncommon', weight:5.9},
-                  {name:'Very Happy Tom',     img:'Images/skins/tom/tomathy (8).jpg',     value:800,   rarity:'rare', weight:5.9},
-                    {name:'Mogging Tom',     img:'Images/skins/tom/tomathy (10).jpg',     value:800,   rarity:'rare', weight:5.9},
-                      {name:'Happy Tom',     img:'Images/skins/tom/tomathy (12).jpg',     value:800,   rarity:'rare', weight:5.9},
-                        {name:'Sleepy Tom',     img:'Images/skins/tom/tomathy (11).jpg',     value:800,   rarity:'rare', weight:5.9},
-                            {name:'Centrik Tom',     img:'Images/skins/tom/tom (1).jpg',     value:1000,   rarity:'epic', weight:5.9},
-                              {name:'Burger King',     img:'Images/skins/tom/tomathy (7).jpg',     value:1000,   rarity:'epic', weight:5.9},
-                                {name:'Tampon Tom',     img:'Images/skins/tom/tomathy (9).jpg',     value:1000,   rarity:'epic', weight:5.9},
+                  {name:'Very Happy Tom',     img:'Images/skins/tom/tomathy (8).jpg',     value:1000,   rarity:'rare', weight:5.9},
+                    {name:'Mogging Tom',     img:'Images/skins/tom/tomathy (10).jpg',     value:1000,   rarity:'rare', weight:5.9},
+                      {name:'Happy Tom',     img:'Images/skins/tom/tomathy (12).jpg',     value:1000,   rarity:'rare', weight:5.9},
+                        {name:'Sleepy Tom',     img:'Images/skins/tom/tomathy (11).jpg',     value:1000,   rarity:'rare', weight:5.9},
+                            {name:'Centrik Tom',     img:'Images/skins/tom/tom (1).jpg',     value:1500,   rarity:'epic', weight:5.9},
+                              {name:'Burger King',     img:'Images/skins/tom/tomathy (7).jpg',     value:1500,   rarity:'epic', weight:5.9},
+                                {name:'Tampon Tom',     img:'Images/skins/tom/tomathy (9).jpg',     value:1500,   rarity:'epic', weight:5.9},
                                  
-                                    {name:'Nigrana Tom',     img:'Images/skins/tom/Nigrana.jpg',     value:10000,   rarity:'legendary', weight:5.9},
-                                      {name:'Super Zesty Tom',     img:'Images/skins/tom/tom (1).png',     value:10000,   rarity:'legendary', weight:5.9},
-                                        {name:'School Ready Tom',     img:'Images/skins/tom/tomathy (5).jpg',     value:10000,   rarity:'legendary', weight:5.9},
-        {name:'Love Tom',      img:'Images/skins/tom/tom2.jpg',      value:43000,  rarity:'mythic',     weight:0.3},
+                                    {name:'Nigrana Tom',     img:'Images/skins/tom/Nigrana.jpg',     value:18000,   rarity:'legendary', weight:5.9},
+                                      {name:'Super Zesty Tom',     img:'Images/skins/tom/tom (1).png',     value:18000,   rarity:'legendary', weight:5.9},
+                                        {name:'School Ready Tom',     img:'Images/skins/tom/tomathy (5).jpg',     value:18000,   rarity:'legendary', weight:5.9},
+        {name:'Love Tom',      img:'Images/skins/tom/tom2.jpg',      value:50000,  rarity:'mythic',     weight:0.3},
       ]
     },
 {
@@ -682,18 +718,18 @@
         {name:'Zombie Richard',      img:'Images/skins/richard/ricard5.jpg',      value:500,  rarity:'uncommon',     weight:4},
          {name:'Marijuana Richard',      img:'Images/skins/richard/ricard6.jpg',      value:500,  rarity:'uncommon',     weight:4},
           {name:'Babushka Richard',      img:'Images/skins/richard/ricard7.jpg',      value:500,  rarity:'uncommon',     weight:4},
-           {name:'Locked In Richard',      img:'Images/skins/richard/ricard8.jpg',      value:800,  rarity:'rare',     weight:3},
-            {name:'Gaming Richard',      img:'Images/skins/richard/ricard9.jpg',      value:800,  rarity:'rare',     weight:3},
-             {name:'Mad Richard',      img:'Images/skins/richard/ricard10.jpg',      value:800,  rarity:'rare',     weight:3},
-              {name:'Agressive Richard',      img:'Images/skins/richard/ricard11.jpg',      value:800,  rarity:'rare',     weight:3},
-               {name:'Eating Richard',      img:'Images/skins/richard/ricard12.png',      value:1000,  rarity:'epic',     weight:1.5},
-                {name:'Richard?',      img:'Images/skins/richard/ricard13.jpg',      value:1000,  rarity:'epic',     weight:1.5},
-                 {name:'Working Richard',      img:'Images/skins/richard/ricard14.jpg',      value:1000,  rarity:'epic',     weight:1.5},
-                  {name:'Pirate Richard',      img:'Images/skins/richard/ricard15.jpg',      value:1000,  rarity:'epic',     weight:1.5},
-                  {name:'Death Stare Richard',      img:'Images/skins/richard/ricard16.jpg',      value:10000,  rarity:'legendary',     weight:0.5},
-                  {name:'Screaming Richard',      img:'Images/skins/richard/ricard17.jpg',      value:10000,  rarity:'legendary',     weight:0.5},
-                  {name:'Very Happy Richard',      img:'Images/skins/richard/ricard18.jpg',      value:10000,  rarity:'legendary',     weight:0.5},
-                  {name:'Goofy Richard',      img:'Images/skins/richard/ricard19.png',      value:42000,  rarity:'mythic',     weight:0.2},
+           {name:'Locked In Richard',      img:'Images/skins/richard/ricard8.jpg',      value:1000,  rarity:'rare',     weight:3},
+            {name:'Gaming Richard',      img:'Images/skins/richard/ricard9.jpg',      value:1000,  rarity:'rare',     weight:3},
+             {name:'Mad Richard',      img:'Images/skins/richard/ricard10.jpg',      value:1000,  rarity:'rare',     weight:3},
+              {name:'Agressive Richard',      img:'Images/skins/richard/ricard11.jpg',      value:1000,  rarity:'rare',     weight:3},
+               {name:'Eating Richard',      img:'Images/skins/richard/ricard12.png',      value:1500,  rarity:'epic',     weight:1.5},
+                {name:'Richard?',      img:'Images/skins/richard/ricard13.jpg',      value:1500,  rarity:'epic',     weight:1.5},
+                 {name:'Working Richard',      img:'Images/skins/richard/ricard14.jpg',      value:1500,  rarity:'epic',     weight:1.5},
+                  {name:'Pirate Richard',      img:'Images/skins/richard/ricard15.jpg',      value:1500,  rarity:'epic',     weight:1.5},
+                  {name:'Death Stare Richard',      img:'Images/skins/richard/ricard16.jpg',      value:18000,  rarity:'legendary',     weight:0.5},
+                  {name:'Screaming Richard',      img:'Images/skins/richard/ricard17.jpg',      value:18000,  rarity:'legendary',     weight:0.5},
+                  {name:'Very Happy Richard',      img:'Images/skins/richard/ricard18.jpg',      value:18000,  rarity:'legendary',     weight:0.5},
+                  {name:'Goofy Richard',      img:'Images/skins/richard/ricard19.png',      value:50000,  rarity:'mythic',     weight:0.2},
       ]
     },
 
@@ -707,14 +743,14 @@
         {name:'Toilet Justin',    img:'Images/skins/justin/justin.jpg',    value:300,   rarity:'common',   weight:52},
         {name:'Sleepy Justin',     img:'Images/skins/justin/86.jpg',     value:500,   rarity:'uncommon',   weight:25},
          {name:'Eating Justin',     img:'Images/skins/justin/222.jpg',     value:500,   rarity:'uncommon',   weight:25},
-        {name:'Sitting Justin',      img:'Images/skins/justin/121111.jpg',      value:800,   rarity:'rare', weight:15},
-        {name:'Sex Doll justin',      img:'Images/skins/justin/12321111.jpg',      value:800,   rarity:'rare', weight:15},
-        {name:'Mogging Justin',     img:'Images/skins/justin/2211.jpg',     value:1000,   rarity:'epic', weight:5.9},
-         {name:'Zesty Justin',     img:'Images/skins/justin/7778.jpg',     value:1000,   rarity:'epic', weight:5.9},
-           {name:'Fighting Justin',     img:'Images/skins/justin/3.jpg',     value:1000,   rarity:'epic', weight:5.9},
-          {name:'Bandit Justin',     img:'Images/skins/justin/1231231231231.jpg',     value:1000,   rarity:'epic', weight:5.9},
-        {name:'Shit Justin',      img:'Images/skins/justin/322221.jpg',      value:9000,  rarity:'legendary',     weight:2},
-         {name:'Deep-Think Justin',      img:'Images/skins/justin/11231211.jpg',      value:9000,  rarity:'legendary',     weight:1.9},
+        {name:'Sitting Justin',      img:'Images/skins/justin/121111.jpg',      value:1000,   rarity:'rare', weight:15},
+        {name:'Sex Doll justin',      img:'Images/skins/justin/12321111.jpg',      value:1000,   rarity:'rare', weight:15},
+        {name:'Mogging Justin',     img:'Images/skins/justin/2211.jpg',     value:1500,   rarity:'epic', weight:5.9},
+         {name:'Zesty Justin',     img:'Images/skins/justin/7778.jpg',     value:1500,   rarity:'epic', weight:5.9},
+           {name:'Fighting Justin',     img:'Images/skins/justin/3.jpg',     value:1500,   rarity:'epic', weight:5.9},
+          {name:'Bandit Justin',     img:'Images/skins/justin/1231231231231.jpg',     value:1500,   rarity:'epic', weight:5.9},
+        {name:'Shit Justin',      img:'Images/skins/justin/322221.jpg',      value:18000,  rarity:'legendary',     weight:2},
+         {name:'Deep-Think Justin',      img:'Images/skins/justin/11231211.jpg',      value:18000,  rarity:'legendary',     weight:1.9},
         {name:'Naked Justin',       img:'Images/skins/justin/12312311111.png',       value:50000,  rarity:'mythic',     weight:0.2},
       ]
     },
@@ -728,7 +764,7 @@
       items:[
         {name:'Regular Matiss',    img:'Images/skins/matiss/2.jpg',    value:300,   rarity:'common',   weight:52},
         {name:'Tuff Matiss',     img:'Images/skins/matiss/3.jpg',     value:500,   rarity:'uncommon',   weight:25},
-        {name:'Peeking Matiss',      img:'Images/skins/matiss/4.jpg',      value:800,   rarity:'rare', weight:15},
+        {name:'Peeking Matiss',      img:'Images/skins/matiss/4.jpg',      value:1000,   rarity:'rare', weight:15},
         {name:'Baby Matiss',     img:'Images/skins/matiss/6.jpg',     value:1500,   rarity:'epic', weight:5.9},
         {name:'Zesty Matiss',      img:'Images/skins/matiss/7.jpg',      value:18000,  rarity:'legendary',     weight:2},
         {name:'The TUFFEST Matiss',       img:'Images/skins/matiss/5.jpg',       value:50000,  rarity:'mythic',     weight:0.1},
@@ -742,11 +778,11 @@
       desc:'The case of tom s. Ultimate MEME MODE',
       items:[
         {name:'Red Tom S.',     img:'Images/skins/toms/6.png',     value:500,   rarity:'uncommon',   weight:55},
-        {name:'Death-Stare Tom S.',      img:'Images/skins/toms/2.jpg',      value:800,   rarity:'rare', weight:15},
+        {name:'Death-Stare Tom S.',      img:'Images/skins/toms/2.jpg',      value:1000,   rarity:'rare', weight:15},
         {name:'Music Tom S.',     img:'Images/skins/toms/3.jpg',     value:1500,   rarity:'epic', weight:5.9},
         {name:'Beautiful Tom S.',      img:'Images/skins/toms/4.jpg',      value:18000,  rarity:'legendary',     weight:2},
         {name:'Bum Tom S.',       img:'Images/skins/toms/5.jpg',       value:18000,  rarity:'legendary',     weight:2},
-        {name:'Gooner Tom S.',       img:'Images/skins/toms/7.png',       value:40000,  rarity:'mythic',     weight:0.2},
+        {name:'Gooner Tom S.',       img:'Images/skins/toms/7.png',       value:50000,  rarity:'mythic',     weight:0.2},
       ]
     },
 
@@ -757,10 +793,10 @@
       desc:'The case of gabriel g. Ultimate MEME MODE',
       items:[
         {name:'Shocked Gabriel G.',     img:'Images/skins/gabriel_g/2.jpg',     value:500,   rarity:'uncommon',   weight:55},
-        {name:'Tree Gabriel G.',      img:'Images/skins/gabriel_g/3.jpg',      value:800,   rarity:'rare', weight:15},
+        {name:'Tree Gabriel G.',      img:'Images/skins/gabriel_g/3.jpg',      value:1000,   rarity:'rare', weight:15},
         {name:'Spider Gabriel G.',     img:'Images/skins/gabriel_g/5.jpg',     value:1500,   rarity:'epic', weight:5.9},
         {name:'Confused Gabriel G.',      img:'Images/skins/gabriel_g/4.jpg',      value:18000,  rarity:'legendary',     weight:2},
-        {name:'Horse Gabriel G.',       img:'Images/skins/gabriel_g/6.jpg',       value:40000,  rarity:'mythic',     weight:0.2},
+        {name:'Horse Gabriel G.',       img:'Images/skins/gabriel_g/6.jpg',       value:50000,  rarity:'mythic',     weight:0.2},
       ]
     },
 
@@ -790,14 +826,14 @@
 
 
 
-         {name:'Forest Survival Adrian',      img:'Images/skins/adrian/16.jpg',      value:800,   rarity:'rare', weight:6},
-       {name:'Spooked Adrian',      img:'Images/skins/adrian/17.jpg',      value:800,   rarity:'rare', weight:6},
-        {name:'Lovely Adrian',      img:'Images/skins/adrian/19.jpg',      value:800,   rarity:'rare', weight:6},
-         {name:'Mogging Adrian',      img:'Images/skins/adrian/20.jpg',      value:800,   rarity:'rare', weight:6},
-         {name:'Welcome Home Adrian',      img:'Images/skins/adrian/21.jpg',      value:800,   rarity:'rare', weight:6},
-         {name:'Tongue Of Adrian',      img:'Images/skins/adrian/23.jpg',      value:800,   rarity:'rare', weight:6},
-          {name:'Gamer Adrian',      img:'Images/skins/adrian/28.jpg',      value:800,   rarity:'rare', weight:6},
-         {name:'Sleepy Adrian',      img:'Images/skins/adrian/31.jpg',      value:800,   rarity:'rare', weight:6},
+         {name:'Forest Survival Adrian',      img:'Images/skins/adrian/16.jpg',      value:1000,   rarity:'rare', weight:6},
+       {name:'Spooked Adrian',      img:'Images/skins/adrian/17.jpg',      value:1000,   rarity:'rare', weight:6},
+        {name:'Lovely Adrian',      img:'Images/skins/adrian/19.jpg',      value:1000,   rarity:'rare', weight:6},
+         {name:'Mogging Adrian',      img:'Images/skins/adrian/20.jpg',      value:1000,   rarity:'rare', weight:6},
+         {name:'Welcome Home Adrian',      img:'Images/skins/adrian/21.jpg',      value:1000,   rarity:'rare', weight:6},
+         {name:'Tongue Of Adrian',      img:'Images/skins/adrian/23.jpg',      value:1000,   rarity:'rare', weight:6},
+          {name:'Gamer Adrian',      img:'Images/skins/adrian/28.jpg',      value:1000,   rarity:'rare', weight:6},
+         {name:'Sleepy Adrian',      img:'Images/skins/adrian/31.jpg',      value:1000,   rarity:'rare', weight:6},
 
 
         {name:'Nerdy Adrian',     img:'Images/skins/adrian/25.jpg',     value:1500,   rarity:'epic', weight:2},
@@ -807,10 +843,10 @@
         {name:'Piercing Adrian',     img:'Images/skins/adrian/13.jpg',     value:1500,   rarity:'epic', weight:2},
 
 
-        {name:'Story Time Adrian',      img:'Images/skins/adrian/18.jpg',      value:12000,  rarity:'legendary',     weight:1},
-        {name:'Crazy Adrian',      img:'Images/skins/adrian/22.jpg',      value:12000,  rarity:'legendary',     weight:1},
-        {name:'Peeking Adrian',      img:'Images/skins/adrian/24.jpg',      value:12000,  rarity:'legendary',     weight:1},
-        {name:'Date-Ready Adrian',      img:'Images/skins/adrian/26.png',      value:12000,  rarity:'legendary',     weight:1},
+        {name:'Story Time Adrian',      img:'Images/skins/adrian/18.jpg',      value:18000,  rarity:'legendary',     weight:1},
+        {name:'Crazy Adrian',      img:'Images/skins/adrian/22.jpg',      value:18000,  rarity:'legendary',     weight:1},
+        {name:'Peeking Adrian',      img:'Images/skins/adrian/24.jpg',      value:18000,  rarity:'legendary',     weight:1},
+        {name:'Date-Ready Adrian',      img:'Images/skins/adrian/26.png',      value:18000,  rarity:'legendary',     weight:1},
 
 
 
@@ -829,9 +865,9 @@
         {name:'Chef Nick',    img:'Images/skins/nick/2.jpg',    value:300,   rarity:'common',   weight:52},
         {name:'Like Nick',     img:'Images/skins/nick/6.jpg',     value:500,   rarity:'uncommon',   weight:25},
         {name:'Bored Nick',     img:'Images/skins/nick/9.jpg',     value:500,   rarity:'uncommon',   weight:25},
-        {name:'Hyped Nick',      img:'Images/skins/nick/3.jpg',      value:800,   rarity:'rare', weight:15},
-        {name:'Beautiful Nick',      img:'Images/skins/nick/4.jpg',      value:800,   rarity:'rare', weight:15},
-        {name:'Zesty Nick',      img:'Images/skins/nick/7.jpg',      value:800,   rarity:'rare', weight:15},
+        {name:'Hyped Nick',      img:'Images/skins/nick/3.jpg',      value:1000,   rarity:'rare', weight:15},
+        {name:'Beautiful Nick',      img:'Images/skins/nick/4.jpg',      value:1000,   rarity:'rare', weight:15},
+        {name:'Zesty Nick',      img:'Images/skins/nick/7.jpg',      value:1000,   rarity:'rare', weight:15},
         {name:'Washed Nick',     img:'Images/skins/nick/5.jpg',     value:1500,   rarity:'epic', weight:5.9},
         {name:'Nick Pulling',      img:'Images/skins/nick/5.png',      value:18000,  rarity:'legendary',     weight:2},
          {name:'Tuff Gamer Nick',      img:'Images/skins/nick/10.jpg',      value:18000,  rarity:'legendary',     weight:2},
@@ -839,15 +875,12 @@
       ]
     },
 
-    
-  ];
 
-  
-  const SECRET_CASE = {
-    id:'secret_egg', name:'Dildo Case', img:'Images/cases/67.png', price:1000,
+
+    {
+    id:'dildo', name:'Dildo Case', img:'Images/cases/67.png', price:1000,
     gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
     desc:'Case for your everyday toy!',
-    secret: true,
     items:[
       {name:'Butt Plug',         img:'Images/cases/secret/k.png',       value:500,    rarity:'uncommon', weight:30},
       {name:'Small Dildo',       img:'Images/cases/secret/kk.png', value:1500, rarity:'rare', weight:18},
@@ -856,146 +889,109 @@
       {name:'Huge Dildo',    img:'Images/cases/secret/kkkkk.png',           value:25000,  rarity:'mythic',   weight:1.5},
       {name:'Penis',        img:'Images/cases/secret/kkkkkk.png',      value:100000, rarity:'mythic',   weight:0.2},
     ]
-  };
+  },
+  
 
-  let secretCaseUnlocked = false;
 
-  function checkSecretCaseUnlock() {
-    if (!currentUser) return;
-    firebase.database().ref('users/' + currentUser.uid + '/easterEggs/secretcase').once('value', function(snap) {
-      if (snap.val() === true) {
-        secretCaseUnlocked = true;
-        injectSecretCase();
-      }
-    });
-  }
+   
+    {
+    id:'pp', name:'Pocket Pussy Case', img:'Images/cases/pp.png', price:1000,
+    gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
+    desc:'Case for your everyday toy!',
+    items:[
+      {name:'Pocket Pussy',         img:'Images/skins/pp/pp1.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'FleshLight',       img:'Images/skins/pp/pp2.png', value:1500, rarity:'rare', weight:18},
+      {name:'3 In 1 Pocket Pussy',       img:'Images/skins/pp/pp3.png', value:3000, rarity:'epic', weight:10},
+      {name:'Half-Body Pocket Pussy',       img:'Images/skins/pp/pp4.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Sex Doll',    img:'Images/skins/pp/pp5.png',           value:100000,  rarity:'mythic',   weight:0.2},
+    ]
+  },
 
-  function injectSecretCase() {
-    if (document.getElementById('secret-case-card')) return;
-    if (!CASES.find(c => c.id === 'secret_egg')) CASES.push(SECRET_CASE);
-    renderSecretCaseCard();
-  }
 
-  function renderSecretCaseCard() {
-    const c = SECRET_CASE;
-    const card = document.createElement('div');
-    card.id = 'secret-case-card';
-    card.className = 'case-card';
-    card.style.cssText = 'border-color:rgba(245,158,11,.4);box-shadow:0 0 30px -8px rgba(245,158,11,.25)';
-    card.innerHTML = `
-      <div class="case-thumb">
-        <div class="case-bg" style="background:${c.gradient}"></div>
-        <img class="case-img" src="${c.img}" alt="${c.name}" onerror="this.style.display='none'"/>
-      </div>
-      <div class="case-info">
-        <h3>${c.name}</h3>
-        <p>${c.desc}</p>
-        <div class="case-meta">
-          <div class="case-price" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.25);color:#8b5cf6">🪙 1000</div>
-          <div class="case-count">${c.items.length} secret items</div>
-        </div>
-        <div class="case-rarity-dots">${rarityDots(c.items)}</div>
-      </div>
-    `;
-    card.style.setProperty('--glow-color', '#f59e0b');
-    card.addEventListener('click', () => openModal(c));
-    caseGrid.prepend(card);
-  }
 
-  (function() {
-    let combo6 = false, combo7 = false;
-    let comboCount = 0;
-    let comboTimeout = null;
+  {
+    id:'tung', name:'Triple T Case', img:'Images/cases/tung.png', price:1000,
+    gradient:'linear-gradient(135deg,#f59e0b,#8b5cf6,#06b6d4)',
+    desc:'Triple T Case',
+    items:[
+      {name:'Toy Tung',         img:'Images/skins/tung/tung1.png',       value:500,    rarity:'uncommon', weight:30},
+      {name:'Roblox Tung',       img:'Images/skins/tung/tung3.png', value:1500, rarity:'rare', weight:18},
+      {name:'Regular Tung',       img:'Images/skins/tung/tung2.png', value:3000, rarity:'epic', weight:10},
+      {name:'Black Tung',       img:'Images/skins/tung/tung5.png',       value:7500,   rarity:'legendary',weight:5},
+       {name:'Speed Tung',       img:'Images/skins/tung/tung4.png',       value:7500,   rarity:'legendary',weight:5},
+      {name:'Tung Tung Evil',    img:'Images/skins/tung/7.jpg',           value:100000,  rarity:'mythic',   weight:0.2},
+      {name:'Tung Tung God',    img:'Images/skins/tung/6.jpg',           value:100000,  rarity:'mythic',   weight:0.2},
+    ]
+  },
+  
+    
+  ];
 
-    function resetCombo() { comboCount = 0; combo6 = false; combo7 = false; }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === '6') combo6 = true;
-      if (e.key === '7') combo7 = true;
-      if (combo6 && combo7) {
-        combo6 = false; combo7 = false;
-        comboCount++;
-        clearTimeout(comboTimeout);
-        comboTimeout = setTimeout(resetCombo, 3000);
-        if (comboCount >= 3) {
-          comboCount = 0;
-          clearTimeout(comboTimeout);
-          triggerSecretCaseEgg();
-        }
-      }
-    });
-    document.addEventListener('keyup', function(e) {
-      if (e.key === '6') combo6 = false;
-      if (e.key === '7') combo7 = false;
-    });
-  })();
-
-  function triggerSecretCaseEgg() {
-    if (secretCaseUnlocked) {
-      const card = document.getElementById('secret-case-card');
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.style.transition = 'box-shadow .3s';
-        card.style.boxShadow = '0 0 60px 10px rgba(245,158,11,.6)';
-        setTimeout(() => { card.style.boxShadow = '0 0 30px -8px rgba(245,158,11,.25)'; }, 1000);
-      }
-      return;
-    }
-    secretCaseUnlocked = true;
-    injectSecretCase();
-    if (window.__easterEggUnlocked) window.__easterEggUnlocked('secretcase');
-    setTimeout(function() {
-      const card = document.getElementById('secret-case-card');
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.style.transition = 'box-shadow .3s';
-        card.style.boxShadow = '0 0 60px 10px rgba(245,158,11,.8)';
-        setTimeout(() => { card.style.boxShadow = '0 0 30px -8px rgba(245,158,11,.25)'; }, 1200);
-      }
-    }, 300);
-  }
+  
+ 
 
   /* ═══════════════════════════════════════════════════════════════
      RENDER CASE CARDS
      ═══════════════════════════════════════════════════════════════ */
 
-  const caseGrid = document.getElementById('caseGrid');
+ const casesWrapper = document.getElementById('casesWrapper');
 
-  function rarityDots(items) {
-    const seen = new Set();
-    let html = '';
-    for (const item of items) {
-      if (!seen.has(item.rarity)) {
-        seen.add(item.rarity);
-        html += `<span style="background:${RARITIES[item.rarity].color}"></span>`;
-      }
+function rarityDots(items) {
+  const seen = new Set();
+  let html = '';
+  for (const item of items) {
+    if (!seen.has(item.rarity)) {
+      seen.add(item.rarity);
+      html += `<span style="background:${RARITIES[item.rarity].color}"></span>`;
     }
-    return html;
   }
+  return html;
+}
 
-  CASES.forEach(c => {
-    const card = document.createElement('div');
-    card.className = 'case-card';
-    card.innerHTML = `
-      <div class="case-thumb">
-        <div class="case-bg" style="background:${c.gradient}"></div>
-        <img class="case-img" src="${c.img}" alt="${c.name}" onerror="this.style.display='none'"/>
+function renderCaseCard(c) {
+  const card = document.createElement('div');
+  card.className = 'case-card';
+  card.innerHTML = `
+    <div class="case-thumb">
+      <div class="case-bg" style="background:${c.gradient}"></div>
+      <img class="case-img" src="${c.img}" alt="${c.name}" onerror="this.style.display='none'"/>
+    </div>
+    <div class="case-info">
+      <h3>${c.name}</h3>
+      <p>${c.desc}</p>
+      <div class="case-meta">
+        <div class="case-price">🪙 ${c.price.toLocaleString()}</div>
+        <div class="case-count">${c.items.length} items</div>
       </div>
-      <div class="case-info">
-        <h3>${c.name}</h3>
-        <p>${c.desc}</p>
-        <div class="case-meta">
-          <div class="case-price">🪙 ${c.price.toLocaleString()}</div>
-          <div class="case-count">${c.items.length} items</div>
-        </div>
-        <div class="case-rarity-dots">${rarityDots(c.items)}</div>
-      </div>
-    `;
-    const gradColors = c.gradient.match(/#[a-fA-F0-9]{6}/g) || ['#8b5cf6'];
-    card.style.setProperty('--glow-color', gradColors[0]);
-    card.addEventListener('click', () => openModal(c));
-    caseGrid.appendChild(card);
+      <div class="case-rarity-dots">${rarityDots(c.items)}</div>
+    </div>
+  `;
+  const gradColors = c.gradient.match(/#[a-fA-F0-9]{6}/g) || ['#8b5cf6'];
+  card.style.setProperty('--glow-color', gradColors[0]);
+  card.addEventListener('click', () => openModal(c));
+  return card;
+}
+
+const CATEGORIES = [
+  { label: 'Regular Cases',  ids: ['starter', 'neon', 'pirate','ocean','cosmic','arctic','cyber','shadow','toxic','dragon','samurai', 'royal','lucky','galaxy','inferno','void',] },
+  { label: 'Face Cases',     ids: ['roj', 'tom', 'richard','justin','matiss','toms','gabrielg','adrian','nick',] },
+  { label: 'Meme Cases',  ids: ['dildo', 'pp', 'tung',] },
+];
+
+CATEGORIES.forEach(cat => {
+  const heading = document.createElement('div');
+  heading.className = 'case-category';
+  heading.innerHTML = `<h2>${cat.label}</h2>`;
+  casesWrapper.appendChild(heading);
+
+  const grid = document.createElement('div');
+  grid.className = 'case-grid';
+  cat.ids.forEach(id => {
+    const c = CASES.find(x => x.id === id);
+    if (c) grid.appendChild(renderCaseCard(c));
   });
+  casesWrapper.appendChild(grid);
+});
 
   /* ═══════════════════════════════════════════════════════════════
      MODAL + SPINNER
@@ -1006,8 +1002,9 @@
   const modalSubtitle = document.getElementById('modalSubtitle');
   const modalCaseImg = document.getElementById('modalCaseImg');
   const itemsPreview = document.getElementById('itemsPreview');
-  const spinnerArea = document.getElementById('spinnerArea');
-  const spinnerTrack = document.getElementById('spinnerTrack');
+  const spinnerStack = document.getElementById('spinnerStack');
+  const wonGrid = document.getElementById('wonGrid');
+  const wonSummary = document.getElementById('wonSummary');
   const wonDisplay = document.getElementById('wonDisplay');
   const wonImg = document.getElementById('wonImg');
   const wonName = document.getElementById('wonName');
@@ -1017,14 +1014,47 @@
   const openAgainBtn = document.getElementById('openAgainBtn');
   const closeBtn = document.getElementById('closeBtn');
   const modalClose = document.getElementById('modalClose');
+  const qtySelector = document.getElementById('qtySelector');
 
   let activeCase = null;
   let spinning = false;
   let lastWonItem = null;
+  let activeQty = 1;
+
+  /* qty buttons */
+  qtySelector.addEventListener('click', e => {
+    const btn = e.target.closest('.qty-btn');
+    if (!btn || spinning || !activeCase) return;
+    activeQty = parseInt(btn.dataset.qty, 10) || 1;
+    qtySelector.querySelectorAll('.qty-btn').forEach(b => b.classList.toggle('active', b === btn));
+    updateOpenBtnText();
+  });
+
+  function updateOpenBtnText() {
+    if (!activeCase) return;
+    const total = activeCase.price * activeQty;
+    openBtn.textContent = activeQty > 1
+      ? `Open ${activeQty} Cases (${total.toLocaleString()} 🪙)`
+      : `Open Case (${total.toLocaleString()} 🪙)`;
+    openAgainBtn.textContent = activeQty > 1
+      ? `Open ${activeQty} Again (${total.toLocaleString()} 🪙)`
+      : `Open Again (${total.toLocaleString()} 🪙)`;
+  }
+
+  function resetSpinnerStack() {
+    spinnerStack.innerHTML = '';
+    wonGrid.classList.remove('visible');
+    wonGrid.innerHTML = '';
+    wonSummary.style.display = 'none';
+    wonSummary.textContent = '';
+    wonDisplay.classList.remove('visible');
+  }
 
   function openModal(c) {
     activeCase = c;
     lastWonItem = null;
+    activeQty = 1;
+    qtySelector.querySelectorAll('.qty-btn').forEach(b => b.classList.toggle('active', b.dataset.qty === '1'));
     modalTitle.textContent = c.name;
     modalCaseImg.src = c.img;
     modalSubtitle.textContent = `Price: ${c.price} credits • ${c.items.length} possible items`;
@@ -1047,15 +1077,11 @@
       itemsPreview.appendChild(div);
     });
 
-    spinnerArea.style.display = 'block';
-    spinnerTrack.style.transform = 'translateX(0)';
-    spinnerTrack.style.transition = 'none';
-    spinnerTrack.innerHTML = '';
-    wonDisplay.classList.remove('visible');
+    resetSpinnerStack();
     openBtn.style.display = '';
-    openBtn.textContent = `Open Case (${c.price} 🪙)`;
     openBtn.disabled = false;
     openAgainBtn.style.display = 'none';
+    updateOpenBtnText();
 
     modalOverlay.classList.add('open');
   }
@@ -1085,25 +1111,42 @@
 
     try {
       const snap = await rtdb.ref('riggedDrops/' + currentUser.uid).once('value');
-      const rig = snap.val();
-      console.log('[RIG CHECK] uid:', currentUser.uid, 'rig:', rig, 'caseName:', caseData.name);
+      const raw = snap.val();
+      console.log('[RIG CHECK] uid:', currentUser.uid, 'rigs:', raw, 'caseName:', caseData.name);
 
-      if (rig && rig.forcedItemName) {
-        // Match ONLY by case name — IDs are broken (many are 'void')
-        if (rig.caseName === caseData.name) {
-          const forcedItem = caseData.items.find(i => i.name === rig.forcedItemName);
-          console.log('[RIG] caseName match:', rig.caseName, '=== ', caseData.name, 'forcedItem:', forcedItem);
+      if (raw) {
+        // Support legacy single-rig (object with forcedItemName at top)
+        // AND new nested format riggedDrops/{uid}/{caseId} = rig
+        const rigs = [];
+        if (raw.forcedItemName) {
+          rigs.push({ rig: raw, deletePath: 'riggedDrops/' + currentUser.uid });
+        } else {
+          Object.entries(raw).forEach(([k, r]) => {
+            if (r && r.forcedItemName) {
+              rigs.push({ rig: r, deletePath: 'riggedDrops/' + currentUser.uid + '/' + k });
+            }
+          });
+        }
+
+        // Match by case NAME first (more reliable since IDs may have drifted),
+        // fall back to ID match.
+        const found = rigs.find(({ rig }) =>
+          (rig.caseName && rig.caseName === caseData.name) ||
+          (rig.caseId && rig.caseId === caseData.id)
+        );
+
+        if (found) {
+          const forcedItem = caseData.items.find(i => i.name === found.rig.forcedItemName);
+          console.log('[RIG] match for', caseData.name, '-> forcedItem:', forcedItem);
           if (forcedItem) {
             console.log('[RIG] FORCING DROP:', forcedItem.name, forcedItem.value);
-            if (rig.scope === 'once') {
-              await rtdb.ref('riggedDrops/' + currentUser.uid).remove();
+            if (found.rig.scope === 'once') {
+              await rtdb.ref(found.deletePath).remove();
             }
             return forcedItem;
           } else {
-            console.warn('[RIG] Item "' + rig.forcedItemName + '" not found in case items!');
+            console.warn('[RIG] Item "' + found.rig.forcedItemName + '" not found in case items!');
           }
-        } else {
-          console.log('[RIG] caseName mismatch:', rig.caseName, '!==', caseData.name);
         }
       }
     } catch (e) {
@@ -1116,19 +1159,24 @@
   
 
 
-  function buildSpinner(items, winnerItem) {
-    spinnerTrack.innerHTML = '';
-    const ITEM_W = window.innerWidth <= 768 ? 100 : 130;
+  /* Build a single spinner row's track items. Returns the row element + meta. */
+  function buildSpinnerRow(caseData, winnerItem, sizeCls) {
+    const row = document.createElement('div');
+    row.className = 'spinner-row ' + sizeCls;
+    const pointer = document.createElement('div');
+    pointer.className = 'spinner-pointer';
+    const track = document.createElement('div');
+    track.className = 'spinner-track';
+    row.appendChild(pointer);
+    row.appendChild(track);
+
+    const isSm = sizeCls === 'size-sm';
+    const ITEM_W = window.innerWidth <= 768 ? (isSm ? 70 : 100) : (isSm ? 90 : 130);
     const TOTAL_ITEMS = 60;
     const WINNER_POS = 50;
 
     for (let i = 0; i < TOTAL_ITEMS; i++) {
-      let item;
-      if (i === WINNER_POS) {
-        item = winnerItem;
-      } else {
-        item = items[Math.floor(Math.random() * items.length)];
-      }
+      const item = i === WINNER_POS ? winnerItem : caseData.items[Math.floor(Math.random() * caseData.items.length)];
       const r = RARITIES[item.rarity];
       const el = document.createElement('div');
       el.className = 'spinner-item' + (i === WINNER_POS ? ' winner' : '');
@@ -1139,20 +1187,23 @@
         <div class="si-value">🪙 ${item.value}</div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:${r.color};opacity:.6"></div>
       `;
-      spinnerTrack.appendChild(el);
+      track.appendChild(el);
     }
 
-    return { ITEM_W, WINNER_POS, TOTAL_ITEMS };
+    return { row, track, ITEM_W, WINNER_POS, TOTAL_ITEMS };
   }
 
   async function spinCase() {
     if (spinning || !activeCase) return;
     const c = activeCase;
+    const qty = activeQty;
+    const totalCost = c.price * qty;
     const credits = getCredits();
 
-    if (credits < c.price) {
+    if (credits < totalCost) {
+      const prev = openBtn.textContent;
       openBtn.textContent = 'Not enough credits!';
-      setTimeout(() => { openBtn.textContent = `Open Case (${c.price} 🪙)`; }, 1500);
+      setTimeout(() => { updateOpenBtnText(); }, 1500);
       return;
     }
 
@@ -1160,94 +1211,143 @@
     openBtn.disabled = true;
     openAgainBtn.style.display = 'none';
     wonDisplay.classList.remove('visible');
+    wonGrid.classList.remove('visible');
+    wonGrid.innerHTML = '';
+    wonSummary.style.display = 'none';
+    wonSummary.textContent = '';
+    spinnerStack.innerHTML = '';
 
-    await adjustCredits(-c.price);
+    await adjustCredits(-totalCost);
 
-    const winner = await pickItemWithRig(c);
-    lastWonItem = winner;
+    // Pick all winners up-front (sequential so each rig consumes correctly).
+    const winners = [];
+    for (let i = 0; i < qty; i++) {
+      winners.push(await pickItemWithRig(c));
+    }
+    lastWonItem = winners[winners.length - 1];
 
-    const ITEM_W = window.innerWidth <= 768 ? 100 : 130;
-    const { WINNER_POS } = buildSpinner(c.items, winner);
+    // Build all spinner rows.
+    const sizeCls = qty === 1 ? 'size-lg' : 'size-sm';
+    const rows = [];
+    for (let i = 0; i < qty; i++) {
+      const r = buildSpinnerRow(c, winners[i], sizeCls);
+      spinnerStack.appendChild(r.row);
+      rows.push(r);
+    }
 
-    const areaWidth = spinnerArea.offsetWidth;
-    const targetX = (WINNER_POS * ITEM_W) + (ITEM_W / 2) - (areaWidth / 2);
-    const offset = (Math.random() - 0.5) * (ITEM_W * 0.4);
-    const finalX = targetX + offset;
+    // Force layout flush so transitions take effect.
+    void spinnerStack.offsetHeight;
 
-    spinnerTrack.style.transition = 'none';
-    spinnerTrack.style.transform = 'translateX(0)';
-    void spinnerTrack.offsetHeight;
-
-    spinnerTrack.style.transition = 'transform 5s cubic-bezier(0.15, 0.85, 0.25, 1)';
-    spinnerTrack.style.transform = `translateX(-${finalX}px)`;
+    // Animate each row in parallel.
+    rows.forEach(r => {
+      const areaWidth = r.row.offsetWidth;
+      const targetX = (r.WINNER_POS * r.ITEM_W) + (r.ITEM_W / 2) - (areaWidth / 2);
+      const offset = (Math.random() - 0.5) * (r.ITEM_W * 0.4);
+      const finalX = targetX + offset;
+      r.track.style.transition = 'none';
+      r.track.style.transform = 'translateX(0)';
+      void r.track.offsetHeight;
+      r.track.style.transition = 'transform 5s cubic-bezier(0.15, 0.85, 0.25, 1)';
+      r.track.style.transform = `translateX(-${finalX}px)`;
+    });
 
     await new Promise(r => setTimeout(r, 5300));
 
-    const rar = RARITIES[winner.rarity];
-    wonImg.src = winner.img;
-    wonName.textContent = winner.name;
-    wonName.style.color = rar.color;
-    wonValue.textContent = `🪙 ${winner.value.toLocaleString()} credits`;
-    wonValue.style.color = rar.color;
-    wonRarity.textContent = rar.label;
-    wonRarity.style.background = rar.bg;
-    wonRarity.style.color = rar.color;
-    wonDisplay.classList.add('visible');
+    // Render results.
+    let totalValue = 0;
+    if (qty === 1) {
+      const winner = winners[0];
+      const rar = RARITIES[winner.rarity];
+      wonImg.src = winner.img;
+      wonName.textContent = winner.name;
+      wonName.style.color = rar.color;
+      wonValue.textContent = `🪙 ${winner.value.toLocaleString()} credits`;
+      wonValue.style.color = rar.color;
+      wonRarity.textContent = rar.label;
+      wonRarity.style.background = rar.bg;
+      wonRarity.style.color = rar.color;
+      wonDisplay.classList.add('visible');
+      totalValue = winner.value;
+    } else {
+      wonGrid.innerHTML = '';
+      winners.forEach(winner => {
+        const rar = RARITIES[winner.rarity];
+        const card = document.createElement('div');
+        card.className = 'won-card';
+        card.innerHTML = `
+          <img class="wc-img" src="${winner.img}" alt="${winner.name}" onerror="this.style.display='none'" style="filter:drop-shadow(0 0 8px ${rar.color})"/>
+          <div class="wc-name" title="${winner.name}">${winner.name}</div>
+          <div class="wc-val" style="color:${rar.color}">🪙 ${winner.value.toLocaleString()}</div>
+          <div class="wc-rar" style="color:${rar.color};background:${rar.bg}">${rar.label}</div>
+          <div class="wc-bar" style="background:${rar.color}"></div>
+        `;
+        wonGrid.appendChild(card);
+        totalValue += winner.value;
+      });
+      wonGrid.classList.add('visible');
+      const profit = totalValue - totalCost;
+      const profitColor = profit >= 0 ? '#22c55e' : '#ef4444';
+      wonSummary.style.display = 'block';
+      wonSummary.innerHTML = `Total won: <strong>🪙 ${totalValue.toLocaleString()}</strong> · Spent: 🪙 ${totalCost.toLocaleString()} · Net: <strong style="color:${profitColor}">${profit >= 0 ? '+' : ''}${profit.toLocaleString()}</strong>`;
+    }
 
-    await adjustCredits(winner.value);
+    await adjustCredits(totalValue);
 
-    // ── SAVE TO INVENTORY ──
+    // Big-win broadcast (≥ 1M)
+    if (totalValue >= 1000000 && typeof window.announceBigWin === 'function') {
+      window.announceBigWin(totalValue, qty > 1 ? `${qty}x ${c.name}` : c.name);
+    }
+
+    // ── SAVE TO INVENTORY + ANNOUNCE MYTHICS ──
     if (currentUser) {
-      try {
-        const invEntry = {
-          name: winner.name,
-          img: winner.img,
-          value: winner.value,
-          rarity: winner.rarity,
-          source: c.name,
-          openedAt: Date.now()
-        };
-        const invKey = winner.name.replace(/[^a-zA-Z0-9]/g, '_');
-        await rtdb.ref('users/' + currentUser.uid + '/caseInventory/' + invKey).set(invEntry);
-      } catch (e) {
-        console.error('[INV] Failed to save inventory:', e);
-      }
-
-      // ── ANNOUNCE MYTHIC/LEGENDARY DROPS TO EVERYONE ──
-      if (winner.rarity === 'mythic' || winner.rarity === 'legendary') {
+      for (const winner of winners) {
         try {
-          const snap = await rtdb.ref('users/' + currentUser.uid).once('value');
-          const ud = snap.val() || {};
-          const userName = ud.username || ud.nickname || currentUser.displayName || currentUser.email || 'Someone';
-          await rtdb.ref('mythicDrops').push({
-            item: winner.name,
-            user: userName,
-            uid: currentUser.uid,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-          });
+          const invEntry = {
+            name: winner.name,
+            img: winner.img,
+            value: winner.value,
+            rarity: winner.rarity,
+            source: c.name,
+            openedAt: Date.now()
+          };
+          const invKey = winner.name.replace(/[^a-zA-Z0-9]/g, '_');
+          await rtdb.ref('users/' + currentUser.uid + '/caseInventory/' + invKey).set(invEntry);
         } catch (e) {
-          console.error('[MYTHIC] Failed to announce:', e);
+          console.error('[INV] Failed to save inventory:', e);
+        }
+
+        if (winner.rarity === 'mythic' || winner.rarity === 'legendary') {
+          try {
+            const snap = await rtdb.ref('users/' + currentUser.uid).once('value');
+            const ud = snap.val() || {};
+            const userName = ud.username || ud.nickname || currentUser.displayName || currentUser.email || 'Someone';
+            await rtdb.ref('mythicDrops').push({
+              item: winner.name,
+              user: userName,
+              uid: currentUser.uid,
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+          } catch (e) {
+            console.error('[MYTHIC] Failed to announce:', e);
+          }
         }
       }
     }
 
     openBtn.style.display = 'none';
     openAgainBtn.style.display = '';
-    openAgainBtn.textContent = `Open Again (${c.price} 🪙)`;
+    updateOpenBtnText();
 
     spinning = false;
   }
   openBtn.addEventListener('click', spinCase);
   openAgainBtn.addEventListener('click', () => {
     if (spinning) return;
-    spinnerTrack.style.transition = 'none';
-    spinnerTrack.style.transform = 'translateX(0)';
-    spinnerTrack.innerHTML = '';
-    wonDisplay.classList.remove('visible');
+    resetSpinnerStack();
     openBtn.style.display = '';
-    openBtn.textContent = `Open Case (${activeCase.price} 🪙)`;
     openBtn.disabled = false;
     openAgainBtn.style.display = 'none';
+    updateOpenBtnText();
     spinCase();
   });
 

@@ -644,7 +644,8 @@
       btnDeal.textContent = 'DEALING...';
       resetTable();
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Atomic deduction (race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       tableLabel.innerHTML = 'Dealing <span class="hl">cards</span>...';
 
@@ -770,7 +771,8 @@
 
       if (won) {
         const payout = Math.floor(betAmount * multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+        // Bet was already deducted; credit FULL gross via transaction.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         const winLabel = winner === 'tie' ? 'TIE WINS' : winner.toUpperCase() + ' WINS';
         tableLabel.innerHTML = '<span class="hl">' + winLabel + '!</span> ' + pVal + ' vs ' + bVal;
@@ -785,8 +787,10 @@
         saveStats(true, payout);
 
       } else if (tiePush) {
-        // Tie but didn't bet on tie = push (refund)
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits);
+        // Tie but didn't bet on tie = push (refund the bet).
+        // BUG-FIX: was set(userCredits) which kept the post-deduction balance,
+        // effectively losing the bet on a "push". Refund the bet via transaction.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + betAmount);
 
         tableLabel.innerHTML = '<span class="hl">Tie!</span> Bet refunded. ' + pVal + ' vs ' + bVal;
         resultBanner.className = 'result-banner tie';

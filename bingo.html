@@ -952,7 +952,7 @@
       const multi = PAYOUTS[payKey] || 0;
       if (multi > 0) {
         const payout = Math.floor(betAmount * multi);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+       rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits + payout);
         const label = payKey >= 5 ? 'FULL CARD!' : linesWon + ' LINE' + (linesWon > 1 ? 'S' : '') + ' -- BINGO!';
         resultBanner.className = 'result-banner win';
         rbLabel.textContent = label;

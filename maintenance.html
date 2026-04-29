@@ -104,7 +104,7 @@
   firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
   const rtdb=firebase.database();
 
-  // Load custom maintenance message
+  // Load custom maintenance message 
   rtdb.ref('settings/maintenanceMessage').once('value',snap=>{
     if(snap.val())document.getElementById('maintMsg').textContent=snap.val();
   });

@@ -808,8 +808,8 @@
       multiSub.className = 'multiplier-sub';
       multiSub.textContent = '';
 
-      // Deduct bet
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Deduct bet (atomic — race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       const result = generateResult();
       const won = result >= target;
@@ -847,7 +847,8 @@
 
       if (won) {
         const payout = Math.floor(bet * target);
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet + payout);
+        // Bet was already deducted; credit FULL gross via transaction.
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
 
         multiValue.className = 'multiplier-value win';
         multiBg.className = 'multiplier-bg win';

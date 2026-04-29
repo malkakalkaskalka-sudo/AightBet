@@ -556,10 +556,10 @@
 
     // Generate one level's tunnels
     function generateLevel(depth) {
-      // Collapse chance: starts ~20%, grows with depth
-      // At depth 1: ~18%, at max: ~45%
-      const baseCollapse = 0.18;
-      const maxCollapse = 0.48;
+      // Collapse chance: starts ~28%, grows steeply with depth
+      // At depth 1: ~28%, at max: ~65%
+      const baseCollapse = 0.28;
+      const maxCollapse = 0.65;
       const progress = depth / maxDepth;
       const collapseChance = baseCollapse + (maxCollapse - baseCollapse) * progress;
 
@@ -790,7 +790,9 @@
       shaftRow.querySelectorAll('.shaft-cell').forEach(c => c.classList.add('disabled'));
 
       const payout = Math.floor(betAmount * currentMulti);
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - betAmount + payout);
+      // Bet was already deducted at startGame; credit FULL gross via transaction.
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) + payout);
+
 
       const label = perfect ? 'REACHED THE BOTTOM!' : 'CASHED OUT';
       shaftStatus.innerHTML = '<span class="hl-green">' + label + '</span> at ' + currentMulti.toFixed(2) + 'x | Depth ' + currentDepth;
@@ -830,7 +832,8 @@
       btnStart.textContent = 'MINING...';
       btnCashout.disabled = true;
 
-      rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits - bet);
+      // Deduct bet (atomic — race-safe)
+      rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c || 0) - bet);
 
       shaftTrail.innerHTML = '';
       buildDepthMarkers();
