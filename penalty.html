@@ -877,7 +877,7 @@
 
       if (won) {
         const payout = Math.floor(betAmount * m.multi);
-       rtdb.ref('users/'+uid+'/credits').transaction(c => (c||0) + payout);
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c||0) + payout);
         goalStatus.innerHTML = 'You <span class="hl-green">WIN</span> the shootout! ' + youGoals + '-' + oppGoals;
         resultBanner.className = 'result-banner win';
         rbLabel.textContent = 'SHOOTOUT WON';
@@ -886,7 +886,7 @@
         addHistory('win', payout);
         saveStats(true, payout);
       } else if (draw) {
-        rtdb.ref('users/' + currentUser.uid + '/credits').set(userCredits);
+        rtdb.ref('users/' + currentUser.uid + '/credits').transaction(c => (c||0) + betAmount);
         goalStatus.innerHTML = '<span class="hl-gold">DRAW!</span> ' + youGoals + '-' + oppGoals + ' -- bet refunded';
         resultBanner.className = 'result-banner draw';
         rbLabel.textContent = 'DRAW -- REFUNDED';
