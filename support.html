@@ -838,7 +838,20 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
             <div class="setting-desc">Irreversible actions.</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="r-btn delete" id="clearReportsBtn">Clear All Reports</button><button class="r-btn delete" id="clearPostsBtn">Delete All Posts</button><button class="r-btn delete" id="clearAppealsBtn">Clear All Appeals</button><button class="r-btn delete" id="clearChatsBtn">Clear All Chats</button><button class="r-btn delete" id="clearBugsBtn">Clear All Bugs</button></div>
           </div>
-        `;
+        <div class="setting-card">
+  <div class="setting-title" style="margin-bottom:8px">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    Update Notification
+  </div>
+  <div class="setting-desc">Pushes a "NEW Update" popup to every user who hasn't seen this version yet.</div>
+  <input class="maint-input" id="updName" placeholder="Update name (e.g. Case Battles 2.0)" value="${(s.updateNotification&&s.updateNotification.name||'').replace(/"/g,'&quot;')}"/>
+  <textarea class="maint-input" id="updDesc" placeholder="Description shown in the popup..." style="min-height:80px;margin-top:8px;resize:vertical">${(s.updateNotification&&s.updateNotification.description||'')}</textarea>
+  <input class="maint-input" id="updVersion" placeholder="Version (e.g. 2.4)" style="margin-top:8px" value="${(s.updateNotification&&s.updateNotification.version||'').replace(/"/g,'&quot;')}"/>
+  <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+    <button class="maint-save" id="updSaveBtn">🚀 Publish Update</button>
+    <button class="r-btn delete" id="updClearBtn" style="margin:0">Remove Current Update</button>
+  </div>
+</div>`;
         document.getElementById('maintToggle').addEventListener('change',async function(){await rtdb.ref('settings/maintenance').set(this.checked);const s2=document.getElementById('maintStatus');s2.style.color=this.checked?'var(--red)':'var(--green)';s2.textContent=this.checked?'MAINTENANCE ON':'Site is live';toast(this.checked?'Maintenance ON':'Maintenance OFF','success');});
         document.getElementById('maintMsgSave').addEventListener('click',async()=>{await rtdb.ref('settings/maintenanceMessage').set(document.getElementById('maintMsgInput').value.trim());toast('Message saved','success');});
         document.getElementById('globalCreditsBtn').addEventListener('click',async()=>{
@@ -863,7 +876,32 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
 
 
 renderPollManager(c, snap.val());
+document.getElementById('updSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('updName').value.trim();
+  const desc = document.getElementById('updDesc').value.trim();
+  const ver  = document.getElementById('updVersion').value.trim();
+  if (!name || !desc || !ver) { toast('Fill in name, description, and version'); return; }
+  if (!confirm('Publish update V' + ver + ' to ALL users?')) return;
+  try {
+    await rtdb.ref('settings/updateNotification').set({
+      name: name,
+      description: desc,
+      version: ver,
+      publishedAt: Date.now()
+    });
+    toast('Update V' + ver + ' published ✓', 'success');
+  } catch(e) { toast('Error: ' + e.message); }
+});
+
+document.getElementById('updClearBtn').addEventListener('click', async () => {
+  if (!confirm('Remove the current update notification? (Nobody new will see it anymore.)')) return;
+  await rtdb.ref('settings/updateNotification').remove();
+  toast('Update notification cleared', 'success');
+});
 renderTransactionViewer(c);
+
+
+
       });
     }
 

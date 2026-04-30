@@ -476,6 +476,73 @@ rtdb.ref('settings/forceRefresh').on('value', function(snap){
         });
       })();
 
+      // ── UPDATE NOTIFICATION POPUP ──
+rtdb.ref('settings/updateNotification').on('value', function(snap){
+  var upd = snap.val();
+  if (!upd || !upd.version || !upd.name) return;
+
+  var seenKey = 'aightbet-update-seen-v' + upd.version;
+  if (localStorage.getItem(seenKey) === '1') return;
+  if (document.getElementById('update-popup-overlay')) return;
+
+  showUpdatePopup(upd, seenKey);
+});
+
+function showUpdatePopup(upd, seenKey){
+  if (!document.getElementById('update-popup-style')) {
+    var us = document.createElement('style');
+    us.id = 'update-popup-style';
+    us.textContent =
+      '#update-popup-overlay{position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;animation:upFade .3s ease;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}'+
+      '@keyframes upFade{from{opacity:0}to{opacity:1}}'+
+      '@keyframes upSlide{from{opacity:0;transform:scale(.9) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}'+
+      '@keyframes upShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}'+
+      '@keyframes upBadgePulse{0%,100%{transform:scale(1);box-shadow:0 0 24px -4px rgba(139,92,246,.5)}50%{transform:scale(1.05);box-shadow:0 0 32px -2px rgba(139,92,246,.8)}}'+
+      '#update-popup-card{position:relative;background:rgba(15,12,30,.96);border:1px solid rgba(139,92,246,.3);border-radius:22px;max-width:480px;width:100%;padding:30px 28px;animation:upSlide .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 20px 60px -10px rgba(139,92,246,.35),inset 0 1px 0 rgba(255,255,255,.06)}'+
+      '#update-popup-card::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(135deg,#8b5cf6,#06b6d4,#ec4899,#8b5cf6);background-size:300% 300%;animation:upShine 4s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}'+
+      '.up-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative}'+
+      '.up-logo{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.3rem;color:#fff;letter-spacing:.02em;box-shadow:0 8px 24px -6px rgba(139,92,246,.5);flex-shrink:0}'+
+      '.up-head-text{display:flex;flex-direction:column;gap:4px;min-width:0}'+
+      '.up-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:linear-gradient(135deg,#8b5cf6,#ec4899);border-radius:999px;font-size:.65rem;font-weight:900;letter-spacing:.12em;color:#fff;text-transform:uppercase;width:fit-content;animation:upBadgePulse 2.2s ease infinite}'+
+      '.up-brand{font-size:1.15rem;font-weight:900;color:#fff;letter-spacing:-.01em}'+
+      '.up-brand .up-ver{background:linear-gradient(135deg,#c4b5fd,#f0abfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:6px}'+
+      '.up-name{font-size:.95rem;font-weight:700;color:#e2e8f0;margin:6px 0 10px;line-height:1.35}'+
+      '.up-desc{font-size:.88rem;line-height:1.55;color:#cbd5e1;white-space:pre-wrap;word-wrap:break-word;max-height:240px;overflow-y:auto;padding:14px 16px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.14);border-radius:12px;margin-bottom:18px}'+
+      '.up-ok{width:100%;padding:14px;font-size:.95rem;font-weight:800;color:#fff;border:none;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:.03em;background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 8px 24px -8px rgba(139,92,246,.45);transition:transform .15s,box-shadow .25s}'+
+      '.up-ok:hover{transform:translateY(-2px);box-shadow:0 12px 32px -6px rgba(139,92,246,.6)}'+
+      '.up-ok:active{transform:translateY(0)}';
+    document.head.appendChild(us);
+  }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'update-popup-overlay';
+  overlay.innerHTML =
+    '<div id="update-popup-card">'+
+      '<div class="up-header">'+
+        '<div class="up-logo">AB</div>'+
+        '<div class="up-head-text">'+
+          '<span class="up-badge">✨ New Update</span>'+
+          '<div class="up-brand">AightBet<span class="up-ver">V'+escapeHTMLBasic(upd.version)+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="up-name">'+escapeHTMLBasic(upd.name)+'</div>'+
+      '<div class="up-desc">'+escapeHTMLBasic(upd.description)+'</div>'+
+      '<button class="up-ok" id="up-ok-btn">Ok</button>'+
+    '</div>';
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#up-ok-btn').addEventListener('click', function(){
+    try { localStorage.setItem(seenKey, '1'); } catch(_){}
+    // Also record per-user in DB so the support panel can see reach
+    try {
+      var u = firebase.auth().currentUser;
+      if (u) rtdb.ref('settings/updateNotification/seenBy/'+u.uid).set(true);
+    } catch(_){}
+    overlay.style.transition = 'opacity .25s';
+    overlay.style.opacity = '0';
+    setTimeout(function(){ if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 250);
+  });
+}
 
 // ══════════════════════════════════════════════════════
 // POLL VOTE OVERLAY — EPIC EVENT STYLE
