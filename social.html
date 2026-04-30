@@ -2234,6 +2234,14 @@
 
   document.getElementById('sendCreditsConfirm').addEventListener('click',async()=>{
     if(!sendCreditsTargetUid)return;
+    // ── LOAN BLOCK: prevent transfers while user has active debt ──
+const loanSnap = await rtdb.ref('users/' + MY_UID + '/loan/debt').once('value');
+const currentDebt = loanSnap.val() || 0;
+if (currentDebt > 0) {
+  toast('❌ Cannot transfer credits while you have an active loan! Pay back your ' + currentDebt.toLocaleString() + ' debt first.');
+  return;
+}
+// ── END LOAN BLOCK ──
     const amount=parseInt(document.getElementById('sendCreditsAmount').value)||0;
     if(amount<1){toast('Enter a valid amount');return;}
     const myCredits=UD.credits||0;

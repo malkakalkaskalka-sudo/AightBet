@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AightBet – Support Panel</title>
@@ -328,7 +328,7 @@
       else if(activeTab==='settings')renderSettings(c);
       else if(activeTab==='rigged') renderRigged(c);
     }
-
+function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
     /* Map of which tabs depend on which data slice. Listener firings will
        only re-render the active tab if it actually depends on that slice.
        Most tabs DON'T need to redraw when a random user opens a case
@@ -859,6 +859,11 @@
     toast('Refresh sent to all users ✓', 'success');
   } catch(e) { toast('Error: ' + e.message); }
 });
+
+
+
+renderPollManager(c, snap.val());
+renderTransactionViewer(c);
       });
     }
 
@@ -1014,6 +1019,349 @@
       });
     }
 
+
+
+
+
+/* ══════════════════════════════════════════════════════
+   TRANSACTION VIEWER — Admin tool to see all transfers
+   ══════════════════════════════════════════════════════ */
+function renderTransactionViewer(container) {
+  var section = document.createElement('div');
+  section.className = 'setting-card';
+  section.innerHTML = `
+    <div class="setting-title" style="margin-bottom:12px">
+      <svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Credit Transfers
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" id="txn-search" class="maint-input" placeholder="Search by username or UID..." style="flex:1;min-width:180px;margin:0"/>
+      <select id="txn-filter" style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-size:.8rem;cursor:pointer">
+        <option value="all">All Transfers</option>
+        <option value="suspicious">Suspicious Only</option>
+      </select>
+      <button class="maint-save" id="txn-load-btn" style="margin:0;padding:8px 16px;font-size:.8rem">Load Transfers</button>
+    </div>
+    <div id="txn-results" style="max-height:400px;overflow-y:auto"></div>
+  `;
+  container.appendChild(section);
+
+  var resultsDiv = section.querySelector('#txn-results');
+  var searchInput = section.querySelector('#txn-search');
+  var filterSelect = section.querySelector('#txn-filter');
+
+  section.querySelector('#txn-load-btn').addEventListener('click', loadTransfers);
+
+  // Auto-load on render
+  loadTransfers();
+
+  async function loadTransfers() {
+    resultsDiv.innerHTML = '<div style="color:#64748b;font-size:.8rem;padding:12px">Loading transfers...</div>';
+
+    try {
+      const snap = await rtdb.ref('creditTransfers').orderByChild('timestamp').limitToLast(200).once('value');
+      const transfers = [];
+      snap.forEach(child => {
+        transfers.push({ id: child.key, ...child.val() });
+      });
+      transfers.reverse(); // newest first
+
+      renderTransfers(transfers);
+    } catch(e) {
+      resultsDiv.innerHTML = '<div style="color:#f87171;font-size:.8rem;padding:12px">Error: ' + e.message + '</div>';
+    }
+  }
+
+  // Re-render on search/filter change
+  searchInput.addEventListener('input', () => { section.querySelector('#txn-load-btn').click(); });
+  filterSelect.addEventListener('change', () => { section.querySelector('#txn-load-btn').click(); });
+
+  async function renderTransfers(transfers) {
+    var search = searchInput.value.trim().toLowerCase();
+    var filter = filterSelect.value;
+
+    // Get all users for name lookups
+    var userNames = {};
+    for (var uid in allUsers) {
+      var u = allUsers[uid];
+      userNames[uid] = u.username || u.nickname || u.displayName || u.email || uid.slice(0,8);
+    }
+
+    // Analyze for suspicious patterns
+    var userTransferMap = {}; // { fromUid: { toUid: totalAmount } }
+    transfers.forEach(t => {
+      if (!userTransferMap[t.fromUid]) userTransferMap[t.fromUid] = {};
+      if (!userTransferMap[t.fromUid][t.toUid]) userTransferMap[t.fromUid][t.toUid] = 0;
+      userTransferMap[t.fromUid][t.toUid] += (t.amount || 0);
+    });
+
+    // Flag suspicious: same sender→receiver pair with high total
+    var suspiciousPairs = {};
+    for (var from in userTransferMap) {
+      for (var to in userTransferMap[from]) {
+        var total = userTransferMap[from][to];
+        // Flag if same pair transferred > 50k total OR > 3 transfers
+        var count = transfers.filter(t => t.fromUid === from && t.toUid === to).length;
+        if (total > 50000 || count >= 3) {
+          suspiciousPairs[from + '→' + to] = { total: total, count: count };
+        }
+      }
+    }
+
+    // Filter transfers
+    var filtered = transfers.filter(t => {
+      var fromName = (userNames[t.fromUid] || t.fromUid || '').toLowerCase();
+      var toName = (userNames[t.toUid] || t.toUid || '').toLowerCase();
+      var matchSearch = !search || fromName.includes(search) || toName.includes(search) || (t.fromUid||'').includes(search) || (t.toUid||'').includes(search);
+
+      var isSuspicious = suspiciousPairs[t.fromUid + '→' + t.toUid];
+      var matchFilter = filter === 'all' || (filter === 'suspicious' && isSuspicious);
+
+      return matchSearch && matchFilter;
+    });
+
+    if (filtered.length === 0) {
+      resultsDiv.innerHTML = '<div style="color:#64748b;font-size:.82rem;padding:16px;text-align:center">No transfers found</div>';
+      return;
+    }
+
+    // Summary
+    var susCount = Object.keys(suspiciousPairs).length;
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 4px">';
+    html += '<span style="font-size:.75rem;color:#64748b">' + filtered.length + ' transfer' + (filtered.length!==1?'s':'') + '</span>';
+    if (susCount > 0) {
+      html += '<span style="font-size:.75rem;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.1);padding:3px 10px;border-radius:6px">⚠️ ' + susCount + ' suspicious pair' + (susCount!==1?'s':'') + '</span>';
+    }
+    html += '</div>';
+
+    // Transfer rows
+    filtered.forEach(t => {
+      var fromName = userNames[t.fromUid] || (t.fromUid || '?').slice(0,8) + '…';
+      var toName = userNames[t.toUid] || (t.toUid || '?').slice(0,8) + '…';
+      var time = t.timestamp ? new Date(t.timestamp).toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '?';
+      var isSus = suspiciousPairs[t.fromUid + '→' + t.toUid];
+
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:' + (isSus ? 'rgba(245,158,11,.06)' : 'rgba(255,255,255,.02)') + ';border:1px solid ' + (isSus ? 'rgba(245,158,11,.2)' : 'rgba(255,255,255,.06)') + '">';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="display:flex;align-items:center;gap:6px;font-size:.82rem">';
+      html += '<span style="color:#e2e8f0;font-weight:600">' + esc(fromName) + '</span>';
+      html += '<span style="color:#64748b">→</span>';
+      html += '<span style="color:#e2e8f0;font-weight:600">' + esc(toName) + '</span>';
+      if (isSus) html += '<span style="font-size:.65rem;color:#f59e0b;font-weight:700;margin-left:4px">⚠️ SUS</span>';
+      html += '</div>';
+      html += '<div style="font-size:.7rem;color:#475569;margin-top:2px">' + time + '</div>';
+      html += '</div>';
+      html += '<div style="font-size:.85rem;font-weight:700;color:#8b5cf6">🪙 ' + (t.amount || 0).toLocaleString() + '</div>';
+      html += '</div>';
+    });
+
+    // Suspicious pairs summary
+    if (susCount > 0 && filter !== 'suspicious') {
+      html += '<div style="margin-top:14px;padding:12px;border-radius:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15)">';
+      html += '<div style="font-size:.78rem;font-weight:700;color:#f59e0b;margin-bottom:8px">⚠️ Suspicious Pairs (possible alt abuse):</div>';
+      for (var pair in suspiciousPairs) {
+        var parts = pair.split('→');
+        var pFromName = userNames[parts[0]] || parts[0].slice(0,8);
+        var pToName = userNames[parts[1]] || parts[1].slice(0,8);
+        var pd = suspiciousPairs[pair];
+        html += '<div style="font-size:.78rem;color:#fbbf24;margin-bottom:4px">' + esc(pFromName) + ' → ' + esc(pToName) + ': <strong>🪙 ' + pd.total.toLocaleString() + '</strong> (' + pd.count + ' transfers)</div>';
+      }
+      html += '</div>';
+    }
+
+    resultsDiv.innerHTML = html;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// POLL MANAGEMENT — Add this to your renderSettings() function
+// ══════════════════════════════════════════════════════
+
+function renderPollManager(container) {
+  var rtdb = firebase.database();
+  var pollRef = rtdb.ref('settings/poll');
+
+  var section = document.createElement('div');
+  section.className = 'settings-card';
+  section.style.marginTop = '24px';
+  section.innerHTML = `
+    <h3 style="margin:0 0 16px;font-size:1.1rem;font-weight:800;color:#e2e8f0;">
+      <span style="margin-right:8px;">🗳️</span>Community Vote
+    </h3>
+    <div id="poll-admin-content">Loading...</div>
+  `;
+  container.appendChild(section);
+
+  var content = section.querySelector('#poll-admin-content');
+
+  pollRef.on('value', function(snap) {
+    var poll = snap.val();
+    content.innerHTML = '';
+
+    if (poll && poll.question) {
+      // ── ACTIVE POLL: Show results + delete button ──
+      renderPollResults(content, poll);
+    } else {
+      // ── NO POLL: Show creation form ──
+      renderPollCreator(content);
+    }
+  });
+}
+
+function renderPollCreator(container) {
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input type="text" id="poll-question" placeholder="What should we add next?" 
+        style="width:100%;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:.9rem;outline:none;">
+      
+      <div id="poll-options-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      
+      <button id="poll-add-option" style="align-self:flex-start;padding:8px 16px;font-size:.8rem;font-weight:600;color:#8b5cf6;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;cursor:pointer;">
+        + Add Option
+      </button>
+      
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="poll-allow-custom" style="width:18px;height:18px;accent-color:#8b5cf6;">
+        <span style="font-size:.85rem;color:#94a3b8;">Allow "Type your own" option</span>
+      </label>
+      
+      <button id="poll-create-btn" style="padding:12px;font-size:.9rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;cursor:pointer;">
+        Publish Vote
+      </button>
+    </div>
+  `;
+
+  var optionsList = container.querySelector('#poll-options-list');
+  var optionCount = 0;
+
+  function addOptionInput(val) {
+    optionCount++;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+    row.innerHTML = `
+      <input type="text" class="poll-option-input" placeholder="Option ${optionCount}" value="${val || ''}"
+        style="flex:1;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-size:.85rem;outline:none;">
+      <button class="poll-remove-opt" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">×</button>
+    `;
+    row.querySelector('.poll-remove-opt').addEventListener('click', function() {
+      row.remove();
+    });
+    optionsList.appendChild(row);
+  }
+
+  // Start with 2 options
+  addOptionInput('');
+  addOptionInput('');
+
+  container.querySelector('#poll-add-option').addEventListener('click', function() {
+    addOptionInput('');
+  });
+
+  container.querySelector('#poll-create-btn').addEventListener('click', function() {
+    var question = container.querySelector('#poll-question').value.trim();
+    var inputs = container.querySelectorAll('.poll-option-input');
+    var allowCustom = container.querySelector('#poll-allow-custom').checked;
+
+    var options = [];
+    inputs.forEach(function(inp) {
+      var v = inp.value.trim();
+      if (v) options.push(v);
+    });
+
+    if (!question) { showToast('Enter a question', 'error'); return; }
+    if (options.length < 2) { showToast('Add at least 2 options', 'error'); return; }
+
+    firebase.database().ref('settings/poll').set({
+      question: question,
+      options: options,
+      allowCustom: allowCustom,
+      createdAt: firebase.database.ServerValue.TIMESTAMP
+    }).then(function() {
+      showToast('Vote published!', 'success');
+    });
+  });
+}
+
+function renderPollResults(container, poll) {
+  var votes = poll.votes || {};
+  var totalVotes = Object.keys(votes).length;
+
+  // Count votes per option
+  var counts = {};
+  var customResponses = [];
+  poll.options.forEach(function(opt) { counts[opt] = 0; });
+
+  for (var uid in votes) {
+    var v = votes[uid];
+    if (v.custom) {
+      customResponses.push(v.custom);
+    } else if (v.choice && counts.hasOwnProperty(v.choice)) {
+      counts[v.choice]++;
+    } else if (v.choice) {
+      // vote for an option not in the original list (edge case)
+      counts[v.choice] = (counts[v.choice] || 0) + 1;
+    }
+  }
+
+  var resultsHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:.95rem;font-weight:700;color:#e2e8f0;margin-bottom:4px;">${escapeHTML(poll.question)}</div>
+      <div style="font-size:.75rem;color:#64748b;">${totalVotes} vote${totalVotes !== 1 ? 's' : ''} total</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+  `;
+
+  poll.options.forEach(function(opt) {
+    var count = counts[opt] || 0;
+    var pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+    resultsHTML += `
+      <div style="position:relative;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;">
+        <div style="position:absolute;inset:0;width:${pct}%;background:rgba(139,92,246,.12);border-radius:8px;transition:width .3s;"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.85rem;color:#e2e8f0;font-weight:600;">${escapeHTML(opt)}</span>
+          <span style="font-size:.8rem;color:#8b5cf6;font-weight:700;">${count} (${pct}%)</span>
+        </div>
+      </div>
+    `;
+  });
+
+  resultsHTML += '</div>';
+
+  // Custom responses
+  if (customResponses.length > 0) {
+    resultsHTML += `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:.8rem;font-weight:700;color:#94a3b8;margin-bottom:8px;">Custom Suggestions (${customResponses.length}):</div>
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;">
+    `;
+    customResponses.forEach(function(cr) {
+      resultsHTML += `<div style="padding:8px 12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);border-radius:8px;font-size:.8rem;color:#67e8f9;">${escapeHTML(cr)}</div>`;
+    });
+    resultsHTML += '</div></div>';
+  }
+
+  resultsHTML += `
+    <button id="poll-delete-btn" style="width:100%;padding:12px;font-size:.85rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:12px;cursor:pointer;">
+      Delete Vote & Reset
+    </button>
+  `;
+
+  container.innerHTML = resultsHTML;
+
+  container.querySelector('#poll-delete-btn').addEventListener('click', function() {
+    if (confirm('Delete this vote? All responses will be lost.')) {
+      firebase.database().ref('settings/poll').remove().then(function() {
+        showToast('Vote deleted', 'success');
+      });
+    }
+  });
+}
+
+function escapeHTML(s) {
+  var d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
     function escapeAttr(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
     async function removeRig(uid, key) {
@@ -1089,6 +1437,7 @@
       const u=allUsers[uid]||{};const up=Object.entries(allPosts).filter(([,p])=>p.authorUid===uid);const ur=Object.entries(allReports).filter(([,r])=>r.targetAuthorUid===uid||r.targetId===uid);const ua=allAppeals[uid];
       openModal(`<h3>User Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">UID:</span><span class="detail-val" style="font-family:monospace;font-size:.75rem">${uid}</span></div><div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.username||u.nickname||u.displayName||'---')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'---')}</span></div><div class="detail-row"><span class="detail-label">Credits:</span><span class="detail-val" style="color:var(--gold)">${(u.credits||0).toLocaleString()}</span></div><div class="detail-row"><span class="detail-label">Bio:</span><span class="detail-val">${escapeHTML(u.bio||'(none)')}</span></div><div class="detail-row"><span class="detail-label">Private:</span><span class="detail-val">${u.privateProfile?'Yes':'No'}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'<span style="color:var(--red);font-weight:700">YES</span> --- '+escapeHTML(u.banReason||''):'No'}</span></div><div class="detail-row"><span class="detail-label">Created:</span><span class="detail-val">${u.createdAt?new Date(u.createdAt).toLocaleString():'---'}</span></div><div class="detail-row"><span class="detail-label">Posts:</span><span class="detail-val">${up.length}</span></div><div class="detail-row"><span class="detail-label">Reports:</span><span class="detail-val">${ur.length}</span></div>${ua?`<div class="detail-row"><span class="detail-label">Appeal:</span><span class="detail-val"><span class="ac-status ${ua.status}">${ua.status}</span></span></div>`:''}<hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Inventory (${Object.keys(u.inventory||{}).length})</div><div class="detail-content" style="font-size:.7rem">${Object.keys(u.inventory||{}).join(', ')||'(empty)'}</div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Recent Posts</div><div class="detail-content">${up.slice(0,5).map(([,p])=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)"><strong>${timeAgo(p.timestamp)}</strong>: ${escapeHTML((p.text||'').substring(0,150))}${p.image?' [img]':''}</div>`).join('')||'(none)'}</div>`);
     }
+    
   </script>
 </body>
 </html>

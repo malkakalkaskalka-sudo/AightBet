@@ -379,6 +379,8 @@ rtdb.ref('settings/forceRefresh').on('value', function(snap){
       presRef.onDisconnect().remove();
       presRef.set(true);
 
+
+      
       /* CREDIT-BALANCE WATCHER ─ Big-win detection.
          The cleanest, most general approach: watch the user's own credits
          balance and broadcast when it jumps by ≥ 1,000,000 in one update.
@@ -474,6 +476,343 @@ rtdb.ref('settings/forceRefresh').on('value', function(snap){
         });
       })();
 
+
+// ══════════════════════════════════════════════════════
+// POLL VOTE OVERLAY — EPIC EVENT STYLE
+// Add inside auth.onAuthStateChanged after ban check
+// ══════════════════════════════════════════════════════
+
+(function(){
+  var pollRef = rtdb.ref('settings/poll');
+
+  pollRef.on('value', function(snap) {
+    var poll = snap.val();
+    var existing = document.getElementById('vote-overlay');
+    if (existing) existing.remove();
+
+    if (!poll || !poll.question) return;
+    if (poll.votes && poll.votes[u.uid]) return;
+
+    showVoteOverlay(poll, u.uid);
+  });
+})();
+
+function showVoteOverlay(poll, uid) {
+  if (!document.getElementById('vote-overlay-style')) {
+    var vs = document.createElement('style');
+    vs.id = 'vote-overlay-style';
+    vs.textContent = `
+      #vote-overlay {
+        position:fixed;inset:0;z-index:999999;
+        display:flex;align-items:center;justify-content:center;padding:20px;
+        animation: vo-fadeIn .4s ease;
+        overflow:hidden;
+      }
+      #vote-overlay::before {
+        content:'';position:absolute;inset:0;
+        background:radial-gradient(ellipse at 30% 20%, rgba(139,92,246,.25) 0%, transparent 50%),
+                   radial-gradient(ellipse at 70% 80%, rgba(6,182,212,.2) 0%, transparent 50%),
+                   rgba(0,0,0,.92);
+        z-index:0;
+      }
+      @keyframes vo-fadeIn{from{opacity:0}to{opacity:1}}
+
+      /* ── Floating particles ── */
+      .vote-particle {
+        position:absolute;border-radius:50%;pointer-events:none;z-index:1;
+        animation: vo-float linear infinite;
+        opacity:0;
+      }
+      @keyframes vo-float {
+        0%   { transform:translateY(100vh) scale(0); opacity:0; }
+        10%  { opacity:1; }
+        90%  { opacity:.6; }
+        100% { transform:translateY(-100px) scale(1); opacity:0; }
+      }
+
+      /* ── Glow ring behind card ── */
+      .vote-glow-ring {
+        position:absolute;width:500px;height:500px;border-radius:50%;z-index:1;
+        background:conic-gradient(from 0deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6);
+        filter:blur(80px);opacity:.3;
+        animation: vo-spin 8s linear infinite;
+      }
+      @keyframes vo-spin { to { transform:rotate(360deg); } }
+
+      /* ── Card ── */
+      #vote-card {
+        position:relative;z-index:2;
+        background:rgba(15,12,30,.85);
+        border:1px solid rgba(139,92,246,.3);
+        border-radius:24px;
+        max-width:500px;width:100%;padding:36px 32px;
+        backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+        box-shadow: 0 0 60px -10px rgba(139,92,246,.3),
+                    0 0 120px -20px rgba(6,182,212,.15),
+                    inset 0 1px 0 rgba(255,255,255,.08);
+        animation: vo-cardIn .5s cubic-bezier(.175,.885,.32,1.275);
+      }
+      @keyframes vo-cardIn {
+        from { opacity:0; transform:scale(.8) translateY(40px) rotateX(10deg); }
+        to   { opacity:1; transform:scale(1) translateY(0) rotateX(0); }
+      }
+
+      /* ── Shimmer border ── */
+      #vote-card::before {
+        content:'';position:absolute;inset:-1px;border-radius:24px;padding:1px;
+        background:linear-gradient(135deg, #8b5cf6, #06b6d4, #ec4899, #8b5cf6);
+        background-size:300% 300%;
+        animation: vo-shimmer 4s ease infinite;
+        -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite:xor;mask-composite:exclude;
+        opacity:.6;
+      }
+      @keyframes vo-shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+      /* ── Header ── */
+      .vote-header { text-align:center;margin-bottom:24px; }
+      .vote-icon {
+        width:64px;height:64px;margin:0 auto 14px;border-radius:16px;
+        background:linear-gradient(135deg, #8b5cf6, #06b6d4);
+        display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+        box-shadow:0 8px 32px -8px rgba(139,92,246,.5);
+        animation: vo-iconBounce 2s ease infinite;
+      }
+      @keyframes vo-iconBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+      .vote-title {
+        font-size:1.3rem;font-weight:900;
+        background:linear-gradient(135deg,#e2e8f0,#8b5cf6);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+        background-clip:text;
+        margin:0 0 6px;
+      }
+      .vote-subtitle {
+        font-size:.8rem;color:#64748b;font-weight:500;
+        letter-spacing:.03em;
+      }
+
+      /* ── Options ── */
+      .vote-options { display:flex;flex-direction:column;gap:10px;margin-bottom:20px; }
+      .vote-option {
+        width:100%;padding:16px 20px;text-align:left;
+        font-size:.9rem;font-weight:600;color:#c4b5fd;
+        background:rgba(139,92,246,.06);
+        border:1px solid rgba(139,92,246,.15);
+        border-radius:14px;cursor:pointer;
+        font-family:inherit;position:relative;overflow:hidden;
+        transition:all .2s cubic-bezier(.4,0,.2,1);
+        animation: vo-optIn .4s ease backwards;
+      }
+      .vote-option:nth-child(1){animation-delay:.1s}
+      .vote-option:nth-child(2){animation-delay:.18s}
+      .vote-option:nth-child(3){animation-delay:.26s}
+      .vote-option:nth-child(4){animation-delay:.34s}
+      .vote-option:nth-child(5){animation-delay:.42s}
+      .vote-option:nth-child(6){animation-delay:.5s}
+      @keyframes vo-optIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+
+      .vote-option::before {
+        content:'';position:absolute;inset:0;
+        background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(6,182,212,.1));
+        opacity:0;transition:opacity .2s;
+      }
+      .vote-option:hover {
+        border-color:rgba(139,92,246,.4);
+        transform:translateX(6px) scale(1.01);
+        box-shadow:0 4px 20px -4px rgba(139,92,246,.25);
+      }
+      .vote-option:hover::before { opacity:1; }
+
+      .vote-option.selected {
+        background:rgba(139,92,246,.15);
+        border-color:#8b5cf6;
+        color:#fff;
+        box-shadow:0 0 24px -4px rgba(139,92,246,.4), inset 0 0 20px rgba(139,92,246,.1);
+        transform:translateX(6px) scale(1.02);
+      }
+      .vote-option.selected::after {
+        content:'✓';position:absolute;right:16px;top:50%;transform:translateY(-50%);
+        font-size:1.1rem;color:#8b5cf6;font-weight:900;
+        animation: vo-check .3s cubic-bezier(.175,.885,.32,1.275);
+      }
+      @keyframes vo-check { from{transform:translateY(-50%) scale(0)} to{transform:translateY(-50%) scale(1)} }
+
+      /* ── Custom input ── */
+      .vote-custom-input {
+        width:100%;padding:14px 18px;margin-top:10px;
+        background:rgba(139,92,246,.05);
+        border:1px solid rgba(139,92,246,.2);
+        border-radius:12px;color:#e2e8f0;font-size:.88rem;
+        outline:none;font-family:inherit;
+        display:none;
+        transition:border-color .2s, box-shadow .2s;
+      }
+      .vote-custom-input:focus {
+        border-color:#8b5cf6;
+        box-shadow:0 0 16px -4px rgba(139,92,246,.3);
+      }
+      .vote-custom-input.show { display:block;animation:vo-optIn .3s ease; }
+
+      /* ── Submit button ── */
+      .vote-submit {
+        width:100%;padding:16px;font-size:1rem;font-weight:800;
+        color:#fff;border:none;border-radius:14px;
+        cursor:pointer;font-family:inherit;
+        background:linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9);
+        background-size:200% 200%;
+        box-shadow:0 8px 32px -8px rgba(139,92,246,.4);
+        opacity:.4;pointer-events:none;
+        transition:all .3s cubic-bezier(.4,0,.2,1);
+        position:relative;overflow:hidden;
+        letter-spacing:.02em;
+      }
+      .vote-submit::before {
+        content:'';position:absolute;inset:0;
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+        transform:translateX(-100%);
+        transition:transform .6s;
+      }
+      .vote-submit.active {
+        opacity:1;pointer-events:auto;
+        animation: vo-btnPulse 2s ease infinite;
+      }
+      .vote-submit.active:hover {
+        transform:translateY(-2px) scale(1.02);
+        box-shadow:0 12px 40px -8px rgba(139,92,246,.5);
+      }
+      .vote-submit.active:hover::before { transform:translateX(100%); }
+      @keyframes vo-btnPulse {
+        0%,100%{box-shadow:0 8px 32px -8px rgba(139,92,246,.4)}
+        50%{box-shadow:0 8px 40px -4px rgba(139,92,246,.6)}
+      }
+
+      /* ── Exit animation ── */
+      #vote-overlay.closing {
+        animation: vo-fadeOut .4s ease forwards;
+      }
+      #vote-overlay.closing #vote-card {
+        animation: vo-cardOut .4s cubic-bezier(.6,-.28,.74,.05) forwards;
+      }
+      @keyframes vo-fadeOut { to{opacity:0} }
+      @keyframes vo-cardOut { to{opacity:0;transform:scale(.9) translateY(-30px)} }
+
+      /* ── Confetti burst ── */
+      .vote-confetti {
+        position:absolute;width:8px;height:8px;border-radius:2px;
+        z-index:10;pointer-events:none;
+        animation: vo-confettiFall 1s cubic-bezier(.25,.46,.45,.94) forwards;
+      }
+      @keyframes vo-confettiFall {
+        0%   { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+        100% { transform:translate(var(--cx),var(--cy)) rotate(720deg) scale(0); opacity:0; }
+      }
+    `;
+    document.head.appendChild(vs);
+  }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'vote-overlay';
+
+  // Floating particles
+  var particlesHTML = '';
+  for (var p = 0; p < 20; p++) {
+    var size = Math.random() * 6 + 3;
+    var left = Math.random() * 100;
+    var dur = Math.random() * 6 + 4;
+    var delay = Math.random() * 5;
+    var color = ['#8b5cf6','#06b6d4','#ec4899','#a78bfa','#67e8f9'][Math.floor(Math.random()*5)];
+    particlesHTML += '<div class="vote-particle" style="width:'+size+'px;height:'+size+'px;left:'+left+'%;background:'+color+';animation-duration:'+dur+'s;animation-delay:'+delay+'s"></div>';
+  }
+
+  // Options HTML
+  var optionsHTML = '';
+  poll.options.forEach(function(opt, i) {
+    optionsHTML += '<button class="vote-option" data-index="'+i+'" data-value="'+escapeHTMLBasic(opt)+'">'+escapeHTMLBasic(opt)+'</button>';
+  });
+  if (poll.allowCustom) {
+    optionsHTML += '<button class="vote-option" data-index="custom" data-value="__custom__">✏️ Type your own suggestion</button>';
+  }
+
+  overlay.innerHTML =
+    particlesHTML +
+    '<div class="vote-glow-ring"></div>' +
+    '<div id="vote-card">' +
+      '<div class="vote-header">' +
+        '<div class="vote-icon">🗳️</div>' +
+        '<h2 class="vote-title">' + escapeHTMLBasic(poll.question) + '</h2>' +
+        '<p class="vote-subtitle">YOUR VOTE IS NEEDED — PICK ONE TO CONTINUE</p>' +
+      '</div>' +
+      '<div class="vote-options">' + optionsHTML + '</div>' +
+      (poll.allowCustom ? '<input type="text" class="vote-custom-input" id="vote-custom-text" placeholder="Type your suggestion here...">' : '') +
+      '<button class="vote-submit" id="vote-submit-btn">⚡ Submit Vote</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  // ── Logic ──
+  var selectedChoice = null;
+  var isCustom = false;
+  var options = overlay.querySelectorAll('.vote-option');
+  var submitBtn = overlay.querySelector('#vote-submit-btn');
+  var customInput = overlay.querySelector('#vote-custom-text');
+
+  options.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      options.forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+
+      if (btn.dataset.index === 'custom') {
+        isCustom = true;
+        selectedChoice = null;
+        if (customInput) { customInput.classList.add('show'); customInput.focus(); }
+        submitBtn.classList.toggle('active', !!(customInput && customInput.value.trim()));
+      } else {
+        isCustom = false;
+        selectedChoice = btn.dataset.value;
+        if (customInput) customInput.classList.remove('show');
+        submitBtn.classList.add('active');
+      }
+    });
+  });
+
+  if (customInput) {
+    customInput.addEventListener('input', function() {
+      if (isCustom) submitBtn.classList.toggle('active', !!customInput.value.trim());
+    });
+  }
+
+  submitBtn.addEventListener('click', function() {
+    if (!submitBtn.classList.contains('active')) return;
+
+    var voteData = {};
+    if (isCustom) { voteData.custom = customInput.value.trim(); }
+    else { voteData.choice = selectedChoice; }
+    voteData.votedAt = firebase.database.ServerValue.TIMESTAMP;
+
+    // Confetti burst!
+    spawnConfetti(overlay);
+
+    firebase.database().ref('settings/poll/votes/' + uid).set(voteData).then(function() {
+      setTimeout(function() {
+        overlay.classList.add('closing');
+        setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 400);
+      }, 600);
+    }).catch(function(err) { console.error('[POLL] vote error', err); });
+  });
+}
+
+function spawnConfetti(container) {
+  var colors = ['#8b5cf6','#06b6d4','#ec4899','#f59e0b','#10b981','#fff'];
+  for (var i = 0; i < 40; i++) {
+    var conf = document.createElement('div');
+    conf.className = 'vote-confetti';
+    var cx = (Math.random() - 0.5) * 500;
+    var cy = (Math.random() - 0.5) * 500 - 200;
+    conf.style.cssText = 'left:50%;top:50%;background:'+colors[Math.floor(Math.random()*colors.length)]+';--cx:'+cx+'px;--cy:'+cy+'px;animation-delay:'+(Math.random()*0.2)+'s;width:'+(Math.random()*8+4)+'px;height:'+(Math.random()*8+4)+'px';
+    container.appendChild(conf);
+    setTimeout(function(el){ if(el.parentNode) el.remove(); }.bind(null,conf), 1200);
+  }
+}
       // ── MYTHIC DROP & BIG-WIN ANNOUNCEMENTS (auto — games push to mythicDrops directly) ──
       (function(){
         // CSS for the slide banner
