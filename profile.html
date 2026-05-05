@@ -285,9 +285,26 @@
             </div>
             <label class="toggle"><input type="checkbox" id="lqmToggle"/><div class="toggle-track lqm-track"></div><div class="toggle-thumb"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></label>
           </div>
+        <div class="theme-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+  <div>
+    <div class="theme-row-label">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      Background Music
+    </div>
+    <div class="theme-row-sub">Chill music that plays across all pages</div>
+  </div>
+  <label class="toggle">
+    <input type="checkbox" id="bgMusicToggle"/>
+    <div class="toggle-track"></div>
+    <div class="toggle-thumb">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+  </label>
+</div>
           <div id="slqmBtnRow" style="margin-top:12px;display:none">
             <button class="slqm-btn visible" id="slqmBtn">⚡⚡ Super Low Quality Mode</button>
           </div>
+          
           <div class="theme-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
             <div>
               <div class="theme-row-label">
@@ -455,7 +472,26 @@ auth.onAuthStateChanged(u=>{
 document.getElementById('themeToggle')?.addEventListener('change',e=>{
   applyTheme(e.target.checked ? 'light' : 'dark');
 });
+// BG Music toggle
+(function(){
+  var MUSIC_KEY = 'aightbet-bgmusic';
+  var tog = document.getElementById('bgMusicToggle');
+  if(!tog) return;
 
+  // Reflect saved pref (default: on)
+  tog.checked = localStorage.getItem(MUSIC_KEY) !== 'off';
+
+  tog.addEventListener('change', function(){
+    var audio = document.getElementById('aightbet-bgmusic-player');
+    if(tog.checked){
+      localStorage.setItem(MUSIC_KEY, 'on');
+      if(audio) audio.play().catch(function(){});
+    } else {
+      localStorage.setItem(MUSIC_KEY, 'off');
+      if(audio){ audio.pause(); }
+    }
+  });
+})();
 /* === LOW QUALITY MODE === */
 function applyLQM(on, persist=true){
   if (window.__ckApplyLQM) window.__ckApplyLQM(on);

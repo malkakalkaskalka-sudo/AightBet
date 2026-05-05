@@ -870,23 +870,53 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     const container = document.createElement('div');
     container.id = 'ck-widget';
 
-    /* Determine spring progress */
-    const sprStart = new Date(YEAR, 2, 20);  // Mar 20
-    const sprEnd   = new Date(YEAR, 5, 20);  // Jun 20
-    const sprPct   = Math.max(0, Math.min(100,
-      Math.round(((NOW - sprStart) / (sprEnd - sprStart)) * 100)
-    ));
-    const sprDaysLeft = Math.max(0, Math.ceil((sprEnd - NOW) / 86400000));
+   
+    const TZ = 'Europe/Riga';
+    // Build a "now" Date that reflects Riga wall-clock, regardless of where the visitor is.
+    const _p = new Intl.DateTimeFormat('en-GB', {
+      timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit', hour12:false
+    }).formatToParts(new Date());
+    const _g = k => parseInt(_p.find(x => x.type === k).value, 10);
+    const RIGA_NOW = new Date(_g('year'), _g('month')-1, _g('day'), _g('hour'), _g('minute'));
+
+    const yr       = RIGA_NOW.getFullYear();
+    const sprStart = new Date(yr, 2, 20);   // Mar 20  (Riga local)
+    const sprEnd   = new Date(yr, 5, 1);    // Jun  1  (Riga local) ← Latvia spring end
+    const MS_DAY   = 86400000;
+    let sprPct, sprDaysLeft, sprStateLabel, sprSubLabel;
+
+    if (RIGA_NOW >= sprStart && RIGA_NOW <= sprEnd) {
+      // In spring — real progress
+      sprPct        = Math.round(((RIGA_NOW - sprStart) / (sprEnd - sprStart)) * 100);
+      sprDaysLeft   = Math.max(0, Math.ceil((sprEnd - RIGA_NOW) / MS_DAY));
+      sprStateLabel = sprPct + '% through';
+      sprSubLabel   = sprDaysLeft + ' day' + (sprDaysLeft !== 1 ? 's' : '') + ' left in spring';
+    } else if (RIGA_NOW < sprStart) {
+      // Before spring — countdown from winter solstice
+      const winterStart = new Date(yr - 1, 11, 21);
+      sprPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - winterStart) / (sprStart - winterStart)) * 100)));
+      sprDaysLeft   = Math.max(0, Math.ceil((sprStart - RIGA_NOW) / MS_DAY));
+      sprStateLabel = sprDaysLeft + ' days until spring';
+      sprSubLabel   = 'Countdown ' + sprPct + '% complete';
+    } else {
+      // After spring — countdown to next spring
+      const nextSpring = new Date(yr + 1, 2, 20);
+      sprPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - sprEnd) / (nextSpring - sprEnd)) * 100)));
+      sprDaysLeft   = Math.max(0, Math.ceil((nextSpring - RIGA_NOW) / MS_DAY));
+      sprStateLabel = sprDaysLeft + ' days until spring';
+      sprSubLabel   = 'Countdown ' + sprPct + '% complete';
+    }
 
     /* ── Card: Spring Season Progress ── */
     const cardA = document.createElement('div');
     cardA.className = 'ck-card';
     cardA.dataset.clickable = 'false';
-    cardA.title = 'How far through spring we are';
+    cardA.title = 'Spring season progress / countdown';
     cardA.innerHTML = `
       <div class="cw-lbl">🌱 Spring Progress</div>
-      <div class="cw-val">${sprPct}% through</div>
-      <div class="cw-sub">${sprDaysLeft} days left in spring</div>
+      <div class="cw-val">${sprStateLabel}</div>
+      <div class="cw-sub">${sprSubLabel}</div>
       <div class="cw-bar"><div class="cw-fill" id="ck-spr-bar"></div></div>
     `;
     container.appendChild(cardA);

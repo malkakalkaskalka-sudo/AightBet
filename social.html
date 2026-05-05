@@ -429,6 +429,365 @@
       .messages-panel{width:95vw;height:90vh}
     }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+    /* ══════════════════════════════════════════════════ */
+    /* ═══ CLANS — Clash-Royale-style groups & wars ═══ */
+    /* ══════════════════════════════════════════════════ */
+
+    /* Sidebar nav badges (already styled above), reuse for clan-chat unread */
+
+    /* Clans overlay */
+    .clans-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:32px 16px}
+    .clans-overlay.open{display:block;animation:fadeIn .25s ease}
+    .clans-panel{max-width:980px;margin:0 auto;background:linear-gradient(180deg,rgba(15,12,30,.97),rgba(10,10,15,.98));border:1px solid var(--border2);border-radius:22px;overflow:hidden;animation:slideUp .35s cubic-bezier(.22,1,.36,1);position:relative}
+    .clans-panel::before{content:'';position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(135deg,#8b5cf6,#06b6d4,#ec4899,#f59e0b);background-size:300% 300%;animation:upShine 6s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none}
+    .clans-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+    .clans-title{display:flex;align-items:center;gap:10px;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#fff,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .clans-title svg{width:24px;height:24px;stroke:#a78bfa;fill:none;stroke-width:2;-webkit-text-fill-color:initial}
+    .clans-close{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:none;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .clans-close:hover{background:var(--surface3)}
+    .clans-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    .clans-tabs{display:flex;gap:4px;padding:12px 16px 0;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2)}
+    .clan-tab{padding:12px 18px;font-size:.82rem;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);position:relative;transition:color .2s;display:flex;align-items:center;gap:6px}
+    .clan-tab:hover{color:var(--text)}
+    .clan-tab.active{color:var(--accent)}
+    .clan-tab.active::after{content:'';position:absolute;bottom:-1px;left:8px;right:8px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
+    .clan-tab svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    .clans-body{padding:20px 24px;min-height:420px;max-height:70vh;overflow-y:auto}
+
+    /* Clan card (browse list) */
+    .clan-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;transition:all .2s;cursor:pointer}
+    .clan-card:hover{border-color:rgba(139,92,246,.4);background:var(--surface2);transform:translateY(-1px);box-shadow:0 8px 24px -10px var(--glow)}
+    .clan-icon{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 14px -4px var(--glow);position:relative;overflow:hidden}
+    .clan-icon img{width:100%;height:100%;object-fit:cover}
+    .clan-icon .ci-tag{position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.7);font-size:.5rem;padding:2px 4px;border-radius:4px}
+    .clan-info-block{flex:1;min-width:0}
+    .clan-info-name{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:6px}
+    .clan-info-tag{font-size:.65rem;color:var(--muted);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;font-weight:700}
+    .clan-info-desc{font-size:.72rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+    .clan-info-stats{display:flex;gap:14px;margin-top:6px;font-size:.68rem;color:var(--muted)}
+    .clan-info-stats span{display:flex;align-items:center;gap:4px}
+    .clan-info-stats span b{color:var(--text);font-weight:700}
+    .clan-info-stats svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+    .clan-trophy{color:var(--gold)!important}
+    .clan-trophy b{color:var(--gold)!important}
+    .clan-card-action{flex-shrink:0;padding:8px 16px;font-size:.72rem;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-family:var(--font);background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;transition:transform .15s,box-shadow .2s}
+    .clan-card-action:hover{transform:translateY(-1px);box-shadow:0 4px 14px -4px var(--glow)}
+    .clan-card-action.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+    .clan-card-action.secondary:hover{background:var(--surface3)}
+
+    /* Browse header w/ search + create */
+    .clan-browse-top{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .clan-browse-top input{flex:1;min-width:180px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:.85rem;outline:none}
+    .clan-browse-top input:focus{border-color:rgba(139,92,246,.4)}
+    .clan-create-btn{padding:10px 20px;font-size:.8rem;font-weight:800;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);background:linear-gradient(135deg,var(--gold),#d97706);color:#fff;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px -4px rgba(245,158,11,.4);white-space:nowrap}
+    .clan-create-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px -4px rgba(245,158,11,.5)}
+    .clan-create-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+    /* My Clan view */
+    .my-clan-banner{position:relative;padding:24px;border-radius:16px;background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(6,182,212,.12),rgba(236,72,153,.10));border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+    .my-clan-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(139,92,246,.15),transparent);pointer-events:none}
+    .my-clan-banner-row{display:flex;align-items:center;gap:18px;position:relative}
+    .my-clan-icon{width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#fff;box-shadow:0 8px 28px -6px var(--glow);flex-shrink:0;overflow:hidden}
+    .my-clan-icon img{width:100%;height:100%;object-fit:cover}
+    .my-clan-info{flex:1;min-width:0}
+    .my-clan-name{font-size:1.4rem;font-weight:900;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .my-clan-tag{font-size:.7rem;background:rgba(0,0,0,.4);padding:3px 8px;border-radius:6px;font-weight:700;color:var(--muted)}
+    .my-clan-desc{font-size:.8rem;color:var(--muted);margin-top:4px;line-height:1.45}
+
+    .my-clan-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0}
+    .clan-stat-card{padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center}
+    .clan-stat-val{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+    .clan-stat-val.gold{background:linear-gradient(135deg,var(--gold),#d97706);-webkit-background-clip:text;background-clip:text}
+    .clan-stat-val.green{background:linear-gradient(135deg,var(--green),#16a34a);-webkit-background-clip:text;background-clip:text}
+    .clan-stat-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:700}
+
+    .my-clan-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .my-clan-actions button{padding:10px 16px;font-size:.78rem;font-weight:700;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:6px;transition:all .15s}
+    .my-clan-actions button svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .clan-btn-bless{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff;box-shadow:0 4px 14px -4px rgba(245,158,11,.4)}
+    .clan-btn-bless:hover{transform:translateY(-1px)}
+    .clan-btn-treasury-bless{background:linear-gradient(135deg,#fde68a,#f59e0b 50%,#92400e);color:#fff;box-shadow:0 4px 14px -4px rgba(245,158,11,.5);position:relative;overflow:hidden}
+    .clan-btn-treasury-bless::after{content:'👑';position:absolute;top:-2px;right:4px;font-size:.7rem;opacity:.85;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+    .clan-btn-treasury-bless:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    .clan-btn-donate{background:linear-gradient(135deg,var(--accent2),#0891b2);color:#fff}
+    .clan-btn-donate:hover{transform:translateY(-1px)}
+    .clan-btn-war{background:linear-gradient(135deg,var(--red),#dc2626);color:#fff;box-shadow:0 4px 14px -4px rgba(239,68,68,.4)}
+    .clan-btn-war:hover{transform:translateY(-1px)}
+    .clan-btn-leave{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .clan-btn-leave:hover{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+
+    .my-clan-section-title{font-size:.85rem;font-weight:800;margin:18px 0 10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+    .my-clan-section-title svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2}
+
+    /* Members list */
+    .clan-member-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;transition:background .15s}
+    .clan-member-row:hover{background:var(--surface2)}
+    .clan-member-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer}
+    .clan-member-avatar img{width:100%;height:100%;object-fit:cover}
+    .clan-member-info{flex:1;min-width:0}
+    .clan-member-name{font-size:.82rem;font-weight:700;cursor:pointer}
+    .clan-member-name:hover{color:var(--accent)}
+    .clan-member-role{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+    .clan-member-role.leader{color:var(--gold)}
+    .clan-member-role.coleader{color:var(--accent3)}
+    .clan-member-role.elder{color:var(--accent2)}
+    .clan-member-donated{font-size:.7rem;color:var(--gold);font-weight:700;text-align:right;flex-shrink:0}
+    .clan-member-donated small{display:block;font-size:.55rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+    .clan-member-online-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px rgba(34,197,94,.6)}
+
+    /* Clan chat */
+    .clan-chat-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;height:380px;overflow:hidden}
+    .clan-chat-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+    .clan-chat-msg{display:flex;align-items:flex-start;gap:8px;max-width:85%}
+    .clan-chat-msg.self{align-self:flex-end;flex-direction:row-reverse}
+    .clan-chat-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer}
+    .clan-chat-avatar img{width:100%;height:100%;object-fit:cover}
+    .clan-chat-bubble{background:var(--surface2);padding:8px 12px;border-radius:14px;font-size:.78rem;line-height:1.4;word-break:break-word;border-bottom-left-radius:4px}
+    .clan-chat-msg.self .clan-chat-bubble{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border-bottom-left-radius:14px;border-bottom-right-radius:4px}
+    .clan-chat-name{font-size:.62rem;font-weight:700;color:var(--accent);margin-bottom:2px}
+    .clan-chat-msg.self .clan-chat-name{color:#fff;opacity:.85}
+    .clan-chat-time{font-size:.5rem;color:var(--muted);margin-top:3px;opacity:.7}
+    .clan-chat-msg.self .clan-chat-time{color:rgba(255,255,255,.6)}
+    .clan-chat-system{align-self:center;font-size:.65rem;color:var(--muted);font-style:italic;padding:6px 12px;background:rgba(255,255,255,.04);border-radius:100px}
+    .clan-chat-input-row{display:flex;gap:6px;padding:10px;border-top:1px solid var(--border);background:rgba(0,0,0,.2)}
+    .clan-chat-input-row input{flex:1;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:.82rem;outline:none}
+    .clan-chat-input-row input:focus{border-color:rgba(139,92,246,.4)}
+    .clan-chat-send{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .clan-chat-send svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+    /* Clan war view */
+    .war-arena{padding:20px;background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(245,158,11,.06));border:1px solid rgba(239,68,68,.2);border-radius:16px;margin-bottom:14px}
+    .war-arena-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.88rem}
+    .war-arena-empty svg{width:54px;height:54px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 12px;display:block;opacity:.6}
+    .war-vs{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .war-side{flex:1;min-width:140px;text-align:center;padding:14px 12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;position:relative;overflow:hidden}
+    .war-side.winning{border-color:var(--gold);box-shadow:0 0 20px -8px rgba(245,158,11,.4)}
+    .war-side.winning::before{content:'LEADING';position:absolute;top:6px;right:6px;font-size:.55rem;font-weight:900;color:#fff;background:var(--gold);padding:2px 6px;border-radius:4px;letter-spacing:.3px}
+    .war-side-icon{width:60px;height:60px;border-radius:14px;margin:0 auto 8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;color:#fff;overflow:hidden}
+    .war-side-icon img{width:100%;height:100%;object-fit:cover}
+    .war-side-name{font-size:.85rem;font-weight:800;margin-bottom:2px}
+    .war-side-tag{font-size:.62rem;color:var(--muted)}
+    .war-side-score{font-size:1.6rem;font-weight:900;color:var(--gold);margin-top:8px;font-variant-numeric:tabular-nums}
+    .war-side-score-label{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+    .war-vs-mid{font-size:1.1rem;font-weight:900;color:var(--red);background:rgba(239,68,68,.15);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(239,68,68,.3)}
+
+    .war-meta-row{display:flex;justify-content:space-between;gap:12px;margin-top:14px;padding:10px 14px;background:var(--surface);border-radius:10px;flex-wrap:wrap;font-size:.72rem}
+    .war-meta-item{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px}
+    .war-meta-label{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+    .war-meta-val{font-size:.85rem;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+    .war-meta-val.gold{color:var(--gold)}
+    .war-meta-val.red{color:var(--red)}
+
+    .war-contribute-card{display:flex;align-items:center;gap:10px;padding:14px;background:var(--surface);border:1px solid rgba(245,158,11,.25);border-radius:12px;margin-top:12px;flex-wrap:wrap}
+    .war-contribute-input{flex:1;min-width:120px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--gold);font-family:var(--font);font-weight:800;font-size:.95rem;outline:none}
+    .war-contribute-input:focus{border-color:rgba(245,158,11,.4)}
+    .war-contribute-btn{padding:10px 18px;font-size:.78rem;font-weight:800;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);background:linear-gradient(135deg,var(--gold),#d97706);color:#fff;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:0 4px 14px -4px rgba(245,158,11,.4)}
+    .war-contribute-btn:hover{transform:translateY(-1px)}
+    .war-contribute-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .war-contribute-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+    .war-leaderboard{margin-top:14px}
+    .war-lb-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:5px}
+    .war-lb-rank{width:24px;height:24px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--muted);flex-shrink:0}
+    .war-lb-rank.r1{background:linear-gradient(135deg,#fbbf24,#d97706);color:#fff}
+    .war-lb-rank.r2{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#fff}
+    .war-lb-rank.r3{background:linear-gradient(135deg,#fcd34d,#a16207);color:#fff}
+    .war-lb-name{flex:1;font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .war-lb-amt{font-size:.78rem;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+
+    .war-find-btn{padding:14px 24px;width:100%;font-size:.9rem;font-weight:800;border-radius:12px;border:none;cursor:pointer;font-family:var(--font);background:linear-gradient(135deg,var(--red),#dc2626);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px -6px rgba(239,68,68,.4);text-transform:uppercase;letter-spacing:.5px}
+    .war-find-btn:hover{transform:translateY(-1px)}
+    .war-find-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+    /* Create clan modal */
+    .clan-create-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+    .clan-create-overlay.open{display:flex;animation:fadeIn .25s ease}
+    .clan-create-modal{max-width:440px;width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:18px;padding:24px;animation:slideUp .3s ease;max-height:85vh;overflow-y:auto}
+    .clan-create-modal h3{font-size:1.1rem;font-weight:900;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .clan-create-modal h3 svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2}
+    .clan-create-modal label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block}
+    .clan-create-modal input,.clan-create-modal textarea,.clan-create-modal select{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:.88rem;outline:none;margin-bottom:12px}
+    .clan-create-modal input:focus,.clan-create-modal textarea:focus,.clan-create-modal select:focus{border-color:rgba(139,92,246,.4)}
+    .clan-create-modal textarea{resize:none;min-height:72px}
+    .clan-create-cost{padding:12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:.78rem;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:700}
+    .clan-create-cost svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:2;flex-shrink:0}
+    .clan-create-btns{display:flex;gap:8px}
+    .clan-create-btns button{flex:1;padding:11px;font-size:.82rem;font-weight:700;border-radius:10px;border:none;cursor:pointer;font-family:var(--font)}
+    .clan-create-cancel{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+    .clan-create-confirm{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff}
+    .clan-create-confirm:disabled{opacity:.5;cursor:not-allowed}
+
+    .clan-empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+    .clan-empty-state svg{width:54px;height:54px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 14px;display:block;opacity:.5}
+    .clan-empty-state h4{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:6px}
+    .clan-empty-state p{font-size:.82rem;line-height:1.5;max-width:360px;margin:0 auto 18px}
+
+    /* Pulse for live war timer */
+    @keyframes warPulse{0%,100%{opacity:1}50%{opacity:.55}}
+    .war-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);animation:warPulse 1s ease-in-out infinite;margin-right:6px}
+
+    /* Confetti for war victory */
+    @keyframes confettiBurst{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(720deg)}}
+    .war-confetti{position:fixed;width:8px;height:8px;border-radius:2px;z-index:9999;pointer-events:none;animation:confettiBurst 1.4s cubic-bezier(.25,.46,.45,.94) forwards}
+
+    /* Mobile clans tweaks */
+    @media(max-width:768px){
+      .clans-overlay{padding:0}
+      .clans-panel{max-width:100%;border-radius:0;min-height:100dvh}
+      .clans-body{max-height:none;padding:14px;min-height:auto}
+      .clans-header{padding:14px 16px}
+      .clans-title{font-size:1rem}
+      .clan-tab{padding:10px 12px;font-size:.72rem}
+      .clan-card{flex-wrap:wrap}
+      .clan-card-action{width:100%}
+      .my-clan-banner{padding:16px}
+      .my-clan-icon{width:60px;height:60px;font-size:1.3rem;border-radius:14px}
+      .my-clan-name{font-size:1.1rem}
+      .my-clan-stats{grid-template-columns:repeat(2,1fr)}
+      .my-clan-actions button{flex:1 1 calc(50% - 4px);justify-content:center}
+      .clan-chat-wrap{height:340px}
+      .war-vs{flex-direction:column;align-items:stretch}
+      .war-vs-mid{margin:0 auto;width:40px;height:40px}
+      .war-side{width:100%}
+      .clan-create-modal{padding:18px;max-height:95dvh}
+    }
+    @keyframes upShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+    /* ══════════════════════════════════════════════════ */
+    /* ═══ CLAN MODALS (replacing prompt/confirm) ═══ */
+    /* ══════════════════════════════════════════════════ */
+    .cln-modal-overlay{display:none;position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px}
+    .cln-modal-overlay.open{display:flex;animation:fadeIn .22s ease}
+    .cln-modal{max-width:440px;width:100%;background:linear-gradient(180deg,rgba(20,16,40,.98),rgba(10,10,15,.99));border:1px solid var(--border2);border-radius:18px;padding:22px 22px 18px;animation:slideUp .3s cubic-bezier(.22,1,.36,1);max-height:88vh;overflow-y:auto;position:relative}
+    .cln-modal::before{content:'';position:absolute;inset:-1px;border-radius:18px;padding:1px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.4;pointer-events:none}
+    .cln-modal h3{font-size:1.05rem;font-weight:900;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .cln-modal h3 svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2}
+    .cln-modal-sub{font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.45}
+    .cln-amount-wrap{display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:6px 10px 6px 14px;margin-bottom:10px}
+    .cln-amount-wrap .cln-coin{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .cln-amount-wrap .cln-coin svg{width:24px;height:24px;stroke:var(--gold);fill:rgba(245,158,11,.15);stroke-width:1.5}
+    .cln-amount-input{flex:1;padding:10px 6px;font-size:1.5rem;font-weight:900;color:var(--gold);background:transparent;border:none;outline:none;font-family:var(--font);font-variant-numeric:tabular-nums;min-width:0;-moz-appearance:textfield}
+    .cln-amount-input::-webkit-outer-spin-button,.cln-amount-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    .cln-modal-meta{font-size:.72rem;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+    .cln-modal-meta b{color:var(--text);font-weight:700}
+    .cln-quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .cln-quick button{flex:1;min-width:64px;padding:8px 10px;font-size:.72rem;font-weight:800;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font);transition:all .12s}
+    .cln-quick button:hover{background:var(--surface3);border-color:rgba(139,92,246,.3)}
+    .cln-quick button:active{transform:scale(.96)}
+    .cln-preview-card{padding:12px 14px;border-radius:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);font-size:.82rem;color:var(--green);margin-bottom:12px;font-weight:700;display:flex;align-items:center;gap:8px}
+    .cln-preview-card.warn{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#f87171}
+    .cln-preview-card svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+    .cln-modal-btns{display:flex;gap:8px}
+    .cln-modal-btns button{flex:1;padding:12px;font-size:.84rem;font-weight:800;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);transition:all .15s}
+    .cln-modal-btns .cln-cancel{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .cln-modal-btns .cln-cancel:hover{background:var(--surface3);color:var(--text)}
+    .cln-modal-btns .cln-confirm{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;box-shadow:0 4px 14px -4px var(--glow)}
+    .cln-modal-btns .cln-confirm:hover{transform:translateY(-1px)}
+    .cln-modal-btns .cln-confirm.gold{background:linear-gradient(135deg,var(--gold),#d97706);box-shadow:0 4px 14px -4px rgba(245,158,11,.4)}
+    .cln-modal-btns .cln-confirm.danger{background:linear-gradient(135deg,var(--red),#dc2626);box-shadow:0 4px 14px -4px rgba(239,68,68,.4)}
+    .cln-modal-btns .cln-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    /* ── War duration picker ── */
+    .duration-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+    .duration-opt{padding:14px;border-radius:12px;background:var(--surface);border:1.5px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font);text-align:center;transition:all .15s;position:relative;overflow:hidden}
+    .duration-opt:hover{border-color:rgba(139,92,246,.4);background:var(--surface2)}
+    .duration-opt.active{border-color:var(--accent);background:rgba(139,92,246,.12);box-shadow:0 0 18px -4px var(--glow)}
+    .duration-opt-icon{font-size:1.4rem;margin-bottom:4px}
+    .duration-opt-label{font-size:.85rem;font-weight:800}
+    .duration-opt-sub{font-size:.65rem;color:var(--muted);margin-top:2px}
+    .duration-opt.dev{border-color:rgba(239,68,68,.4)!important;background:rgba(239,68,68,.08)!important}
+    .duration-opt.dev.active{border-color:var(--red)!important;box-shadow:0 0 18px -4px rgba(239,68,68,.4)!important}
+    .dev-badge{position:absolute;top:4px;right:4px;font-size:.5rem;font-weight:900;color:#fff;background:var(--red);padding:2px 5px;border-radius:4px;letter-spacing:.5px}
+
+    /* ══════════════════════════════════════════════════ */
+    /* ═══ CLAN CHAT EMOTES — Clash-Royale style ═══ */
+    /* ══════════════════════════════════════════════════ */
+    .emote-bar{display:flex;gap:5px;padding:8px;border-top:1px solid var(--border);background:rgba(0,0,0,.25);overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
+    .emote-bar::-webkit-scrollbar{height:3px}
+    .emote-btn{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:2px solid;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),rgba(0,0,0,.25));transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;position:relative;overflow:hidden}
+    .emote-btn::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 55%);pointer-events:none}
+    .emote-btn:hover{transform:translateY(-2px) scale(1.1);box-shadow:0 6px 18px -4px currentColor}
+    .emote-btn:active{transform:scale(.92)}
+    .emote-btn.king{border-color:#fbbf24;color:#fbbf24;background-color:rgba(251,191,36,.18)}
+    .emote-btn.skull{border-color:#a3a3a3;color:#e5e5e5;background-color:rgba(115,115,115,.25)}
+    .emote-btn.snake{border-color:#22c55e;color:#86efac;background-color:rgba(34,197,94,.18)}
+    .emote-btn.fire{border-color:#f97316;color:#fb923c;background-color:rgba(249,115,22,.2)}
+    .emote-btn.swords{border-color:#ef4444;color:#f87171;background-color:rgba(239,68,68,.18)}
+    .emote-btn.shield{border-color:#3b82f6;color:#60a5fa;background-color:rgba(59,130,246,.18)}
+    .emote-btn.money{border-color:#fbbf24;color:#fbbf24;background-color:rgba(245,158,11,.18)}
+    .emote-btn.crying{border-color:#06b6d4;color:#67e8f9;background-color:rgba(6,182,212,.18)}
+    .emote-btn.party{border-color:#ec4899;color:#f9a8d4;background-color:rgba(236,72,153,.18)}
+    .emote-btn.heart{border-color:#ef4444;color:#fca5a5;background-color:rgba(239,68,68,.18)}
+
+    /* Emote message bubble — bigger than text, with bounce */
+    .clan-chat-msg.emote .clan-chat-bubble{background:transparent!important;padding:0!important;border-radius:0!important}
+    .emote-display{width:74px;height:74px;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-size:2.4rem;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.22),rgba(0,0,0,.4));position:relative;animation:emotePop .55s cubic-bezier(.34,1.6,.64,1)}
+    .emote-display::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.4),transparent 55%);pointer-events:none}
+    .emote-display::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px dashed currentColor;opacity:.35;animation:emoteRing 2s linear infinite}
+    @keyframes emotePop{0%{transform:scale(0) rotate(-30deg)}55%{transform:scale(1.18) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+    @keyframes emoteRing{to{transform:rotate(360deg)}}
+    .emote-display.king{border-color:#fbbf24;color:#fbbf24}
+    .emote-display.skull{border-color:#a3a3a3;color:#e5e5e5}
+    .emote-display.snake{border-color:#22c55e;color:#86efac}
+    .emote-display.fire{border-color:#f97316;color:#fb923c}
+    .emote-display.swords{border-color:#ef4444;color:#f87171}
+    .emote-display.shield{border-color:#3b82f6;color:#60a5fa}
+    .emote-display.money{border-color:#fbbf24;color:#fbbf24}
+    .emote-display.crying{border-color:#06b6d4;color:#67e8f9}
+    .emote-display.party{border-color:#ec4899;color:#f9a8d4}
+    .emote-display.heart{border-color:#ef4444;color:#fca5a5}
+
+    /* ══════════════════════════════════════════════════ */
+    /* ═══ WAR MINIGAME — Bomb Tap arena ═══ */
+    /* ══════════════════════════════════════════════════ */
+    .mg-overlay{display:none;position:fixed;inset:0;z-index:330;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:14px}
+    .mg-overlay.open{display:flex;animation:fadeIn .22s ease}
+    .mg-modal{max-width:520px;width:100%;background:linear-gradient(180deg,#1a0d2e,#0a0a15);border:1px solid var(--border2);border-radius:18px;padding:18px;animation:slideUp .3s ease;position:relative;overflow:hidden}
+    .mg-modal::before{content:'';position:absolute;inset:-1px;border-radius:18px;padding:1px;background:linear-gradient(135deg,#ef4444,#f59e0b,#ef4444);background-size:300% 300%;animation:upShine 3s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}
+    .mg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative}
+    .mg-title{font-size:1.05rem;font-weight:900;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .mg-title svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:2;-webkit-text-fill-color:initial}
+    .mg-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .mg-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .mg-stats-row{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;background:rgba(0,0,0,.4);border-radius:10px;margin-bottom:12px;font-size:.78rem}
+    .mg-stat{display:flex;flex-direction:column;align-items:center;flex:1}
+    .mg-stat-l{font-size:.55rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+    .mg-stat-v{font-size:1rem;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+    .mg-stat-v.green{color:var(--green)}
+    .mg-stat-v.red{color:var(--red)}
+    .mg-arena{position:relative;width:100%;aspect-ratio:1.1/1;max-height:60vh;background:radial-gradient(circle at 50% 50%,rgba(245,158,11,.06),rgba(0,0,0,.5));border:1px solid rgba(239,68,68,.25);border-radius:14px;overflow:hidden;cursor:crosshair;user-select:none;-webkit-user-select:none}
+    .mg-arena-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+    .mg-bomb{position:absolute;width:54px;height:54px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:radial-gradient(circle at 30% 30%,#525252,#171717 65%,#000);box-shadow:0 6px 18px rgba(0,0,0,.6),inset 0 -3px 6px rgba(0,0,0,.5),inset 0 3px 6px rgba(255,255,255,.1);animation:bombSpawn .25s cubic-bezier(.34,1.6,.64,1);user-select:none;border:2px solid rgba(239,68,68,.5)}
+    .mg-bomb::after{content:'';position:absolute;top:-6px;left:50%;width:3px;height:8px;background:#a3a3a3;transform:translateX(-50%) rotate(15deg);border-radius:1px}
+    .mg-bomb.gold{background:radial-gradient(circle at 30% 30%,#fde68a,#d97706 65%,#92400e);box-shadow:0 6px 18px rgba(245,158,11,.5),inset 0 -3px 6px rgba(120,53,15,.5),inset 0 3px 6px rgba(255,255,255,.4);border-color:#fbbf24;animation:bombSpawn .25s ease,goldPulse 1s ease-in-out infinite alternate}
+    @keyframes bombSpawn{0%{transform:scale(0) rotate(180deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+    @keyframes goldPulse{from{box-shadow:0 6px 18px rgba(245,158,11,.5),inset 0 -3px 6px rgba(120,53,15,.5),inset 0 3px 6px rgba(255,255,255,.4)}to{box-shadow:0 6px 28px rgba(245,158,11,.9),inset 0 -3px 6px rgba(120,53,15,.5),inset 0 3px 6px rgba(255,255,255,.6)}}
+    .mg-bomb.popped{animation:bombPop .35s ease forwards;pointer-events:none}
+    @keyframes bombPop{0%{transform:scale(1)}50%{transform:scale(1.5);filter:brightness(2)}100%{transform:scale(0);opacity:0}}
+    .mg-points{position:absolute;font-size:1.1rem;font-weight:900;color:var(--gold);pointer-events:none;animation:pointsFly .8s ease-out forwards;text-shadow:0 0 10px rgba(245,158,11,.8);z-index:5}
+    @keyframes pointsFly{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-220%) scale(1.4)}}
+    .mg-cd-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:10px}
+    .mg-cd-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));border-radius:3px;transition:width .1s linear}
+    .mg-action-row{display:flex;gap:8px;margin-top:12px}
+    .mg-action-row button{flex:1;padding:11px;font-size:.85rem;font-weight:800;border-radius:10px;border:none;cursor:pointer;font-family:var(--font)}
+    .mg-start-btn{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;box-shadow:0 4px 14px -4px rgba(34,197,94,.4)}
+    .mg-start-btn:disabled{opacity:.5;cursor:not-allowed}
+    .mg-cooldown-msg{text-align:center;font-size:.78rem;color:var(--muted);padding:14px}
+    .mg-result{text-align:center;padding:18px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;margin-top:12px;animation:slideUp .4s ease}
+    .mg-result-amt{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#d97706);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+    @media(max-width:768px){
+      .cln-modal{padding:18px 16px 14px;border-radius:16px}
+      .cln-amount-input{font-size:1.25rem}
+      .duration-grid{grid-template-columns:1fr 1fr}
+      .emote-btn{width:40px;height:40px;font-size:1.2rem}
+      .emote-display{width:64px;height:64px;font-size:2rem}
+      .mg-modal{padding:14px}
+      .mg-bomb{width:48px;height:48px;font-size:1.4rem}
+    }
   </style>
 </head>
 <body>
@@ -492,6 +851,11 @@
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Messages
             <span class="badge-count" id="msgBadge">0</span>
+          </button>
+          <button class="sidebar-nav-item" data-view="clans">
+            <svg viewBox="0 0 24 24"><path d="M3 21l1.5-9 7.5-6 7.5 6L21 21"/><path d="M9 21V12h6v9"/><path d="M12 3v3"/></svg>
+            Clans
+            <span class="badge-count" id="clanBadge">0</span>
           </button>
           <button class="sidebar-nav-item" data-view="settings">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -708,6 +1072,87 @@
         <button class="report-submit" id="reportSubmit" disabled>Submit Report</button>
       </div>
     </div>
+  </div>
+
+  <!-- ══════ CLANS OVERLAY ══════ -->
+  <div class="clans-overlay" id="clansOverlay">
+    <div class="clans-panel">
+      <div class="clans-header">
+        <div class="clans-title">
+          <svg viewBox="0 0 24 24"><path d="M3 21l1.5-9 7.5-6 7.5 6L21 21"/><path d="M9 21V12h6v9"/><path d="M12 3v3"/></svg>
+          <span id="clansHeaderTitle">Clans</span>
+        </div>
+        <button class="clans-close" id="clansClose" title="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="clans-tabs" id="clansTabs">
+        <button class="clan-tab active" data-ctab="my">
+          <svg viewBox="0 0 24 24"><path d="M3 21l1.5-9 7.5-6 7.5 6L21 21"/></svg>
+          My Clan
+        </button>
+        <button class="clan-tab" data-ctab="chat">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat
+          <span class="badge-count" id="clanChatBadge" style="position:relative;right:auto;display:none">0</span>
+        </button>
+        <button class="clan-tab" data-ctab="war">
+          <svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M21 3l-3 3"/><path d="M19 5l-7 7"/></svg>
+          War
+        </button>
+        <button class="clan-tab" data-ctab="browse">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Browse
+        </button>
+      </div>
+      <div class="clans-body" id="clansBody"></div>
+    </div>
+  </div>
+
+  <!-- ══════ CREATE CLAN MODAL ══════ -->
+  <div class="clan-create-overlay" id="clanCreateOverlay">
+    <div class="clan-create-modal">
+      <h3>
+        <svg viewBox="0 0 24 24"><path d="M3 21l1.5-9 7.5-6 7.5 6L21 21"/><path d="M9 21V12h6v9"/></svg>
+        Create a Clan
+      </h3>
+      <label>Clan Name</label>
+      <input type="text" id="ccName" maxlength="24" placeholder="e.g. Royal Bandits" />
+      <label>Clan Tag (3–4 letters)</label>
+      <input type="text" id="ccTag" maxlength="4" placeholder="e.g. RBND" style="text-transform:uppercase" />
+      <label>Description</label>
+      <textarea id="ccDesc" maxlength="140" placeholder="What's your clan about?"></textarea>
+      <label>Visibility</label>
+      <div class="duration-grid" id="ccVisGrid" style="margin-bottom:12px">
+        <button type="button" class="duration-opt active" data-vis="open">
+          <div class="duration-opt-icon">🌐</div>
+          <div class="duration-opt-label">Open</div>
+          <div class="duration-opt-sub">Anyone can join</div>
+        </button>
+        <button type="button" class="duration-opt" data-vis="request">
+          <div class="duration-opt-icon">🛡️</div>
+          <div class="duration-opt-label">Invite-only</div>
+          <div class="duration-opt-sub">Leaders approve</div>
+        </button>
+      </div>
+      <input type="hidden" id="ccVisibility" value="open" />
+      <div class="clan-create-cost">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke-width="1.5"/></svg>
+        Cost: 50,000 credits (added to your clan treasury)
+      </div>
+      <div class="clan-create-btns">
+        <button class="clan-create-cancel" id="ccCancel">Cancel</button>
+        <button class="clan-create-confirm" id="ccConfirm">Create Clan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ CLAN: GENERIC MODAL (donate/bless/confirm/duration) ══════ -->
+  <div class="cln-modal-overlay" id="clnModalOverlay">
+    <div class="cln-modal" id="clnModal"></div>
+  </div>
+
+  <!-- ══════ CLAN: WAR MINIGAME (Bomb Tap) ══════ -->
+  <div class="mg-overlay" id="mgOverlay">
+    <div class="mg-modal" id="mgModal"></div>
   </div>
 
   <!-- ══════ SCRIPTS ══════ -->
@@ -1494,6 +1939,7 @@
       item.classList.add('active');
       if(view==='messages')openMessages();
       else if(view==='settings')openSettings();
+      else if(view==='clans')openClans();
     });
   });
 
@@ -2385,6 +2831,922 @@ if (currentDebt > 0) {
      PARTICLE SYSTEM
   ══════════════════════════════════════════ */
   (()=>{const c=document.getElementById('particles'),x=c.getContext('2d');let W,H,p=[];const N=Math.min(40,Math.round(innerWidth*.03)),C=['rgba(139,92,246,','rgba(6,182,212,','rgba(236,72,153,'];function rs(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*d;c.height=H*d;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(d,0,0,d,0,0);}function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,a:Math.random()*.3+.1,c:C[Math.random()*3|0]};}function init(){rs();p=[];for(let i=0;i<N;i++)p.push(mk());}function draw(){x.clearRect(0,0,W,H);for(let i=0;i<p.length;i++){const q=p[i];q.x+=q.vx;q.y+=q.vy;q.vx*=.99;q.vy*=.99;if(q.x<-10)q.x=W+10;if(q.x>W+10)q.x=-10;if(q.y<-10)q.y=H+10;if(q.y>H+10)q.y=-10;x.beginPath();x.arc(q.x,q.y,q.r,0,Math.PI*2);x.fillStyle=q.c+q.a+')';x.fill();for(let j=i+1;j<p.length;j++){const r=p[j],ld=(q.x-r.x)**2+(q.y-r.y)**2;if(ld<14000){x.beginPath();x.moveTo(q.x,q.y);x.lineTo(r.x,r.y);x.strokeStyle=q.c+(0.05*(1-ld/14000))+')';x.lineWidth=.4;x.stroke();}}}requestAnimationFrame(draw);}addEventListener('resize',rs);init();draw();})();
+
+  /* ══════════════════════════════════════════
+     CLANS — clash-royale style groups & wars
+     RTDB schema:
+       clans/{cid}                     core data + memberCount cached
+       clans/{cid}/members/{uid}       {role,joinedAt,donated}
+       clans/{cid}/chat/{mid}          {uid,text,ts}
+       clans/{cid}/joinRequests/{uid}  {ts}
+       clanWars/{wid}                  {clanA,clanB,scoreA,scoreB,start,end,status}
+       clanWars/{wid}/contrib/{uid}    {amount,clanId,name}
+       users/{uid}/clan                cid (lookup)
+  ══════════════════════════════════════════ */
+  const CLAN_CREATE_COST=50000;
+  // WAR_DURATION_MS is now selected by leader via clnDurationPicker (see DEV ONLY block in that fn).
+  let myClanId=null, myClanData=null, myClanRole=null, myClanMembers={}, currentWar=null;
+  let activeClanTab='my';
+  let clanChatListener=null, clanMembersListener=null, clanWarListener=null;
+  let clanChatLastSeen=parseInt(localStorage.getItem('aightbet-clanchat-seen')||'0');
+
+  function _esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+  // Track which clan I'm in
+  function listenMyClan(){
+    rtdb.ref('users/'+MY_UID+'/clan').on('value',snap=>{
+      const newCid=snap.val()||null;
+      if(newCid===myClanId)return;
+      myClanId=newCid;
+      // detach old listeners
+      if(clanChatListener){clanChatListener.ref.off('child_added',clanChatListener.cb);clanChatListener=null;}
+      if(clanMembersListener){clanMembersListener.ref.off('value',clanMembersListener.cb);clanMembersListener=null;}
+      if(clanWarListener){clanWarListener.ref.off('value',clanWarListener.cb);clanWarListener=null;}
+      myClanData=null;myClanMembers={};currentWar=null;
+      if(myClanId){
+        // listen to clan core data
+        rtdb.ref('clans/'+myClanId).on('value',cs=>{
+          myClanData=cs.val();
+          if(myClanData)myClanData.id=myClanId;
+          if(document.getElementById('clansOverlay').classList.contains('open'))renderClansBody();
+          updateClanBadge();
+        });
+        // members
+        const membersRef=rtdb.ref('clans/'+myClanId+'/members');
+        const membersCb=ms=>{myClanMembers=ms.val()||{};myClanRole=(myClanMembers[MY_UID]&&myClanMembers[MY_UID].role)||'member';if(document.getElementById('clansOverlay').classList.contains('open'))renderClansBody();};
+        membersRef.on('value',membersCb);
+        clanMembersListener={ref:membersRef,cb:membersCb};
+        // current war
+        const warRef=rtdb.ref('clans/'+myClanId+'/currentWar');
+        const warCb=ws=>{
+          const wid=ws.val();
+          if(!wid){currentWar=null;if(activeClanTab==='war')renderClansBody();return;}
+          rtdb.ref('clanWars/'+wid).on('value',wsnap=>{
+            currentWar=wsnap.val();if(currentWar)currentWar.id=wid;
+            if(activeClanTab==='war')renderClansBody();
+          });
+        };
+        warRef.on('value',warCb);
+        clanWarListener={ref:warRef,cb:warCb};
+      } else {
+        if(document.getElementById('clansOverlay').classList.contains('open')){activeClanTab='browse';renderClansBody();}
+        updateClanBadge();
+      }
+    });
+  }
+
+  function updateClanBadge(){
+    // Show notification dot if I'm not in a clan, or if there are pending join requests for leaders
+    const badge=document.getElementById('clanBadge');
+    if(!badge)return;
+    if(!myClanId){badge.classList.remove('show');return;}
+    if(myClanRole==='leader'||myClanRole==='coleader'){
+      rtdb.ref('clans/'+myClanId+'/joinRequests').once('value').then(s=>{
+        const c=s.numChildren();
+        if(c>0){badge.textContent=c;badge.classList.add('show');}else{badge.classList.remove('show');}
+      });
+    } else { badge.classList.remove('show'); }
+  }
+
+  function openClans(){
+    document.getElementById('clansOverlay').classList.add('open');
+    activeClanTab=myClanId?'my':'browse';
+    document.querySelectorAll('.clan-tab').forEach(t=>t.classList.toggle('active',t.dataset.ctab===activeClanTab));
+    renderClansBody();
+  }
+  function closeClans(){document.getElementById('clansOverlay').classList.remove('open');detachClanChat();}
+  document.getElementById('clansClose').addEventListener('click',closeClans);
+  document.getElementById('clansOverlay').addEventListener('click',e=>{if(e.target.id==='clansOverlay')closeClans();});
+
+  document.querySelectorAll('.clan-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      activeClanTab=tab.dataset.ctab;
+      document.querySelectorAll('.clan-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      renderClansBody();
+    });
+  });
+
+  function renderClansBody(){
+    const body=document.getElementById('clansBody');
+    if(!body)return;
+    detachClanChat();
+    if(activeClanTab==='browse'){return renderBrowse(body);}
+    if(activeClanTab==='my'){return myClanId?renderMyClan(body):renderNoClan(body);}
+    if(activeClanTab==='chat'){return myClanId?renderClanChat(body):renderNoClan(body);}
+    if(activeClanTab==='war'){return myClanId?renderWar(body):renderNoClan(body);}
+  }
+
+  function renderNoClan(body){
+    body.innerHTML='<div class="clan-empty-state"><svg viewBox="0 0 24 24"><path d="M3 21l1.5-9 7.5-6 7.5 6L21 21"/><path d="M9 21V12h6v9"/></svg>'
+      +'<h4>You\'re not in a clan</h4>'
+      +'<p>Join an existing clan or forge your own. Battle other clans, gift credits to your members, and climb the trophy ladder.</p>'
+      +'<button class="clan-create-btn" onclick="openClanBrowse()" style="margin:0 6px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Browse Clans</button>'
+      +'<button class="clan-create-btn" onclick="openCreateClan()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Clan</button>'
+      +'</div>';
+  }
+  window.openClanBrowse=function(){activeClanTab='browse';document.querySelectorAll('.clan-tab').forEach(t=>t.classList.toggle('active',t.dataset.ctab==='browse'));renderClansBody();};
+
+  /* ── BROWSE ── */
+  function renderBrowse(body){
+    body.innerHTML='<div class="clan-browse-top">'
+      +'<input type="text" id="clanSearchInput" placeholder="Search clans by name or tag..." />'
+      +'<button class="clan-create-btn" onclick="openCreateClan()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Clan</button>'
+      +'</div>'
+      +'<div id="clanBrowseList"><div class="clan-empty-state"><div class="loader-spinner" style="margin:0 auto"></div></div></div>';
+    const list=document.getElementById('clanBrowseList');
+    rtdb.ref('clans').orderByChild('trophies').limitToLast(50).once('value').then(snap=>{
+      const arr=[];snap.forEach(c=>{const d=c.val();d.id=c.key;arr.push(d);});
+      arr.sort((a,b)=>(b.trophies||0)-(a.trophies||0));
+      renderClanList(list,arr);
+    }).catch(()=>{ list.innerHTML='<div class="clan-empty-state"><h4>Could not load clans</h4></div>'; });
+    document.getElementById('clanSearchInput').addEventListener('input',e=>{
+      const q=e.target.value.toLowerCase().trim();
+      rtdb.ref('clans').once('value').then(snap=>{
+        const arr=[];snap.forEach(c=>{const d=c.val();d.id=c.key;if(!q||(d.name||'').toLowerCase().includes(q)||(d.tag||'').toLowerCase().includes(q))arr.push(d);});
+        arr.sort((a,b)=>(b.trophies||0)-(a.trophies||0));
+        renderClanList(list,arr);
+      });
+    });
+  }
+  function renderClanList(list,arr){
+    if(!arr.length){list.innerHTML='<div class="clan-empty-state"><h4>No clans found</h4><p>Be the first to create one!</p></div>';return;}
+    list.innerHTML=arr.map(c=>{
+      const initials=(c.name||'?').slice(0,2).toUpperCase();
+      const memCount=c.memberCount||Object.keys(c.members||{}).length||1;
+      const visible=c.visibility==='request'?'🛡️':'🌐';
+      const inMine=c.id===myClanId;
+      const action=inMine
+        ? '<button class="clan-card-action secondary" disabled>You\'re in</button>'
+        : (myClanId
+          ? '<button class="clan-card-action secondary" onclick="event.stopPropagation();toast(\'Leave your current clan first\')">Locked</button>'
+          : (c.visibility==='request'
+              ? '<button class="clan-card-action" onclick="event.stopPropagation();requestJoinClan(\''+c.id+'\')">Request</button>'
+              : '<button class="clan-card-action" onclick="event.stopPropagation();joinClan(\''+c.id+'\')">Join</button>'));
+      return '<div class="clan-card" onclick="viewClan(\''+c.id+'\')">'
+        +'<div class="clan-icon">'+initials+'</div>'
+        +'<div class="clan-info-block">'
+          +'<div class="clan-info-name">'+_esc(c.name||'Unknown')+' <span class="clan-info-tag">#'+_esc(c.tag||'??')+'</span></div>'
+          +'<div class="clan-info-desc">'+visible+' '+_esc(c.desc||'No description')+'</div>'
+          +'<div class="clan-info-stats">'
+            +'<span class="clan-trophy"><svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55.47.98.97 1.21C12.04 18.75 13 20.24 13 22"/><path d="M14 14.66V17c0 .55-.47.98-.97 1.21C11.96 18.75 11 20.24 11 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><b>'+(c.trophies||0).toLocaleString()+'</b></span>'
+            +'<span><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><b>'+memCount+'</b>/50</span>'
+            +'<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke-width="1.5"/></svg><b>'+(c.treasury||0).toLocaleString()+'</b></span>'
+          +'</div>'
+        +'</div>'
+        +action+'</div>';
+    }).join('');
+  }
+  window.viewClan=function(cid){ /* in-list quick view = scroll/highlight; simply trigger join confirmation */ };
+
+  /* ── JOIN / LEAVE ── */
+  window.joinClan=async function(cid){
+    if(myClanId){toast('Leave your current clan first');return;}
+    try{
+      const updates={};
+      updates['users/'+MY_UID+'/clan']=cid;
+      updates['clans/'+cid+'/members/'+MY_UID]={role:'member',joinedAt:firebase.database.ServerValue.TIMESTAMP,donated:0};
+      await rtdb.ref().update(updates);
+      await rtdb.ref('clans/'+cid+'/memberCount').transaction(c=>(c||0)+1);
+      pushClanSystemMsg(cid,getUserName(MY_UID)+' joined the clan');
+      toast('Joined clan!','success');
+      activeClanTab='my';renderClansBody();
+      document.querySelectorAll('.clan-tab').forEach(t=>t.classList.toggle('active',t.dataset.ctab==='my'));
+    }catch(e){toast('Failed: '+e.message);}
+  };
+  window.requestJoinClan=async function(cid){
+    if(myClanId){toast('Leave your current clan first');return;}
+    try{
+      await rtdb.ref('clans/'+cid+'/joinRequests/'+MY_UID).set({ts:firebase.database.ServerValue.TIMESTAMP,name:getUserName(MY_UID)});
+      toast('Request sent!','success');
+    }catch(e){toast('Failed: '+e.message);}
+  };
+  window.leaveClan=async function(){
+    if(!myClanId)return;
+    if(myClanRole==='leader'){
+      const others=Object.keys(myClanMembers).filter(u=>u!==MY_UID);
+      if(others.length>0){toast('Promote a co-leader to leader first, or kick all members');return;}
+      const ok=await clnConfirm({title:'Disband Clan?',sub:'You\'re the only member. Leaving will permanently delete this clan and you will lose your treasury share.',confirmText:'Disband',variant:'danger',icon:'<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'});
+      if(!ok)return;
+      const cid=myClanId;
+      const updates={};
+      updates['users/'+MY_UID+'/clan']=null;
+      updates['clans/'+cid]=null;
+      await rtdb.ref().update(updates);
+      toast('Clan disbanded','success');
+      return;
+    }
+    const ok=await clnConfirm({title:'Leave the clan?',sub:'You\'ll lose your role and donation history. You can join again later.',confirmText:'Leave',variant:'danger'});
+    if(!ok)return;
+    const cid=myClanId;
+    pushClanSystemMsg(cid,getUserName(MY_UID)+' left the clan');
+    const updates={};
+    updates['users/'+MY_UID+'/clan']=null;
+    updates['clans/'+cid+'/members/'+MY_UID]=null;
+    await rtdb.ref().update(updates);
+    await rtdb.ref('clans/'+cid+'/memberCount').transaction(c=>Math.max(0,(c||1)-1));
+    toast('Left the clan');
+  };
+
+  /* ── CREATE ── */
+  window.openCreateClan=function(){
+    document.getElementById('clanCreateOverlay').classList.add('open');
+    // Wire visibility card picker
+    document.querySelectorAll('#ccVisGrid .duration-opt').forEach(b=>{
+      b.onclick=()=>{
+        document.querySelectorAll('#ccVisGrid .duration-opt').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById('ccVisibility').value=b.dataset.vis;
+      };
+    });
+  };
+  document.getElementById('ccCancel').addEventListener('click',()=>document.getElementById('clanCreateOverlay').classList.remove('open'));
+  document.getElementById('clanCreateOverlay').addEventListener('click',e=>{if(e.target.id==='clanCreateOverlay')e.target.classList.remove('open');});
+  document.getElementById('ccConfirm').addEventListener('click',async()=>{
+    if(myClanId){toast('Leave your current clan first');return;}
+    const name=document.getElementById('ccName').value.trim();
+    const tag=document.getElementById('ccTag').value.trim().toUpperCase();
+    const desc=document.getElementById('ccDesc').value.trim();
+    const vis=document.getElementById('ccVisibility').value;
+    if(name.length<3){toast('Name must be at least 3 chars');return;}
+    if(!/^[A-Z0-9]{3,4}$/.test(tag)){toast('Tag must be 3–4 letters/digits');return;}
+    const btn=document.getElementById('ccConfirm');btn.disabled=true;btn.textContent='Creating...';
+    try{
+      const myCreds=parseInt(document.getElementById('creditsCount').textContent.replace(/,/g,''))||0;
+      if(myCreds<CLAN_CREATE_COST){toast('Need '+CLAN_CREATE_COST.toLocaleString()+' credits to create a clan');btn.disabled=false;btn.textContent='Create Clan';return;}
+      // Deduct credits in transaction
+      const dr=await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{if((c||0)<CLAN_CREATE_COST)return;return (c||0)-CLAN_CREATE_COST;});
+      if(!dr.committed){toast('Not enough credits');btn.disabled=false;btn.textContent='Create Clan';return;}
+      const cidRef=rtdb.ref('clans').push();
+      const cid=cidRef.key;
+      const now=firebase.database.ServerValue.TIMESTAMP;
+      const updates={};
+      updates['clans/'+cid]={
+        id:cid,name,tag,desc,visibility:vis,
+        leaderUid:MY_UID,leaderName:getUserName(MY_UID),
+        treasury:CLAN_CREATE_COST,trophies:0,level:1,xp:0,
+        memberCount:1,createdAt:now,
+        members:{[MY_UID]:{role:'leader',joinedAt:now,donated:CLAN_CREATE_COST}}
+      };
+      updates['users/'+MY_UID+'/clan']=cid;
+      await rtdb.ref().update(updates);
+      pushClanSystemMsg(cid,'Clan created by '+getUserName(MY_UID));
+      toast('Clan created!','success');
+      document.getElementById('clanCreateOverlay').classList.remove('open');
+      activeClanTab='my';
+      document.querySelectorAll('.clan-tab').forEach(t=>t.classList.toggle('active',t.dataset.ctab==='my'));
+      document.getElementById('ccName').value='';document.getElementById('ccTag').value='';document.getElementById('ccDesc').value='';
+    }catch(e){toast('Failed: '+e.message);}
+    btn.disabled=false;btn.textContent='Create Clan';
+  });
+
+  /* ── MY CLAN VIEW ── */
+  function renderMyClan(body){
+    if(!myClanData){body.innerHTML='<div class="clan-empty-state"><div class="loader-spinner" style="margin:0 auto"></div></div>';return;}
+    const c=myClanData;
+    const memArr=Object.entries(myClanMembers).map(([uid,m])=>({uid,...m}))
+      .sort((a,b)=>{const r={leader:0,coleader:1,elder:2,member:3};return (r[a.role]||3)-(r[b.role]||3)||(b.donated||0)-(a.donated||0);});
+    const isLeader=myClanRole==='leader'||myClanRole==='coleader';
+    const initials=(c.name||'?').slice(0,2).toUpperCase();
+    body.innerHTML=
+      '<div class="my-clan-banner"><div class="my-clan-banner-row">'
+        +'<div class="my-clan-icon">'+initials+'</div>'
+        +'<div class="my-clan-info">'
+          +'<div class="my-clan-name">'+_esc(c.name)+' <span class="my-clan-tag">#'+_esc(c.tag)+'</span></div>'
+          +'<div class="my-clan-desc">'+_esc(c.desc||'No description')+'</div>'
+        +'</div></div>'
+        +'<div class="my-clan-stats">'
+          +'<div class="clan-stat-card"><div class="clan-stat-val gold">'+(c.treasury||0).toLocaleString()+'</div><div class="clan-stat-label">Treasury</div></div>'
+          +'<div class="clan-stat-card"><div class="clan-stat-val">'+(c.trophies||0).toLocaleString()+'</div><div class="clan-stat-label">Trophies</div></div>'
+          +'<div class="clan-stat-card"><div class="clan-stat-val green">'+memArr.length+' / 50</div><div class="clan-stat-label">Members</div></div>'
+          +'<div class="clan-stat-card"><div class="clan-stat-val">Lv '+(c.level||1)+'</div><div class="clan-stat-label">Clan Level</div></div>'
+        +'</div>'
+        +'<div class="my-clan-actions">'
+          +'<button class="clan-btn-bless" onclick="blessClan()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke-width="1.5"/></svg>Bless (your credits)</button>'
+          +(isLeader?'<button class="clan-btn-treasury-bless" onclick="treasuryBless()"><svg viewBox="0 0 24 24"><path d="M2 7l4-4h12l4 4-10 13L2 7z"/><path d="M11 3l1 4 1-4"/><path d="M2 7h20"/></svg>Bless from Treasury</button>':'')
+          +'<button class="clan-btn-donate" onclick="donateToClan()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Donate to Treasury</button>'
+          +'<button class="clan-btn-war" onclick="goToWarTab()"><svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/></svg>'+(currentWar&&currentWar.status==='active'?'War in Progress':'Start War')+'</button>'
+          +'<button class="clan-btn-leave" onclick="leaveClan()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Leave</button>'
+        +'</div>'
+      +'</div>'
+      +(isLeader?renderJoinRequests():'')
+      +'<div class="my-clan-section-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Members ('+memArr.length+')</div>'
+      +memArr.map(m=>renderMemberRow(m,isLeader)).join('');
+  }
+  function renderMemberRow(m,isLeader){
+    const ud=getUserData(m.uid);
+    const name=ud.nickname||ud.username||ud.email||'User';
+    const initials=name.slice(0,2).toUpperCase();
+    const av=ud.avatar?'<img src="'+ud.avatar+'" alt=""/>':initials;
+    const online=isUserOnline(m.uid);
+    const isMe=m.uid===MY_UID;
+    const roleLabel={leader:'👑 Leader',coleader:'⚔️ Co-leader',elder:'🛡️ Elder',member:'Member'}[m.role||'member'];
+    return '<div class="clan-member-row">'
+      +'<div class="clan-member-avatar" onclick="event.stopPropagation();openProfile(\''+m.uid+'\')">'+av+'</div>'
+      +(online?'<div class="clan-member-online-dot" title="Online"></div>':'')
+      +'<div class="clan-member-info"><div class="clan-member-name" onclick="openProfile(\''+m.uid+'\')">'+_esc(name)+(isMe?' <span style="color:var(--muted);font-weight:500;font-size:.7rem">(you)</span>':'')+'</div>'
+      +'<div class="clan-member-role '+(m.role||'member')+'">'+roleLabel+'</div></div>'
+      +'<div class="clan-member-donated">'+(m.donated||0).toLocaleString()+'<small>donated</small></div>'
+      +(isLeader&&!isMe?'<button onclick="kickMember(\''+m.uid+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px" title="Kick"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
+      +'</div>';
+  }
+  function renderJoinRequests(){
+    const reqs=myClanData&&myClanData.joinRequests?myClanData.joinRequests:null;
+    if(!reqs||!Object.keys(reqs).length)return '';
+    return '<div class="my-clan-section-title"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Join Requests ('+Object.keys(reqs).length+')</div>'
+      +Object.entries(reqs).map(([uid,r])=>{
+        const ud=getUserData(uid);const name=ud.nickname||ud.username||uid;
+        return '<div class="clan-member-row"><div class="clan-member-avatar">'+(name.slice(0,2).toUpperCase())+'</div>'
+          +'<div class="clan-member-info"><div class="clan-member-name">'+_esc(name)+'</div><div class="clan-member-role">wants to join</div></div>'
+          +'<button class="clan-card-action" onclick="approveReq(\''+uid+'\')">Accept</button>'
+          +'<button class="clan-card-action secondary" onclick="rejectReq(\''+uid+'\')">Deny</button>'
+          +'</div>';
+      }).join('');
+  }
+  window.approveReq=async function(uid){
+    if(!myClanId)return;
+    const updates={};
+    updates['users/'+uid+'/clan']=myClanId;
+    updates['clans/'+myClanId+'/members/'+uid]={role:'member',joinedAt:firebase.database.ServerValue.TIMESTAMP,donated:0};
+    updates['clans/'+myClanId+'/joinRequests/'+uid]=null;
+    await rtdb.ref().update(updates);
+    await rtdb.ref('clans/'+myClanId+'/memberCount').transaction(c=>(c||0)+1);
+    pushClanSystemMsg(myClanId,getUserName(uid)+' joined the clan');
+    toast('Approved','success');
+  };
+  window.rejectReq=function(uid){rtdb.ref('clans/'+myClanId+'/joinRequests/'+uid).remove();toast('Denied');};
+  window.kickMember=async function(uid){
+    const ok=await clnConfirm({title:'Kick this member?',sub:'They\'ll be removed from the clan immediately. They can re-apply later.',confirmText:'Kick',variant:'danger'});
+    if(!ok)return;
+    const updates={};
+    updates['users/'+uid+'/clan']=null;
+    updates['clans/'+myClanId+'/members/'+uid]=null;
+    await rtdb.ref().update(updates);
+    await rtdb.ref('clans/'+myClanId+'/memberCount').transaction(c=>Math.max(0,(c||1)-1));
+    pushClanSystemMsg(myClanId,getUserName(uid)+' was kicked');
+    toast('Member kicked');
+  };
+
+  /* ── BLESS / DONATE ── */
+  window.blessClan=async function(){
+    if(!myClanId||!myClanData)return;
+    const memUids=Object.keys(myClanMembers).filter(u=>u!==MY_UID);
+    if(!memUids.length){toast('No other members to bless');return;}
+    const myCreds=()=>parseInt(document.getElementById('creditsCount').textContent.replace(/,/g,''))||0;
+    const total=await clnAmount({
+      title:'Bless All Members',
+      sub:'Split a total amount evenly among '+memUids.length+' members. Each receives Total ÷ '+memUids.length+'.',
+      maxFn:myCreds,
+      confirmText:'Send Blessing',
+      variant:'gold',
+      icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>',
+      preview:v=>{
+        if(v<memUids.length)return null;
+        const each=Math.floor(v/memUids.length);
+        return '<b>'+memUids.length+' members</b> × '+each.toLocaleString()+' = '+(each*memUids.length).toLocaleString();
+      }
+    });
+    if(!total)return;
+    if(total<memUids.length){toast('Min '+memUids.length+' credits (1 each)');return;}
+    const each=Math.floor(total/memUids.length);
+    const realTotal=each*memUids.length;
+    try{
+      const dr=await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{if((c||0)<realTotal)return;return (c||0)-realTotal;});
+      if(!dr.committed){toast('Not enough credits');return;}
+      await Promise.all(memUids.map(uid=>rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+each)));
+      pushClanSystemMsg(myClanId,'🎁 '+getUserName(MY_UID)+' blessed everyone with '+each.toLocaleString()+' credits each!');
+      toast('🎁 Blessed '+memUids.length+' members ('+each.toLocaleString()+' each)','success');
+    }catch(e){toast('Failed: '+e.message);}
+  };
+  // Bless from clan treasury — leaders/co-leaders only.
+  // Splits a chosen amount of TREASURY credits evenly among ALL members (including the leader).
+  window.treasuryBless=async function(){
+    if(!myClanId||!myClanData)return;
+    if(myClanRole!=='leader'&&myClanRole!=='coleader'){toast('Only leaders or co-leaders can do this');return;}
+    const memUids=Object.keys(myClanMembers);
+    if(!memUids.length){toast('No members to bless');return;}
+    const treasury=()=>(myClanData&&myClanData.treasury)||0;
+    const amt=await clnAmount({
+      title:'Bless from Treasury',
+      sub:'Distribute clan-treasury credits evenly to all '+memUids.length+' members (you included). The clan vault pays — not your wallet.',
+      maxFn:treasury,
+      confirmText:'Distribute',
+      variant:'gold',
+      icon:'<svg viewBox="0 0 24 24"><path d="M2 7l4-4h12l4 4-10 13L2 7z"/><path d="M11 3l1 4 1-4"/><path d="M2 7h20"/></svg>',
+      preview:v=>{
+        if(v<memUids.length)return null;
+        const each=Math.floor(v/memUids.length);
+        return '<b>'+memUids.length+' members</b> × '+each.toLocaleString()+' each = '+(each*memUids.length).toLocaleString()+' from treasury';
+      }
+    });
+    if(!amt)return;
+    if(amt<memUids.length){toast('Min '+memUids.length+' credits (1 each)');return;}
+    const each=Math.floor(amt/memUids.length);
+    const realTotal=each*memUids.length;
+    try{
+      // Atomic deduct from treasury — fails if insufficient
+      const dr=await rtdb.ref('clans/'+myClanId+'/treasury').transaction(c=>{
+        if((c||0)<realTotal)return; // abort
+        return (c||0)-realTotal;
+      });
+      if(!dr.committed){toast('Treasury too low — only '+treasury().toLocaleString()+' available');return;}
+      // Pay every member in parallel
+      await Promise.all(memUids.map(uid=>rtdb.ref('users/'+uid+'/credits').transaction(c=>(c||0)+each)));
+      pushClanSystemMsg(myClanId,'👑 '+getUserName(MY_UID)+' blessed the clan from the treasury — '+each.toLocaleString()+' credits each!');
+      toast('👑 Treasury blessed '+memUids.length+' members ('+each.toLocaleString()+' each)','success');
+    }catch(e){toast('Failed: '+e.message);}
+  };
+
+  window.donateToClan=async function(){
+    if(!myClanId)return;
+    const myCreds=()=>parseInt(document.getElementById('creditsCount').textContent.replace(/,/g,''))||0;
+    const amt=await clnAmount({
+      title:'Donate to Treasury',
+      sub:'Add credits to your clan vault. You\'ll earn 1 clan XP per 100 donated.',
+      maxFn:myCreds,
+      confirmText:'Donate',
+      variant:'gold',
+      icon:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+      preview:v=>v>0?'Treasury becomes <b>'+(((myClanData&&myClanData.treasury)||0)+v).toLocaleString()+'</b> · Clan XP +'+Math.floor(v/100):null
+    });
+    if(!amt)return;
+    try{
+      const dr=await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{if((c||0)<amt)return;return (c||0)-amt;});
+      if(!dr.committed){toast('Not enough credits');return;}
+      await rtdb.ref('clans/'+myClanId+'/treasury').transaction(c=>(c||0)+amt);
+      await rtdb.ref('clans/'+myClanId+'/members/'+MY_UID+'/donated').transaction(c=>(c||0)+amt);
+      await rtdb.ref('clans/'+myClanId+'/xp').transaction(c=>(c||0)+Math.floor(amt/100));
+      pushClanSystemMsg(myClanId,getUserName(MY_UID)+' donated '+amt.toLocaleString()+' to the treasury');
+      toast('Donated '+amt.toLocaleString()+' to treasury','success');
+    }catch(e){toast('Failed: '+e.message);}
+  };
+  window.goToWarTab=function(){activeClanTab='war';document.querySelectorAll('.clan-tab').forEach(t=>t.classList.toggle('active',t.dataset.ctab==='war'));renderClansBody();};
+
+  /* ── CLAN CHAT ── */
+  function renderClanChat(body){
+    body.innerHTML='<div class="clan-chat-wrap">'
+      +'<div class="clan-chat-body" id="clanChatBody"></div>'
+      +renderEmoteBar()
+      +'<div class="clan-chat-input-row">'
+        +'<input type="text" id="clanChatInput" placeholder="Message your clan..." maxlength="500" />'
+        +'<button class="clan-chat-send" id="clanChatSend"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>'
+      +'</div>'
+      +'</div>';
+    const ccBody=document.getElementById('clanChatBody');
+    const inp=document.getElementById('clanChatInput');
+    const send=document.getElementById('clanChatSend');
+    const ref=rtdb.ref('clans/'+myClanId+'/chat').orderByChild('ts').limitToLast(100);
+    ccBody.innerHTML='';
+    ref.once('value').then(snap=>{
+      ccBody.innerHTML='';
+      snap.forEach(c=>appendChatMsg(ccBody,c.key,c.val()));
+      ccBody.scrollTop=ccBody.scrollHeight;
+    });
+    const cb=function(snap){appendChatMsg(ccBody,snap.key,snap.val());ccBody.scrollTop=ccBody.scrollHeight;clanChatLastSeen=Date.now();localStorage.setItem('aightbet-clanchat-seen',clanChatLastSeen);};
+    ref.on('child_added',cb);
+    clanChatListener={ref:ref,cb:cb};
+    function doSend(){
+      const t=inp.value.trim();if(!t)return;inp.value='';
+      rtdb.ref('clans/'+myClanId+'/chat').push({uid:MY_UID,name:getUserName(MY_UID),text:t,ts:firebase.database.ServerValue.TIMESTAMP});
+    }
+    send.addEventListener('click',doSend);
+    inp.addEventListener('keypress',e=>{if(e.key==='Enter')doSend();});
+    setTimeout(()=>inp.focus(),100);
+  }
+  function appendChatMsg(parent,key,m){
+    if(!m)return;
+    if(m.system){
+      const d=document.createElement('div');d.className='clan-chat-system';d.textContent=m.text||'';parent.appendChild(d);return;
+    }
+    const isSelf=m.uid===MY_UID;
+    const ud=getUserData(m.uid);const name=m.name||ud.nickname||ud.username||'User';
+    const initials=name.slice(0,2).toUpperCase();
+    const av=ud.avatar?'<img src="'+ud.avatar+'" alt=""/>':initials;
+    const ts=m.ts?new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
+    if(m.emote && EMOTES[m.emote]){
+      const e=EMOTES[m.emote];
+      const d=document.createElement('div');d.className='clan-chat-msg emote'+(isSelf?' self':'');
+      d.innerHTML='<div class="clan-chat-avatar" onclick="openProfile(\''+m.uid+'\')">'+av+'</div>'
+        +'<div><div class="clan-chat-name">'+_esc(name)+'</div>'
+        +'<div class="clan-chat-bubble"><div class="emote-display '+e.cls+'">'+e.char+'</div><div class="clan-chat-time" style="margin-top:6px">'+ts+'</div></div></div>';
+      parent.appendChild(d);return;
+    }
+    const d=document.createElement('div');d.className='clan-chat-msg'+(isSelf?' self':'');
+    d.innerHTML='<div class="clan-chat-avatar" onclick="openProfile(\''+m.uid+'\')">'+av+'</div>'
+      +'<div><div class="clan-chat-name">'+_esc(name)+'</div><div class="clan-chat-bubble">'+_esc(m.text)+'<div class="clan-chat-time">'+ts+'</div></div></div>';
+    parent.appendChild(d);
+  }
+  function pushClanSystemMsg(cid,text){
+    rtdb.ref('clans/'+cid+'/chat').push({system:true,text:text,ts:firebase.database.ServerValue.TIMESTAMP});
+  }
+  function detachClanChat(){if(clanChatListener){clanChatListener.ref.off('child_added',clanChatListener.cb);clanChatListener=null;}}
+
+  /* ── CLAN WAR ── */
+  function renderWar(body){
+    if(currentWar&&currentWar.status==='active'){
+      const isA=currentWar.clanA===myClanId;
+      const myScore=isA?(currentWar.scoreA||0):(currentWar.scoreB||0);
+      const oppScore=isA?(currentWar.scoreB||0):(currentWar.scoreA||0);
+      const myName=isA?currentWar.clanAName:currentWar.clanBName;
+      const myTag=isA?currentWar.clanATag:currentWar.clanBTag;
+      const oppName=isA?currentWar.clanBName:currentWar.clanAName;
+      const oppTag=isA?currentWar.clanBTag:currentWar.clanATag;
+      const remaining=Math.max(0,currentWar.endTs-Date.now());
+      const hh=Math.floor(remaining/3600000),mm=Math.floor((remaining%3600000)/60000),ss=Math.floor((remaining%60000)/1000);
+      const timeStr=hh>0?(hh+'h '+mm+'m'):(mm+'m '+ss+'s');
+      const myWinning=myScore>oppScore;
+      const lastMG=parseInt(localStorage.getItem('aightbet-mg-'+currentWar.id)||'0');
+      const mgReady=Date.now()-lastMG>=3*60*1000;
+      body.innerHTML=
+        '<div class="war-arena">'
+          +'<div style="text-align:center;font-size:.78rem;font-weight:800;color:var(--red);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px"><span class="war-live-dot"></span>WAR LIVE — ENDS IN '+timeStr+'</div>'
+          +'<div class="war-vs">'
+            +'<div class="war-side'+(myWinning?' winning':'')+'">'
+              +'<div class="war-side-icon">'+(myName||'?').slice(0,2).toUpperCase()+'</div>'
+              +'<div class="war-side-name">'+_esc(myName||'You')+' (Us)</div>'
+              +'<div class="war-side-tag">#'+_esc(myTag||'')+'</div>'
+              +'<div class="war-side-score">'+myScore.toLocaleString()+'</div>'
+              +'<div class="war-side-score-label">Credits Contributed</div>'
+            +'</div>'
+            +'<div class="war-vs-mid">VS</div>'
+            +'<div class="war-side'+(!myWinning&&oppScore>myScore?' winning':'')+'">'
+              +'<div class="war-side-icon">'+(oppName||'?').slice(0,2).toUpperCase()+'</div>'
+              +'<div class="war-side-name">'+_esc(oppName||'Enemy')+'</div>'
+              +'<div class="war-side-tag">#'+_esc(oppTag||'')+'</div>'
+              +'<div class="war-side-score">'+oppScore.toLocaleString()+'</div>'
+              +'<div class="war-side-score-label">Credits Contributed</div>'
+            +'</div>'
+          +'</div>'
+          +'<div class="war-meta-row">'
+            +'<div class="war-meta-item"><div class="war-meta-label">Total Pot</div><div class="war-meta-val gold">'+((currentWar.scoreA||0)+(currentWar.scoreB||0)).toLocaleString()+'</div></div>'
+            +'<div class="war-meta-item"><div class="war-meta-label">Lead</div><div class="war-meta-val '+(myWinning?'green':'red')+'">'+(myWinning?'+':'-')+Math.abs(myScore-oppScore).toLocaleString()+'</div></div>'
+            +'<div class="war-meta-item"><div class="war-meta-label">Reward (winner)</div><div class="war-meta-val gold">'+Math.floor(((currentWar.scoreA||0)+(currentWar.scoreB||0))*1.5).toLocaleString()+'</div></div>'
+          +'</div>'
+          +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+            +'<button class="war-contribute-btn" id="warOpenContrib" style="flex:1;min-width:160px;justify-content:center"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>Contribute Credits</button>'
+            +'<button class="clan-btn-bless" id="warOpenMG" style="flex:1;min-width:160px;justify-content:center;'+(mgReady?'':'opacity:.55;cursor:not-allowed')+'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'+(mgReady?'Play Bomb Tap':'Bomb Tap (cooldown)')+'</button>'
+          +'</div>'
+        +'</div>'
+        +'<div class="my-clan-section-title"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Top Contributors (Your Clan)</div>'
+        +'<div id="warLeaderboard"><div class="loader-spinner" style="margin:14px auto"></div></div>';
+      document.getElementById('warOpenContrib').addEventListener('click',openWarContributeModal);
+      document.getElementById('warOpenMG').addEventListener('click',()=>{ if(mgReady)window.openMinigame(); else toast('Cooldown — try again in a few minutes'); });
+      // Render leaderboard from contrib node
+      rtdb.ref('clanWars/'+currentWar.id+'/contrib').orderByChild('amount').limitToLast(10).once('value').then(snap=>{
+        const arr=[];snap.forEach(c=>{const d=c.val();if(d.clanId!==myClanId)return;arr.push({uid:c.key,...d});});
+        arr.sort((a,b)=>(b.amount||0)-(a.amount||0));
+        const lb=document.getElementById('warLeaderboard');
+        if(!arr.length){lb.innerHTML='<div class="clan-empty-state" style="padding:14px"><p>No contributions yet — be the first!</p></div>';return;}
+        lb.innerHTML=arr.map((e,i)=>'<div class="war-lb-row">'
+          +'<div class="war-lb-rank '+(i===0?'r1':i===1?'r2':i===2?'r3':'')+'">'+(i+1)+'</div>'
+          +'<div class="war-lb-name">'+_esc(e.name||getUserName(e.uid))+'</div>'
+          +'<div class="war-lb-amt">'+(e.amount||0).toLocaleString()+'</div></div>').join('');
+      });
+      if(remaining<=0&&(myClanRole==='leader'||myClanRole==='coleader')){endWar();}
+      else if(remaining>0){setTimeout(()=>{ if(activeClanTab==='war')renderClansBody(); }, Math.min(remaining<60000?1000:30000,remaining));}
+      return;
+    }
+    body.innerHTML='<div class="war-arena war-arena-empty">'
+      +'<svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M21 3l-3 3"/><path d="M19 5l-7 7"/></svg>'
+      +'<p style="margin-bottom:6px"><b>No active war</b></p>'
+      +'<p style="font-size:.78rem;color:var(--muted);margin-bottom:18px">Find another clan and battle. Both clans contribute credits — winner takes 150% of the total pot, loser gets 50% back.</p>'
+      +(myClanRole==='leader'||myClanRole==='coleader'
+        ?'<button class="war-find-btn" onclick="findWarOpponent()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find Opponent</button>'
+        :'<p style="font-size:.78rem;color:var(--muted)">Only Leaders or Co-leaders can start a war</p>')
+      +'</div>';
+  }
+  async function openWarContributeModal(){
+    const myCreds=()=>parseInt(document.getElementById('creditsCount').textContent.replace(/,/g,''))||0;
+    const amt=await clnAmount({
+      title:'Contribute to War',
+      sub:'These credits boost your clan\'s war score. Winner gets 150% of the total pot back, loser gets 50%.',
+      maxFn:myCreds,
+      confirmText:'Contribute',
+      variant:'gold',
+      icon:'<svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/></svg>',
+      preview:v=>v>0?'War score becomes <b>'+(((currentWar&&(currentWar.clanA===myClanId?currentWar.scoreA:currentWar.scoreB))||0)+v).toLocaleString()+'</b>':null
+    });
+    if(!amt)return;
+    try{
+      const dr=await rtdb.ref('users/'+MY_UID+'/credits').transaction(c=>{if((c||0)<amt)return;return (c||0)-amt;});
+      if(!dr.committed){toast('Not enough credits');return;}
+      const isA=currentWar.clanA===myClanId;
+      await rtdb.ref('clanWars/'+currentWar.id+'/'+(isA?'scoreA':'scoreB')).transaction(c=>(c||0)+amt);
+      await rtdb.ref('clanWars/'+currentWar.id+'/contrib/'+MY_UID).transaction(d=>{
+        d=d||{amount:0,clanId:myClanId,name:getUserName(MY_UID)};
+        d.amount=(d.amount||0)+amt;d.clanId=myClanId;d.name=getUserName(MY_UID);return d;
+      });
+      pushClanSystemMsg(myClanId,'⚔️ '+getUserName(MY_UID)+' contributed '+amt.toLocaleString()+' to the war!');
+      toast('⚔️ +'+amt.toLocaleString()+' contributed','success');
+    }catch(e){toast('Failed: '+e.message);}
+  }
+  window.findWarOpponent=async function(){
+    if(myClanRole!=='leader'&&myClanRole!=='coleader'){toast('Only leaders can start a war');return;}
+    if(currentWar&&currentWar.status==='active'){toast('You\'re already in a war');return;}
+    // 1) Pick duration via styled modal (includes DEV-only 1-minute option — see DEV ONLY block in clnDurationPicker)
+    const duration=await clnDurationPicker();
+    if(!duration)return;
+    toast('Searching for opponent...');
+    const snap=await rtdb.ref('clans').once('value');
+    const candidates=[];snap.forEach(c=>{const d=c.val();if(c.key!==myClanId&&!d.currentWar&&(d.memberCount||0)>=1)candidates.push({id:c.key,...d});});
+    if(!candidates.length){toast('No clans available — try again later');return;}
+    const opp=candidates[Math.floor(Math.random()*candidates.length)];
+    const widRef=rtdb.ref('clanWars').push();const wid=widRef.key;
+    const now=Date.now();
+    const war={
+      id:wid,clanA:myClanId,clanB:opp.id,
+      clanAName:myClanData.name,clanATag:myClanData.tag,
+      clanBName:opp.name,clanBTag:opp.tag,
+      scoreA:0,scoreB:0,
+      startTs:now,endTs:now+duration,
+      durationMs:duration,
+      status:'active'
+    };
+    const updates={};
+    updates['clanWars/'+wid]=war;
+    updates['clans/'+myClanId+'/currentWar']=wid;
+    updates['clans/'+opp.id+'/currentWar']=wid;
+    await rtdb.ref().update(updates);
+    const dLabel=duration<60*60*1000?Math.round(duration/60000)+' minute war':duration<24*60*60*1000?Math.round(duration/3600000)+'h war':'24h war';
+    pushClanSystemMsg(myClanId,'⚔️ WAR DECLARED on '+opp.name+'! '+dLabel+' — to victory.');
+    pushClanSystemMsg(opp.id,'⚔️ '+myClanData.name+' has declared WAR! '+dLabel+' to victory.');
+    toast('⚔️ War started vs '+opp.name+'!','success');
+  };
+  async function endWar(){
+    if(!currentWar||currentWar.status!=='active')return;
+    if(currentWar._ending)return;currentWar._ending=true;
+    const a=currentWar.scoreA||0,b=currentWar.scoreB||0;
+    const winner=a>b?currentWar.clanA:b>a?currentWar.clanB:null;
+    const pot=a+b;
+    const winReward=Math.floor(pot*1.5);
+    const loseReward=Math.floor(pot*0.5);
+    const updates={};
+    updates['clanWars/'+currentWar.id+'/status']='ended';
+    updates['clanWars/'+currentWar.id+'/winnerClanId']=winner;
+    updates['clans/'+currentWar.clanA+'/currentWar']=null;
+    updates['clans/'+currentWar.clanB+'/currentWar']=null;
+    await rtdb.ref().update(updates);
+    if(winner){
+      await rtdb.ref('clans/'+winner+'/treasury').transaction(c=>(c||0)+winReward);
+      await rtdb.ref('clans/'+winner+'/trophies').transaction(c=>(c||0)+50);
+      const loser=winner===currentWar.clanA?currentWar.clanB:currentWar.clanA;
+      await rtdb.ref('clans/'+loser+'/treasury').transaction(c=>(c||0)+loseReward);
+      await rtdb.ref('clans/'+loser+'/trophies').transaction(c=>Math.max(0,(c||0)-15));
+      pushClanSystemMsg(winner,'🏆 VICTORY! Won '+winReward.toLocaleString()+' credits + 50 trophies');
+      pushClanSystemMsg(loser,'💔 Defeat. Recovered '+loseReward.toLocaleString()+' credits, lost 15 trophies');
+      if(myClanId===winner)launchConfetti();
+    }
+  }
+  function launchConfetti(){
+    const colors=['#fbbf24','#8b5cf6','#06b6d4','#ec4899','#22c55e','#fff'];
+    for(let i=0;i<60;i++){
+      const c=document.createElement('div');c.className='war-confetti';
+      c.style.left='50%';c.style.top='30%';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.setProperty('--cx',((Math.random()-0.5)*900)+'px');
+      c.style.setProperty('--cy',(Math.random()*600+200)+'px');
+      c.style.animationDelay=(Math.random()*0.3)+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),1800);
+    }
+  }
+  function isUserOnline(uid){return !!(window._onlineUsers&&window._onlineUsers[uid]);}
+
+  // Boot the clans system once auth is established
+  /* ══════════════════════════════════════════
+     CLAN — STYLED MODAL HELPERS
+     (replaces prompt/confirm with branded UI)
+  ══════════════════════════════════════════ */
+  const clnMo=document.getElementById('clnModalOverlay');
+  const clnM=document.getElementById('clnModal');
+  function _clnClose(){clnMo.classList.remove('open');clnM.innerHTML='';}
+  clnMo.addEventListener('click',e=>{if(e.target===clnMo)_clnClose();});
+
+  // Generic confirm — returns Promise<bool>
+  function clnConfirm({title,sub,confirmText='Confirm',cancelText='Cancel',variant='primary',icon=''}){
+    return new Promise(res=>{
+      clnM.innerHTML='<h3>'+(icon||'')+'<span>'+_esc(title)+'</span></h3>'
+        +(sub?'<div class="cln-modal-sub">'+_esc(sub)+'</div>':'')
+        +'<div class="cln-modal-btns"><button class="cln-cancel" id="_clnX">'+_esc(cancelText)+'</button><button class="cln-confirm '+variant+'" id="_clnY">'+_esc(confirmText)+'</button></div>';
+      clnMo.classList.add('open');
+      document.getElementById('_clnX').onclick=()=>{_clnClose();res(false);};
+      document.getElementById('_clnY').onclick=()=>{_clnClose();res(true);};
+    });
+  }
+
+  // Amount input modal — returns Promise<int|null>
+  function clnAmount({title,sub,maxFn,confirmText='Send',variant='gold',preview,quickPercents=[10,25,50,100],icon=''}){
+    return new Promise(res=>{
+      const max=typeof maxFn==='function'?maxFn():(maxFn||0);
+      clnM.innerHTML='<h3>'+(icon||'')+'<span>'+_esc(title)+'</span></h3>'
+        +(sub?'<div class="cln-modal-sub">'+_esc(sub)+'</div>':'')
+        +'<div class="cln-amount-wrap"><div class="cln-coin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg></div>'
+          +'<input type="number" id="_clnAmt" class="cln-amount-input" placeholder="0" min="1" max="'+max+'" /></div>'
+        +'<div class="cln-modal-meta"><span>Your balance:</span><b id="_clnBal">'+max.toLocaleString()+'</b></div>'
+        +'<div class="cln-quick">'+quickPercents.map(p=>'<button data-p="'+p+'">'+(p===100?'MAX':p+'%')+'</button>').join('')+'</div>'
+        +'<div id="_clnPrev" style="display:none"></div>'
+        +'<div class="cln-modal-btns"><button class="cln-cancel" id="_clnX">Cancel</button><button class="cln-confirm '+variant+'" id="_clnY" disabled>'+_esc(confirmText)+'</button></div>';
+      clnMo.classList.add('open');
+      const inp=document.getElementById('_clnAmt');const ok=document.getElementById('_clnY');const prev=document.getElementById('_clnPrev');
+      function refreshPrev(){
+        const v=parseInt(inp.value)||0;
+        ok.disabled=!(v>0&&v<=max);
+        if(preview){
+          const pv=preview(v);
+          if(pv){prev.style.display='block';prev.outerHTML='<div id="_clnPrev" class="cln-preview-card'+(v>max?' warn':'')+'"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'+pv+'</div>';}
+        }
+      }
+      inp.addEventListener('input',refreshPrev);
+      setTimeout(()=>inp.focus(),60);
+      document.querySelectorAll('.cln-quick button').forEach(b=>b.addEventListener('click',()=>{
+        const p=parseInt(b.dataset.p);inp.value=Math.max(1,Math.floor(max*p/100));refreshPrev();
+      }));
+      document.getElementById('_clnX').onclick=()=>{_clnClose();res(null);};
+      ok.onclick=()=>{const v=parseInt(inp.value)||0;if(v<=0||v>max)return;_clnClose();res(v);};
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!ok.disabled)ok.click();});
+    });
+  }
+
+  // War duration picker — returns Promise<ms|null>
+  function clnDurationPicker(){
+    return new Promise(res=>{
+      const opts=[
+        // ╔══════ DEV ONLY START ══════╗
+        // Remove this block before going live — 1 minute is for testing only.
+        {ms:60*1000,icon:'⚡',label:'1 minute',sub:'TEST',dev:true},
+        // ╚══════ DEV ONLY END ══════╝
+        {ms:60*60*1000,icon:'🕐',label:'1 hour',sub:'Quick skirmish'},
+        {ms:12*60*60*1000,icon:'🕛',label:'12 hours',sub:'Standard'},
+        {ms:24*60*60*1000,icon:'⏳',label:'24 hours',sub:'Classic war'}
+      ];
+      clnM.innerHTML='<h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Pick War Duration</span></h3>'
+        +'<div class="cln-modal-sub">How long should the war last? Both clans contribute credits — winner takes 150% of the pot.</div>'
+        +'<div class="duration-grid">'
+        +opts.map((o,i)=>'<button class="duration-opt'+(o.dev?' dev':'')+(i===2?' active':'')+'" data-ms="'+o.ms+'">'
+          +(o.dev?'<span class="dev-badge">DEV</span>':'')
+          +'<div class="duration-opt-icon">'+o.icon+'</div>'
+          +'<div class="duration-opt-label">'+o.label+'</div>'
+          +'<div class="duration-opt-sub">'+o.sub+'</div>'
+        +'</button>').join('')
+        +'</div>'
+        +'<div class="cln-modal-btns"><button class="cln-cancel" id="_clnX">Cancel</button><button class="cln-confirm danger" id="_clnY"><span style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/></svg>Declare War</span></button></div>';
+      clnMo.classList.add('open');
+      let sel=12*60*60*1000;
+      document.querySelectorAll('.duration-opt').forEach(b=>b.addEventListener('click',()=>{
+        document.querySelectorAll('.duration-opt').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');sel=parseInt(b.dataset.ms);
+      }));
+      document.getElementById('_clnX').onclick=()=>{_clnClose();res(null);};
+      document.getElementById('_clnY').onclick=()=>{_clnClose();res(sel);};
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     CLAN — EMOTES (Clash-Royale-style stickers)
+  ══════════════════════════════════════════ */
+  const EMOTES={
+    king:{cls:'king',char:'👑',label:'Royal'},
+    skull:{cls:'skull',char:'💀',label:'Savage'},
+    snake:{cls:'snake',char:'🐍',label:'Sneaky'},
+    fire:{cls:'fire',char:'🔥',label:'Fire'},
+    swords:{cls:'swords',char:'⚔️',label:'War'},
+    shield:{cls:'shield',char:'🛡️',label:'Defend'},
+    money:{cls:'money',char:'💰',label:'Money'},
+    crying:{cls:'crying',char:'😭',label:'Crying'},
+    party:{cls:'party',char:'🎉',label:'Party'},
+    heart:{cls:'heart',char:'❤️',label:'Love'}
+  };
+  function sendEmote(key){
+    if(!myClanId)return;
+    const e=EMOTES[key];if(!e)return;
+    rtdb.ref('clans/'+myClanId+'/chat').push({uid:MY_UID,name:getUserName(MY_UID),emote:key,ts:firebase.database.ServerValue.TIMESTAMP});
+  }
+  window.sendEmote=sendEmote;
+  function renderEmoteBar(){
+    return '<div class="emote-bar">'
+      +Object.entries(EMOTES).map(([k,e])=>'<button class="emote-btn '+e.cls+'" title="'+e.label+'" onclick="sendEmote(\''+k+'\')">'+e.char+'</button>').join('')
+      +'</div>';
+  }
+
+  /* ══════════════════════════════════════════
+     CLAN — WAR MINIGAME (Bomb Tap)
+     Tap bombs in 12s, each = 200 credits to war.
+     Gold bombs = 1000 each. Cooldown: 3 minutes per war.
+  ══════════════════════════════════════════ */
+  const MG_DURATION=12000, MG_COOLDOWN=3*60*1000, MG_BOMB_VAL=200, MG_GOLD_VAL=1000;
+  const mgO=document.getElementById('mgOverlay');
+  const mgM=document.getElementById('mgModal');
+  function _mgClose(){mgO.classList.remove('open');mgM.innerHTML='';}
+  mgO.addEventListener('click',e=>{if(e.target===mgO)_mgClose();});
+  window.openMinigame=function(){
+    if(!currentWar||currentWar.status!=='active'){toast('No active war');return;}
+    const lastKey='aightbet-mg-'+currentWar.id;
+    const last=parseInt(localStorage.getItem(lastKey)||'0');
+    const remaining=Math.max(0,(last+MG_COOLDOWN)-Date.now());
+    mgM.innerHTML=
+      '<div class="mg-header"><div class="mg-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Bomb Tap</div>'
+      +'<button class="mg-close" id="_mgX"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+      +'<div class="mg-stats-row">'
+        +'<div class="mg-stat"><div class="mg-stat-l">Time</div><div class="mg-stat-v" id="_mgTime">12.0s</div></div>'
+        +'<div class="mg-stat"><div class="mg-stat-l">Score</div><div class="mg-stat-v green" id="_mgScore">0</div></div>'
+        +'<div class="mg-stat"><div class="mg-stat-l">War credits</div><div class="mg-stat-v" id="_mgCreds">0</div></div>'
+      +'</div>'
+      +'<div class="mg-arena" id="_mgArena"><div class="mg-arena-grid"></div></div>'
+      +'<div class="mg-cd-bar"><div class="mg-cd-fill" id="_mgFill" style="width:100%"></div></div>'
+      +(remaining>0
+        ? '<div class="mg-cooldown-msg">⏳ Next play available in '+Math.ceil(remaining/1000)+'s</div><div class="mg-action-row"><button class="mg-start-btn" disabled>On cooldown…</button></div>'
+        : '<div class="mg-action-row"><button class="mg-start-btn" id="_mgStart">▶ Start (free)</button></div>');
+    mgO.classList.add('open');
+    document.getElementById('_mgX').onclick=_mgClose;
+    if(remaining<=0){
+      document.getElementById('_mgStart').onclick=()=>startBombTap(lastKey);
+    }
+  };
+  function startBombTap(lastKey){
+    document.getElementById('_mgStart').disabled=true;
+    document.getElementById('_mgStart').textContent='Tap the bombs!';
+    const arena=document.getElementById('_mgArena');
+    const timeEl=document.getElementById('_mgTime');
+    const scoreEl=document.getElementById('_mgScore');
+    const credsEl=document.getElementById('_mgCreds');
+    const fillEl=document.getElementById('_mgFill');
+    let score=0,creds=0,running=true,startedAt=Date.now();
+    const ar=arena.getBoundingClientRect();
+    function spawnBomb(){
+      if(!running)return;
+      const isGold=Math.random()<0.18;
+      const b=document.createElement('div');
+      b.className='mg-bomb'+(isGold?' gold':'');
+      b.textContent='💣';
+      const sz=54;
+      const x=Math.random()*(ar.width-sz);
+      const y=Math.random()*(ar.height-sz);
+      b.style.left=x+'px';b.style.top=y+'px';
+      const lifetime=isGold?900:1100;
+      let alive=true;
+      const tap=ev=>{
+        ev.stopPropagation();
+        if(!alive||!running)return;alive=false;
+        b.classList.add('popped');
+        const val=isGold?MG_GOLD_VAL:MG_BOMB_VAL;
+        const pts=isGold?5:1;
+        score+=pts;creds+=val;
+        scoreEl.textContent=score;credsEl.textContent=creds.toLocaleString();
+        const fly=document.createElement('div');fly.className='mg-points';fly.textContent='+'+val;
+        fly.style.left=(x+sz/2)+'px';fly.style.top=(y+sz/2)+'px';
+        if(isGold)fly.style.color='#fbbf24';
+        arena.appendChild(fly);setTimeout(()=>fly.remove(),800);
+        setTimeout(()=>b.remove(),350);
+      };
+      b.addEventListener('pointerdown',tap);
+      arena.appendChild(b);
+      setTimeout(()=>{if(alive){alive=false;b.remove();}},lifetime);
+    }
+    const spawnInt=setInterval(spawnBomb,420);
+    spawnBomb();
+    const tick=setInterval(()=>{
+      const elapsed=Date.now()-startedAt;
+      const left=Math.max(0,MG_DURATION-elapsed);
+      timeEl.textContent=(left/1000).toFixed(1)+'s';
+      fillEl.style.width=(left/MG_DURATION*100)+'%';
+      if(left<=0){
+        clearInterval(spawnInt);clearInterval(tick);running=false;
+        finishBombTap(score,creds,lastKey);
+      }
+    },80);
+  }
+  async function finishBombTap(score,creds,lastKey){
+    localStorage.setItem(lastKey,Date.now());
+    const arena=document.getElementById('_mgArena');
+    if(arena)arena.querySelectorAll('.mg-bomb').forEach(b=>b.remove());
+    const myCreds=parseInt(document.getElementById('creditsCount').textContent.replace(/,/g,''))||0;
+    const award=Math.min(creds,Math.max(myCreds,5000));
+    // Push to war scoreboard (free credits — minigame reward)
+    if(currentWar&&currentWar.id&&award>0){
+      const isA=currentWar.clanA===myClanId;
+      try{
+        await rtdb.ref('clanWars/'+currentWar.id+'/'+(isA?'scoreA':'scoreB')).transaction(c=>(c||0)+award);
+        await rtdb.ref('clanWars/'+currentWar.id+'/contrib/'+MY_UID).transaction(d=>{
+          d=d||{amount:0,clanId:myClanId,name:getUserName(MY_UID)};
+          d.amount=(d.amount||0)+award;d.clanId=myClanId;d.name=getUserName(MY_UID);return d;
+        });
+        pushClanSystemMsg(myClanId,'🎮 '+getUserName(MY_UID)+' earned '+award.toLocaleString()+' war credits in Bomb Tap!');
+      }catch(e){toast('Save failed: '+e.message);}
+    }
+    document.querySelector('.mg-action-row').innerHTML='<button class="mg-start-btn" onclick="_mgClose()">Done</button>';
+    const old=document.querySelector('.mg-result');if(old)old.remove();
+    const r=document.createElement('div');r.className='mg-result';
+    r.innerHTML='<div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Score '+score+'</div>'
+      +'<div class="mg-result-amt">+'+award.toLocaleString()+'</div>'
+      +'<div style="font-size:.78rem;color:var(--muted);margin-top:4px">contributed to war</div>';
+    mgM.appendChild(r);
+    window._mgClose=_mgClose;
+  }
+  window._mgClose=_mgClose;
+
+  function initClans(){listenMyClan();}
+  if(typeof MY_UID!=='undefined'&&MY_UID){initClans();}
+  else{const i=setInterval(()=>{if(typeof MY_UID!=='undefined'&&MY_UID){clearInterval(i);initClans();}},250);}
 
   /* ══════════════════════════════════════════
      THEME

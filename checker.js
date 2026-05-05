@@ -603,9 +603,94 @@ rtdb.ref('settings/forceRefresh').on('value', function(snap){
       if(!u)return;
       if(u.email==='support@support.com')return;
 
-      rtdb.ref('users/'+u.uid+'/banned').on('value',function(snap){
-        if(snap.val()===true){
+      // ── BAN ENFORCEMENT: redirect to ban.html.
+      //    For temp bans, auto-unban once expiry passes.
+      rtdb.ref('users/'+u.uid).on('value',function(snap){
+        var d=snap.val()||{};
+        if(d.banned===true){
+          var exp=Number(d.banExpiresAt||0);
+          if(exp>0 && Date.now()>=exp){
+            // Temp ban expired → clear it and let the page load normally.
+            var clr={};
+            clr['users/'+u.uid+'/banned']=null;
+            clr['users/'+u.uid+'/banReason']=null;
+            clr['users/'+u.uid+'/bannedAt']=null;
+            clr['users/'+u.uid+'/banExpiresAt']=null;
+            rtdb.ref().update(clr).catch(function(){});
+            try{
+              rtdb.ref('moderationLog').push({
+                action:'auto_unban_expired', uid:u.uid,
+                by:'system', byName:'System',
+                at: firebase.database.ServerValue.TIMESTAMP
+              });
+            }catch(_){}
+            return;
+          }
           window.location.href='ban.html';
+        }
+      });
+
+      // ── FORCE LOGOUT: when support sets users/$uid/forceLogoutAt > current
+      //    session start, sign out + redirect to index.html on every device.
+      try{
+        if(!sessionStorage.getItem('aightbet-session-start')){
+          sessionStorage.setItem('aightbet-session-start', String(Date.now()));
+        }
+      }catch(_){}
+      var sessionStart = (function(){
+        try{ return parseInt(sessionStorage.getItem('aightbet-session-start')||'0'); }
+        catch(_){ return 0; }
+      })();
+      rtdb.ref('users/'+u.uid+'/forceLogoutAt').on('value',function(snap){
+        var v=snap.val();
+        if(typeof v!=='number' || v<=0) return;
+        if(v > sessionStart){
+          try{ sessionStorage.removeItem('aightbet-session-start'); }catch(_){}
+          try{ auth.signOut(); }catch(_){}
+          window.location.href='index.html';
+        }
+      });
+
+      // ── LOGIN HISTORY: record one entry per browser session ──
+      try{
+        if(!sessionStorage.getItem('aightbet-login-logged')){
+          var sid='sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);
+          sessionStorage.setItem('aightbet-login-logged','1');
+          sessionStorage.setItem('aightbet-session-id',sid);
+          rtdb.ref('moderation/'+u.uid+'/loginLog').push({
+            at: firebase.database.ServerValue.TIMESTAMP,
+            ua: (navigator.userAgent||'').substring(0,300),
+            page: (window.location.pathname||'/').substring(0,80),
+            session: sid
+          }).catch(function(){});
+        }
+      }catch(_){}
+
+      // ── TARGETED MESSAGES: pop unseen support DMs as overlays ──
+      rtdb.ref('targetedMessages/'+u.uid).on('value',function(snap){
+        var msgs=snap.val()||{};
+        var unseen=[];
+        for(var id in msgs){
+          var m=msgs[id]||{};
+          if(!m.seen) unseen.push({id:id, text:m.text||'', at:m.at||0, byName:m.byName||'Support'});
+        }
+        if(unseen.length){
+          unseen.sort(function(a,b){return (a.at||0)-(b.at||0);});
+          showTargetedMessageQueue(u.uid, unseen, 0);
+        }
+      });
+
+      // ── WARNINGS: pop unseen warnings once per session ──
+      rtdb.ref('moderation/'+u.uid+'/warnings').on('value',function(snap){
+        var warns=snap.val()||{};
+        var unseen=[];
+        for(var id in warns){
+          var w=warns[id]||{};
+          if(!w.cleared && !w.seen) unseen.push({id:id, reason:w.reason||'', at:w.at||0, byName:w.byName||'Support'});
+        }
+        if(unseen.length){
+          unseen.sort(function(a,b){return (a.at||0)-(b.at||0);});
+          showWarningQueue(u.uid, unseen, 0);
         }
       });
 
@@ -736,7 +821,8 @@ function showUpdatePopup(upd, seenKey){
       '#update-popup-card{position:relative;background:rgba(15,12,30,.96);border:1px solid rgba(139,92,246,.3);border-radius:22px;max-width:480px;width:100%;padding:30px 28px;animation:upSlide .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 20px 60px -10px rgba(139,92,246,.35),inset 0 1px 0 rgba(255,255,255,.06)}'+
       '#update-popup-card::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(135deg,#8b5cf6,#06b6d4,#ec4899,#8b5cf6);background-size:300% 300%;animation:upShine 4s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}'+
       '.up-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative}'+
-      '.up-logo{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.3rem;color:#fff;letter-spacing:.02em;box-shadow:0 8px 24px -6px rgba(139,92,246,.5);flex-shrink:0}'+
+      '.up-logo{width:54px;height:54px;border-radius:14px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 8px 24px -6px rgba(139,92,246,.5)}'+
+      '.up-logo img{width:100%;height:100%;object-fit:contain;display:block}'+
       '.up-head-text{display:flex;flex-direction:column;gap:4px;min-width:0}'+
       '.up-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:linear-gradient(135deg,#8b5cf6,#ec4899);border-radius:999px;font-size:.65rem;font-weight:900;letter-spacing:.12em;color:#fff;text-transform:uppercase;width:fit-content;animation:upBadgePulse 2.2s ease infinite}'+
       '.up-brand{font-size:1.15rem;font-weight:900;color:#fff;letter-spacing:-.01em}'+
@@ -754,7 +840,7 @@ function showUpdatePopup(upd, seenKey){
   overlay.innerHTML =
     '<div id="update-popup-card">'+
       '<div class="up-header">'+
-        '<div class="up-logo">AB</div>'+
+        '<div class="up-logo"><img src="Images/logo.png" alt="AightBet" onerror="this.parentNode.textContent=\'AB\'"></div>'+
         '<div class="up-head-text">'+
           '<span class="up-badge">✨ New Update</span>'+
           '<div class="up-brand">AightBet<span class="up-ver">V'+escapeHTMLBasic(upd.version)+'</span></div>'+
@@ -875,11 +961,14 @@ function showVoteOverlay(poll, uid) {
       .vote-header { text-align:center;margin-bottom:24px; }
       .vote-icon {
         width:64px;height:64px;margin:0 auto 14px;border-radius:16px;
-        background:linear-gradient(135deg, #8b5cf6, #06b6d4);
-        display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+        background:rgba(139,92,246,.12);
+        border:1px solid rgba(139,92,246,.3);
+        display:flex;align-items:center;justify-content:center;
+        overflow:hidden;
         box-shadow:0 8px 32px -8px rgba(139,92,246,.5);
         animation: vo-iconBounce 2s ease infinite;
       }
+      .vote-icon img { width:100%; height:100%; object-fit:contain; display:block; }
       @keyframes vo-iconBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
       .vote-title {
         font-size:1.3rem;font-weight:900;
@@ -1040,7 +1129,7 @@ function showVoteOverlay(poll, uid) {
     '<div class="vote-glow-ring"></div>' +
     '<div id="vote-card">' +
       '<div class="vote-header">' +
-        '<div class="vote-icon">🗳️</div>' +
+        '<div class="vote-icon"><img src="Images/logo.png" alt="AightBet" onerror="this.parentNode.textContent=\'🗳️\';this.parentNode.style.fontSize=\'1.8rem\'"></div>' +
         '<h2 class="vote-title">' + escapeHTMLBasic(poll.question) + '</h2>' +
         '<p class="vote-subtitle">YOUR VOTE IS NEEDED — PICK ONE TO CONTINUE</p>' +
       '</div>' +
@@ -1134,7 +1223,8 @@ function spawnConfetti(container) {
             'transition:transform .45s cubic-bezier(.4,0,.2,1)}' +
             '#mythic-slide.bigwin{background:linear-gradient(135deg,rgba(245,158,11,.95),rgba(220,38,38,.9))}' +
             '#mythic-slide.show{transform:translateY(var(--nav-h,64px))}' +
-            '#mythic-slide .ms-star{font-size:1.2rem;animation:ms-pop .5s ease}' +
+            '#mythic-slide .ms-star{font-size:1.2rem;animation:ms-pop .5s ease;display:inline-flex;align-items:center;justify-content:center}' +
+            '#mythic-slide .ms-logo{width:24px;height:24px;border-radius:6px;object-fit:contain;animation:ms-pop .5s ease;flex-shrink:0;display:block}' +
             '#mythic-slide .ms-text{font-size:.85rem;font-weight:700;color:#fff}' +
             '#mythic-slide .ms-user{color:#e0f2fe;font-weight:800}' +
             '#mythic-slide .ms-item{color:#fde68a;font-weight:900}' +
@@ -1151,13 +1241,13 @@ function spawnConfetti(container) {
           var bar = document.createElement('div');
           bar.id = 'mythic-slide';
           bar.innerHTML =
-            '<span class="ms-star">&#10024;</span>' +
+            '<img class="ms-logo" src="Images/logo.png" alt="" onerror="this.outerHTML=\'<span class=ms-star>&#10024;</span>\'">' +
             '<span class="ms-text">' +
               '<span class="ms-user">' + escapeHTMLBasic(userName) + '</span>' +
               ' just got ' +
               '<span class="ms-item">' + escapeHTMLBasic(itemName) + '</span>' +
             '</span>' +
-            '<span class="ms-star">&#10024;</span>';
+            '<img class="ms-logo" src="Images/logo.png" alt="" onerror="this.outerHTML=\'<span class=ms-star>&#10024;</span>\'">';
           document.body.appendChild(bar);
           requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.classList.add('show'); }); });
           setTimeout(function(){
@@ -1174,14 +1264,14 @@ function spawnConfetti(container) {
           bar.classList.add('bigwin');
           var amountStr = '🪙 ' + Number(amount||0).toLocaleString();
           bar.innerHTML =
-            '<span class="ms-star">&#128176;</span>' +
+            '<img class="ms-logo" src="Images/logo.png" alt="" onerror="this.outerHTML=\'<span class=ms-star>&#128176;</span>\'">' +
             '<span class="ms-text">' +
               '<span class="ms-user">' + escapeHTMLBasic(userName) + '</span>' +
               ' just won ' +
               '<span class="ms-item">' + amountStr + '</span>' +
               (source ? ' on <span class="ms-item">' + escapeHTMLBasic(source) + '</span>' : '') +
             '</span>' +
-            '<span class="ms-star">&#128293;</span>';
+            '<img class="ms-logo" src="Images/logo.png" alt="" onerror="this.outerHTML=\'<span class=ms-star>&#128293;</span>\'">';
           document.body.appendChild(bar);
           requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.classList.add('show'); }); });
           setTimeout(function(){
@@ -1402,7 +1492,7 @@ function spawnConfetti(container) {
 
     var date=msg.createdAt?new Date(msg.createdAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
 
-    card.innerHTML=badge+'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0"></div><div><div style="font-size:1.1rem;font-weight:900;color:#e2e8f0">Message from AightBet</div><div style="font-size:.75rem;color:#94a3b8">'+date+'</div></div></div><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;font-size:.92rem;line-height:1.6;color:#e2e8f0;margin-bottom:20px;max-height:200px;overflow-y:auto;word-break:break-word">'+escapeHTMLBasic(msg.text)+'</div><button id="gmDismissBtn" style="width:100%;padding:12px;font-size:.9rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .15s">Got it</button>';
+    card.innerHTML=badge+'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><div style="width:42px;height:42px;border-radius:10px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0"><img src="Images/logo.png" alt="AightBet" style="width:100%;height:100%;object-fit:contain;display:block" onerror="this.parentNode.style.background=\'linear-gradient(135deg,#8b5cf6,#06b6d4)\';this.remove()"></div><div><div style="font-size:1.1rem;font-weight:900;color:#e2e8f0">Message from AightBet</div><div style="font-size:.75rem;color:#94a3b8">'+date+'</div></div></div><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;font-size:.92rem;line-height:1.6;color:#e2e8f0;margin-bottom:20px;max-height:200px;overflow-y:auto;word-break:break-word">'+escapeHTMLBasic(msg.text)+'</div><button id="gmDismissBtn" style="width:100%;padding:12px;font-size:.9rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .15s">Got it</button>';
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
@@ -1426,11 +1516,240 @@ function spawnConfetti(container) {
     });
   }
 
+  // ══════════════════════════════════════════════════════
+  // TARGETED MESSAGE OVERLAY (private DM from support to one user)
+  // Marks each message seen as the user dismisses it.
+  // ══════════════════════════════════════════════════════
+  function showTargetedMessageQueue(uid, queue, index){
+    if(index>=queue.length) return;
+    var msg=queue[index];
+
+    if(!document.getElementById('tm-popup-style')){
+      var ts=document.createElement('style');
+      ts.id='tm-popup-style';
+      ts.textContent=
+        '#tm-popup-overlay{position:fixed;inset:0;z-index:999998;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;animation:tmFadeIn .3s ease;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}'+
+        '@keyframes tmFadeIn{from{opacity:0}to{opacity:1}}'+
+        '@keyframes tmSlideIn{from{opacity:0;transform:scale(.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}'+
+        '#tm-popup-card{background:rgba(15,15,25,.97);border:1px solid rgba(139,92,246,.3);border-radius:18px;max-width:480px;width:100%;padding:26px;animation:tmSlideIn .35s ease;box-shadow:0 20px 60px -10px rgba(139,92,246,.35)}'+
+        '.tm-pop-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}'+
+        '.tm-pop-icon{width:42px;height:42px;border-radius:12px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;color:#c4b5fd;font-weight:900}'+
+        '.tm-pop-title{font-size:1.05rem;font-weight:900;color:#e2e8f0}'+
+        '.tm-pop-meta{font-size:.7rem;color:#94a3b8}'+
+        '.tm-pop-body{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;font-size:.9rem;line-height:1.55;color:#e2e8f0;margin-bottom:18px;max-height:240px;overflow-y:auto;word-break:break-word}'+
+        '.tm-pop-badge{display:inline-block;font-size:.6rem;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:5px;background:rgba(139,92,246,.18);color:#c4b5fd;margin-bottom:6px;text-transform:uppercase}'+
+        '.tm-pop-ok{width:100%;padding:12px;font-size:.9rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border:none;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:transform .15s}'+
+        '.tm-pop-ok:hover{transform:translateY(-1px)}';
+      document.head.appendChild(ts);
+    }
+
+    var date = msg.at ? new Date(msg.at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    var remaining = queue.length-index;
+
+    var overlay=document.createElement('div');
+    overlay.id='tm-popup-overlay';
+    overlay.innerHTML=
+      '<div id="tm-popup-card">'+
+        '<div class="tm-pop-head">'+
+          '<div class="tm-pop-icon">!</div>'+
+          '<div style="flex:1">'+
+            '<span class="tm-pop-badge">Support Notice'+(remaining>1?(' · '+remaining+' to read'):'')+'</span>'+
+            '<div class="tm-pop-title">Message from '+escapeHTMLBasic(msg.byName||'Support')+'</div>'+
+            '<div class="tm-pop-meta">'+escapeHTMLBasic(date)+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="tm-pop-body">'+escapeHTMLBasic(msg.text||'')+'</div>'+
+        '<button class="tm-pop-ok" id="tm-pop-ok-btn">Got it</button>'+
+      '</div>';
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#tm-pop-ok-btn').addEventListener('click', function(){
+      try{
+        firebase.database().ref('targetedMessages/'+uid+'/'+msg.id).update({
+          seen:true, seenAt: firebase.database.ServerValue.TIMESTAMP
+        }).catch(function(){});
+      }catch(_){}
+      overlay.style.transition='opacity .25s';
+      overlay.style.opacity='0';
+      setTimeout(function(){
+        if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        showTargetedMessageQueue(uid, queue, index+1);
+      },250);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // WARNING OVERLAY (issued by support; user must acknowledge)
+  // ══════════════════════════════════════════════════════
+  function showWarningQueue(uid, queue, index){
+    if(index>=queue.length) return;
+    var w=queue[index];
+
+    if(!document.getElementById('warn-popup-style')){
+      var ws=document.createElement('style');
+      ws.id='warn-popup-style';
+      ws.textContent=
+        '#warn-popup-overlay{position:fixed;inset:0;z-index:999998;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;animation:wFadeIn .3s ease;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}'+
+        '@keyframes wFadeIn{from{opacity:0}to{opacity:1}}'+
+        '@keyframes wPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}'+
+        '#warn-popup-card{background:rgba(20,15,10,.98);border:1px solid rgba(245,158,11,.45);border-radius:18px;max-width:460px;width:100%;padding:26px;animation:wPop .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 20px 60px -10px rgba(245,158,11,.4)}'+
+        '.w-pop-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}'+
+        '.w-pop-icon{width:48px;height:48px;border-radius:14px;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.45);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:#fbbf24;flex-shrink:0}'+
+        '.w-pop-title{font-size:1.15rem;font-weight:900;color:#fef3c7}'+
+        '.w-pop-meta{font-size:.7rem;color:#fbbf24}'+
+        '.w-pop-reason{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:14px;font-size:.92rem;line-height:1.55;color:#fef3c7;margin-bottom:18px;max-height:200px;overflow-y:auto;word-break:break-word}'+
+        '.w-pop-note{font-size:.75rem;color:#cbd5e1;margin-bottom:14px;line-height:1.5}'+
+        '.w-pop-ok{width:100%;padding:13px;font-size:.92rem;font-weight:800;color:#1f1300;background:linear-gradient(135deg,#fbbf24,#f59e0b);border:none;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:transform .15s}'+
+        '.w-pop-ok:hover{transform:translateY(-1px)}';
+      document.head.appendChild(ws);
+    }
+
+    var date = w.at ? new Date(w.at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    var remaining = queue.length-index;
+
+    var overlay=document.createElement('div');
+    overlay.id='warn-popup-overlay';
+    overlay.innerHTML=
+      '<div id="warn-popup-card">'+
+        '<div class="w-pop-head">'+
+          '<div class="w-pop-icon">!</div>'+
+          '<div style="flex:1">'+
+            '<div class="w-pop-title">Warning from '+escapeHTMLBasic(w.byName||'Support')+'</div>'+
+            '<div class="w-pop-meta">'+escapeHTMLBasic(date)+(remaining>1?(' · '+remaining+' warnings to acknowledge'):'')+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="w-pop-note">You have received an official warning. Please review the reason below — repeat infractions may result in a ban.</div>'+
+        '<div class="w-pop-reason"><strong>Reason:</strong> '+escapeHTMLBasic(w.reason||'(no reason provided)')+'</div>'+
+        '<button class="w-pop-ok" id="w-pop-ok-btn">I understand</button>'+
+      '</div>';
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#w-pop-ok-btn').addEventListener('click', function(){
+      try{
+        firebase.database().ref('moderation/'+uid+'/warnings/'+w.id).update({
+          seen:true, seenAt: firebase.database.ServerValue.TIMESTAMP
+        }).catch(function(){});
+      }catch(_){}
+      overlay.style.transition='opacity .25s';
+      overlay.style.opacity='0';
+      setTimeout(function(){
+        if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        showWarningQueue(uid, queue, index+1);
+      },250);
+    });
+  }
+
+
   function escapeHTMLBasic(s){
     var d=document.createElement('div');
     d.textContent=s||'';
     return d.innerHTML;
   }
 
+
+ // ══════════════════════════════════════════════════════
+// BG MUSIC
+// ══════════════════════════════════════════════════════
+(function(){
+  var MUSIC_KEY  = 'aightbet-bgmusic';
+  var PLAYER_ID  = 'aightbet-bgmusic-player';
+  var KEY_SRC    = 'aightbet-music-src';
+  var KEY_TIME   = 'aightbet-music-time';
+  var KEY_IDX    = 'aightbet-music-idx';
+
+  if(document.getElementById(PLAYER_ID)) return;
+  if(localStorage.getItem(MUSIC_KEY) === 'off') return;
+
+  var tracks = [
+   { src:'bg/track1.mp3', title:'“Pink + White” – Frank Ocean',  album:'Blond', art:'bg/art/track1.jpg' },
+    { src:'bg/track2.mp3', title:'“Weightless” – Marconi Union',     album:'Weightless (Ambient Transmissions Vol. 2)', art:'bg/art/track2.jpg' },
+    { src:'bg/track3.mp3', title:'“Sunset Lover” – Petit Biscuit',   album:'Presence', art:'bg/art/track3.jpg' },
+    { src:'bg/track4.mp3', title:'“Awake” – Tycho',   album:'Awake', art:'bg/art/track4.jpg' },
+    { src:'bg/track5.mp3', title:'“Night Owl” – Galimatias',   album:'Urban Flora', art:'bg/art/track5.jpg' },
+  ];
+
+  // Resolve starting track
+  var savedSrc  = localStorage.getItem(KEY_SRC);
+  var savedTime = parseFloat(localStorage.getItem(KEY_TIME) || '0');
+  var savedIdx  = parseInt(localStorage.getItem(KEY_IDX)  || '0', 10);
+  var idx = 0;
+
+  if(savedSrc){
+    for(var i = 0; i < tracks.length; i++){
+      if(tracks[i].src === savedSrc){ idx = i; break; }
+    }
+  } else if(savedIdx > 0 && savedIdx < tracks.length){
+    idx = savedIdx;
+  }
+
+  var audio = document.createElement('audio');
+  audio.id     = PLAYER_ID;
+  audio.loop   = false;
+  audio.volume = 0.25;
+  audio.src    = tracks[idx].src;
+
+  // Save current state immediately so widget reads can trust it
+  function saveState(){
+    localStorage.setItem(KEY_SRC,  tracks[idx].src);
+    localStorage.setItem(KEY_IDX,  idx);
+    localStorage.setItem(KEY_TIME, audio.currentTime);
+  }
+
+  // Restore timestamp
+  if(savedTime > 0){
+    audio.addEventListener('canplay', function restore(){
+      audio.currentTime = savedTime;
+      audio.removeEventListener('canplay', restore);
+    }, { once: true });
+  }
+
+  // Auto-advance to next track
+  audio.addEventListener('ended', function(){
+    idx = (idx + 1) % tracks.length;
+    audio.src = tracks[idx].src;
+    saveState();
+    audio.play().catch(function(){});
+  });
+
+  // Save on unload
+  window.addEventListener('pagehide', saveState);
+  window.addEventListener('beforeunload', saveState);
+
+  // Save every second while playing
+  setInterval(saveState, 1000);
+
+  // Expose helpers so the widget can call them without its own idx getting out of sync
+  window._musicPlayer = {
+    tracks: tracks,
+    getIdx: function(){ return idx; },
+    setIdx: function(i){
+      idx = ((i % tracks.length) + tracks.length) % tracks.length;
+      audio.src = tracks[idx].src;
+      saveState();
+    },
+    getAudio: function(){ return audio; },
+    saveState: saveState
+  };
+
+  document.body.appendChild(audio);
+
+  function tryPlay(){
+    audio.play().catch(function(){
+      function onGesture(){
+        audio.play().catch(function(){});
+        document.removeEventListener('click',   onGesture);
+        document.removeEventListener('keydown', onGesture);
+      }
+      document.addEventListener('click',   onGesture);
+      document.addEventListener('keydown', onGesture);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', tryPlay);
+  } else {
+    tryPlay();
+  }
+})();
   
 })();

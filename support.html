@@ -207,6 +207,84 @@
       .dash-content{padding:0 16px 48px}
       .dash-tabs{padding:0 16px}
     }
+
+    /* MODERATION */
+    .mod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+    .mod-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+    .mod-stat .ms-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;font-weight:700}
+    .mod-stat .ms-num{font-size:1.4rem;font-weight:900}
+    .mod-stat .ms-num.red{color:var(--red)}
+    .mod-stat .ms-num.gold{color:var(--gold)}
+    .mod-stat .ms-num.green{color:var(--green)}
+
+    .mod-search{width:100%;padding:10px 14px;font-size:.85rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;outline:none;font-family:var(--font);margin-bottom:12px}
+    .mod-search:focus{border-color:var(--accent)}
+
+    .mod-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-right:4px;margin-top:2px}
+    .mod-badge.banned{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+    .mod-badge.shadow{background:rgba(75,85,99,.25);color:#cbd5e1;border:1px solid rgba(148,163,184,.25)}
+    .mod-badge.muted{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+    .mod-badge.warned{background:rgba(236,72,153,.15);color:#f472b6;border:1px solid rgba(236,72,153,.25)}
+    .mod-badge.restricted{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+    .mod-badge.kicked{background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.25)}
+    .mod-badge.ipban{background:rgba(220,38,38,.18);color:#fca5a5;border:1px solid rgba(220,38,38,.3)}
+    .mod-badge.expired{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+
+    /* History feed */
+    .hist-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;align-items:flex-start}
+    .hist-row:hover{background:rgba(255,255,255,.02)}
+    .hist-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800}
+    .hist-icon.login{background:rgba(34,197,94,.12);color:#86efac}
+    .hist-icon.action{background:rgba(139,92,246,.12);color:#c4b5fd}
+    .hist-meta{font-size:.65rem;color:var(--muted);margin-top:2px}
+    .hist-ip{font-family:monospace;font-size:.7rem;color:var(--muted);background:rgba(255,255,255,.04);padding:1px 6px;border-radius:4px}
+
+    /* Moderation modal */
+    .mm-tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .mm-tab{padding:8px 14px;font-size:.72rem;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+    .mm-tab.active{color:#fff;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25)}
+    .mm-tab:hover{color:var(--text)}
+    .mm-section{display:none}
+    .mm-section.active{display:block}
+
+    .mm-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+    .mm-action-row.three{grid-template-columns:1fr 1fr 1fr}
+    .mm-input{width:100%;padding:8px 12px;font-size:.8rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:var(--font)}
+    .mm-input:focus{border-color:var(--accent)}
+    .mm-select{width:100%;padding:8px 12px;font-size:.8rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:var(--font)}
+    .mm-select option{background:var(--bg);color:var(--text)}
+    .mm-btn{width:100%;padding:9px 14px;font-size:.78rem;font-weight:700;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .15s;background:var(--surface);color:var(--text)}
+    .mm-btn:hover{border-color:var(--border2)}
+    .mm-btn.red{background:linear-gradient(135deg,var(--red),#b91c1c);color:#fff;border:none}
+    .mm-btn.red:hover{transform:translateY(-1px);box-shadow:0 4px 16px -4px rgba(239,68,68,.4)}
+    .mm-btn.gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#fff;border:none}
+    .mm-btn.gold:hover{transform:translateY(-1px);box-shadow:0 4px 16px -4px rgba(245,158,11,.4)}
+    .mm-btn.purple{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border:none}
+    .mm-btn.purple:hover{transform:translateY(-1px)}
+    .mm-btn.green{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;border:none}
+    .mm-btn.green:hover{transform:translateY(-1px)}
+    .mm-btn.gray{background:rgba(75,85,99,.4);color:#cbd5e1;border:1px solid rgba(148,163,184,.2)}
+    .mm-btn.gray:hover{background:rgba(75,85,99,.55)}
+
+    .mm-list{margin-top:8px}
+    .mm-item{padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;font-size:.78rem}
+    .mm-item .mi-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+    .mm-item .mi-meta{font-size:.65rem;color:var(--muted)}
+    .mm-item.expired-item{opacity:.55}
+    .mm-empty{text-align:center;padding:18px;color:var(--muted);font-size:.78rem}
+
+    .mm-section-title{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+
+    /* Targeted msg user picker */
+    .tm-userlist{max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px}
+    .tm-userlist .tm-uitem{padding:9px 12px;font-size:.8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
+    .tm-userlist .tm-uitem:hover{background:rgba(255,255,255,.04)}
+    .tm-userlist .tm-uitem.selected{background:rgba(139,92,246,.15);color:#fff}
+    .tm-userlist .tm-uitem .tm-uid{font-family:monospace;font-size:.65rem;color:var(--muted)}
+
+    .tm-msglist .tm-msg{padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;font-size:.8rem}
+    .tm-msglist .tm-msg .tm-h{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-bottom:4px}
+    .tm-msglist .tm-msg.seen{opacity:.65}
   </style>
 </head>
 <body>
@@ -239,9 +317,13 @@
       <button class="dash-tab" data-tab="appeals">Appeals <span class="tab-badge" id="appealBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="chats">Chats <span class="tab-badge" id="chatBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="bugs">Bugs <span class="tab-badge" id="bugBadge" style="display:none">0</span></button>
+      <button class="dash-tab" data-tab="features">Features <span class="tab-badge" id="featBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="users">Users</button>
       <button class="dash-tab" data-tab="rigged">Rigged Drops</button>
       <button class="dash-tab" data-tab="messages">Messages</button>
+      <button class="dash-tab" data-tab="targeted">Targeted Msg</button>
+      <button class="dash-tab" data-tab="moderation">Moderation</button>
+      <button class="dash-tab" data-tab="history">History</button>
       <button class="dash-tab" data-tab="resolved">Resolved</button>
       <button class="dash-tab" data-tab="settings">Settings</button>
     </div>
@@ -262,6 +344,9 @@
     let settingsLoaded=false;
     let activeSupportChat=null,supportChatMsgListener=null;
     let isUserTyping=false;
+    let allModeration={},allIpBans={},allTargetedMessages={},allModerationLog={},allFeatureRequests={};
+    let selectedTargetedUid=null;
+    let activeModerationUid=null,activeModSubtab='actions';
 
     function toast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3500);}
     function timeAgo(ts){if(!ts)return'—';const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
@@ -326,6 +411,10 @@
       else if(activeTab==='bugs')renderBugs(c);
       else if(activeTab==='settings')renderSettings(c);
       else if(activeTab==='rigged') renderRigged(c);
+      else if(activeTab==='moderation') renderModeration(c);
+      else if(activeTab==='history') renderHistory(c);
+      else if(activeTab==='targeted') renderTargeted(c);
+      else if(activeTab==='features') renderFeatures(c);
     }
 function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
     /* Map of which tabs depend on which data slice. Listener firings will
@@ -341,6 +430,10 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
       appeals:  ['appeals'],
       posts:    [],
       rigged:   ['rigged'],
+      moderation: ['moderation','users','ipBans'],
+      history:  ['moderation'],
+      targeted: ['targeted','users'],
+      features: ['features','users'],
     };
     function renderIfTabDepends(slice){
       const deps = TAB_DEPS[slice] || [];
@@ -414,6 +507,42 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
         allRiggedDrops = s.val() || {};
         if (activeTab === 'rigged') scheduleRender();
       });
+
+      /* MODERATION listeners */
+      rtdb.ref('moderation').on('value', s => {
+        allModeration = s.val() || {};
+        renderStats();
+        renderIfTabDepends('moderation');
+      }, err=>{ console.error('moderation read error:', err); });
+
+      rtdb.ref('ipBans').on('value', s => {
+        allIpBans = s.val() || {};
+        renderStats();
+        renderIfTabDepends('ipBans');
+      }, err=>{ console.error('ipBans read error:', err); });
+
+      rtdb.ref('targetedMessages').on('value', s => {
+        allTargetedMessages = s.val() || {};
+        renderIfTabDepends('targeted');
+      }, err=>{ console.error('targetedMessages read error:', err); });
+
+      rtdb.ref('moderationLog').orderByChild('at').limitToLast(500).on('value', s => {
+        allModerationLog = s.val() || {};
+        if(activeTab==='history') scheduleRender();
+      }, err=>{ console.error('moderationLog read error:', err); });
+
+      /* FEATURE REQUESTS listener */
+      rtdb.ref('featureRequests').on('value', s => {
+        allFeatureRequests = s.val() || {};
+        const pending = Object.values(allFeatureRequests).filter(r => (r && (r.status||'pending')==='pending')).length;
+        const badge = document.getElementById('featBadge');
+        if(badge){
+          if(pending>0){ badge.textContent = pending; badge.style.display='flex'; }
+          else { badge.style.display='none'; }
+        }
+        renderStats();
+        renderIfTabDepends('features');
+      }, err=>{ console.error('featureRequests read error:', err); });
     }
 
     function getUserName(uid){const d=allUsers[uid]||{};return d.username||d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
@@ -1474,6 +1603,797 @@ function escapeHTML(s) {
       const u=allUsers[uid]||{};const up=Object.entries(allPosts).filter(([,p])=>p.authorUid===uid);const ur=Object.entries(allReports).filter(([,r])=>r.targetAuthorUid===uid||r.targetId===uid);const ua=allAppeals[uid];
       openModal(`<h3>User Detail<button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3><div class="detail-row"><span class="detail-label">UID:</span><span class="detail-val" style="font-family:monospace;font-size:.75rem">${uid}</span></div><div class="detail-row"><span class="detail-label">Name:</span><span class="detail-val">${escapeHTML(u.username||u.nickname||u.displayName||'---')}</span></div><div class="detail-row"><span class="detail-label">Email:</span><span class="detail-val">${escapeHTML(u.email||'---')}</span></div><div class="detail-row"><span class="detail-label">Credits:</span><span class="detail-val" style="color:var(--gold)">${(u.credits||0).toLocaleString()}</span></div><div class="detail-row"><span class="detail-label">Bio:</span><span class="detail-val">${escapeHTML(u.bio||'(none)')}</span></div><div class="detail-row"><span class="detail-label">Private:</span><span class="detail-val">${u.privateProfile?'Yes':'No'}</span></div><div class="detail-row"><span class="detail-label">Banned:</span><span class="detail-val">${u.banned?'<span style="color:var(--red);font-weight:700">YES</span> --- '+escapeHTML(u.banReason||''):'No'}</span></div><div class="detail-row"><span class="detail-label">Created:</span><span class="detail-val">${u.createdAt?new Date(u.createdAt).toLocaleString():'---'}</span></div><div class="detail-row"><span class="detail-label">Posts:</span><span class="detail-val">${up.length}</span></div><div class="detail-row"><span class="detail-label">Reports:</span><span class="detail-val">${ur.length}</span></div>${ua?`<div class="detail-row"><span class="detail-label">Appeal:</span><span class="detail-val"><span class="ac-status ${ua.status}">${ua.status}</span></span></div>`:''}<hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Inventory (${Object.keys(u.inventory||{}).length})</div><div class="detail-content" style="font-size:.7rem">${Object.keys(u.inventory||{}).join(', ')||'(empty)'}</div><hr style="border:none;border-top:1px solid var(--border);margin:16px 0"><div style="font-weight:700;margin-bottom:8px">Recent Posts</div><div class="detail-content">${up.slice(0,5).map(([,p])=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)"><strong>${timeAgo(p.timestamp)}</strong>: ${escapeHTML((p.text||'').substring(0,150))}${p.image?' [img]':''}</div>`).join('')||'(none)'}</div>`);
     }
+
+    /* ══════════════════════════════════════════════════════
+       MODERATION SYSTEM — bans (temp/perm), warnings, force logout,
+       targeted messages, login history, moderation audit log.
+       ════════════════════════════════════════════════════════ */
+
+    function modBy(){
+      const cu = auth.currentUser;
+      return { by: cu ? cu.uid : 'support', byName: cu ? (cu.email || 'Support') : 'Support' };
+    }
+
+    async function logModAction(action, targetUid, details){
+      const who = modBy();
+      try {
+        await rtdb.ref('moderationLog').push({
+          action: action,
+          uid: targetUid || null,
+          by: who.by,
+          byName: who.byName,
+          at: firebase.database.ServerValue.TIMESTAMP,
+          details: details || null
+        });
+      } catch(e){ console.warn('modLog error:', e); }
+    }
+
+    function fmtDuration(ms){
+      if(!ms || ms<=0) return 'Permanent';
+      const s=Math.floor(ms/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+      if(d>0) return d+'d '+(h%24)+'h';
+      if(h>0) return h+'h '+(m%60)+'m';
+      if(m>0) return m+'m '+(s%60)+'s';
+      return s+'s';
+    }
+
+    function fmtDate(ts){
+      if(!ts) return '—';
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    }
+
+    function getWarningCount(uid){
+      const mod = allModeration[uid] || {};
+      const warns = mod.warnings || {};
+      let active = 0;
+      for(const k in warns){ if(warns[k] && !warns[k].cleared) active++; }
+      return active;
+    }
+
+    function getBanState(u){
+      if(!u || !u.banned) return { banned:false };
+      const exp = Number(u.banExpiresAt||0);
+      if(exp>0 && Date.now() >= exp) return { banned:false, expired:true };
+      return { banned:true, permanent: exp<=0, expiresAt: exp, reason: u.banReason||'' };
+    }
+
+    /* ══════════════════════ MODERATION TAB ══════════════════════ */
+    function renderModeration(c){
+      const uidsAll = Object.keys(allUsers);
+      let banned=0, warned=0, locked=0;
+      uidsAll.forEach(uid=>{
+        const st = getBanState(allUsers[uid]);
+        if(st.banned) banned++;
+        if(getWarningCount(uid)>0) warned++;
+        const fl = (allUsers[uid]||{}).forceLogoutAt;
+        if(fl && Date.now()-fl < 3600000) locked++;
+      });
+
+      const q = (window.__modSearch||'').toLowerCase();
+      let users = uidsAll.map(uid=>({uid, u: allUsers[uid]||{}}));
+      if(q){
+        users = users.filter(({uid,u})=>{
+          const nm = (u.username||u.nickname||u.displayName||u.email||uid||'').toLowerCase();
+          return nm.includes(q) || uid.toLowerCase().includes(q);
+        });
+      }
+      users.sort((a,b)=>{
+        const ba=getBanState(a.u).banned?0:1, bb=getBanState(b.u).banned?0:1;
+        if(ba!==bb) return ba-bb;
+        const wa=getWarningCount(a.uid), wb=getWarningCount(b.uid);
+        if(wa!==wb) return wb-wa;
+        const na=(a.u.username||a.u.email||a.uid||'').toLowerCase();
+        const nb=(b.u.username||b.u.email||b.uid||'').toLowerCase();
+        return na.localeCompare(nb);
+      });
+
+      let h = `
+        <div class="mod-grid">
+          <div class="mod-stat"><div class="ms-label">Active Bans</div><div class="ms-num red">${banned}</div></div>
+          <div class="mod-stat"><div class="ms-label">Users with Warnings</div><div class="ms-num gold">${warned}</div></div>
+          <div class="mod-stat"><div class="ms-label">Recent Force Logouts (1h)</div><div class="ms-num">${locked}</div></div>
+          <div class="mod-stat"><div class="ms-label">Total Users</div><div class="ms-num green">${uidsAll.length}</div></div>
+        </div>
+        <input class="mod-search" id="modSearchInp" placeholder="Search users by name, email or UID..." value="${escapeAttr(window.__modSearch||'')}"/>
+      `;
+
+      if(!users.length){
+        h += `<div class="empty-state"><div class="es-title">No users match your search</div></div>`;
+      } else {
+        h += `<div style="font-size:.78rem;color:var(--muted);margin-bottom:8px">${users.length} user${users.length===1?'':'s'}</div>`;
+        users.slice(0, 200).forEach(({uid,u})=>{
+          const nm = u.username||u.nickname||u.displayName||u.email||uid.substring(0,8);
+          const av = u.avatar||u.photoURL;
+          const st = getBanState(u);
+          const wc = getWarningCount(uid);
+          const flAt = u.forceLogoutAt||0;
+          let badges = '';
+          if(st.banned){
+            const tag = st.permanent ? 'PERMA BAN' : 'BAN · '+fmtDuration(st.expiresAt-Date.now())+' left';
+            badges += `<span class="mod-badge banned">${tag}</span>`;
+          }
+          if(wc>0) badges += `<span class="mod-badge warned">${wc} WARNING${wc!==1?'S':''}</span>`;
+          if(flAt && Date.now()-flAt < 3600000) badges += `<span class="mod-badge kicked">FORCE-LOGOUT</span>`;
+
+          h += `<div class="user-row"><div class="user-av">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div><div class="user-info"><div class="user-name">${escapeHTML(nm)} ${badges}</div><div class="user-email">${escapeHTML(u.email||'')}</div><div class="user-uid">${uid}</div></div><div class="user-actions"><button class="r-btn view" onclick="openModerationModal('${uid}')">Moderate</button></div></div>`;
+        });
+      }
+
+      c.innerHTML = h;
+
+      const inp = document.getElementById('modSearchInp');
+      if(inp){
+        inp.addEventListener('input', function(){
+          window.__modSearch = this.value;
+          clearTimeout(inp._t);
+          inp._t = setTimeout(()=>{
+            const cur = document.activeElement;
+            renderModeration(c);
+            const ni = document.getElementById('modSearchInp');
+            if(ni && cur && cur.id==='modSearchInp'){ ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+          }, 200);
+        });
+      }
+    }
+
+    window.openModerationModal = function(uid){
+      activeModerationUid = uid;
+      activeModSubtab = 'actions';
+      renderModerationModal();
+    };
+
+    function renderModerationModal(){
+      const uid = activeModerationUid;
+      if(!uid) return;
+      const u = allUsers[uid] || {};
+      const mod = allModeration[uid] || {};
+      const nm = u.username||u.nickname||u.displayName||u.email||uid.substring(0,8);
+      const av = u.avatar||u.photoURL;
+      const st = getBanState(u);
+      const wc = getWarningCount(uid);
+
+      let banLabel = 'Not banned';
+      if(st.banned){
+        banLabel = st.permanent ? 'Permanently banned' : `Temp banned · ${fmtDuration(st.expiresAt-Date.now())} left`;
+      }
+
+      let headHtml = `
+        <h3 style="display:flex;align-items:center;gap:10px">
+          <div class="ac-av" style="width:36px;height:36px">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-size:.95rem;font-weight:800">${escapeHTML(nm)}</div>
+            <div style="font-size:.65rem;color:var(--muted);font-family:monospace">${uid}</div>
+          </div>
+          <button class="modal-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+          <span class="mod-badge ${st.banned?'banned':'expired'}">${banLabel}</span>
+          <span class="mod-badge ${wc>0?'warned':'expired'}">${wc} active warning${wc!==1?'s':''}</span>
+          <span class="mod-badge expired">Credits: ${(u.credits||0).toLocaleString()}</span>
+        </div>
+        <div class="mm-tabs">
+          <button class="mm-tab ${activeModSubtab==='actions'?'active':''}" data-mm="actions">Actions</button>
+          <button class="mm-tab ${activeModSubtab==='warnings'?'active':''}" data-mm="warnings">Warnings (${Object.keys(mod.warnings||{}).length})</button>
+          <button class="mm-tab ${activeModSubtab==='bans'?'active':''}" data-mm="bans">Ban History (${Object.keys(mod.bans||{}).length})</button>
+          <button class="mm-tab ${activeModSubtab==='logins'?'active':''}" data-mm="logins">Logins (${Object.keys(mod.loginLog||{}).length})</button>
+          <button class="mm-tab ${activeModSubtab==='msgs'?'active':''}" data-mm="msgs">Messages (${Object.keys(allTargetedMessages[uid]||{}).length})</button>
+        </div>
+      `;
+
+      let body = '';
+      if(activeModSubtab==='actions') body = renderModActions(uid, u, st);
+      else if(activeModSubtab==='warnings') body = renderModWarnings(uid, mod.warnings||{});
+      else if(activeModSubtab==='bans') body = renderModBans(uid, mod.bans||{});
+      else if(activeModSubtab==='logins') body = renderModLogins(uid, mod.loginLog||{});
+      else if(activeModSubtab==='msgs') body = renderModMessagesForUser(uid);
+
+      openModal(headHtml + `<div class="mm-section active">${body}</div>`);
+
+      document.querySelectorAll('.mm-tab').forEach(t=>{
+        t.addEventListener('click', ()=>{
+          activeModSubtab = t.dataset.mm;
+          renderModerationModal();
+        });
+      });
+
+      wireModActionHandlers(uid);
+    }
+
+    function renderModActions(uid, u, st){
+      return `
+        <div class="mm-section-title">Ban</div>
+        <div class="mm-action-row three">
+          <select class="mm-select" id="banDurSel">
+            <option value="3600000">1 hour</option>
+            <option value="21600000">6 hours</option>
+            <option value="86400000">1 day</option>
+            <option value="259200000">3 days</option>
+            <option value="604800000">7 days</option>
+            <option value="2592000000">30 days</option>
+            <option value="0">Permanent</option>
+          </select>
+          <input class="mm-input" id="banReasonInp" placeholder="Reason (required)" value="${escapeAttr(u.banReason||'')}" />
+          <button class="mm-btn red" id="doBanBtn">${st.banned?'Update Ban':'Ban User'}</button>
+        </div>
+        ${st.banned?`<button class="mm-btn green" id="doUnbanBtn" style="margin-bottom:14px">Lift Ban Now</button>`:''}
+
+        <div class="mm-section-title">Warning</div>
+        <div class="mm-action-row">
+          <input class="mm-input" id="warnReasonInp" placeholder="Warning reason (required)" />
+          <button class="mm-btn gold" id="doWarnBtn">Issue Warning</button>
+        </div>
+
+        <div class="mm-section-title">Force Logout (kills all sessions, redirects to index.html)</div>
+        <div class="mm-action-row">
+          <input class="mm-input" id="kickReasonInp" placeholder="Reason (optional, for the log)" />
+          <button class="mm-btn purple" id="doKickBtn">Force Logout All Devices</button>
+        </div>
+
+        <div class="mm-section-title">Targeted Message</div>
+        <textarea class="mm-input" id="tmMsgInp" placeholder="Private message for this user (they'll see it in a popup)..." style="min-height:70px;resize:vertical"></textarea>
+        <div style="margin-top:8px"><button class="mm-btn purple" id="doTmBtn">Send Targeted Message</button></div>
+      `;
+    }
+
+    function renderModWarnings(uid, warnings){
+      const rows = Object.entries(warnings).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
+      if(!rows.length) return `<div class="mm-empty">No warnings issued to this user.</div>`;
+      let h = '<div class="mm-list">';
+      rows.forEach(([wid, w])=>{
+        const cleared = !!w.cleared;
+        h += `<div class="mm-item ${cleared?'expired-item':''}">
+          <div class="mi-head">
+            <div style="flex:1">
+              <div style="font-weight:700;color:${cleared?'var(--muted)':'var(--gold)'}">${cleared?'CLEARED ':''}Warning</div>
+              <div style="margin-top:3px">${escapeHTML(w.reason||'—')}</div>
+            </div>
+            ${cleared?'':`<button class="r-btn delete" onclick="clearWarning('${uid}','${wid}')">Clear</button>`}
+          </div>
+          <div class="mi-meta">by ${escapeHTML(w.byName||w.by||'Support')} · ${fmtDate(w.at)}${w.seen?' · seen by user':''}</div>
+        </div>`;
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function renderModBans(uid, bans){
+      const rows = Object.entries(bans).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
+      if(!rows.length) return `<div class="mm-empty">No ban history.</div>`;
+      let h = '<div class="mm-list">';
+      rows.forEach(([bid, b])=>{
+        const active = b.active && (!b.expiresAt || b.expiresAt<=0 || Date.now()<b.expiresAt);
+        const dur = b.expiresAt>0 ? fmtDuration(b.expiresAt - (b.at||0)) : 'Permanent';
+        h += `<div class="mm-item ${active?'':'expired-item'}">
+          <div class="mi-head">
+            <div style="flex:1">
+              <div style="font-weight:700;color:${active?'var(--red)':'var(--muted)'}">${active?'ACTIVE':(b.liftedAt?'LIFTED':(b.expiresAt>0&&Date.now()>=b.expiresAt?'EXPIRED':'ENDED'))} — ${dur}</div>
+              <div style="margin-top:3px">${escapeHTML(b.reason||'—')}</div>
+            </div>
+          </div>
+          <div class="mi-meta">by ${escapeHTML(b.byName||b.by||'Support')} · issued ${fmtDate(b.at)}${b.liftedAt?' · lifted '+fmtDate(b.liftedAt)+(b.liftedBy?' by '+escapeHTML(b.liftedByName||b.liftedBy):''):''}${b.expiresAt>0?' · ends '+fmtDate(b.expiresAt):''}</div>
+        </div>`;
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function renderModLogins(uid, logs){
+      const rows = Object.entries(logs).sort((a,b)=>(b[1].at||0)-(a[1].at||0)).slice(0, 80);
+      if(!rows.length) return `<div class="mm-empty">No login records yet.</div>`;
+      let h = '<div class="mm-list">';
+      rows.forEach(([lid, l])=>{
+        h += `<div class="mm-item">
+          <div class="mi-head"><div style="flex:1"><div style="font-weight:700">${fmtDate(l.at)}</div><div style="margin-top:3px;font-size:.72rem;color:var(--muted);word-break:break-word">${escapeHTML(l.ua||'—')}</div></div></div>
+          <div class="mi-meta">page: ${escapeHTML(l.page||'/')}${l.session?(' · sess '+escapeHTML(String(l.session).substring(0,12))+'…'):''}</div>
+        </div>`;
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function renderModMessagesForUser(uid){
+      const msgs = allTargetedMessages[uid] || {};
+      const rows = Object.entries(msgs).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
+      if(!rows.length) return `<div class="mm-empty">No targeted messages sent to this user.</div>`;
+      let h = '<div class="mm-list">';
+      rows.forEach(([mid, m])=>{
+        h += `<div class="mm-item ${m.seen?'expired-item':''}">
+          <div class="mi-head">
+            <div style="flex:1"><div>${escapeHTML(m.text||'')}</div></div>
+            <button class="r-btn delete" onclick="deleteTargetedMsg('${uid}','${mid}')">Delete</button>
+          </div>
+          <div class="mi-meta">by ${escapeHTML(m.byName||m.by||'Support')} · ${fmtDate(m.at)}${m.seen?' · seen '+fmtDate(m.seenAt):' · unseen'}</div>
+        </div>`;
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function wireModActionHandlers(uid){
+      const banBtn = document.getElementById('doBanBtn');
+      if(banBtn) banBtn.addEventListener('click', ()=> doBanUser(uid));
+      const unbanBtn = document.getElementById('doUnbanBtn');
+      if(unbanBtn) unbanBtn.addEventListener('click', ()=> doUnbanUser(uid));
+      const warnBtn = document.getElementById('doWarnBtn');
+      if(warnBtn) warnBtn.addEventListener('click', ()=> doWarnUser(uid));
+      const kickBtn = document.getElementById('doKickBtn');
+      if(kickBtn) kickBtn.addEventListener('click', ()=> doForceLogout(uid));
+      const tmBtn = document.getElementById('doTmBtn');
+      if(tmBtn) tmBtn.addEventListener('click', ()=> doSendTargetedFromModal(uid));
+    }
+
+    async function doBanUser(uid){
+      const durMs = parseInt(document.getElementById('banDurSel').value);
+      const reason = document.getElementById('banReasonInp').value.trim();
+      if(!reason){ toast('Reason is required'); return; }
+      const expiresAt = durMs>0 ? Date.now()+durMs : 0;
+      const who = modBy();
+      try{
+        const updates = {};
+        updates['users/'+uid+'/banned'] = true;
+        updates['users/'+uid+'/banReason'] = reason;
+        updates['users/'+uid+'/bannedAt'] = Date.now();
+        updates['users/'+uid+'/banExpiresAt'] = expiresAt;
+        await rtdb.ref().update(updates);
+        const banRef = rtdb.ref('moderation/'+uid+'/bans').push();
+        await banRef.set({
+          id: banRef.key, reason, active:true,
+          at: firebase.database.ServerValue.TIMESTAMP,
+          expiresAt: expiresAt, by: who.by, byName: who.byName
+        });
+        await logModAction(expiresAt>0?'temp_ban':'perm_ban', uid, { reason, expiresAt });
+        toast(expiresAt>0?('Temp-banned for '+fmtDuration(durMs)):'Permanently banned','success');
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    }
+
+    async function doUnbanUser(uid){
+      if(!confirm('Lift the ban for '+getUserName(uid)+'?')) return;
+      const who = modBy();
+      try{
+        const updates = {};
+        updates['users/'+uid+'/banned'] = null;
+        updates['users/'+uid+'/banReason'] = null;
+        updates['users/'+uid+'/bannedAt'] = null;
+        updates['users/'+uid+'/banExpiresAt'] = null;
+        await rtdb.ref().update(updates);
+        const bansSnap = await rtdb.ref('moderation/'+uid+'/bans').once('value');
+        const bans = bansSnap.val() || {};
+        const upd2 = {};
+        Object.entries(bans).forEach(([bid,b])=>{
+          if(b.active){
+            upd2['moderation/'+uid+'/bans/'+bid+'/active'] = false;
+            upd2['moderation/'+uid+'/bans/'+bid+'/liftedAt'] = Date.now();
+            upd2['moderation/'+uid+'/bans/'+bid+'/liftedBy'] = who.by;
+            upd2['moderation/'+uid+'/bans/'+bid+'/liftedByName'] = who.byName;
+          }
+        });
+        if(Object.keys(upd2).length) await rtdb.ref().update(upd2);
+        await logModAction('unban', uid, null);
+        toast('Ban lifted','success');
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    }
+
+    async function doWarnUser(uid){
+      const reason = document.getElementById('warnReasonInp').value.trim();
+      if(!reason){ toast('Warning reason is required'); return; }
+      const who = modBy();
+      try{
+        const wr = rtdb.ref('moderation/'+uid+'/warnings').push();
+        await wr.set({
+          id: wr.key, reason, at: firebase.database.ServerValue.TIMESTAMP,
+          by: who.by, byName: who.byName, seen:false, cleared:false
+        });
+        const current = getWarningCount(uid) + 1;
+        await rtdb.ref('users/'+uid+'/warningCount').set(current);
+        await logModAction('warn', uid, { reason });
+        toast('Warning issued','success');
+        document.getElementById('warnReasonInp').value='';
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    }
+
+    window.clearWarning = async function(uid, wid){
+      if(!confirm('Clear this warning?')) return;
+      try{
+        await rtdb.ref('moderation/'+uid+'/warnings/'+wid+'/cleared').set(true);
+        await rtdb.ref('moderation/'+uid+'/warnings/'+wid+'/clearedAt').set(Date.now());
+        const snap = await rtdb.ref('moderation/'+uid+'/warnings').once('value');
+        const ws = snap.val()||{};
+        let active=0; for(const k in ws){ if(ws[k]&&!ws[k].cleared) active++; }
+        await rtdb.ref('users/'+uid+'/warningCount').set(active);
+        await logModAction('clear_warning', uid, { warningId: wid });
+        toast('Warning cleared','success');
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    };
+
+    async function doForceLogout(uid){
+      if(!confirm('Force logout all active sessions for '+getUserName(uid)+'?\nThey will be redirected to index.html.')) return;
+      const reasonEl = document.getElementById('kickReasonInp');
+      const reason = reasonEl ? reasonEl.value.trim() : '';
+      const who = modBy();
+      const now = Date.now();
+      try{
+        await rtdb.ref('users/'+uid+'/forceLogoutAt').set(now);
+        const flRef = rtdb.ref('moderation/'+uid+'/forceLogouts').push();
+        await flRef.set({ at: now, by: who.by, byName: who.byName, reason: reason||null });
+        await logModAction('force_logout', uid, { reason: reason||null });
+        toast('Force logout triggered','success');
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    }
+
+    async function doSendTargetedFromModal(uid){
+      const el = document.getElementById('tmMsgInp');
+      const text = el ? el.value.trim() : '';
+      if(!text){ toast('Write a message first'); return; }
+      const who = modBy();
+      try{
+        const r = rtdb.ref('targetedMessages/'+uid).push();
+        await r.set({
+          id: r.key, text, at: firebase.database.ServerValue.TIMESTAMP,
+          by: who.by, byName: who.byName, seen:false
+        });
+        await logModAction('targeted_message', uid, { textPreview: text.substring(0,60) });
+        toast('Message queued — user will see it on next page load','success');
+        el.value='';
+        renderModerationModal();
+      }catch(e){ toast('Error: '+e.message); }
+    }
+
+    window.deleteTargetedMsg = async function(uid, mid){
+      if(!confirm('Delete this message?')) return;
+      try{ await rtdb.ref('targetedMessages/'+uid+'/'+mid).remove(); toast('Deleted','success'); renderModerationModal(); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+
+    /* ══════════════════════ HISTORY TAB ══════════════════════ */
+    function renderHistory(c){
+      const filter = window.__histFilter || 'all';
+      const q = (window.__histSearch||'').toLowerCase();
+
+      const logs = Object.entries(allModerationLog).map(([id,l])=>({id, kind:'action', ...l}));
+
+      const loginRows = [];
+      Object.entries(allModeration).forEach(([uid, mod])=>{
+        const lg = (mod && mod.loginLog) || {};
+        Object.entries(lg).forEach(([lid, l])=>{
+          loginRows.push({ id:lid, kind:'login', uid, at:l.at, ua:l.ua, page:l.page, session:l.session });
+        });
+      });
+
+      let feed;
+      if(filter==='logins') feed = loginRows;
+      else if(filter==='all') feed = logs.concat(loginRows);
+      else feed = logs.filter(l=>l.action===filter);
+
+      if(q){
+        feed = feed.filter(e=>{
+          const nm = e.uid ? (getUserName(e.uid)||'').toLowerCase() : '';
+          const bynm = (e.byName||'').toLowerCase();
+          const det = JSON.stringify(e.details||{}).toLowerCase();
+          return nm.includes(q) || bynm.includes(q) || det.includes(q) || (e.uid||'').toLowerCase().includes(q);
+        });
+      }
+      feed.sort((a,b)=>(b.at||0)-(a.at||0));
+      feed = feed.slice(0, 400);
+
+      let h = `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <select class="mm-select" id="histFilter" style="width:auto;min-width:180px">
+            <option value="all">All activity</option>
+            <option value="logins">Logins only</option>
+            <option value="warn">Warnings</option>
+            <option value="clear_warning">Warning cleared</option>
+            <option value="temp_ban">Temp bans</option>
+            <option value="perm_ban">Permanent bans</option>
+            <option value="unban">Unbans</option>
+            <option value="auto_unban_expired">Auto unbans (expired)</option>
+            <option value="force_logout">Force logouts</option>
+            <option value="targeted_message">Targeted messages</option>
+          </select>
+          <input class="mm-input" id="histSearch" placeholder="Filter by user, moderator, or text..." style="flex:1;min-width:220px" value="${escapeAttr(window.__histSearch||'')}"/>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px">${feed.length} entr${feed.length===1?'y':'ies'}</div>
+      `;
+
+      if(!feed.length){
+        h += `<div class="empty-state"><div class="es-title">No history yet</div><div style="font-size:.8rem">Actions taken by support will appear here.</div></div>`;
+      } else {
+        feed.forEach(e=>{
+          const targetNm = e.uid ? getUserName(e.uid) : '—';
+          if(e.kind==='login'){
+            h += `<div class="hist-row">
+              <div class="hist-icon login">IN</div>
+              <div style="flex:1">
+                <div><strong>${escapeHTML(targetNm)}</strong> logged in <span class="hist-ip">${escapeHTML((e.ua||'').substring(0,60))}${(e.ua||'').length>60?'…':''}</span></div>
+                <div class="hist-meta">${fmtDate(e.at)} · page: ${escapeHTML(e.page||'/')}</div>
+              </div>
+            </div>`;
+          } else {
+            const actMap = {
+              warn: ['WARN', 'issued a warning to'],
+              clear_warning: ['CLR', 'cleared a warning for'],
+              temp_ban: ['TBAN', 'temp-banned'],
+              perm_ban: ['PBAN', 'permanently banned'],
+              unban: ['UN', 'unbanned'],
+              auto_unban_expired: ['EXP', 'auto-unbanned (temp ban expired)'],
+              force_logout: ['KICK', 'force-logged-out'],
+              targeted_message: ['MSG', 'sent a targeted message to']
+            };
+            const spec = actMap[e.action] || ['LOG', e.action];
+            const det = e.details ? (e.details.reason||e.details.textPreview||(e.details.expiresAt?('until '+fmtDate(e.details.expiresAt)):'')) : '';
+            h += `<div class="hist-row">
+              <div class="hist-icon action">${spec[0]}</div>
+              <div style="flex:1">
+                <div><strong>${escapeHTML(e.byName||e.by||'Support')}</strong> ${spec[1]} <strong>${escapeHTML(targetNm)}</strong>${det?` — <span style="color:var(--muted)">${escapeHTML(det)}</span>`:''}</div>
+                <div class="hist-meta">${fmtDate(e.at)}${e.uid?(' · '+e.uid.substring(0,10)+'…'):''}</div>
+              </div>
+            </div>`;
+          }
+        });
+      }
+
+      c.innerHTML = h;
+
+      const fs = document.getElementById('histFilter');
+      if(fs){ fs.value = filter; fs.addEventListener('change', function(){ window.__histFilter = this.value; renderHistory(c); }); }
+      const hs = document.getElementById('histSearch');
+      if(hs){ hs.addEventListener('input', function(){
+        window.__histSearch = this.value;
+        clearTimeout(hs._t);
+        hs._t = setTimeout(()=>{
+          const cur = document.activeElement;
+          renderHistory(c);
+          const ni = document.getElementById('histSearch');
+          if(ni && cur && cur.id==='histSearch'){ ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+        }, 200);
+      }); }
+    }
+
+    /* ══════════════════════ TARGETED MSG TAB ══════════════════════ */
+    function renderTargeted(c){
+      const q = (window.__tmSearch||'').toLowerCase();
+      const userEntries = Object.entries(allUsers).sort((a,b)=>{
+        const na=(a[1].username||a[1].email||a[0]||'').toLowerCase();
+        const nb=(b[1].username||b[1].email||b[0]||'').toLowerCase();
+        return na.localeCompare(nb);
+      }).filter(([uid,u])=>{
+        if(!q) return true;
+        const nm=(u.username||u.nickname||u.displayName||u.email||uid||'').toLowerCase();
+        return nm.includes(q)||uid.toLowerCase().includes(q);
+      });
+
+      const selUid = selectedTargetedUid;
+      const selUser = selUid ? (allUsers[selUid]||{}) : null;
+
+      let h = `
+        <div style="display:grid;grid-template-columns:minmax(240px,1fr) 2fr;gap:16px;align-items:flex-start">
+          <div>
+            <div class="mm-section-title" style="margin-top:0">Select a user</div>
+            <input class="mod-search" id="tmSearch" placeholder="Search users..." value="${escapeAttr(window.__tmSearch||'')}" style="margin-bottom:8px"/>
+            <div class="tm-userlist">
+              ${userEntries.slice(0,250).map(([uid,u])=>{
+                const nm=u.username||u.nickname||u.displayName||u.email||uid.substring(0,8);
+                const count = Object.keys(allTargetedMessages[uid]||{}).length;
+                return `<div class="tm-uitem ${uid===selUid?'selected':''}" data-tmuid="${uid}"><span>${escapeHTML(nm)}${count?` <span style="color:var(--accent);font-size:.65rem;font-weight:700">${count}</span>`:''}</span><span class="tm-uid">${uid.substring(0,8)}</span></div>`;
+              }).join('') || '<div style="padding:18px;text-align:center;color:var(--muted);font-size:.78rem">No users</div>'}
+            </div>
+          </div>
+          <div>
+            ${selUser ? `
+              <div class="mm-section-title" style="margin-top:0">Send to ${escapeHTML(selUser.username||selUser.email||selUid.substring(0,8))}</div>
+              <textarea class="mm-input" id="tmCompose" placeholder="Your private message to this user..." style="min-height:90px;resize:vertical"></textarea>
+              <div style="margin-top:8px;display:flex;gap:8px"><button class="mm-btn purple" id="tmSendBtn" style="width:auto">Send Message</button></div>
+              <div class="mm-section-title">Previous messages</div>
+              <div class="tm-msglist">
+                ${(function(){
+                  const msgs = allTargetedMessages[selUid]||{};
+                  const rows = Object.entries(msgs).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
+                  if(!rows.length) return `<div class="mm-empty">No messages sent to this user yet.</div>`;
+                  return rows.map(([mid,m])=>`<div class="tm-msg ${m.seen?'seen':''}">
+                    <div class="tm-h"><span>${m.seen?'Seen '+fmtDate(m.seenAt):'Unseen'} · by ${escapeHTML(m.byName||m.by||'Support')}</span><button class="r-btn delete" onclick="deleteTargetedMsg('${selUid}','${mid}')">Delete</button></div>
+                    <div>${escapeHTML(m.text||'')}</div>
+                    <div class="tm-h" style="margin-top:4px"><span>${fmtDate(m.at)}</span><span></span></div>
+                  </div>`).join('');
+                })()}
+              </div>
+            ` : `<div class="empty-state"><div class="es-title">Select a user</div><div style="font-size:.8rem">Pick someone from the left to send a targeted message.</div></div>`}
+          </div>
+        </div>
+      `;
+      c.innerHTML = h;
+
+      const ts = document.getElementById('tmSearch');
+      if(ts){ ts.addEventListener('input', function(){
+        window.__tmSearch = this.value;
+        clearTimeout(ts._t);
+        ts._t = setTimeout(()=>{
+          const cur = document.activeElement;
+          renderTargeted(c);
+          const ni = document.getElementById('tmSearch');
+          if(ni && cur && cur.id==='tmSearch'){ ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+        }, 200);
+      }); }
+
+      c.querySelectorAll('[data-tmuid]').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          selectedTargetedUid = el.dataset.tmuid;
+          renderTargeted(c);
+        });
+      });
+
+      const sendBtn = document.getElementById('tmSendBtn');
+      if(sendBtn) sendBtn.addEventListener('click', async ()=>{
+        if(!selectedTargetedUid){ toast('Pick a user first'); return; }
+        const ta = document.getElementById('tmCompose');
+        const text = (ta.value||'').trim();
+        if(!text){ toast('Write something first'); return; }
+        const who = modBy();
+        try{
+          const r = rtdb.ref('targetedMessages/'+selectedTargetedUid).push();
+          await r.set({ id:r.key, text, at: firebase.database.ServerValue.TIMESTAMP, by: who.by, byName: who.byName, seen:false });
+          await logModAction('targeted_message', selectedTargetedUid, { textPreview: text.substring(0,60) });
+          toast('Message queued','success');
+          ta.value='';
+          renderTargeted(c);
+        }catch(e){ toast('Error: '+e.message); }
+      });
+    }
+
+
+    /* ══════════════════════ FEATURE REQUESTS TAB ══════════════════════ */
+    function renderFeatures(c){
+      const filter = window.__featFilter || 'pending';
+      const q = (window.__featSearch||'').toLowerCase();
+
+      const all = Object.entries(allFeatureRequests).map(([id,r])=>({id, ...r}));
+      const counts = {
+        pending: all.filter(r=>(r.status||'pending')==='pending').length,
+        accepted: all.filter(r=>r.status==='accepted').length,
+        denied: all.filter(r=>r.status==='denied').length,
+        all: all.length,
+      };
+
+      let rows = (filter==='all') ? all.slice() : all.filter(r=>(r.status||'pending')===filter);
+      if(q){
+        rows = rows.filter(r=>{
+          const nm = (r.name||getUserName(r.uid)||'').toLowerCase();
+          return (r.title||'').toLowerCase().includes(q)
+              || (r.description||'').toLowerCase().includes(q)
+              || nm.includes(q)
+              || (r.uid||'').toLowerCase().includes(q)
+              || (r.category||'').toLowerCase().includes(q);
+        });
+      }
+      rows.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      rows = rows.slice(0, 300);
+
+      let h = `
+        <div class="mod-grid">
+          <div class="mod-stat"><div class="ms-label">Pending</div><div class="ms-num gold">${counts.pending}</div></div>
+          <div class="mod-stat"><div class="ms-label">Accepted</div><div class="ms-num green">${counts.accepted}</div></div>
+          <div class="mod-stat"><div class="ms-label">Denied</div><div class="ms-num red">${counts.denied}</div></div>
+          <div class="mod-stat"><div class="ms-label">Total</div><div class="ms-num">${counts.all}</div></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <select class="mm-select" id="featFilter" style="width:auto;min-width:160px">
+            <option value="pending">Pending only</option>
+            <option value="accepted">Accepted</option>
+            <option value="denied">Denied</option>
+            <option value="all">All</option>
+          </select>
+          <input class="mm-input" id="featSearch" placeholder="Search by title, user, category..." style="flex:1;min-width:220px" value="${escapeAttr(window.__featSearch||'')}"/>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px">${rows.length} request${rows.length===1?'':'s'}</div>
+      `;
+
+      if(!rows.length){
+        h += `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 2l2.39 4.84L20 8l-4 3.9.94 5.5L12 14.77 7.06 17.4 8 11.9 4 8l5.61-1.16L12 2z"/></svg><div class="es-title">No feature requests</div><div style="font-size:.8rem">When users submit feature ideas, they appear here.</div></div>`;
+      } else {
+        rows.forEach(r=>{
+          const status = (r.status||'pending').toLowerCase();
+          const isPending = status==='pending';
+          const userNm = r.name || getUserName(r.uid);
+          const u = allUsers[r.uid] || {};
+          const av = u.avatar || u.photoURL;
+          h += `<div class="appeal-card ${status}-card" style="border-left:3px solid ${status==='pending'?'var(--gold)':status==='accepted'?'var(--green)':'var(--red)'}">
+            <div class="ac-header">
+              <div class="ac-av">${av?`<img src="${escapeHTML(av)}"/>`:(userNm[0]||'?').toUpperCase()}</div>
+              <div class="ac-info">
+                <div class="ac-name">${escapeHTML(userNm)} <span class="mod-badge expired" style="margin-left:4px">${escapeHTML(r.category||'feature')}</span></div>
+                <div class="ac-meta">${r.uid?r.uid.substring(0,12)+'…':''} · ${timeAgo(r.createdAt)}</div>
+              </div>
+              <span class="ac-status ${status}">${status}</span>
+            </div>
+            <div style="font-size:.92rem;font-weight:800;margin-bottom:6px">${escapeHTML(r.title||'(no title)')}</div>
+            <div class="ac-text" style="white-space:pre-wrap">${escapeHTML(r.description||'')}</div>
+            ${r.response ? `<div style="font-size:.78rem;color:${status==='accepted'?'#86efac':'#fca5a5'};margin-bottom:6px;background:${status==='accepted'?'rgba(34,197,94,.06)':'rgba(239,68,68,.06)'};border:1px solid ${status==='accepted'?'rgba(34,197,94,.18)':'rgba(239,68,68,.18)'};border-radius:8px;padding:8px 10px"><strong>Your response:</strong> ${escapeHTML(r.response)}${r.respondedAt?` · ${timeAgo(r.respondedAt)}`:''}</div>` : ''}
+            ${isPending ? `
+              <textarea class="ac-response-input" id="featResp_${r.id}" placeholder="Optional response to the user (recommended for denials)..."></textarea>
+              <div class="ac-actions">
+                <button class="r-btn approve" onclick="handleFeatureRequest('${r.id}','accepted')">Accept</button>
+                <button class="r-btn deny" onclick="handleFeatureRequest('${r.id}','denied')">Deny</button>
+                <button class="r-btn view" onclick="viewUser('${r.uid}')">View User</button>
+                <button class="r-btn delete" onclick="deleteFeatureRequest('${r.id}')">Delete</button>
+              </div>
+            ` : `
+              <div class="ac-actions">
+                <button class="r-btn view" onclick="viewUser('${r.uid}')">View User</button>
+                <button class="r-btn ${status==='accepted'?'deny':'approve'}" onclick="handleFeatureRequest('${r.id}','${status==='accepted'?'denied':'accepted'}')">Mark ${status==='accepted'?'Denied':'Accepted'}</button>
+                <button class="r-btn" onclick="reopenFeatureRequest('${r.id}')">Reopen (Pending)</button>
+                <button class="r-btn delete" onclick="deleteFeatureRequest('${r.id}')">Delete</button>
+              </div>
+            `}
+          </div>`;
+        });
+      }
+
+      c.innerHTML = h;
+
+      const fs = document.getElementById('featFilter');
+      if(fs){ fs.value = filter; fs.addEventListener('change', function(){ window.__featFilter = this.value; renderFeatures(c); }); }
+      const ss = document.getElementById('featSearch');
+      if(ss){ ss.addEventListener('input', function(){
+        window.__featSearch = this.value;
+        clearTimeout(ss._t);
+        ss._t = setTimeout(()=>{
+          const cur = document.activeElement;
+          renderFeatures(c);
+          const ni = document.getElementById('featSearch');
+          if(ni && cur && cur.id==='featSearch'){ ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); }
+        }, 200);
+      }); }
+    }
+
+    window.handleFeatureRequest = async function(id, status){
+      const fr = allFeatureRequests[id];
+      if(!fr){ toast('Request not found'); return; }
+      const respEl = document.getElementById('featResp_'+id);
+      const response = respEl ? respEl.value.trim() : (fr.response||'');
+      if(status==='denied' && !response && (fr.status||'pending')==='pending'){
+        if(!confirm('Deny without writing a response? Users appreciate a reason.')) { respEl && respEl.focus(); return; }
+      }
+      const who = modBy();
+      try{
+        await rtdb.ref('featureRequests/'+id).update({
+          status: status,
+          response: response || null,
+          respondedAt: firebase.database.ServerValue.TIMESTAMP,
+          respondedBy: who.by,
+          respondedByName: who.byName,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP,
+          userUnread: true
+        });
+        // Notify the user via a flag they listen on
+        if(fr.uid){
+          await rtdb.ref('users/'+fr.uid+'/featureUnread').set(true);
+        }
+        await logModAction('feature_'+status, fr.uid||null, { requestId: id, title: fr.title||'', response: response||null });
+        toast(status==='accepted'?'Request accepted':'Request denied', status==='accepted'?'success':'error');
+      }catch(e){ toast('Error: '+e.message); }
+    };
+
+    window.reopenFeatureRequest = async function(id){
+      if(!confirm('Reopen this request as Pending?')) return;
+      try{
+        await rtdb.ref('featureRequests/'+id).update({
+          status: 'pending',
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        toast('Marked pending','success');
+      }catch(e){ toast('Error: '+e.message); }
+    };
+
+    window.deleteFeatureRequest = async function(id){
+      if(!confirm('Delete this feature request?')) return;
+      try{ await rtdb.ref('featureRequests/'+id).remove(); toast('Deleted','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+
     
   </script>
 </body>
