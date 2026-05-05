@@ -258,7 +258,6 @@
     firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
     const auth=firebase.auth(),rtdb=firebase.database();
 
-    const SUPPORT_EMAIL='support@support.com',SUPPORT_PASS='adminADMIN';
     let authed=false,allUsers={},allReports={},allPosts={},allAppeals={},allMessages={},allSupportChats={},allBugReports={},activeTab='reports';
     let settingsLoaded=false;
     let activeSupportChat=null,supportChatMsgListener=null;
@@ -272,12 +271,12 @@
     document.getElementById('suppLoginBtn').addEventListener('click',async()=>{
       const email=document.getElementById('suppEmail').value.trim(),pass=document.getElementById('suppPass').value,err=document.getElementById('loginError');
       err.textContent='';
-      if(email!==SUPPORT_EMAIL||pass!==SUPPORT_PASS){err.textContent='Invalid credentials. Access denied.';return;}
       try{
-        try{await auth.signInWithEmailAndPassword(email,pass);}
-        catch(e){if(e.code==='auth/user-not-found')await auth.createUserWithEmailAndPassword(email,pass);else if(e.code==='auth/invalid-credential'){err.textContent='Support account password mismatch.';return;}else throw e;}
+        const cred=await auth.signInWithEmailAndPassword(email,pass);
+        const snap=await rtdb.ref('supportAccounts/'+cred.user.uid).once('value');
+        if(!snap.val()){await auth.signOut();err.textContent='Access denied.';return;}
         authed=true;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('dashboard').classList.add('active');loadDashboard();
-      }catch(e){err.textContent='Error: '+e.message;}
+      }catch(e){err.textContent='Invalid credentials. Access denied.';}
     });
     document.getElementById('suppPass').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('suppLoginBtn').click();});
     document.getElementById('suppEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('suppPass').focus();});

@@ -1,4 +1,42 @@
 (function(){
+  // ── FAVICON: ensure every page has favicon.png (runs on ALL pages, even exempt ones) ──
+  (function(){
+    try{
+      var add=function(){
+        // Remove existing icon links to avoid duplicates / wrong paths
+        var existing=document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"],link[rel="apple-touch-icon"],link[rel="apple-touch-icon-precomposed"]');
+        for(var i=0;i<existing.length;i++){existing[i].parentNode.removeChild(existing[i]);}
+        // Multiple sizes so the browser/OS picks a LARGE one wherever icons are shown
+        // (tab favicon, bookmarks, home-screen, PWA install, share sheets, etc.)
+        var sizes=[
+          {rel:'icon',type:'image/png',sizes:'16x16',href:'favicon.png'},
+          {rel:'icon',type:'image/png',sizes:'32x32',href:'favicon.png'},
+          {rel:'icon',type:'image/png',sizes:'48x48',href:'favicon.png'},
+          {rel:'icon',type:'image/png',sizes:'96x96',href:'favicon.png'},
+          {rel:'icon',type:'image/png',sizes:'192x192',href:'favicon.png'},
+          {rel:'icon',type:'image/png',sizes:'512x512',href:'favicon.png'},
+          {rel:'shortcut icon',type:'image/png',href:'favicon.png'},
+          {rel:'apple-touch-icon',sizes:'120x120',href:'favicon.png'},
+          {rel:'apple-touch-icon',sizes:'152x152',href:'favicon.png'},
+          {rel:'apple-touch-icon',sizes:'167x167',href:'favicon.png'},
+          {rel:'apple-touch-icon',sizes:'180x180',href:'favicon.png'},
+          {rel:'apple-touch-icon-precomposed',href:'favicon.png'}
+        ];
+        for(var j=0;j<sizes.length;j++){
+          var s=sizes[j];
+          var l=document.createElement('link');
+          l.rel=s.rel;
+          if(s.type)l.type=s.type;
+          if(s.sizes)l.setAttribute('sizes',s.sizes);
+          l.href=s.href;
+          document.head.appendChild(l);
+        }
+      };
+      if(document.head){add();}
+      else{document.addEventListener('DOMContentLoaded',add);}
+    }catch(e){}
+  })();
+
   var page=window.location.pathname.split('/').pop().toLowerCase();
   var exempt=['ban.html','maintenance.html','support.html','index.html','recorder.html'];
   if(exempt.indexOf(page)!==-1)return;
@@ -11,11 +49,11 @@
     ms.textContent=
     /* ── Base resets ── */
     '@media(max-width:768px){'+
-      'html,body{overflow-x:hidden!important;-webkit-text-size-adjust:100%}'+
-      '*{-webkit-tap-highlight-color:transparent}'+
+      'html,body{overflow-x:hidden!important;-webkit-text-size-adjust:100%;max-width:100vw!important}'+
+      '*{-webkit-tap-highlight-color:transparent;box-sizing:border-box!important}'+
 
     /* ── Prevent iOS zoom on focus ── */
-      'input,select,textarea{font-size:16px!important}'+
+      'input,select,textarea{font-size:16px!important;max-width:100%!important}'+
 
     /* ── Navbar ── */
       '.navbar{padding:0 12px!important;height:var(--nav-h-mobile,56px)!important}'+
@@ -27,7 +65,7 @@
       '.mobile-menu{width:100%!important;left:0!important;right:0!important;border-radius:0 0 16px 16px!important}'+
 
     /* ── Main content spacing ── */
-      'main,.main{padding-top:calc(var(--nav-h-mobile,56px) + 8px)!important}'+
+      'main,.main{padding-top:calc(var(--nav-h-mobile,56px) + 8px)!important;padding-left:0!important;padding-right:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}'+
       '.page-header{padding:16px 16px 8px!important}'+
       '.page-header h1{font-size:1.5rem!important}'+
 
@@ -38,7 +76,7 @@
     /* ── Cards ── */
       '.profile-card{position:relative!important;top:auto!important}'+
       '.settings-card,.profile-card,.post-card,.card,[class*="card"]:not(.post-card):not(#mythic-slide){'+
-        'border-radius:14px!important;padding:16px!important}'+
+        'border-radius:14px!important;padding:16px!important;max-width:100%!important}'+
 
     /* ── Hero section ── */
       '.hero{padding:40px 16px 32px!important;min-height:auto!important}'+
@@ -48,9 +86,201 @@
       '.hero-actions{flex-direction:column!important;gap:10px!important;align-items:stretch!important}'+
       '.hero-actions a,.hero-actions button{width:100%!important;text-align:center!important;justify-content:center!important}'+
 
-    /* ── Game/case grids ── */
-      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]:not(.number-grid):not(.zero-row):not(.outside-bets):not(.outside-bets-2):not(.rules-grid):not(.stats-grid):not(.store-grid):not(.bg-gradient):not(.grid-overlay){'+
+    /* ── Game/case grids (lobby) ── */
+      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]:not(.number-grid):not(.zero-row):not(.outside-bets):not(.outside-bets-2):not(.rules-grid):not(.stats-grid):not(.store-grid):not(.bg-gradient):not(.grid-overlay):not(.mines-grid):not(.tower-grid):not(.towers-grid):not(.keno-grid):not(.plinko-grid):not(.slot-grid):not(.slots-grid){'+
         'grid-template-columns:repeat(2,1fr)!important;gap:10px!important;padding:0 12px!important}'+
+
+    /* ══════════════════════════════════════════════ */
+    /* ═══ GAME PAGES — PREVENT DIV OVERLAP ═══════ */
+    /* ══════════════════════════════════════════════ */
+
+    /* ── Universal game shell: stack everything vertically, kill side-by-side overlap ── */
+      '.game-page,.game-container,.game-wrapper,.game-layout,.game-stage,.game-board-wrap,'+
+      '.game-area,.game-main,.game-content,.game-shell,.game-root,.game-view,'+
+      '.roulette-container,.roulette-layout,.roulette-game,.roulette-page,.roulette-wrap,'+
+      '.blackjack-container,.blackjack-layout,.bj-container,.bj-layout,.bj-page,.bj-wrap,'+
+      '.plinko-container,.plinko-layout,.plinko-game,.plinko-stage,.plinko-page,.plinko-wrap,'+
+      '.mines-container,.mines-layout,.mines-game,.mines-page,.mines-wrap,'+
+      '.crash-container,.crash-layout,.crash-game,.crash-page,.crash-wrap,'+
+      '.dice-container,.dice-layout,.dice-game,.dice-page,.dice-wrap,'+
+      '.slots-container,.slots-layout,.slots-game,.slots-page,.slot-container,.slot-layout,.slot-page,'+
+      '.coinflip-container,.coinflip-layout,.cf-container,.cf-layout,.coinflip-page,'+
+      '.tower-container,.tower-layout,.tower-game,.tower-page,.towers-container,.towers-layout,'+
+      '.keno-container,.keno-layout,.keno-page,'+
+      '.limbo-container,.limbo-layout,.limbo-page,'+
+      '.hilo-container,.hilo-layout,.hilo-page,'+
+      '.duel-container,.duels-container,.duel-layout,.duels-layout,.duel-page,'+
+      '.case-detail,.case-open-section,.case-page,.cases-page,'+
+      '[class*="-game-"][class*="container"],[class*="-game-"][class*="layout"]{'+
+        'display:flex!important;flex-direction:column!important;'+
+        'width:100%!important;max-width:100vw!important;'+
+        'min-width:0!important;min-height:0!important;'+
+        'padding:8px!important;gap:12px!important;'+
+        'grid-template-columns:1fr!important;grid-template-rows:auto!important;'+
+        'align-items:stretch!important;justify-content:flex-start!important;'+
+        'position:relative!important;left:auto!important;right:auto!important;'+
+        'transform:none!important;float:none!important}'+
+
+    /* ── Direct children of game shells: full width, no float, reset offsets ── */
+      '.game-page>*,.game-container>*,.game-wrapper>*,.game-layout>*,.game-area>*,.game-main>*,'+
+      '.roulette-container>*,.roulette-layout>*,'+
+      '.blackjack-container>*,.bj-container>*,.bj-layout>*,'+
+      '.plinko-container>*,.plinko-layout>*,'+
+      '.mines-container>*,.mines-layout>*,'+
+      '.crash-container>*,.crash-layout>*,'+
+      '.dice-container>*,.dice-layout>*,'+
+      '.slots-container>*,.slot-container>*,'+
+      '.coinflip-container>*,.cf-container>*,'+
+      '.tower-container>*,.towers-container>*,'+
+      '.keno-container>*,.limbo-container>*,.hilo-container>*,'+
+      '.duel-container>*,.duels-container>*{'+
+        'width:100%!important;max-width:100%!important;'+
+        'min-width:0!important;flex:0 0 auto!important;'+
+        'float:none!important;clear:both!important;'+
+        'margin-left:0!important;margin-right:0!important}'+
+
+    /* ── Bet panels / control sidebars: always full width below the board ── */
+      '.bet-panel,.bet-controls,.bet-area,.bet-section,.bet-sidebar,.bet-box,.betting-panel,.betting-area,'+
+      '.game-controls,.game-sidebar,.controls-panel,.controls-sidebar,.control-panel,'+
+      '.left-panel,.right-panel,.side-panel,.left-side,.right-side,.game-left,.game-right,'+
+      '.sidebar-left,.sidebar-right,.game-aside,'+
+      '[class*="bet-panel"],[class*="bet-controls"],[class*="bet-sidebar"],'+
+      '[class*="control-panel"],[class*="controls-panel"]{'+
+        'width:100%!important;max-width:100%!important;min-width:0!important;'+
+        'position:static!important;top:auto!important;bottom:auto!important;'+
+        'left:auto!important;right:auto!important;transform:none!important;'+
+        'flex:0 0 auto!important;float:none!important;'+
+        'order:2!important}'+
+
+    /* ── Game board itself: appears first (above controls) ── */
+      '.game-board,.board,.game-stage-inner,'+
+      '.roulette-table,.roulette-felt,.roulette-layout-table,'+
+      '.bj-table,.bj-felt,.blackjack-table,.blackjack-felt,'+
+      '.plinko-board,.plinko-stage-inner,'+
+      '.mines-board,.mines-grid-wrap,'+
+      '.crash-chart-wrap,.crash-display,'+
+      '.dice-display,.dice-stage,'+
+      '.slot-machine,.slots-cabinet,.slots-display,'+
+      '.coinflip-stage,.cf-stage,'+
+      '.tower-board,.towers-board,.tower-stage,'+
+      '.keno-board,.limbo-display,.hilo-stage{'+
+        'width:100%!important;max-width:100%!important;min-width:0!important;'+
+        'order:1!important;margin:0 0 8px!important}'+
+
+    /* ── ROULETTE specifics ── */
+      '.roulette-table,.roulette-layout-table,.roulette-felt{'+
+        'overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}'+
+      '.number-grid,.zero-row,.outside-bets,.outside-bets-2{'+
+        'min-width:0!important;width:100%!important}'+
+      '.roulette-wheel,.wheel-container,.wheel-wrap{'+
+        'max-width:88vw!important;width:88vw!important;height:auto!important;'+
+        'aspect-ratio:1/1!important;margin:0 auto!important}'+
+
+    /* ── BLACKJACK specifics ── */
+      '.bj-table,.blackjack-table{min-height:auto!important;padding:16px 8px!important}'+
+      '.dealer-area,.player-area,.bj-dealer,.bj-player,.bj-hand-area{'+
+        'width:100%!important;margin:8px 0!important;position:static!important;'+
+        'left:auto!important;right:auto!important;top:auto!important;transform:none!important}'+
+      '.playing-card,.bj-card,.card-img{max-width:64px!important;height:auto!important}'+
+      '.hand,.cards-row,.bj-hand,.dealer-hand,.player-hand{'+
+        'flex-wrap:wrap!important;justify-content:center!important;gap:6px!important}'+
+
+    /* ── PLINKO specifics ── */
+      '.plinko-board,.plinko-canvas,.plinko-stage-inner{'+
+        'width:100%!important;max-width:100%!important;height:auto!important;'+
+        'aspect-ratio:4/5!important}'+
+      '.plinko-multipliers,.multiplier-row{'+
+        'flex-wrap:nowrap!important;overflow-x:auto!important;width:100%!important;'+
+        '-webkit-overflow-scrolling:touch!important;gap:2px!important}'+
+      '.plinko-multiplier,.mult-cell{flex-shrink:0!important;font-size:.7rem!important}'+
+
+    /* ── MINES specifics ── */
+      '.mines-grid{'+
+        'width:min(95vw,420px)!important;max-width:100%!important;height:auto!important;'+
+        'aspect-ratio:1/1!important;margin:0 auto!important;gap:4px!important;'+
+        'grid-template-columns:repeat(5,1fr)!important;grid-template-rows:repeat(5,1fr)!important}'+
+      '.mines-tile,.mine-cell,.mines-cell{'+
+        'aspect-ratio:1/1!important;height:auto!important;min-height:0!important;'+
+        'width:auto!important;min-width:0!important;'+
+        'font-size:clamp(.8rem,4vw,1.2rem)!important;padding:0!important}'+
+
+    /* ── CRASH specifics ── */
+      '.crash-chart,.crash-canvas,.crash-graph,.crash-chart-canvas{'+
+        'width:100%!important;max-width:100%!important;height:240px!important}'+
+      '.crash-multiplier,.crash-current,.crash-mult{font-size:2.4rem!important}'+
+      '.crash-bets,.crash-history,.crash-players{width:100%!important;overflow-x:auto!important}'+
+
+    /* ── DICE / LIMBO specifics ── */
+      '.dice-slider,.limbo-slider,.slider-track,.slider-bar{width:100%!important}'+
+      '.dice-result,.limbo-result,.roll-display,.roll-value{font-size:2.4rem!important}'+
+
+    /* ── SLOTS specifics ── */
+      '.slot-machine,.slots-reels,.slots-cabinet,.reels-container{'+
+        'width:100%!important;max-width:100vw!important;transform:none!important;'+
+        'left:auto!important;right:auto!important}'+
+      '.reel,.slot-reel{width:auto!important;flex:1 1 0!important;min-width:0!important}'+
+      '.slot-grid,.slots-grid{display:grid!important}'+
+
+    /* ── COINFLIP specifics ── */
+      '.coin,.coinflip-coin,.cf-coin,.flip-coin{'+
+        'width:140px!important;height:140px!important;margin:0 auto!important}'+
+      '.cf-history,.coinflip-history,.flip-history{width:100%!important;overflow-x:auto!important}'+
+
+    /* ── TOWER / TOWERS specifics ── */
+      '.tower-grid,.tower-board,.towers-grid,.towers-board{'+
+        'width:min(95vw,420px)!important;max-width:100%!important;'+
+        'margin:0 auto!important;display:grid!important}'+
+      '.tower-row,.towers-row{width:100%!important;gap:4px!important;display:flex!important}'+
+      '.tower-cell,.tower-tile,.towers-cell,.towers-tile{'+
+        'flex:1 1 0!important;min-width:0!important;width:auto!important;'+
+        'aspect-ratio:1/1!important;height:auto!important}'+
+
+    /* ── KENO specifics ── */
+      '.keno-grid,.keno-board{'+
+        'width:min(95vw,460px)!important;max-width:100%!important;'+
+        'margin:0 auto!important;display:grid!important;'+
+        'grid-template-columns:repeat(8,1fr)!important;gap:3px!important}'+
+      '.keno-cell,.keno-tile,.keno-number{'+
+        'aspect-ratio:1/1!important;height:auto!important;min-height:0!important;'+
+        'width:auto!important;min-width:0!important;'+
+        'font-size:clamp(.7rem,3vw,1rem)!important}'+
+
+    /* ── HILO specifics ── */
+      '.hilo-card,.card-display,.hilo-current{'+
+        'max-width:140px!important;height:auto!important;margin:0 auto!important}'+
+      '.hilo-actions{flex-direction:row!important;flex-wrap:wrap!important;gap:8px!important}'+
+
+    /* ── DUELS specifics ── */
+      '.duel-arena,.duels-arena,.duel-stage,.duels-stage{'+
+        'flex-direction:column!important;gap:12px!important}'+
+      '.duel-player,.duels-player,.duel-side,.duels-side{'+
+        'width:100%!important;min-width:0!important;max-width:100%!important}'+
+      '.duel-vs,.duels-vs{margin:4px 0!important}'+
+
+    /* ── Generic split / two-column game layouts → single column ── */
+      '[class*="split"],[class*="two-col"],[class*="2col"],'+
+      '[class*="-row"][class*="game"],[class*="game"][class*="-row"]{'+
+        'flex-direction:column!important;grid-template-columns:1fr!important;'+
+        'width:100%!important;max-width:100%!important}'+
+
+    /* ── Tower-specific (the game uses .tower-area + .tower-wrap + .side-panel inside .game-panel) ── */
+      '.game-panel,.info-panel{'+
+        'overflow:visible!important;height:auto!important;max-height:none!important;'+
+        'min-height:0!important;width:100%!important;max-width:100%!important}'+
+      '.tower-area{display:flex!important;flex-direction:column!important;'+
+        'flex-wrap:nowrap!important;padding:12px!important;gap:12px!important;'+
+        'width:100%!important;max-width:100%!important}'+
+      '.tower-wrap{flex:0 0 auto!important;width:100%!important;max-width:100%!important;'+
+        'min-width:0!important;order:1!important}'+
+      '.tower-scroll{max-height:60vh!important;width:100%!important}'+
+      '.side-panel .sp-card{width:100%!important;max-width:100%!important}'+
+
+    /* ── Canvases responsive ── */
+      'canvas{max-width:100%!important;height:auto!important}'+
+
+    /* ── Kill any element wider than viewport ── */
+      'main *,.main *{max-width:100vw!important}'+
+
     /* ── Social feed ── */
       '#postsContainer,.posts-container{padding:0 8px!important}'+
       '.post-card{margin:0 0 10px!important;border-radius:14px!important}'+
@@ -69,7 +299,7 @@
     /* ── DMs / Chat overlays ── */
       '.dm-overlay,.chat-overlay,.profile-overlay,[class*="-overlay"]:not(.bg-gradient){'+
         'padding:0!important}'+
-      '.dm-panel,.chat-panel,.profile-panel,[class*="-panel"]{'+
+      '.dm-panel,.chat-panel,.profile-panel{'+
         'width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important}'+
 
     /* ── Modals ── */
@@ -78,20 +308,21 @@
 
     /* ── Case opening / spinner ── */
       '.case-detail,.case-open-section{padding:0 12px!important}'+
-      '.reel-container,.spinner-container{max-width:100%!important;overflow:hidden!important}'+
+      '.reel-container,.spinner-container,.reel-window,.spinner-window{'+
+        'max-width:100%!important;width:100%!important;overflow:hidden!important}'+
       '.won-display{padding:16px!important}'+
       '.won-display .won-item-name{font-size:1.1rem!important}'+
 
     /* ── Case battles ── */
       '.battle-arena{flex-direction:column!important;gap:12px!important}'+
-      '.player-panel{width:100%!important;min-width:0!important}'+
+      '.player-panel{width:100%!important;min-width:0!important;max-width:100%!important}'+
       '.battle-vs{margin:4px 0!important}'+
       '.spinner-pair{flex-direction:column!important;gap:8px!important}'+
       '.create-overlay-content{max-width:95vw!important;max-height:85vh!important;overflow-y:auto!important}'+
-      '.team-side{flex-direction:column!important}'+
+      '.team-side{flex-direction:column!important;width:100%!important}'+
 
     /* ── Buttons — touch friendly ── */
-      'button,.btn,[class*="-btn"]{min-height:42px!important}'+
+      'button,.btn,[class*="-btn"]{min-height:42px!important;max-width:100%!important}'+
       '.post-action-btn{min-height:36px!important;padding:8px 12px!important}'+
 
     /* ── Stats row ── */
@@ -100,7 +331,7 @@
       '.dash-stat,.stat-card{min-width:calc(50% - 8px)!important;flex:none!important}'+
 
     /* ── Tables ── */
-      'table{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}'+
+      'table{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;max-width:100%!important}'+
 
     /* ── Images ── */
       'img{max-width:100%!important;height:auto!important}'+
@@ -142,10 +373,14 @@
 
  /* ── Extra small phones ── */
     '@media(max-width:380px){'+
-      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]:not(.number-grid):not(.zero-row):not(.outside-bets):not(.outside-bets-2):not(.rules-grid):not(.stats-grid):not(.store-grid):not(.bg-gradient):not(.grid-overlay){grid-template-columns:1fr!important}'+
+      '.case-grid,.cases-grid,.game-grid,[class*="-grid"]:not(.number-grid):not(.zero-row):not(.outside-bets):not(.outside-bets-2):not(.rules-grid):not(.stats-grid):not(.store-grid):not(.bg-gradient):not(.grid-overlay):not(.mines-grid):not(.tower-grid):not(.towers-grid):not(.keno-grid):not(.plinko-grid):not(.slot-grid):not(.slots-grid){grid-template-columns:1fr!important}'+
       '.hero h1,.hero-title{font-size:1.6rem!important}'+
       '.nav-logo span{font-size:.85rem!important}'+
       '.post-action-btn span{display:none!important}'+
+      '.roulette-wheel,.wheel-container,.wheel-wrap{max-width:92vw!important;width:92vw!important}'+
+      '.crash-multiplier,.crash-current,.dice-result,.limbo-result{font-size:2rem!important}'+
+      '.coin,.coinflip-coin,.cf-coin{width:120px!important;height:120px!important}'+
+      '.playing-card,.bj-card{max-width:54px!important}'+
     '}';
 
     document.head.appendChild(ms);
