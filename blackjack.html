@@ -137,10 +137,45 @@
       .main{padding-top:calc(var(--nav-h-mobile)+50px)}
       .mobile-menu{top:var(--nav-h-mobile)}
       .game-wrapper{padding:16px}
-      .card-item{width:65px;height:95px;padding:6px}
-      .card-top,.card-bottom{font-size:.8rem}
-      .card-center{font-size:1.6rem}
-    }
+  .cards-row {
+    gap: 6px !important;
+    min-height: 0 !important;
+    padding: 4px !important;
+  }
+  .card-item {
+    width: clamp(58px, 16vw, 78px) !important;
+    height: auto !important;
+    aspect-ratio: 5 / 7 !important;
+    padding: 5px 6px !important;
+    border-radius: 8px !important;
+  }
+  /* Corner indices: rank + suit stacked tight, never overflow */
+  .card-top, .card-bottom {
+    font-size: clamp(.7rem, 3vw, .85rem) !important;
+    line-height: 1 !important;
+    gap: 1px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .card-bottom {
+    align-self: flex-end !important;
+    align-items: flex-start !important;
+  }
+  /* Center pip: inset away from corners so it doesn't overlap */
+  .card-center {
+    inset: 22% 0 22% 0 !important;
+    font-size: clamp(1.2rem, 5.5vw, 1.7rem) !important;
+  }
+  .card-item.facedown::after {
+    font-size: clamp(1.2rem, 5vw, 1.6rem) !important;
+  }
+}
+@media(max-width:380px) {
+  .card-item { width: clamp(50px, 15vw, 64px) !important; padding: 4px 5px !important; }
+  .card-top, .card-bottom { font-size: .68rem !important; }
+  .card-center { font-size: 1.1rem !important; inset: 24% 0 24% 0 !important; }
+}
+    
   </style>
 </head>
 <body>

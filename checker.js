@@ -181,9 +181,6 @@
       '.dealer-area,.player-area,.bj-dealer,.bj-player,.bj-hand-area{'+
         'width:100%!important;margin:8px 0!important;position:static!important;'+
         'left:auto!important;right:auto!important;top:auto!important;transform:none!important}'+
-      '.playing-card,.bj-card,.card-img{max-width:64px!important;height:auto!important}'+
-      '.hand,.cards-row,.bj-hand,.dealer-hand,.player-hand{'+
-        'flex-wrap:wrap!important;justify-content:center!important;gap:6px!important}'+
 
     /* ── PLINKO specifics ── */
       '.plinko-board,.plinko-canvas,.plinko-stage-inner{'+
@@ -244,11 +241,7 @@
         'aspect-ratio:1/1!important;height:auto!important;min-height:0!important;'+
         'width:auto!important;min-width:0!important;'+
         'font-size:clamp(.7rem,3vw,1rem)!important}'+
-
-    /* ── HILO specifics ── */
-      '.hilo-card,.card-display,.hilo-current{'+
-        'max-width:140px!important;height:auto!important;margin:0 auto!important}'+
-      '.hilo-actions{flex-direction:row!important;flex-wrap:wrap!important;gap:8px!important}'+
+      
 
     /* ── DUELS specifics ── */
       '.duel-arena,.duels-arena,.duel-stage,.duels-stage{'+
@@ -380,7 +373,6 @@
       '.roulette-wheel,.wheel-container,.wheel-wrap{max-width:92vw!important;width:92vw!important}'+
       '.crash-multiplier,.crash-current,.dice-result,.limbo-result{font-size:2rem!important}'+
       '.coin,.coinflip-coin,.cf-coin{width:120px!important;height:120px!important}'+
-      '.playing-card,.bj-card{max-width:54px!important}'+
     '}';
 
     document.head.appendChild(ms);
@@ -1341,8 +1333,9 @@ function spawnConfetti(container) {
       '#rec-stop-label{display:none;font-size:.65rem;color:#f87171;font-weight:700;opacity:.7}' +
       '#rec-fab.recording #rec-stop-label{display:block}' +
       /* Hide on mobile if too crowded */
-      '@media(max-width:480px){#rec-fab{bottom:16px;left:16px}#rec-fab-btn{width:42px;height:42px}}';
-    if(!document.getElementById('rec-fab-style')) document.head.appendChild(recStyle);
+'@media(max-width:768px){#rec-fab{bottom:96px!important;left:12px!important}#rec-fab-btn{width:42px;height:42px}}' +
+'@media(orientation:landscape)and(max-width:1024px){#rec-fab{display:none!important}}';
+  if(!document.getElementById('rec-fab-style')) document.head.appendChild(recStyle);
 
     /* ── HTML ── */
     var fab = document.createElement('div');
@@ -1369,7 +1362,17 @@ function spawnConfetti(container) {
       var el = document.getElementById('rec-timer');
       if(el) el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
+function updateRecFabVisibility() {
+  var fab = document.getElementById('rec-fab');
+  if (!fab) return;
+  var isLandscapeMobile =
+    window.matchMedia('(orientation:landscape) and (max-width:1024px)').matches;
+  fab.style.display = isLandscapeMobile ? 'none' : '';
+}
 
+window.addEventListener('orientationchange', updateRecFabVisibility);
+window.addEventListener('resize', updateRecFabVisibility); // catches desktop resize too
+updateRecFabVisibility(); // run once on load
     function setRecordingState(on, start){
       isRecording = on;
       if(on){

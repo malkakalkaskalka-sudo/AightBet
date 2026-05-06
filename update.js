@@ -239,36 +239,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         opacity: ${LM ? '.55' : '1'};
       }
 
-      /* ─── Season Badge ────────────────────────── */
-      #ck-badge {
-        position: fixed;
-        bottom: 22px; left: 22px;
-        z-index: 9998;
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 7px 14px;
-        background: ${badgeBg};
-        border: 1px solid ${accent}38;
-        border-radius: 100px;
-        font-size: .68rem; font-weight: 700; letter-spacing: .05em;
-        text-transform: uppercase; color: ${accent};
-        backdrop-filter: blur(14px);
-        cursor: pointer;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        transition: border-color .2s, box-shadow .2s, transform .15s;
-        user-select: none;
-        box-shadow: ${LM ? '0 2px 12px rgba(244,114,182,.18)' : 'none'};
-      }
-      #ck-badge:hover {
-        border-color: ${accent}70;
-        box-shadow: 0 0 18px -4px ${glow};
-        transform: translateY(-1px);
-      }
-      #ck-badge .ck-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        background: ${accent};
-        animation: ck-pulse 2s ease-in-out infinite;
-        flex-shrink: 0;
-      }
+     
 
       /* ─── Update Toast ────────────────────────── */
       #ck-toast {
@@ -470,20 +441,29 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         box-shadow: 0 0 18px -4px ${glow};
         transform: translateY(-1px);
       }
-
+@media (orientation: landscape) and (max-width: 1024px) {
+  #ck-widget, #ck-credits-btn, #ck-toast { display: none !important; }
+}
       /* ─── Keyframes ───────────────────────────── */
       @keyframes ck-pulse {
         0%,100% { opacity:1; transform:scale(1); }
         50%      { opacity:.35; transform:scale(.65); }
       }
 
-      /* ─── Mobile ──────────────────────────────── */
-      @media (max-width: 768px) {
-        #ck-widget, #ck-credits-btn { display: none; }
-        #ck-badge    { bottom: 14px; left: 14px; font-size: .62rem; padding: 6px 12px; }
-        #ck-toast    { width: calc(100vw - 28px); left: 14px; bottom: 54px; }
-        #ck-lm-toggle { bottom: 14px; right: 14px; font-size: .62rem; padding: 6px 12px; }
-      }
+      /* ─── Landscape phone: hide everything from update.js EXCEPT
+       background + particle canvas. Also hide the recording FAB. ─── */
+@media (orientation: landscape) and (max-width: 1024px) {
+  #ck-widget,
+  #ck-credits-btn,
+  #ck-badge,
+  #ck-toast,
+  #ck-lm-toggle,
+  .ck-sparkle,
+  #rec-fab {
+    display: none !important;
+  }
+  /* #ck-canvas (particles) and body background stay visible */
+}
     `;
     document.head.appendChild(s);
   }
@@ -672,17 +652,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     };
   }
 
-  /* ══════════════════════════════════════════════
-     5 · SEASON BADGE
-  ══════════════════════════════════════════════ */
-  function mountBadge(toastCtrl) {
-    const badge = document.createElement('div');
-    badge.id = 'ck-badge';
-    badge.title = `${T.codename} — ${T.version}  (click for patch notes)`;
-    badge.innerHTML = `<div class="ck-dot"></div>🌸 ${T.codename}`;
-    badge.addEventListener('click', () => toastCtrl.show());
-    document.body.appendChild(badge);
-  }
+  
 
   /* ══════════════════════════════════════════════
      6 · CREDITS SYSTEM WITH ANTI-AUTOCLICKER
@@ -985,21 +955,46 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
   /* ══════════════════════════════════════════════
      9 · BOOTSTRAP
   ══════════════════════════════════════════════ */
-  function boot() {
-    initParticles();
-    mountWidget();
-    mountCreditsButton();
-    const toastCtrl = createToast();
-    mountBadge(toastCtrl);
+ function boot() {
+  initParticles(); // always runs (particles + bg stay)
 
-    if (!ss('ck-shown')) {
-      ssSet('ck-shown', '1');
-      setTimeout(() => toastCtrl.show(), 1300);
-    }
+  const isLandscapeMobile = window.matchMedia(
+    '(orientation: landscape) and (max-width: 1024px)'
+  ).matches;
+
+  if (isLandscapeMobile) return; // skip widget, credits, toast
+
+  mountWidget();
+  mountCreditsButton();
+  const toastCtrl = createToast();
+  if (!ss('ck-shown')) {
+    ssSet('ck-shown', '1');
+    setTimeout(() => toastCtrl.show(), 1300);
   }
+}
 
   injectStyles();
 
+function ckApplyOrientationVisibility() {
+  const hide = window.matchMedia(
+    '(orientation: landscape) and (max-width: 1024px)'
+  ).matches;
+
+  ['ck-widget', 'ck-credits-btn', 'ck-toast', 'ck-badge', 'ck-lm-toggle', 'rec-fab']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = hide ? 'none' : '';
+    });
+
+  // If we just rotated INTO portrait and widget was never mounted, mount it now
+  if (!hide && !document.getElementById('ck-widget')) {
+    mountWidget();
+    mountCreditsButton();
+  }
+}
+
+window.addEventListener('resize', ckApplyOrientationVisibility);
+window.addEventListener('orientationchange', ckApplyOrientationVisibility);
   /* ── Global Low Quality Mode ──────────────────────────
      Reads localStorage on every page that loads update.js.
      body.lqm kills animations, backdrop-filters, orbs, and

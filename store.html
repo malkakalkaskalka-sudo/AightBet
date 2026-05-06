@@ -133,7 +133,83 @@
     .ci-source{font-size:.5rem;color:var(--muted);margin-bottom:7px}
     .btn-ci-banner{width:100%;padding:6px;font-size:.62rem;font-weight:700;border:1px solid rgba(6,182,212,.3);border-radius:7px;cursor:pointer;font-family:var(--font);background:rgba(6,182,212,.1);color:#22d3ee;transition:all .15s}.btn-ci-banner:hover{background:rgba(6,182,212,.22)}
     .btn-ci-banner.added{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:#22c55e}
-    @media(max-width:768px){.nav-links,.nav-credits-desktop{display:none!important}.hamburger{display:flex}.navbar{height:var(--nav-h-mobile);padding:0 16px}.main{padding-top:calc(var(--nav-h-mobile)+10px)}.mobile-menu{top:var(--nav-h-mobile)}.store-wrap{padding:0 10px 48px}.store-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width: 820px) {
+  .nav-links, .nav-credits-desktop { display: none !important; }
+  .hamburger { display: flex; }
+  .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+  .main { padding-top: calc(var(--nav-h-mobile) + 10px); }
+  .mobile-menu { top: var(--nav-h-mobile); }
+
+  .store-wrap { padding: 0 10px 48px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Tighter, scroll-friendly toolbar */
+  .banner-editor { padding: 10px !important; border-radius: 12px !important; }
+  .banner-toolbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding: 4px 2px 8px !important;
+    scrollbar-width: thin;
+  }
+  .banner-toolbar .tb {
+    flex: 0 0 auto !important;
+    min-height: 38px !important;
+    padding: 6px 10px !important;
+    font-size: .72rem !important;
+  }
+  .toolbar-sep { flex: 0 0 1px !important; height: 24px !important; }
+
+  .props-panel {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  .prop-group { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
+
+  /* Canvas area gets max breathing room */
+  .banner-canvas-wrap {
+    width: 100% !important;
+    margin: 8px 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+  #bannerCanvas {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 6 !important;
+  }
+
+  .banner-save-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .banner-save-row button { flex: 1 1 auto !important; min-height: 40px !important; }
+
+  /* Store products: 2 cols on small phones, 3 cols on landscape */
+  .store-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; gap: 8px !important; }
+  .store-tabs-wrap { margin: 0 -10px 8px !important; padding: 0 10px !important; }
+  .store-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+
+  /* Section blocks tighter */
+  .section-block { padding: 12px !important; border-radius: 12px !important; }
+  .section-title { font-size: .9rem !important; gap: 6px !important; }
+}
+
+/* Landscape-specific (phones turned sideways): bigger canvas */
+@media (max-width: 820px) and (orientation: landscape) {
+  #bannerCanvas { aspect-ratio: 16 / 5 !important; }
+  .stats-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .store-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; }
+}
   
       /* ── STORE TABS SCROLL ── */
     .store-tabs-wrap{position:relative;margin-bottom:20px}
@@ -162,9 +238,107 @@
     .btn-preview-music{width:100%;padding:6px;font-size:.65rem;font-weight:700;border:1px solid rgba(139,92,246,.35);border-radius:7px;cursor:pointer;font-family:var(--font);background:rgba(139,92,246,.1);color:var(--accent);transition:all .15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px}
     .btn-preview-music:hover{background:rgba(139,92,246,.22)}
     .btn-preview-music.playing{background:rgba(139,92,246,.25);border-color:rgba(139,92,246,.6);box-shadow:0 0 10px -3px rgba(139,92,246,.5);color:#fff}
+  /* ── Rotate-to-landscape gate (phones only) ──────────────────── */
+#rotateGate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,.18), transparent 55%),
+              radial-gradient(ellipse at 70% 80%, rgba(236,72,153,.14), transparent 55%),
+              rgba(8, 6, 18, .98);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  text-align: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+#rotateGate .rg-card {
+  max-width: 340px;
+  background: rgba(15, 12, 30, .9);
+  border: 1px solid rgba(139, 92, 246, .3);
+  border-radius: 22px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 60px -10px rgba(139, 92, 246, .35);
+}
+#rotateGate .rg-icon {
+  width: 84px; height: 84px;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  background: rgba(139, 92, 246, .14);
+  border: 1px solid rgba(139, 92, 246, .35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+  animation: rg-rotate 2.2s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes rg-rotate {
+  0%, 20%   { transform: rotate(0deg); }
+  60%, 80%  { transform: rotate(-90deg); }
+  100%      { transform: rotate(-90deg); }
+}
+#rotateGate h2 {
+  font-size: 1.15rem; font-weight: 900;
+  color: #fff; margin: 0 0 8px;
+  letter-spacing: -.01em;
+}
+#rotateGate p {
+  font-size: .85rem; color: #cbd5e1;
+  line-height: 1.55; margin: 0;
+}
+#rotateGate .rg-hint {
+  margin-top: 18px;
+  font-size: .68rem;
+  color: #8b5cf6;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* Show only on phones in PORTRAIT */
+@media (max-width: 820px) and (orientation: portrait) {
+  #rotateGate { display: flex; }
+  body { overflow: hidden !important; }   /* lock background scroll */
+  .navbar, .main, .footer { visibility: hidden !important; }
+}
+  /* ── Banner canvas: own all touch gestures, never scroll the page ── */
+.banner-canvas-wrap {
+  touch-action: none;
+  -ms-touch-action: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+}
+#bannerCanvas {
+  touch-action: none;
+  -ms-touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  display: block;
+  max-width: 100%;
+}
+
+/* While actively dragging, fully lock body scroll as a belt-and-suspenders */
+body.banner-dragging {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none !important;
+}
+  
   </style>
 </head>
 <body>
+  <div id="rotateGate" role="dialog" aria-label="Rotate your device">
+  <div class="rg-card">
+    <div class="rg-icon">📱</div>
+    <h2>Rotate your phone</h2>
+    <p>The Cosmic Store works best in landscape mode. Turn your device sideways to start customizing your banner.</p>
+    <div class="rg-hint">↻ Rotate to continue</div>
+  </div>
+</div>
   <div class="bg-gradient"></div><div class="grid-overlay"></div><div class="orb orb-1"></div><div class="orb orb-2"></div><canvas id="particles"></canvas>
   <div class="toast" id="toast"></div>
   <nav class="navbar" id="navbar">
@@ -1803,7 +1977,29 @@
     }
     raf=requestAnimationFrame(frame);
   }
+(function() {
+  var canvas = document.getElementById('bannerCanvas');
+  if (!canvas) return;
 
+  function lock(e) {
+    document.body.classList.add('banner-dragging');
+    // Prevent the touch from being interpreted as a page scroll
+    if (e.cancelable) e.preventDefault();
+  }
+  function unlock() {
+    document.body.classList.remove('banner-dragging');
+  }
+
+  // passive:false is required for preventDefault to work on touchmove
+  canvas.addEventListener('touchstart', lock,    { passive: false });
+  canvas.addEventListener('touchmove',  lock,    { passive: false });
+  canvas.addEventListener('touchend',   unlock,  { passive: true  });
+  canvas.addEventListener('touchcancel',unlock,  { passive: true  });
+  canvas.addEventListener('pointerdown',  lock);
+  canvas.addEventListener('pointerup',    unlock);
+  canvas.addEventListener('pointercancel',unlock);
+  window.addEventListener('blur', unlock);
+})();
   /* ══════ NAV ══════ */
   (()=>{const n=document.getElementById('navbar');window.addEventListener('scroll',()=>{n.classList.toggle('scrolled',scrollY>20);});})();
   (()=>{const h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');h.addEventListener('click',()=>{h.classList.toggle('open');m.classList.toggle('open');});})();
