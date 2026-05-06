@@ -304,16 +304,12 @@
 }
   /* ── Banner canvas: own all touch gestures, never scroll the page ── */
 .banner-canvas-wrap {
-  touch-action: none;
-  -ms-touch-action: none;
   overscroll-behavior: contain;
   user-select: none;
   -webkit-user-select: none;
   position: relative;
 }
 #bannerCanvas {
-  touch-action: none;
-  -ms-touch-action: none;
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
@@ -321,11 +317,25 @@
   max-width: 100%;
 }
 
+/* Touch devices only: block touch scrolling over the canvas */
+@media (hover: none) and (pointer: coarse) {
+  .banner-canvas-wrap {
+    touch-action: none;
+    -ms-touch-action: none;
+  }
+  #bannerCanvas {
+    touch-action: none;
+    -ms-touch-action: none;
+  }
+}
+
 /* While actively dragging, fully lock body scroll as a belt-and-suspenders */
-body.banner-dragging {
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-  touch-action: none !important;
+@media (hover: none) and (pointer: coarse) {
+  body.banner-dragging {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+  }
 }
   
   </style>
@@ -1992,13 +2002,10 @@ body.banner-dragging {
 
   // passive:false is required for preventDefault to work on touchmove
   canvas.addEventListener('touchstart', lock,    { passive: false });
-  canvas.addEventListener('touchmove',  lock,    { passive: false });
-  canvas.addEventListener('touchend',   unlock,  { passive: true  });
-  canvas.addEventListener('touchcancel',unlock,  { passive: true  });
-  canvas.addEventListener('pointerdown',  lock);
-  canvas.addEventListener('pointerup',    unlock);
-  canvas.addEventListener('pointercancel',unlock);
-  window.addEventListener('blur', unlock);
+canvas.addEventListener('touchmove',  lock,    { passive: false });
+canvas.addEventListener('touchend',   unlock,  { passive: true  });
+canvas.addEventListener('touchcancel',unlock,  { passive: true  });
+window.addEventListener('blur', unlock);
 })();
   /* ══════ NAV ══════ */
   (()=>{const n=document.getElementById('navbar');window.addEventListener('scroll',()=>{n.classList.toggle('scrolled',scrollY>20);});})();
