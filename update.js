@@ -965,7 +965,6 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
   if (isLandscapeMobile) return; // skip widget, credits, toast
 
   mountWidget();
-  mountCreditsButton();
   const toastCtrl = createToast();
   if (!ss('ck-shown')) {
     ssSet('ck-shown', '1');
