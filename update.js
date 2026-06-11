@@ -1,17 +1,4 @@
-/*!
- * update.js — AightBet Spring Theme System
- * ──────────────────────────────────────────
- * Drop ONE line into any page you want themed:
- *   <script src="update.js"></script>
- *
- * Spring Edition — Blossom Drop
- *   • Spring cherry-blossom palette + petal particles
- *   • Patch-notes toast on first visit
- *   • Floating widget with spring mini-features
- *   • Season badge (click to re-open patch notes)
- *   • 🌸 Credits tap-button with anti-autoclicker (Firebase-backed)
- *   • ☀️ Light mode support (toggle via Settings)
- */
+
 
 /* ======================================================
    FIREBASE BOOTSTRAP
@@ -33,13 +20,11 @@
     measurementId:     'G-EB6SF28HZK',
   };
 
- 
-
   /* LocalStorage fallbacks until the SDK has loaded */
-  function lsGet()  { return parseInt(localStorage.getItem('ck-spring-credits') || '0'); }
+  function lsGet()  { return parseInt(localStorage.getItem('ck-xp') || '0'); }
   function lsAdd(n) {
     var v = lsGet() + n;
-    localStorage.setItem('ck-spring-credits', v);
+    localStorage.setItem('ck-xp', v);
     return Promise.resolve(v);
   }
 
@@ -59,50 +44,47 @@
   }
 
   var CDN = 'https://www.gstatic.com/firebasejs/9.22.2/';
- // REPLACE lines 77-105 with this:
-loadScript(CDN + 'firebase-app-compat.js', function() {
-  loadScript(CDN + 'firebase-database-compat.js', function() {
-    loadScript(CDN + 'firebase-auth-compat.js', function() {  // ← ADD auth SDK
-      try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        
-        // Wait for auth before touching the DB
-        firebase.auth().onAuthStateChanged(function(user) {
-          var uid;
-          if (user) {
-            uid = user.uid;
-          } else {
-            // sign in anonymously so auth.uid exists in DB rules
-            firebase.auth().signInAnonymously().catch(function(e) {
-              console.warn('[CK] Anon sign-in failed', e);
-            });
-            return; // onAuthStateChanged will fire again after sign-in
-          }
+  loadScript(CDN + 'firebase-app-compat.js', function() {
+    loadScript(CDN + 'firebase-database-compat.js', function() {
+      loadScript(CDN + 'firebase-auth-compat.js', function() {
+        try {
+          if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-          var db  = firebase.database();
-          var ref = db.ref('users/' + uid + '/credits');
+          firebase.auth().onAuthStateChanged(function(user) {
+            var uid;
+            if (user) {
+              uid = user.uid;
+            } else {
+              firebase.auth().signInAnonymously().catch(function(e) {
+                console.warn('[CK] Anon sign-in failed', e);
+              });
+              return;
+            }
 
-          window.__ckFirebase.getCredits = function() {
-            return ref.once('value').then(function(snap) { return snap.val() || 0; });
-          };
-          window.__ckFirebase.addCredits = function(n) {
-            return ref.transaction(function(cur) { return (cur || 0) + n; })
-              .then(function(res) { return res.snapshot.val(); });
-          };
-          window.__ckFirebase.onCreditsChange = function(cb) {
-            ref.on('value', function(snap) { cb(snap.val() || 0); });
-          };
+            var db  = firebase.database();
+            var ref = db.ref('users/' + uid + '/credits');
 
-          window.__ckFirebase.ready = true;
-          window.dispatchEvent(new Event('ck-firebase-ready'));
-        });
+            window.__ckFirebase.getCredits = function() {
+              return ref.once('value').then(function(snap) { return snap.val() || 0; });
+            };
+            window.__ckFirebase.addCredits = function(n) {
+              return ref.transaction(function(cur) { return (cur || 0) + n; })
+                .then(function(res) { return res.snapshot.val(); });
+            };
+            window.__ckFirebase.onCreditsChange = function(cb) {
+              ref.on('value', function(snap) { cb(snap.val() || 0); });
+            };
 
-      } catch (e) {
-        console.warn('[CK] Firebase init failed — credits stored locally only', e);
-      }
+            window.__ckFirebase.ready = true;
+            window.dispatchEvent(new Event('ck-firebase-ready'));
+          });
+
+        } catch (e) {
+          console.warn('[CK] Firebase init failed — credits stored locally only', e);
+        }
+      });
     });
   });
-});
 })();
 
 (function () {
@@ -123,56 +105,59 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
   function ssSet(k, v)     { try { sessionStorage.setItem(k, v); } catch {} }
 
   /* ══════════════════════════════════════════════
-     1 · SPRING THEME
+     1 · SUMMER THEME
   ══════════════════════════════════════════════ */
   const T = {
-    name:     'Spring',
-    codename: 'Blossom Drop',
-    version:  `v1.${YEAR}`,
+    name:     'Summer',
+    codename: 'Solstice Blaze',
+    version:  `v2.${YEAR}`,
+
+    /* Light palette (summer defaults to LIGHT) */
+    accent:    '#ff6b6b',   // coral red
+    accent2:   '#06b6d4',   // aqua / ocean cyan
+    accent3:   '#f97316',   // sunset orange
+    glow:      'rgba(255,107,107,.60)',
+    glow2:     'rgba(6,182,212,.45)',
+    bg:        '#fff8f0',   // warm sand
+    bgGrad: `radial-gradient(ellipse 90% 60% at 15% 10%, rgba(255,200,100,.30), transparent),
+             radial-gradient(ellipse 70% 50% at 85% 20%, rgba(6,182,212,.20), transparent),
+             radial-gradient(ellipse 50% 60% at 50% 90%, rgba(255,107,107,.16), transparent)`,
+    orbColors: ['#ffd166', '#06b6d4', '#ff6b6b'],
 
     /* Dark palette */
-    accent:    '#f472b6',
-    accent2:   '#86efac',
-    accent3:   '#fbbf24',
-    glow:      'rgba(244,114,182,.55)',
-    glow2:     'rgba(134,239,172,.4)',
-    bg:        '#0c0610',
-    bgGrad: `radial-gradient(ellipse 80% 60% at 20% 30%, rgba(244,114,182,.16), transparent),
-             radial-gradient(ellipse 60% 50% at 80% 70%, rgba(134,239,172,.13), transparent),
-             radial-gradient(ellipse 40% 40% at 55% 60%, rgba(251,191,36,.07), transparent)`,
-    orbColors: ['#f472b6', '#86efac', '#fbbf24'],
+    darkAccent:    '#ff8e8e',
+    darkAccent2:   '#22d3ee',
+    darkAccent3:   '#fb923c',
+    darkGlow:      'rgba(255,142,142,.55)',
+    darkGlow2:     'rgba(34,211,238,.40)',
+    darkBg:        '#080c10',
+    darkBgGrad: `radial-gradient(ellipse 80% 55% at 20% 15%, rgba(255,107,107,.15), transparent),
+                 radial-gradient(ellipse 60% 50% at 80% 25%, rgba(6,182,212,.14), transparent),
+                 radial-gradient(ellipse 40% 45% at 50% 85%, rgba(251,115,22,.10), transparent)`,
+    darkOrbColors: ['#ffd166', '#22d3ee', '#ff8e8e'],
 
-    /* Light palette */
-    lightAccent:    '#be185d',
-    lightAccent2:   '#16a34a',
-    lightAccent3:   '#d97706',
-    lightGlow:      'rgba(190,24,93,.28)',
-    lightGlow2:     'rgba(22,163,74,.22)',
-    lightBg:        '#fdf2f8',
-    lightBgGrad: `radial-gradient(ellipse 80% 60% at 20% 30%, rgba(244,114,182,.12), transparent),
-                  radial-gradient(ellipse 60% 50% at 80% 70%, rgba(134,239,172,.10), transparent)`,
-    lightOrbColors: ['#f9a8d4', '#86efac', '#fde68a'],
-
-    particle: 'petals',
-    particleCount: 45,
+    particle: 'sunrays',
+    particleCount: 50,
 
     notes: [
-      '🌸  Blossom Drop is live — spring has officially arrived',
-      '🌺  Cherry-blossom petal rain now drifting across all pages',
-      '🌿  Spring bloom counter unlocked in the widget panel',
-      '☀️  Light mode now supported — toggle it in Settings',
-      '🪙  Spring Credits earned by tapping the blossom button',
+      '🌊  Solstice Blaze is live — surf season has arrived',
+      '🏄  Coral & aqua particles now lighting up every wave',
+      '🏖️  Summer Heat Meter unlocked in the widget panel',
+      '🌊  Surf Score live — tap to ride the wave & earn points',
+      '🌴  Level up your vibe by scoring every day',
     ],
   };
 
   /* ══════════════════════════════════════════════
      1b · LIGHT MODE DETECTION
+     (Summer defaults to LIGHT; dark is the override)
   ══════════════════════════════════════════════ */
   function isLightMode() {
-    /* Check localStorage setting first, then system preference */
     const stored = ls('ck-lightmode', null);
     if (stored !== null) return stored === 'true';
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    /* Summer default: light unless system says dark */
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return false;
+    return true;
   }
 
   function getLM() { return isLightMode(); }
@@ -182,29 +167,29 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
   ══════════════════════════════════════════════ */
   function injectStyles() {
     const LM = getLM();
-    /* Sync data-theme attr so external CSS files (light.css) work too */
     document.documentElement.setAttribute('data-theme', LM ? 'light' : 'dark');
     document.body && document.body.setAttribute('data-theme', LM ? 'light' : 'dark');
-    const accent  = LM ? T.lightAccent  : T.accent;
-    const accent2 = LM ? T.lightAccent2 : T.accent2;
-    const accent3 = LM ? T.lightAccent3 : T.accent3;
-    const glow    = LM ? T.lightGlow    : T.glow;
-    const glow2   = LM ? T.lightGlow2   : T.glow2;
-    const bg      = LM ? T.lightBg      : T.bg;
-    const bgGrad  = LM ? T.lightBgGrad  : T.bgGrad;
-    const orbC    = LM ? T.lightOrbColors : T.orbColors;
+
+    const accent  = LM ? T.accent  : T.darkAccent;
+    const accent2 = LM ? T.accent2 : T.darkAccent2;
+    const accent3 = LM ? T.accent3 : T.darkAccent3;
+    const glow    = LM ? T.glow    : T.darkGlow;
+    const glow2   = LM ? T.glow2   : T.darkGlow2;
+    const bg      = LM ? T.bg      : T.darkBg;
+    const bgGrad  = LM ? T.bgGrad  : T.darkBgGrad;
+    const orbC    = LM ? T.orbColors : T.darkOrbColors;
 
     /* Text colours */
-    const textPrimary   = LM ? '#1e1b2e' : '#fff';
-    const textSecondary = LM ? '#6b7280' : '#94a3b8';
-    const textMuted     = LM ? '#9ca3af' : '#475569';
-    const cardBg        = LM ? 'rgba(255,255,255,.82)' : 'rgba(4,2,14,.58)';
-    const toastBg       = LM ? 'rgba(255,248,254,.97)' : 'rgba(6,4,18,.96)';
-    const badgeBg       = LM ? 'rgba(255,255,255,.75)' : 'rgba(0,0,0,.55)';
+    const textPrimary   = LM ? '#1a0a0a' : '#fff0f0';
+    const textSecondary = LM ? '#9d2a2a' : '#ffc2c2';
+    const textMuted     = LM ? '#c44b4b' : '#e87777';
+    const cardBg        = LM ? 'rgba(255,248,240,.90)' : 'rgba(12,4,4,.62)';
+    const toastBg       = LM ? 'rgba(255,253,250,.98)' : 'rgba(14,4,4,.97)';
+    const badgeBg       = LM ? 'rgba(255,248,240,.80)' : 'rgba(0,0,0,.58)';
     const creditsBtnBg  = LM
-      ? `linear-gradient(135deg, #fce7f3, #f0fdf4)`
-      : `linear-gradient(135deg, rgba(244,114,182,.15), rgba(134,239,172,.12))`;
-    const creditsBtnBorder = LM ? `${accent}55` : `${accent}38`;
+      ? `linear-gradient(135deg, #ffe8e8, #cffafe)`
+      : `linear-gradient(135deg, rgba(255,107,107,.18), rgba(6,182,212,.14))`;
+    const creditsBtnBorder = LM ? `${accent}60` : `${accent}40`;
 
     const s = document.createElement('style');
     s.id = 'ck-styles';
@@ -225,10 +210,9 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       .orb-2 { background: ${orbC[1]} !important; }
       .orb-3 { background: ${orbC[2]} !important; }
 
-      /* Light-mode body text fix */
       ${LM ? `
       body, body * { color: inherit; }
-      body { color: #1e1b2e !important; }
+      body { color: #1c1207 !important; }
       ` : ''}
 
       /* ─── Particle Canvas ─────────────────────── */
@@ -236,29 +220,27 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         position: fixed; inset: 0;
         z-index: 2;
         pointer-events: none;
-        opacity: ${LM ? '.55' : '1'};
+        opacity: ${LM ? '.65' : '1'};
       }
-
-     
 
       /* ─── Update Toast ────────────────────────── */
       #ck-toast {
         position: fixed;
         bottom: 62px; left: 22px;
         z-index: 9999;
-        width: 310px;
+        width: 318px;
         background: ${toastBg};
-        border: 1px solid ${accent}28;
+        border: 1px solid ${accent}30;
         border-left: 3px solid ${accent};
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 16px 18px;
         font-family: 'Segoe UI', system-ui, sans-serif;
-        backdrop-filter: blur(22px);
-        box-shadow: 0 16px 48px rgba(0,0,0,${LM ? '.12' : '.55'}), 0 0 40px -10px ${glow};
+        backdrop-filter: blur(24px);
+        box-shadow: 0 18px 52px rgba(0,0,0,${LM ? '.10' : '.60'}), 0 0 44px -10px ${glow};
         opacity: 0;
-        transform: translateY(14px);
-        transition: opacity .4s cubic-bezier(.22,1,.36,1),
-                    transform .4s cubic-bezier(.22,1,.36,1);
+        transform: translateY(16px);
+        transition: opacity .38s cubic-bezier(.22,1,.36,1),
+                    transform .38s cubic-bezier(.22,1,.36,1);
         pointer-events: none;
       }
       #ck-toast.ck-visible {
@@ -277,15 +259,15 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       #ck-toast .ck-tv {
         font-size: .62rem; font-weight: 700;
         color: ${accent};
-        background: ${accent}18;
-        border: 1px solid ${accent}30;
+        background: ${accent}1c;
+        border: 1px solid ${accent}32;
         border-radius: 5px;
         padding: 2px 7px;
       }
       #ck-toast .ck-tx {
         width: 20px; height: 20px; border-radius: 50%;
         background: ${LM ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.07)'};
-        border: 1px solid ${LM ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.1)'};
+        border: 1px solid ${LM ? 'rgba(0,0,0,.10)' : 'rgba(255,255,255,.10)'};
         cursor: pointer; color: ${textSecondary};
         font-size: .75rem;
         display: flex; align-items: center; justify-content: center;
@@ -293,7 +275,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         font-family: inherit; flex-shrink: 0;
       }
       #ck-toast .ck-tx:hover { background: ${LM ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.14)'}; }
-      #ck-toast .ck-div { height: 1px; background: ${accent}1e; margin: 8px 0; }
+      #ck-toast .ck-div { height: 1px; background: ${accent}20; margin: 8px 0; }
       #ck-toast .ck-note {
         font-size: .73rem; color: ${textSecondary};
         margin-bottom: 5px; line-height: 1.45;
@@ -316,19 +298,19 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       .ck-card {
         width: 176px;
         background: ${cardBg};
-        border: 1px solid ${accent}22;
-        border-radius: 12px;
+        border: 1px solid ${accent}25;
+        border-radius: 14px;
         padding: 11px 13px;
-        backdrop-filter: blur(16px);
+        backdrop-filter: blur(18px);
         cursor: pointer;
         transition: border-color .25s, box-shadow .25s, transform .15s;
         font-family: 'Segoe UI', system-ui, sans-serif;
         user-select: none;
-        box-shadow: ${LM ? '0 2px 10px rgba(244,114,182,.09)' : 'none'};
+        box-shadow: ${LM ? `0 2px 14px rgba(245,158,11,.12)` : 'none'};
       }
       .ck-card[data-clickable="true"]:hover {
-        border-color: ${accent}48;
-        box-shadow: 0 4px 22px -6px ${glow};
+        border-color: ${accent}50;
+        box-shadow: 0 4px 24px -6px ${glow};
         transform: translateX(2px);
       }
       .ck-card[data-clickable="false"] { cursor: default; }
@@ -353,7 +335,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       }
       .ck-card .cw-fill {
         height: 100%;
-        background: linear-gradient(90deg, ${accent}, ${accent2});
+        background: linear-gradient(90deg, ${accent}, ${accent3});
         border-radius: 2px;
         width: 0%; transition: width .9s cubic-bezier(.22,1,.36,1);
       }
@@ -363,26 +345,26 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         width: 176px;
         background: ${creditsBtnBg};
         border: 1px solid ${creditsBtnBorder};
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 11px 13px;
-        backdrop-filter: blur(16px);
+        backdrop-filter: blur(18px);
         cursor: pointer;
         font-family: 'Segoe UI', system-ui, sans-serif;
         user-select: none;
         text-align: left;
         transition: border-color .25s, box-shadow .25s, transform .15s;
-        box-shadow: ${LM ? '0 2px 10px rgba(244,114,182,.09)' : 'none'};
+        box-shadow: ${LM ? `0 2px 14px rgba(245,158,11,.12)` : 'none'};
         position: relative;
         overflow: hidden;
       }
       #ck-credits-btn:hover:not(:disabled) {
-        border-color: ${accent}58;
-        box-shadow: 0 4px 22px -6px ${glow};
+        border-color: ${accent}60;
+        box-shadow: 0 4px 24px -6px ${glow};
         transform: translateX(2px);
       }
       #ck-credits-btn:disabled {
         cursor: not-allowed;
-        opacity: .55;
+        opacity: .50;
       }
       #ck-credits-btn .cbtn-lbl {
         font-size: .58rem; font-weight: 700; text-transform: uppercase;
@@ -412,64 +394,41 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
         animation: ck-spark-anim .65s ease-out forwards;
       }
       @keyframes ck-spark-anim {
-        0%   { opacity:1; transform: translate(-50%,-50%) scale(1); }
-        100% { opacity:0; transform: translate(-50%,-120%) scale(.4); }
+        0%   { opacity:1; transform: translate(-50%,-50%) scale(1.1); }
+        100% { opacity:0; transform: translate(-50%,-130%) scale(.3); }
       }
 
-      /* ─── Light Mode Toggle (Settings icon area) ─ */
-      #ck-lm-toggle {
-        position: fixed;
-        bottom: 22px; right: 22px;
-        z-index: 9998;
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 7px 13px;
-        background: ${badgeBg};
-        border: 1px solid ${accent}38;
-        border-radius: 100px;
-        font-size: .68rem; font-weight: 700;
-        color: ${accent};
-        backdrop-filter: blur(14px);
-        cursor: pointer;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        transition: border-color .2s, box-shadow .2s, transform .15s;
-        user-select: none;
-        letter-spacing: .04em;
-        box-shadow: ${LM ? '0 2px 12px rgba(244,114,182,.18)' : 'none'};
+
+      @media (orientation: landscape) and (max-width: 1024px) {
+        #ck-widget, #ck-credits-btn, #ck-toast { display: none !important; }
       }
-      #ck-lm-toggle:hover {
-        border-color: ${accent}70;
-        box-shadow: 0 0 18px -4px ${glow};
-        transform: translateY(-1px);
-      }
-@media (orientation: landscape) and (max-width: 1024px) {
-  #ck-widget, #ck-credits-btn, #ck-toast { display: none !important; }
-}
+
       /* ─── Keyframes ───────────────────────────── */
       @keyframes ck-pulse {
         0%,100% { opacity:1; transform:scale(1); }
-        50%      { opacity:.35; transform:scale(.65); }
+        50%      { opacity:.3; transform:scale(.6); }
+      }
+      @keyframes ck-sunpulse {
+        0%,100% { box-shadow: 0 0 18px -4px ${glow}; }
+        50%      { box-shadow: 0 0 34px -2px ${glow}; }
       }
 
-      /* ─── Landscape phone: hide everything from update.js EXCEPT
-       background + particle canvas. Also hide the recording FAB. ─── */
-@media (orientation: landscape) and (max-width: 1024px) {
-  #ck-widget,
-  #ck-credits-btn,
-  #ck-badge,
-  #ck-toast,
-  #ck-lm-toggle,
-  .ck-sparkle,
-  #rec-fab {
-    display: none !important;
-  }
-  /* #ck-canvas (particles) and body background stay visible */
-}
+      @media (orientation: landscape) and (max-width: 1024px) {
+        #ck-widget,
+        #ck-credits-btn,
+        #ck-badge,
+        #ck-toast,
+        .ck-sparkle,
+        #rec-fab {
+          display: none !important;
+        }
+      }
     `;
     document.head.appendChild(s);
   }
 
   /* ══════════════════════════════════════════════
-     3 · PARTICLE SYSTEM — PETALS + BUTTERFLIES
+     3 · PARTICLE SYSTEM — SUNRAYS + FIREFLIES
   ══════════════════════════════════════════════ */
   function initParticles() {
     const canvas = document.createElement('canvas');
@@ -486,100 +445,151 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     resize();
     window.addEventListener('resize', resize);
 
-    const PETAL_COLORS = ['#f9a8d4','#fbcfe8','#f472b6','#fde68a','#86efac','#d9f99d','#fff1f2'];
+    /* Warm sun-ray dust motes */
+    const RAY_COLORS = ['#ff6b6b','#ffd166','#06b6d4','#ff9f43','#ff8e8e','#cffafe','#fff0f0'];
 
-    function makePetal(burst) {
+    function makeMote(burst) {
       return {
-        type: 'petal',
+        type: 'mote',
         x: rand(0, W),
-        y: burst ? rand(0, H) : -rand(10, 40),
-        vx: rand(-.5, .5),
-        vy: rand(.4, 1.1),
-        size: rand(5, 13),
-        angle: rand(0, Math.PI * 2),
-        spin: rand(-.03, .03),
-        alpha: rand(.4, .88),
-        color: PETAL_COLORS[randInt(0, PETAL_COLORS.length - 1)],
+        y: burst ? rand(0, H) : rand(-20, -5),
+        vx: rand(-.3, .3),
+        vy: rand(.25, .75),
+        size: rand(2, 7),
+        alpha: rand(.25, .75),
+        color: RAY_COLORS[randInt(0, RAY_COLORS.length - 1)],
         wobble: rand(0, Math.PI * 2),
+        pulse: rand(0, Math.PI * 2),
       };
     }
 
-    function makeButterfly() {
+    /* Fireflies — teal/cyan glow dots */
+    function makeFirefly() {
       return {
-        type: 'butterfly',
-        x: rand(-60, W + 60),
-        y: rand(H * .1, H * .75),
-        vx: rand(.35, .9) * (Math.random() > .5 ? 1 : -1),
-        vy: rand(-.2, .2),
-        size: rand(7, 13),
-        flapT: rand(0, Math.PI * 2),
-        alpha: rand(.35, .7),
-        hue: randInt(300, 360),
+        type: 'firefly',
+        x: rand(0, W),
+        y: rand(H * .2, H * .95),
+        vx: rand(-.4, .4),
+        vy: rand(-.25, .25),
+        size: rand(2.5, 5),
+        alpha: rand(.4, .9),
+        phase: rand(0, Math.PI * 2),
+        hue: randInt(165, 200),  // aqua-cyan range
       };
     }
 
     /* Seed pool */
-    for (let i = 0; i < T.particleCount; i++) {
-      pool.push(makePetal(true));
-    }
-    /* A handful of butterflies */
-    for (let i = 0; i < 6; i++) {
-      pool.push(makeButterfly());
-    }
+    for (let i = 0; i < T.particleCount; i++) pool.push(makeMote(true));
+    for (let i = 0; i < 18; i++) pool.push(makeFirefly());
 
-    function drawPetal(x, y, size, color, alpha, angle) {
+    function drawMote(x, y, size, color, alpha) {
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.translate(x, y);
-      ctx.rotate(angle);
       ctx.fillStyle = color;
       ctx.shadowColor = color;
-      ctx.shadowBlur = 4;
+      ctx.shadowBlur = size * 2.5;
       ctx.beginPath();
-      ctx.ellipse(0, 0, size * .45, size, 0, 0, Math.PI * 2);
+      ctx.arc(x, y, size * .5, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
-    function drawButterfly(x, y, size, alpha, hue, flapT) {
-      const flap = Math.abs(Math.sin(flapT));
+    function drawFirefly(x, y, size, alpha, hue) {
+      const color = `hsl(${hue},90%,65%)`;
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.translate(x, y);
-      const c1 = `hsl(${hue},80%,72%)`;
-      const c2 = `hsl(${(hue + 40) % 360},80%,65%)`;
-      /* left wing */
-      ctx.save();
-      ctx.scale(-flap, 1);
-      ctx.fillStyle = c1;
-      ctx.shadowColor = c1; ctx.shadowBlur = 6;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = size * 5;
+      ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.ellipse(-size * .55, -size * .2, size * .75, size * .45, -0.4, 0, Math.PI * 2);
+      ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
-      /* lower left */
-      ctx.fillStyle = c2;
+      /* inner bright core */
+      ctx.globalAlpha = alpha * 1.4;
+      ctx.fillStyle = '#fff';
+      ctx.shadowBlur = 0;
       ctx.beginPath();
-      ctx.ellipse(-size * .45, size * .2, size * .5, size * .3, 0.3, 0, Math.PI * 2);
+      ctx.arc(x, y, size * .4, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
-      /* right wing */
+    }
+
+    /* ── Blazing Sun (top-right corner) ── */
+    function drawSun(t) {
+      const LM   = isLightMode();
+      const SX   = W - 72;   // centre x — hugs top-right corner
+      const SY   = 68;       // centre y
+      const R    = 38;       // core radius
+      const pulse = 1 + 0.06 * Math.sin(t * 0.04);   // gentle breathing
+
+      /* ── outer halo layers ── */
+      const haloSizes  = [R * 3.8, R * 2.8, R * 2.0];
+      const haloAlphas = LM ? [0.08, 0.13, 0.18] : [0.12, 0.18, 0.25];
+      haloSizes.forEach((hr, i) => {
+        const g = ctx.createRadialGradient(SX, SY, 0, SX, SY, hr * pulse);
+        g.addColorStop(0,   `rgba(255,220,60,${haloAlphas[i]})`);
+        g.addColorStop(0.5, `rgba(255,140,40,${haloAlphas[i] * 0.5})`);
+        g.addColorStop(1,   'rgba(255,100,30,0)');
+        ctx.save();
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(SX, SY, hr * pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      /* ── rotating rays ── */
+      const NUM_RAYS  = 12;
+      const RAY_ROT   = t * 0.008;   // slow spin
       ctx.save();
-      ctx.scale(flap, 1);
-      ctx.fillStyle = c1;
-      ctx.shadowColor = c1; ctx.shadowBlur = 6;
+      ctx.translate(SX, SY);
+      ctx.rotate(RAY_ROT);
+      for (let i = 0; i < NUM_RAYS; i++) {
+        const angle   = (i / NUM_RAYS) * Math.PI * 2;
+        const rayLen  = (i % 2 === 0 ? R * 2.0 : R * 1.4) * pulse;
+        const rayW    = i % 2 === 0 ? 3.5 : 2;
+        const alpha   = LM ? 0.55 : 0.70;
+        ctx.save();
+        ctx.rotate(angle);
+        const rg = ctx.createLinearGradient(R * 0.9, 0, R * 0.9 + rayLen, 0);
+        rg.addColorStop(0,   `rgba(255,230,80,${alpha})`);
+        rg.addColorStop(0.5, `rgba(255,170,40,${alpha * 0.6})`);
+        rg.addColorStop(1,   'rgba(255,120,30,0)');
+        ctx.strokeStyle = rg;
+        ctx.lineWidth   = rayW;
+        ctx.lineCap     = 'round';
+        ctx.beginPath();
+        ctx.moveTo(R * 0.95, 0);
+        ctx.lineTo(R * 0.95 + rayLen, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+
+      /* ── glowing core ── */
+      const cg = ctx.createRadialGradient(SX - R*0.2, SY - R*0.2, 0, SX, SY, R * pulse);
+      cg.addColorStop(0,   '#fffde0');
+      cg.addColorStop(0.3, '#ffe040');
+      cg.addColorStop(0.7, '#ffaa20');
+      cg.addColorStop(1,   '#ff7010');
+      ctx.save();
+      ctx.shadowColor = '#ffcc00';
+      ctx.shadowBlur  = LM ? 28 : 44;
+      ctx.fillStyle   = cg;
       ctx.beginPath();
-      ctx.ellipse(size * .55, -size * .2, size * .75, size * .45, 0.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = c2;
-      ctx.beginPath();
-      ctx.ellipse(size * .45, size * .2, size * .5, size * .3, -0.3, 0, Math.PI * 2);
+      ctx.arc(SX, SY, R * pulse, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
-      /* body */
-      ctx.fillStyle = '#1e1b2e';
-      ctx.globalAlpha = alpha * .6;
+
+      /* ── bright specular highlight ── */
+      ctx.save();
+      ctx.globalAlpha = LM ? 0.55 : 0.45;
+      const sg = ctx.createRadialGradient(SX - R*0.35, SY - R*0.35, 0, SX - R*0.2, SY - R*0.2, R * 0.55);
+      sg.addColorStop(0, '#ffffff');
+      sg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = sg;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 1.5, size * .4, 0, 0, Math.PI * 2);
+      ctx.arc(SX, SY, R * pulse, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -593,23 +603,28 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       }
       ctx.clearRect(0, 0, W, H);
       time++;
-      pool.forEach((p, i) => {
-        if (p.type === 'petal') {
-          p.wobble += .018;
-          p.x += p.vx + Math.sin(p.wobble) * .3;
+      drawSun(time);
+      pool.forEach((p) => {
+        if (p.type === 'mote') {
+          p.wobble += .016;
+          p.pulse  += .04;
+          p.x += p.vx + Math.sin(p.wobble) * .25;
           p.y += p.vy;
-          p.angle += p.spin;
-          if (p.y > H + 20) Object.assign(p, makePetal(false));
-          drawPetal(p.x, p.y, p.size, p.color, p.alpha, p.angle);
+          const pulsedAlpha = p.alpha * (.7 + .3 * Math.sin(p.pulse));
+          if (p.y > H + 15) Object.assign(p, makeMote(false));
+          drawMote(p.x, p.y, p.size, p.color, pulsedAlpha);
         } else {
-          p.flapT += .1;
-          p.x += p.vx;
-          p.y += p.vy + Math.sin(p.flapT * .25) * .4;
-          if (p.x < -80)  p.x = W + 80;
-          if (p.x > W + 80) p.x = -80;
-          if (p.y < H * .05)  p.vy =  Math.abs(p.vy);
-          if (p.y > H * .85)  p.vy = -Math.abs(p.vy);
-          drawButterfly(p.x, p.y, p.size, p.alpha, p.hue, p.flapT);
+          /* firefly wanders + blinks */
+          p.phase += .04;
+          p.x += p.vx + Math.sin(p.phase * .7) * .35;
+          p.y += p.vy + Math.cos(p.phase * .5) * .2;
+          /* soft bounce off edges */
+          if (p.x < 0)  p.vx =  Math.abs(p.vx);
+          if (p.x > W)  p.vx = -Math.abs(p.vx);
+          if (p.y < H * .1) p.vy =  Math.abs(p.vy);
+          if (p.y > H * .98) p.vy = -Math.abs(p.vy);
+          const blink = Math.max(0, Math.sin(p.phase * 1.8)) * p.alpha;
+          drawFirefly(p.x, p.y, p.size, blink, p.hue);
         }
       });
       requestAnimationFrame(tick);
@@ -626,7 +641,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     toast.innerHTML = `
       <div class="ck-th">
         <div class="ck-tt">
-          🌸 ${T.name.toUpperCase()} UPDATE
+          ☀️ ${T.name.toUpperCase()} UPDATE
           <span class="ck-tv">${T.version}</span>
         </div>
         <button class="ck-tx" id="ck-toast-close" title="Dismiss">✕</button>
@@ -652,31 +667,19 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     };
   }
 
-  
-
   /* ══════════════════════════════════════════════
      6 · CREDITS SYSTEM WITH ANTI-AUTOCLICKER
   ══════════════════════════════════════════════ */
   function mountCreditsButton() {
-    /*
-      Anti-autoclicker logic:
-        – Track timestamps of last N clicks in a ring buffer
-        – If any 3 clicks happen within 800ms → cooldown triggered
-        – Cooldown grows: 5s → 15s → 45s → 120s (capped)
-        – Human variance check: reject clicks < 180ms apart
-        – Cooldown state persisted in localStorage so it survives refresh
-    */
-    const CLICK_WINDOW_MS  = 800;   // 3 clicks within this = bot-like
-    const MIN_INTERVAL_MS  = 180;   // too fast = bot
-    const MAX_CREDITS_TICK = 2;     // credits earned per valid click
-    const COOLDOWN_LEVELS  = [5, 15, 45, 120]; // seconds
+    const CLICK_WINDOW_MS  = 800;
+    const MIN_INTERVAL_MS  = 180;
+    const MAX_CREDITS_TICK = 2;
+    const COOLDOWN_LEVELS  = [5, 15, 45, 120];
 
     let clickTimes = [];
     let cdLevel    = parseInt(ls('ck-cd-level', '0'));
     let cdUntil    = parseInt(ls('ck-cd-until', '0'));
 
-    /* Credits are now stored in Firebase (falls back to localStorage if SDK
-       not yet loaded). All reads/writes are async Promises. */
     function getCredits()  { return window.__ckFirebase.getCredits(); }
     function addCredits(n) { return window.__ckFirebase.addCredits(n); }
 
@@ -696,38 +699,32 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     const btn = document.createElement('button');
     btn.id = 'ck-credits-btn';
     btn.innerHTML = `
-      <div class="cbtn-lbl">🪙 Spring Credits</div>
-      <div class="cbtn-val" id="cbtn-val">… credits</div>
-      <div class="cbtn-sub">Tap the blossom to earn</div>
+      <div class="cbtn-lbl">🌊 Surf Score</div>
+      <div class="cbtn-val" id="cbtn-val">… 🏄</div>
+      <div class="cbtn-sub">Tap to ride the wave!</div>
       <div class="cbtn-cd" id="cbtn-cd"></div>
     `;
 
     const valEl = () => document.getElementById('cbtn-val');
     const cdEl  = () => document.getElementById('cbtn-cd');
 
-    /* Load initial balance from Firebase (or localStorage fallback) */
     getCredits().then(n => {
-      if (valEl()) valEl().textContent = n + ' credits';
+      if (valEl()) valEl().textContent = n + ' 🏄';
     });
 
-    /* Live-sync: whenever the DB value changes, update the display.
-       This also picks up changes from other tabs/devices. */
     window.__ckFirebase.onCreditsChange(n => {
-      if (valEl()) valEl().textContent = n + ' credits';
+      if (valEl()) valEl().textContent = n + ' 🏄';
     });
 
-    /* If Firebase SDK finishes loading after the button is already mounted,
-       refresh the display immediately. */
     window.addEventListener('ck-firebase-ready', () => {
       getCredits().then(n => {
-        if (valEl()) valEl().textContent = n + ' credits';
+        if (valEl()) valEl().textContent = n + ' 🏄';
       });
       window.__ckFirebase.onCreditsChange(n => {
-        if (valEl()) valEl().textContent = n + ' credits';
+        if (valEl()) valEl().textContent = n + ' 🏄';
       });
     }, { once: true });
 
-    /* Cooldown ticker */
     let cdTimer = null;
     function startCdTick() {
       clearInterval(cdTimer);
@@ -737,7 +734,6 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
           clearInterval(cdTimer);
           btn.disabled = false;
           cdEl().textContent = '';
-          /* Decay cooldown level over time if user was good */
           if (cdLevel > 0) {
             cdLevel = Math.max(0, cdLevel - 1);
             lsSet('ck-cd-level', cdLevel);
@@ -749,15 +745,14 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
       }, 500);
     }
 
-    /* Resume cooldown if page was refreshed mid-cooldown */
     if (getRemainingCooldown() > 0) {
       btn.disabled = true;
       cdEl && startCdTick();
     }
 
-    /* Sparkle burst helper */
+    /* Sparkle burst — summer emojis */
     function spawnSparkle(x, y) {
-      const emojis = ['🌸','🌺','🌼','🌿','🍃','✨','💐'];
+      const emojis = ['🌊','🏄','☀️','🌴','🍹','🐚','🌺','🦀','⛵','🌸'];
       const el = document.createElement('div');
       el.className = 'ck-sparkle';
       el.textContent = emojis[randInt(0, emojis.length - 1)];
@@ -770,66 +765,56 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     btn.addEventListener('click', function(e) {
       const now = Date.now();
 
-      /* 1 — Hard cooldown active */
       if (getRemainingCooldown() > 0) return;
 
-      /* 2 — Minimum human interval check */
       const last = clickTimes[clickTimes.length - 1] || 0;
       if (now - last < MIN_INTERVAL_MS) {
         const secs = triggerCooldown();
-        cdEl().textContent = `⚠️ Too fast! Cooldown: ${secs}s`;
+        cdEl().textContent = `🌊 Whoa, too fast! Cooldown: ${secs}s`;
         btn.disabled = true;
         startCdTick();
         clickTimes = [];
         return;
       }
 
-      /* 3 — Record click */
       clickTimes.push(now);
       if (clickTimes.length > 5) clickTimes.shift();
 
-      /* 4 — Check for rapid burst (3 clicks in CLICK_WINDOW_MS) */
       const recent = clickTimes.filter(t => now - t < CLICK_WINDOW_MS);
       if (recent.length >= 3) {
         const secs = triggerCooldown();
-        cdEl().textContent = `🌿 Slow down! Cooldown: ${secs}s`;
+        cdEl().textContent = `🏄 Paddle back! Cooldown: ${secs}s`;
         btn.disabled = true;
         startCdTick();
         clickTimes = [];
         return;
       }
 
-      /* 5 — Valid click — award credits (Firebase async) */
       const earned = randInt(1, MAX_CREDITS_TICK);
-      btn.disabled = true;                // prevent double-tap during write
+      btn.disabled = true;
       addCredits(earned).then(newTotal => {
-        valEl().textContent = newTotal + ' credits';
+        valEl().textContent = newTotal + ' 🏄';
         btn.disabled = (getRemainingCooldown() > 0);
       }).catch(() => {
-        /* If DB write fails just re-enable */
         btn.disabled = (getRemainingCooldown() > 0);
       });
 
-      /* Tiny feedback */
       const rect = btn.getBoundingClientRect();
       spawnSparkle(
         rect.left + rand(20, rect.width - 20),
         rect.top  + rand(10, rect.height - 10)
       );
 
-      /* Decay cooldown level on legit click after a while */
       if (clickTimes.length === 1 && cdLevel > 0) {
         cdLevel = Math.max(0, cdLevel - 1);
         lsSet('ck-cd-level', cdLevel);
       }
     });
 
-    /* Mount below widget cards */
     const widget = document.getElementById('ck-widget');
     if (widget) widget.appendChild(btn);
     else document.body.appendChild(btn);
 
-    /* Kick off tick if already in cooldown */
     if (getRemainingCooldown() > 0) startCdTick();
   }
 
@@ -840,9 +825,7 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     const container = document.createElement('div');
     container.id = 'ck-widget';
 
-   
     const TZ = 'Europe/Riga';
-    // Build a "now" Date that reflects Riga wall-clock, regardless of where the visitor is.
     const _p = new Intl.DateTimeFormat('en-GB', {
       timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit',
       hour:'2-digit', minute:'2-digit', hour12:false
@@ -851,154 +834,149 @@ loadScript(CDN + 'firebase-app-compat.js', function() {
     const RIGA_NOW = new Date(_g('year'), _g('month')-1, _g('day'), _g('hour'), _g('minute'));
 
     const yr       = RIGA_NOW.getFullYear();
-    const sprStart = new Date(yr, 2, 20);   // Mar 20  (Riga local)
-    const sprEnd   = new Date(yr, 5, 1);    // Jun  1  (Riga local) ← Latvia spring end
+    const sumStart = new Date(yr, 5, 1);    // Jun 1
+    const sumEnd   = new Date(yr, 8, 1);    // Sep 1
     const MS_DAY   = 86400000;
-    let sprPct, sprDaysLeft, sprStateLabel, sprSubLabel;
+    let sumPct, sumDaysLeft, sumStateLabel, sumSubLabel;
 
-    if (RIGA_NOW >= sprStart && RIGA_NOW <= sprEnd) {
-      // In spring — real progress
-      sprPct        = Math.round(((RIGA_NOW - sprStart) / (sprEnd - sprStart)) * 100);
-      sprDaysLeft   = Math.max(0, Math.ceil((sprEnd - RIGA_NOW) / MS_DAY));
-      sprStateLabel = sprPct + '% through';
-      sprSubLabel   = sprDaysLeft + ' day' + (sprDaysLeft !== 1 ? 's' : '') + ' left in spring';
-    } else if (RIGA_NOW < sprStart) {
-      // Before spring — countdown from winter solstice
-      const winterStart = new Date(yr - 1, 11, 21);
-      sprPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - winterStart) / (sprStart - winterStart)) * 100)));
-      sprDaysLeft   = Math.max(0, Math.ceil((sprStart - RIGA_NOW) / MS_DAY));
-      sprStateLabel = sprDaysLeft + ' days until spring';
-      sprSubLabel   = 'Countdown ' + sprPct + '% complete';
+    if (RIGA_NOW >= sumStart && RIGA_NOW <= sumEnd) {
+      sumPct        = Math.round(((RIGA_NOW - sumStart) / (sumEnd - sumStart)) * 100);
+      sumDaysLeft   = Math.max(0, Math.ceil((sumEnd - RIGA_NOW) / MS_DAY));
+      sumStateLabel = sumPct + '% through';
+      sumSubLabel   = sumDaysLeft + ' day' + (sumDaysLeft !== 1 ? 's' : '') + ' left in summer';
+    } else if (RIGA_NOW < sumStart) {
+      const springStart = new Date(yr, 2, 20);
+      sumPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - springStart) / (sumStart - springStart)) * 100)));
+      sumDaysLeft   = Math.max(0, Math.ceil((sumStart - RIGA_NOW) / MS_DAY));
+      sumStateLabel = sumDaysLeft + ' days until summer';
+      sumSubLabel   = 'Countdown ' + sumPct + '% complete';
     } else {
-      // After spring — countdown to next spring
-      const nextSpring = new Date(yr + 1, 2, 20);
-      sprPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - sprEnd) / (nextSpring - sprEnd)) * 100)));
-      sprDaysLeft   = Math.max(0, Math.ceil((nextSpring - RIGA_NOW) / MS_DAY));
-      sprStateLabel = sprDaysLeft + ' days until spring';
-      sprSubLabel   = 'Countdown ' + sprPct + '% complete';
+      const nextSummer = new Date(yr + 1, 5, 1);
+      sumPct        = Math.max(0, Math.min(100, Math.round(((RIGA_NOW - sumEnd) / (nextSummer - sumEnd)) * 100)));
+      sumDaysLeft   = Math.max(0, Math.ceil((nextSummer - RIGA_NOW) / MS_DAY));
+      sumStateLabel = sumDaysLeft + ' days until summer';
+      sumSubLabel   = 'Countdown ' + sumPct + '% complete';
     }
 
-    /* ── Card: Spring Season Progress ── */
+    /* ── Card A: Summer Season Progress ── */
     const cardA = document.createElement('div');
     cardA.className = 'ck-card';
     cardA.dataset.clickable = 'false';
-    cardA.title = 'Spring season progress / countdown';
+    cardA.title = 'Summer season progress / countdown';
     cardA.innerHTML = `
-      <div class="cw-lbl">🌱 Spring Progress</div>
-      <div class="cw-val">${sprStateLabel}</div>
-      <div class="cw-sub">${sprSubLabel}</div>
-      <div class="cw-bar"><div class="cw-fill" id="ck-spr-bar"></div></div>
+      <div class="cw-lbl">🌡️ Summer Progress</div>
+      <div class="cw-val">${sumStateLabel}</div>
+      <div class="cw-sub">${sumSubLabel}</div>
+      <div class="cw-bar"><div class="cw-fill" id="ck-sum-bar"></div></div>
     `;
     container.appendChild(cardA);
 
-    /* ── Card: Bloom Garden ── */
+    /* ── Card B: Beach Day Tracker ── */
     const cardB = document.createElement('div');
     cardB.className = 'ck-card';
     cardB.dataset.clickable = 'true';
-    cardB.title = 'Click to plant a bloom in your spring garden';
-    const blooms = () => parseInt(ls('ck-blooms', '0'));
+    cardB.title = 'Click to log a beach day';
+    const beachDays = () => parseInt(ls('ck-beach', '0'));
     cardB.innerHTML = `
-      <div class="cw-lbl">🌺 My Garden</div>
-      <div class="cw-val">${blooms()} bloom${blooms() !== 1 ? 's' : ''}</div>
-      <div class="cw-sub">${blooms() >= 20 ? '🌷 Garden is FULL' : 'Tap to plant!'}</div>
+      <div class="cw-lbl">🏖️ Beach Days</div>
+      <div class="cw-val">${beachDays()} day${beachDays() !== 1 ? 's' : ''}</div>
+      <div class="cw-sub">${beachDays() >= 20 ? '🌊 Legendary summer!' : 'Tap to log a beach day!'}</div>
     `;
     cardB.addEventListener('click', () => {
-      const n = blooms() + 1;
-      lsSet('ck-blooms', n);
-      cardB.querySelector('.cw-val').textContent = n + ' bloom' + (n !== 1 ? 's' : '');
+      const n = beachDays() + 1;
+      lsSet('ck-beach', n);
+      cardB.querySelector('.cw-val').textContent = n + ' day' + (n !== 1 ? 's' : '');
       cardB.querySelector('.cw-sub').textContent =
-        n >= 20 ? '🌷 Garden is FULL!' : n >= 10 ? '🌸 Beautiful garden!' : 'Keep planting!';
+        n >= 20 ? '🌊 Legendary summer!' :
+        n >= 10 ? '🏄 Surf legend vibes!' :
+        n >= 5  ? '☀️ Sun-kissed!' : 'Keep it up!';
     });
     container.appendChild(cardB);
 
-    /* ── Card: Daily Mood ── */
+    /* ── Card C: Summer Vibe Check ── */
     const cardC = document.createElement('div');
     cardC.className = 'ck-card';
     cardC.dataset.clickable = 'true';
-    cardC.title = 'Tap for a springtime vibe check';
+    cardC.title = 'Tap for a summer vibe check';
     cardC.innerHTML = `
-      <div class="cw-lbl">☀️ Spring Vibe</div>
-      <div class="cw-val">Tap me 🌸</div>
-      <div class="cw-sub">Get your daily boost</div>
+      <div class="cw-lbl">🔥 Vibe Check</div>
+      <div class="cw-val">Tap me ☀️</div>
+      <div class="cw-sub">Get your daily heat</div>
     `;
     cardC.addEventListener('click', () => {
       const pool = [
-        '🌸 Blooming day ahead!',
-        '🌿 Fresh start energy!',
-        '☀️ Sunshine luck is live!',
-        '🦋 Big wins incoming!',
-        '🌺 Spring favours the bold!',
-        '🌼 Nature\'s on your side!',
-        '🍀 Lucky petal found!',
+        '🌅 Golden hour energy!',
+        '🌊 Ride the wave today!',
+        '🔥 You\'re on fire!',
+        '🍹 Sipping on wins!',
+        '🌴 Island mode: ON',
+        '☀️ Max solar power!',
+        '🏄 Big surf incoming!',
+        '🌻 Radiating summer luck!',
       ];
       const chosen = pool[randInt(0, pool.length - 1)];
       cardC.querySelector('.cw-val').textContent = chosen;
-      cardC.querySelector('.cw-sub').textContent = 'Refreshed!';
-      // Track for easter egg: if the vibe is "Spring favours the bold!" set a window flag + timestamp
-      if (chosen === '🌺 Spring favours the bold!') {
-        window.__springBoldActive = Date.now();
+      cardC.querySelector('.cw-sub').textContent = 'Recharged!';
+      if (chosen === '🔥 You\'re on fire!') {
+        window.__summerBlazeActive = Date.now();
       }
     });
     container.appendChild(cardC);
 
     document.body.appendChild(container);
 
-    /* Animate spring bar */
+    mountCreditsButton();
+
+    /* Animate summer bar */
     setTimeout(() => {
-      const bar = document.getElementById('ck-spr-bar');
-      if (bar) bar.style.width = sprPct + '%';
+      const bar = document.getElementById('ck-sum-bar');
+      if (bar) bar.style.width = sumPct + '%';
     }, 600);
   }
-
-  
 
   /* ══════════════════════════════════════════════
      9 · BOOTSTRAP
   ══════════════════════════════════════════════ */
- function boot() {
-  initParticles(); // always runs (particles + bg stay)
+  function boot() {
+    initParticles();
 
-  const isLandscapeMobile = window.matchMedia(
-    '(orientation: landscape) and (max-width: 1024px)'
-  ).matches;
+    const isLandscapeMobile = window.matchMedia(
+      '(orientation: landscape) and (max-width: 1024px)'
+    ).matches;
 
-  if (isLandscapeMobile) return; // skip widget, credits, toast
+    if (isLandscapeMobile) return;
 
-  mountWidget();
-  const toastCtrl = createToast();
-  if (!ss('ck-shown')) {
-    ssSet('ck-shown', '1');
-    setTimeout(() => toastCtrl.show(), 1300);
+    mountWidget();
+    const toastCtrl = createToast();
+    if (!ss('ck-shown')) {
+      ssSet('ck-shown', '1');
+      setTimeout(() => toastCtrl.show(), 1300);
+    }
   }
-}
 
   injectStyles();
 
-function ckApplyOrientationVisibility() {
-  const hide = window.matchMedia(
-    '(orientation: landscape) and (max-width: 1024px)'
-  ).matches;
+  function ckApplyOrientationVisibility() {
+    const hide = window.matchMedia(
+      '(orientation: landscape) and (max-width: 1024px)'
+    ).matches;
 
-  ['ck-widget', 'ck-credits-btn', 'ck-toast', 'ck-badge', 'ck-lm-toggle', 'rec-fab']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = hide ? 'none' : '';
-    });
+    ['ck-widget', 'ck-credits-btn', 'ck-toast', 'rec-fab']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = hide ? 'none' : '';
+      });
 
-  // If we just rotated INTO portrait and widget was never mounted, mount it now
-  if (!hide && !document.getElementById('ck-widget')) {
-    mountWidget();
-    mountCreditsButton();
+    if (!hide && !document.getElementById('ck-widget')) {
+      mountWidget();
+      mountCreditsButton();
+    }
   }
-}
 
-window.addEventListener('resize', ckApplyOrientationVisibility);
-window.addEventListener('orientationchange', ckApplyOrientationVisibility);
-  /* ── Global Low Quality Mode ──────────────────────────
-     Reads localStorage on every page that loads update.js.
-     body.lqm kills animations, backdrop-filters, orbs, and
-     the petal canvas without touching any other behaviour.
-  ─────────────────────────────────────────────────────── */
+  window.addEventListener('resize', ckApplyOrientationVisibility);
+  window.addEventListener('orientationchange', ckApplyOrientationVisibility);
+
+  /* ── Global Low Quality Mode ───────────────── */
   (function injectLQMStyles() {
     const s = document.createElement('style');
     s.id = 'ck-lqm-styles';
@@ -1018,17 +996,16 @@ window.addEventListener('orientationchange', ckApplyOrientationVisibility);
         -webkit-backdrop-filter: none !important;
         will-change: auto !important;
       }
-      body.lqm .navbar { background: rgba(10,10,15,.97) !important; }
+      body.lqm .navbar { background: rgba(255,248,240,.97) !important; }
       body.lqm .settings-card,
       body.lqm .profile-card { background: rgba(255,255,255,.06) !important; }
-      body[data-theme="light"].lqm .settings-card,
-      body[data-theme="light"].lqm .profile-card { background: rgba(255,255,255,.92) !important; }
-      body[data-theme="light"].lqm .navbar { background: rgba(10,10,15,.97) !important; }
+      body[data-theme="dark"].lqm .settings-card,
+      body[data-theme="dark"].lqm .profile-card { background: rgba(255,255,255,.06) !important; }
+      body[data-theme="dark"].lqm .navbar { background: rgba(8,12,16,.97) !important; }
     `;
     document.head.appendChild(s);
   })();
 
-  /* Apply LQM immediately from localStorage on every page */
   function ckApplyLQM(on) {
     document.body && document.body.classList.toggle('lqm', on);
     try { localStorage.setItem('aightbet-lqm', on ? 'true' : 'false'); } catch {}
@@ -1048,11 +1025,9 @@ window.addEventListener('orientationchange', ckApplyOrientationVisibility);
     boot();
   }
 
-
-  // Sync theme when profile.html toggle fires
-window.addEventListener('ck-theme-changed', function() {
-  const old = document.getElementById('ck-styles');
-  if (old) old.remove();
-  injectStyles();
-});
+  window.addEventListener('ck-theme-changed', function() {
+    const old = document.getElementById('ck-styles');
+    if (old) old.remove();
+    injectStyles();
+  });
 })();
