@@ -358,8 +358,8 @@
       err.textContent='';
       try{
         const cred=await auth.signInWithEmailAndPassword(email,pass);
-        const snap=await rtdb.ref('supportAccounts/'+cred.user.uid).once('value');
-        if(!snap.val()){await auth.signOut();err.textContent='Access denied.';return;}
+        const token=await cred.user.getIdTokenResult();
+        if(token.claims.role!=='support'){await auth.signOut();err.textContent='Access denied.';return;}
         authed=true;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('dashboard').classList.add('active');loadDashboard();
       }catch(e){err.textContent='Invalid credentials. Access denied.';}
     });

@@ -287,6 +287,9 @@
     .game-bg {
       position: absolute; inset: 0; opacity: .35;
       transition: opacity .3s, transform .4s;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .game-card:hover .game-bg { opacity: .5; transform: scale(1.08); }
 
@@ -308,38 +311,39 @@
     }
 
     /* Individual gradients */
-    .game-card[data-game="slots"]        .game-bg { background: linear-gradient(135deg, #7c3aed, #ec4899); }
-    .game-card[data-game="cases"]        .game-bg { background: linear-gradient(135deg, #f59e0b, #ef4444); }
-    .game-card[data-game="blackjack"]    .game-bg { background: linear-gradient(135deg, #10b981, #06b6d4); }
-    .game-card[data-game="poker"]        .game-bg { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-    .game-card[data-game="roulette"]     .game-bg { background: linear-gradient(135deg, #ef4444, #f59e0b); }
-    .game-card[data-game="coinflip"]     .game-bg { background: linear-gradient(135deg, #06b6d4, #22c55e); }
-    .game-card[data-game="chicken"]      .game-bg { background: linear-gradient(135deg, #f59e0b, #84cc16); }
-    .game-card[data-game="mines"]        .game-bg { background: linear-gradient(135deg, #64748b, #ef4444); }
-    .game-card[data-game="crash"]        .game-bg { background: linear-gradient(135deg, #ec4899, #f59e0b); }
-    .game-card[data-game="dice"]         .game-bg { background: linear-gradient(135deg, #8b5cf6, #06b6d4); }
-    .game-card[data-game="plinko"]       .game-bg { background: linear-gradient(135deg, #22c55e, #3b82f6); }
-    .game-card[data-game="tower"]        .game-bg { background: linear-gradient(135deg, #a855f7, #ec4899); }
-    .game-card[data-game="hilo"]         .game-bg { background: linear-gradient(135deg, #0ea5e9, #8b5cf6); }
-    .game-card[data-game="wheel"]        .game-bg { background: linear-gradient(135deg, #f59e0b, #ec4899); }
-    .game-card[data-game="keno"]         .game-bg { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
-    .game-card[data-game="limbo"]        .game-bg { background: linear-gradient(135deg, #ef4444, #7c3aed); }
-    .game-card[data-game="dragontower"]  .game-bg { background: linear-gradient(135deg, #f59e0b, #ef4444); }
-    .game-card[data-game="cupshuffle"]   .game-bg { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
-    .game-card[data-game="rps"]          .game-bg { background: linear-gradient(135deg, #22c55e, #06b6d4); }
-    .game-card[data-game="scratch"]      .game-bg { background: linear-gradient(135deg, #f59e0b, #22c55e); }
-    .game-card[data-game="baccarat"]     .game-bg { background: linear-gradient(135deg, #dc2626, #991b1b); }
-    .game-card[data-game="videopoker"]   .game-bg { background: linear-gradient(135deg, #2563eb, #7c3aed); }
-    .game-card[data-game="warcard"]      .game-bg { background: linear-gradient(135deg, #b91c1c, #f59e0b); }
-    .game-card[data-game="horserace"]    .game-bg { background: linear-gradient(135deg, #16a34a, #854d0e); }
-    .game-card[data-game="penalty"]      .game-bg { background: linear-gradient(135deg, #22c55e, #15803d); }
-    .game-card[data-game="diamondmine"]  .game-bg { background: linear-gradient(135deg, #06b6d4, #a855f7); }
-    .game-card[data-game="bingo"]        .game-bg { background: linear-gradient(135deg, #f97316, #eab308); }
-    .game-card[data-game="duelarena"]    .game-bg { background: linear-gradient(135deg, #ef4444, #ec4899); }
-    .game-card[data-game="lootboxrush"]  .game-bg { background: linear-gradient(135deg, #a855f7, #f59e0b); }
-    .game-card[data-game="spacedice"]    .game-bg { background: linear-gradient(135deg, #1e3a5f, #06b6d4); }
-    .game-card[data-game="durak"]        .game-bg { background: linear-gradient(135deg, #e11d48, #7c3aed); }
-     .game-card[data-game="chess"]        .game-bg { background: linear-gradient(135deg, #e2dbdd, #070113); }
+    .game-card[data-game="slots"]        .game-bg { background: url('Images/thumbnails/slots.jpg') center/cover no-repeat, linear-gradient(135deg, #7c3aed, #ec4899); }
+    .game-card[data-game="cases"]        .game-bg { background: url('Images/thumbnails/cases.jpg') center/cover no-repeat, linear-gradient(135deg, #f59e0b, #ef4444); }
+    .game-card[data-game="blackjack"]    .game-bg { background: url('Images/thumbnails/blackjack-online.jpg') center/cover no-repeat, linear-gradient(135deg, #10b981, #06b6d4); }
+    .game-card[data-game="poker"]        .game-bg { background: url('Images/thumbnails/poker.jpg') center/cover no-repeat, linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    .game-card[data-game="roulette"]     .game-bg { background: url('Images/thumbnails/roulette.jpg') center/cover no-repeat, linear-gradient(135deg, #ef4444, #f59e0b); }
+    .game-card[data-game="coinflip"]     .game-bg { background: url('Images/thumbnails/coinflip.jpg') center/cover no-repeat, linear-gradient(135deg, #06b6d4, #22c55e); }
+    .game-card[data-game="chicken"]      .game-bg { background: url('Images/thumbnails/chicken.jpg') center/cover no-repeat, linear-gradient(135deg, #f59e0b, #84cc16); }
+    .game-card[data-game="mines"]        .game-bg { background: url('Images/thumbnails/mines.jpg') center/cover no-repeat, linear-gradient(135deg, #64748b, #ef4444); }
+    .game-card[data-game="crash"]        .game-bg { background: url('Images/thumbnails/crash.jpg') center/cover no-repeat, linear-gradient(135deg, #ec4899, #f59e0b); }
+    .game-card[data-game="dice"]         .game-bg { background: url('Images/thumbnails/dice.jpg') center/cover no-repeat, linear-gradient(135deg, #8b5cf6, #06b6d4); }
+    .game-card[data-game="plinko"]       .game-bg { background: url('Images/thumbnails/plinko.jpg') center/cover no-repeat, linear-gradient(135deg, #22c55e, #3b82f6); }
+    .game-card[data-game="tower"]        .game-bg { background: url('Images/thumbnails/tower.jpg') center/cover no-repeat, linear-gradient(135deg, #a855f7, #ec4899); }
+    .game-card[data-game="hilo"]         .game-bg { background: url('Images/thumbnails/hilo.jpg') center/cover no-repeat, linear-gradient(135deg, #0ea5e9, #8b5cf6); }
+    .game-card[data-game="wheel"]        .game-bg { background: url('Images/thumbnails/wheel.jpg') center/cover no-repeat, linear-gradient(135deg, #f59e0b, #ec4899); }
+    .game-card[data-game="keno"]         .game-bg { background: url('Images/thumbnails/keno.jpg') center/cover no-repeat, linear-gradient(135deg, #06b6d4, #3b82f6); }
+    .game-card[data-game="limbo"]        .game-bg { background: url('Images/thumbnails/limbo.jpg') center/cover no-repeat, linear-gradient(135deg, #ef4444, #7c3aed); }
+    .game-card[data-game="dragontower"]  .game-bg { background: url('Images/thumbnails/dragontower.jpg') center/cover no-repeat, linear-gradient(135deg, #f59e0b, #ef4444); }
+    .game-card[data-game="cupshuffle"]   .game-bg { background: url('Images/thumbnails/cup.jpg') center/cover no-repeat, linear-gradient(135deg, #8b5cf6, #ec4899); }
+    .game-card[data-game="rps"]          .game-bg { background: url('Images/thumbnails/rps.jpg') center/cover no-repeat, linear-gradient(135deg, #22c55e, #06b6d4); }
+    .game-card[data-game="scratch"]      .game-bg { background: url('Images/thumbnails/scratch.jpg') center/cover no-repeat, linear-gradient(135deg, #f59e0b, #22c55e); }
+    .game-card[data-game="baccarat"]     .game-bg { background: url('Images/thumbnails/baccarat.jpg') center/cover no-repeat, linear-gradient(135deg, #dc2626, #991b1b); }
+    .game-card[data-game="warcard"]   .game-bg { background: url('Images/thumbnails/war.jpg') center/cover no-repeat, linear-gradient(135deg, #2563eb, #7c3aed); }
+    .game-card[data-game="warcard"]      .game-bg { background: url('Images/thumbnails/war.jpg') center/cover no-repeat, linear-gradient(135deg, #b91c1c, #f59e0b); }
+    .game-card[data-game="horserace"]    .game-bg { background: url('Images/thumbnails/horse.jpg') center/cover no-repeat, linear-gradient(135deg, #16a34a, #854d0e); }
+    .game-card[data-game="penalty"]      .game-bg { background: url('Images/thumbnails/penalty.jpg') center/cover no-repeat, linear-gradient(135deg, #22c55e, #15803d); }
+    .game-card[data-game="diamondmine"]  .game-bg { background: url('Images/thumbnails/diamond.jpg') center/cover no-repeat, linear-gradient(135deg, #06b6d4, #a855f7); }
+    .game-card[data-game="bingo"]        .game-bg { background: url('Images/thumbnails/bingo.jpg') center/cover no-repeat, linear-gradient(135deg, #f97316, #eab308); }
+    .game-card[data-game="duelarena"]    .game-bg { background: url('Images/thumbnails/duel.jpg') center/cover no-repeat, linear-gradient(135deg, #ef4444, #ec4899); }
+    .game-card[data-game="lootboxrush"]  .game-bg { background: url('Images/thumbnails/stock.jpg') center/cover no-repeat, linear-gradient(135deg, #a855f7, #f59e0b); }
+    .game-card[data-game="spacedice"]    .game-bg { background: url('Images/thumbnails/space.jpg') center/cover no-repeat, linear-gradient(135deg, #1e3a5f, #06b6d4); }
+    .game-card[data-game="durak"]        .game-bg { background: url('Images/thumbnails/durak.jpg') center/cover no-repeat, linear-gradient(135deg, #e11d48, #7c3aed); }
+     .game-card[data-game="chess"]        .game-bg { background: url('Images/thumbnails/chess.jpg') center/cover no-repeat, linear-gradient(135deg, #e2dbdd, #070113); }
+    .game-card[data-game="halloweenbonanza"] .game-bg { background: url('Images/thumbnails/halloweenbonanza.jpg') center/cover no-repeat, linear-gradient(135deg, #f97316, #6d28d9); }
 
     .game-info { padding: 16px 18px 18px; }
     .game-info h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 5px; }
@@ -541,7 +545,7 @@
 
     <!-- Games Grid -->
     <section class="games-section">
-      <div class="games-count" id="gamesCount">Showing 30 games</div>
+      <div class="games-count" id="gamesCount">Showing 31 games</div>
 
       <div class="game-grid" id="gameGrid">
 
@@ -588,7 +592,7 @@
         <!-- Online Blackjack -->
 <a href="blackjack.html" class="game-card" data-game="blackjack" data-tags="cards,strategy,online" data-name="Online Blackjack">
   <div class="game-thumb">
-    <div class="game-bg" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)"></div>
+    <div class="game-bg" style="background:url('Images/thumbnails/blackjack-online.jpg') center/cover no-repeat, linear-gradient(135deg,#ec4899,#8b5cf6)"></div>
     <div class="game-icon">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4"/><path d="M10 12h4"/><path d="M8 16h8"/></svg>
     </div>
@@ -1116,6 +1120,27 @@
             </div>
           </div>
         </a>
+
+        <!-- Halloween Bonanza -->
+        <a href="halloween-bonanza.html" class="game-card" data-game="halloweenbonanza" data-tags="new,hot,luck" data-name="Halloween Bonanza">
+          <div class="game-thumb">
+            <div class="game-bg"></div>
+            <div class="game-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2c.5 1 .5 2-.5 2.5C13 4 14 4.5 14 6"/><path d="M4 11c0-3.5 3.5-5 8-5s8 1.5 8 5v4c0 3.5-3.5 6-8 6s-8-2.5-8-6v-4z"/><path d="M9 11l1.5 1.5L9 14"/><path d="M15 11l-1.5 1.5L15 14"/><path d="M9.5 17c.8.7 1.8 1 2.5 1s1.7-.3 2.5-1"/></svg>
+            </div>
+          </div>
+          <div class="game-info">
+            <h3>Halloween Bonanza</h3>
+            <p>Spin the spookiest reels in town. Land pumpkins, ghosts, and candy for frightfully big multipliers.</p>
+            <div class="game-meta">
+              <span class="game-tag new">NEW</span>
+              <span class="game-tag hot">HOT</span>
+              <span class="game-tag">LUCK</span>
+              <span class="game-players"><span class="live-dot"></span> 0 playing</span>
+            </div>
+          </div>
+        </a>
+
 
 
 

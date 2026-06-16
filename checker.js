@@ -41,6 +41,213 @@
   var exempt=['ban.html','maintenance.html','support.html','index.html','recorder.html'];
   if(exempt.indexOf(page)!==-1)return;
 
+
+/* ════════════════════════════════════════════════════════════
+   LIMITED PRIZE ITEMS — Solar Eclipse intro + Sunburst Crown FX
+   v2 — Absolutely UNHINGED visuals. Self-registering.
+   ════════════════════════════════════════════════════════════ */
+(function _registerLimitedPrizes(){
+
+  /* ── Shared CSS (injected once) ───────────────────────── */
+  if (!document.getElementById('ck-limited-prizes-css')) {
+    var css = document.createElement('style');
+    css.id = 'ck-limited-prizes-css';
+    css.textContent = `
+      /* ═════════ SOLAR ECLIPSE intro ═════════ */
+      @keyframes se-stage{0%{opacity:0}5%,94%{opacity:1}100%{opacity:0}}
+      .se-stage{position:fixed;inset:0;z-index:99998;background:radial-gradient(ellipse at center,#2a0700 0%,#0a0200 55%,#000 100%);overflow:hidden;pointer-events:none;animation:se-stage 5.8s ease forwards;perspective:1400px}
+
+      /* heat-haze repeating scanlines */
+      .se-warp{position:absolute;inset:-12%;background:repeating-linear-gradient(0deg,rgba(255,160,30,.045) 0,rgba(255,160,30,.045) 2px,transparent 2px,transparent 4px);mix-blend-mode:screen;animation:se-warp 5.8s linear infinite;opacity:.7}
+      @keyframes se-warp{0%{transform:translateY(0) skewX(0)}50%{transform:translateY(-14px) skewX(.7deg)}100%{transform:translateY(0) skewX(0)}}
+
+      /* horizon plasma glow */
+      .se-horizon{position:absolute;left:-10%;right:-10%;bottom:0;height:60%;background:radial-gradient(ellipse at 50% 100%,#ff5a00 0%,#7a1400 35%,transparent 72%);opacity:0;animation:se-horizon 5.8s ease forwards;mix-blend-mode:screen}
+      @keyframes se-horizon{0%{opacity:0;transform:scaleY(.15)}14%{opacity:1;transform:scaleY(1)}55%{opacity:.55}80%{opacity:.18}100%{opacity:0}}
+
+      /* THE SUN */
+      .se-sun{position:absolute;top:50%;left:50%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#ffe27a 18%,#ffb84a 42%,#ff7c2b 62%,#7a1400 86%,#000 100%);transform:translate(-50%,-50%) scale(0);box-shadow:0 0 260px 90px rgba(255,180,40,.95),0 0 520px 180px rgba(255,90,0,.55);animation:se-sun 5.8s cubic-bezier(.2,1.2,.4,1) forwards;filter:brightness(1.1)}
+      @keyframes se-sun{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0)}
+        12%{transform:translate(-50%,-50%) scale(2.6) rotate(60deg);box-shadow:0 0 340px 100px rgba(255,200,80,1),0 0 680px 220px rgba(255,90,0,.85)}
+        35%{transform:translate(-50%,-50%) scale(1.9) rotate(140deg)}
+        50%{transform:translate(-50%,-50%) scale(.6) rotate(260deg);background:radial-gradient(circle,#000 56%,#ffd166 62%,#ff7c2b 70%,transparent 82%);box-shadow:0 0 200px 50px #ffd166,0 0 420px 130px rgba(255,140,40,.9),inset 0 0 70px 14px #000}
+        62%{transform:translate(-50%,-50%) scale(.56) rotate(340deg);background:radial-gradient(circle,#000 60%,#ffe27a 64%,#ff3b0a 74%,transparent 86%);box-shadow:0 0 240px 60px #fff5b3,0 0 500px 160px #ff7c2b,inset 0 0 90px 18px #000}
+        80%{transform:translate(-50%,-50%) scale(.54) rotate(460deg)}
+        100%{transform:translate(-50%,-50%) scale(.52) rotate(560deg);opacity:0}
+      }
+
+      /* outer corona — rainbow plasma */
+      .se-corona{position:absolute;top:50%;left:50%;width:760px;height:760px;border-radius:50%;background:conic-gradient(from 0deg,#ffe27a,#ff7c2b,#fff,#ffd166,#ff3b0a,#ffe27a,#fff5b3,#ff7c2b,#ffe27a);transform:translate(-50%,-50%) scale(0) rotate(0);filter:blur(3px) saturate(1.7);mix-blend-mode:screen;animation:se-corona 5.8s ease-out forwards;opacity:0}
+      @keyframes se-corona{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:0}
+        36%{transform:translate(-50%,-50%) scale(1.6) rotate(200deg);opacity:.85}
+        52%{transform:translate(-50%,-50%) scale(3) rotate(420deg);opacity:1;filter:blur(2px) saturate(2.2)}
+        72%{transform:translate(-50%,-50%) scale(3.9) rotate(760deg);opacity:.85}
+        100%{transform:translate(-50%,-50%) scale(5) rotate(1120deg);opacity:0}
+      }
+      /* inner counter-spin corona */
+      .se-corona2{position:absolute;top:50%;left:50%;width:560px;height:560px;border-radius:50%;background:conic-gradient(from 90deg,transparent 0deg,#fff 10deg,transparent 32deg,#ffe27a 90deg,transparent 112deg,#ff3b0a 180deg,transparent 200deg,#ffd166 270deg,transparent 292deg,#fff 350deg,transparent 360deg);transform:translate(-50%,-50%) scale(0) rotate(0);filter:blur(5px);mix-blend-mode:screen;animation:se-corona2 5.8s ease-out forwards;opacity:0}
+      @keyframes se-corona2{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:0}
+        42%{transform:translate(-50%,-50%) scale(2.2) rotate(-380deg);opacity:.95}
+        66%{transform:translate(-50%,-50%) scale(3.2) rotate(-760deg);opacity:.7}
+        100%{transform:translate(-50%,-50%) scale(4.2) rotate(-1120deg);opacity:0}
+      }
+
+      /* shockwave rings */
+      .se-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:6px solid #fff;transform:translate(-50%,-50%) scale(0);width:320px;height:320px;animation:se-ring 3.4s cubic-bezier(.1,.7,.3,1) forwards;mix-blend-mode:screen}
+      .se-ring-1{animation-delay:.55s;border-color:#ffe27a;box-shadow:0 0 60px #ffe27a}
+      .se-ring-2{animation-delay:.90s;border-color:#ff7c2b;box-shadow:0 0 80px #ff7c2b}
+      .se-ring-3{animation-delay:1.20s;border-color:#fff5b3;box-shadow:0 0 100px #fff}
+      .se-ring-4{animation-delay:1.55s;border-color:#ff3b0a;box-shadow:0 0 70px #ff3b0a;animation-duration:3.8s}
+      .se-ring-5{animation-delay:1.90s;border-color:#fff;box-shadow:0 0 120px #fff,0 0 200px #ffd166;animation-duration:4.2s}
+      @keyframes se-ring{0%{transform:translate(-50%,-50%) scale(0);opacity:1;border-width:8px}100%{transform:translate(-50%,-50%) scale(16);opacity:0;border-width:.5px}}
+
+      /* solar prominence flares — 8 plasma jets */
+      .se-flare{position:absolute;top:50%;left:50%;width:7px;height:0;background:linear-gradient(180deg,transparent 0%,#ff3b0a 35%,#ffe27a 70%,#fff 100%);transform-origin:50% 100%;opacity:0;filter:blur(2px);mix-blend-mode:screen;animation:se-flare 5.8s ease-out forwards}
+      .se-flare:nth-child(1){animation-delay:.5s;transform:translate(-50%,-100%) rotate(0deg)}
+      .se-flare:nth-child(2){animation-delay:.6s;transform:translate(-50%,-100%) rotate(45deg)}
+      .se-flare:nth-child(3){animation-delay:.7s;transform:translate(-50%,-100%) rotate(90deg)}
+      .se-flare:nth-child(4){animation-delay:.8s;transform:translate(-50%,-100%) rotate(135deg)}
+      .se-flare:nth-child(5){animation-delay:.9s;transform:translate(-50%,-100%) rotate(180deg)}
+      .se-flare:nth-child(6){animation-delay:1.0s;transform:translate(-50%,-100%) rotate(225deg)}
+      .se-flare:nth-child(7){animation-delay:1.1s;transform:translate(-50%,-100%) rotate(270deg)}
+      .se-flare:nth-child(8){animation-delay:1.2s;transform:translate(-50%,-100%) rotate(315deg)}
+      @keyframes se-flare{0%{opacity:0;height:0}20%{opacity:1;height:560px}42%{opacity:.85;height:620px}72%{opacity:.35;height:360px}100%{opacity:0;height:0}}
+
+      /* white-out + chromatic */
+      .se-flash{position:absolute;inset:0;background:radial-gradient(circle at center,#fff 0%,#ffe27a 38%,transparent 78%);opacity:0;mix-blend-mode:screen;animation:se-flash 5.8s steps(1) forwards}
+      @keyframes se-flash{0%,42%{opacity:0}45%,49%{opacity:1}52%,77%{opacity:0}79%,82%{opacity:.9}84%,100%{opacity:0}}
+      .se-chroma{position:absolute;inset:0;mix-blend-mode:screen;opacity:0;background:linear-gradient(90deg,rgba(255,0,80,.22),transparent 50%,rgba(0,220,255,.22));animation:se-chroma 5.8s ease forwards}
+      @keyframes se-chroma{0%,30%{opacity:0}45%,75%{opacity:1}100%{opacity:0}}
+
+      /* the name itself */
+      .se-name{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.4) rotate(-6deg);font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:clamp(2.2rem,8vw,6rem);letter-spacing:.22em;color:transparent;background:linear-gradient(135deg,#fff 0%,#fff5b3 22%,#ffe27a 42%,#ff7c2b 65%,#ff3b0a 85%,#fff 100%);background-size:320% 100%;-webkit-background-clip:text;background-clip:text;text-shadow:0 0 60px rgba(255,200,80,.95),0 0 120px rgba(255,90,0,.7);opacity:0;animation:se-name 5.8s cubic-bezier(.22,1,.36,1) forwards;white-space:nowrap;text-align:center;filter:drop-shadow(0 0 14px #ffd166) drop-shadow(0 0 36px #ff7c2b)}
+      @keyframes se-name{
+        0%,50%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-6deg);background-position:0% 50%}
+        62%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(0deg);background-position:50% 50%}
+        72%{opacity:1;transform:translate(-50%,-50%) scale(.98) rotate(0deg)}
+        86%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0deg);background-position:100% 50%}
+        100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(0deg);background-position:220% 50%}
+      }
+
+      /* shake */
+      @keyframes se-shake{
+        0%,100%{transform:translate(0,0)}
+        10%{transform:translate(-9px,5px)}20%{transform:translate(8px,-6px)}
+        30%{transform:translate(-7px,-5px)}40%{transform:translate(6px,6px)}
+        50%{transform:translate(-5px,-3px)}60%{transform:translate(5px,4px)}
+        70%{transform:translate(-3px,3px)}80%{transform:translate(3px,-4px)}90%{transform:translate(-2px,2px)}
+      }
+
+      /* ═════════ SUNBURST CROWN name fx ═════════ */
+      .nfx-sunburst{position:relative;display:inline-block;isolation:isolate;padding:6px 26px;line-height:1.2}
+
+      .nfx-sunburst .nfx-sb-corona{position:absolute;inset:-100% -50%;z-index:-3;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg,#ffe27a 18deg,#ff7c2b 50deg,transparent 78deg,transparent 130deg,#ffd166 160deg,#fff5b3 190deg,transparent 220deg,transparent 280deg,#ff3b0a 305deg,#ffe27a 335deg,transparent 360deg);filter:blur(9px) saturate(1.7);animation:nfx-sb-spin 7s linear infinite;opacity:.95;pointer-events:none}
+      @keyframes nfx-sb-spin{to{transform:rotate(360deg)}}
+
+      .nfx-sunburst .nfx-sb-corona2{position:absolute;inset:-65% -28%;z-index:-3;border-radius:50%;background:conic-gradient(from 180deg,transparent 0deg,#fff 12deg,transparent 36deg,#ffd166 90deg,transparent 120deg,#ff7c2b 200deg,transparent 240deg,#fff5b3 300deg,transparent 330deg);filter:blur(6px) saturate(1.5);animation:nfx-sb-spin-rev 5s linear infinite;opacity:.9;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-spin-rev{to{transform:rotate(-360deg)}}
+
+      .nfx-sunburst .nfx-sb-rays{position:absolute;inset:-85% -32%;z-index:-3;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,200,80,0) 0deg,rgba(255,220,120,.5) 3deg,rgba(255,200,80,0) 9deg);animation:nfx-sb-pulse 2.4s ease-in-out infinite;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-pulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.9;transform:scale(1.1)}}
+
+      .nfx-sunburst .nfx-sb-haze{position:absolute;inset:-32% -18%;z-index:-2;background:radial-gradient(ellipse at center,rgba(255,200,80,.55) 0%,rgba(255,90,0,.25) 40%,transparent 72%);filter:blur(16px);animation:nfx-sb-haze 3s ease-in-out infinite alternate;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-haze{from{opacity:.6;transform:scale(.95)}to{opacity:1;transform:scale(1.12)}}
+
+      .nfx-sunburst .nfx-sb-text{position:relative;background:linear-gradient(120deg,#fff 0%,#fff5b3 18%,#ffe27a 32%,#ffd166 48%,#ff7c2b 65%,#ff3b0a 80%,#ffe27a 92%,#fff 100%);background-size:320% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;letter-spacing:.04em;text-shadow:0 0 24px rgba(255,210,80,.9),0 0 48px rgba(255,120,40,.6);filter:drop-shadow(0 0 10px rgba(255,200,80,.75)) drop-shadow(0 0 24px rgba(255,120,40,.6)) drop-shadow(0 0 38px rgba(255,60,0,.4));animation:nfx-sb-shimmer 3s linear infinite,nfx-sb-glow 1.6s ease-in-out infinite}
+      @keyframes nfx-sb-shimmer{0%{background-position:0% 50%}100%{background-position:320% 50%}}
+      @keyframes nfx-sb-glow{
+        0%,100%{filter:drop-shadow(0 0 10px rgba(255,200,80,.75)) drop-shadow(0 0 24px rgba(255,120,40,.6)) drop-shadow(0 0 38px rgba(255,60,0,.4))}
+        50%{filter:drop-shadow(0 0 22px #ffe27a) drop-shadow(0 0 44px #ffb84a) drop-shadow(0 0 76px #ff3b0a)}
+      }
+
+      .nfx-sunburst .nfx-sb-spark{position:absolute;top:50%;left:50%;font-size:.9em;color:#fffbe0;text-shadow:0 0 14px #ffd166,0 0 28px #ff7c2b,0 0 46px #fff5b3;animation:nfx-sb-orbit 4s linear infinite;pointer-events:none;z-index:-1;will-change:transform}
+      .nfx-sunburst .nfx-sb-spark.s2{animation-duration:5.5s;animation-direction:reverse;font-size:.7em}
+      .nfx-sunburst .nfx-sb-spark.s3{animation-duration:6.8s;font-size:.6em;color:#ffe27a;text-shadow:0 0 14px #ff3b0a,0 0 28px #ffd166}
+      .nfx-sunburst .nfx-sb-spark.s4{animation-duration:3.2s;animation-direction:reverse;font-size:.55em}
+      @keyframes nfx-sb-orbit{
+        0%{transform:translate(-50%,-50%) rotate(0deg) translateX(64px) rotate(0deg);opacity:1}
+        50%{opacity:.4}
+        100%{transform:translate(-50%,-50%) rotate(360deg) translateX(64px) rotate(-360deg);opacity:1}
+      }
+
+      .nfx-sunburst .nfx-sb-ghost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px 26px;pointer-events:none;font-weight:900;letter-spacing:.04em;animation:nfx-sb-ghost 2.6s ease-in-out infinite;z-index:-1}
+      .nfx-sunburst .nfx-sb-ghost.g1{color:rgba(255,80,30,.55);transform:translate(3px,0);mix-blend-mode:screen;filter:blur(.5px)}
+      .nfx-sunburst .nfx-sb-ghost.g2{color:rgba(255,220,80,.45);transform:translate(-3px,0);mix-blend-mode:screen;filter:blur(.5px)}
+      @keyframes nfx-sb-ghost{0%,100%{transform:translate(2px,0)}50%{transform:translate(-2px,0)}}
+    `;
+    document.head.appendChild(css);
+  }
+
+  /* ── SOLAR ECLIPSE intro player ───────────────────────── */
+  function playSolarEclipse(displayName) {
+    var nm = (displayName || window.userName || 'PLAYER').toString().toUpperCase();
+    var stage = document.createElement('div');
+    stage.className = 'se-stage';
+    stage.innerHTML =
+      '<div class="se-warp"></div>' +
+      '<div class="se-horizon"></div>' +
+      '<div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div>' +
+      '<div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div>' +
+      '<div class="se-corona"></div>' +
+      '<div class="se-corona2"></div>' +
+      '<div class="se-sun"></div>' +
+      '<div class="se-ring se-ring-1"></div>' +
+      '<div class="se-ring se-ring-2"></div>' +
+      '<div class="se-ring se-ring-3"></div>' +
+      '<div class="se-ring se-ring-4"></div>' +
+      '<div class="se-ring se-ring-5"></div>' +
+      '<div class="se-chroma"></div>' +
+      '<div class="se-flash"></div>' +
+      '<div class="se-name">' + nm + '</div>';
+    document.body.appendChild(stage);
+    document.body.style.animation = 'se-shake .14s steps(2) 22';
+    setTimeout(function(){
+      stage.remove();
+      document.body.style.animation = '';
+    }, 5900);
+  }
+
+  /* ── SUNBURST CROWN name effect applier ───────────────── */
+  function applySunburstCrown(el) {
+    if (!el) return;
+    if (el.classList.contains('nfx-sunburst')) return;
+    el.classList.add('nfx-sunburst');
+    var text = el.textContent;
+    el.innerHTML =
+      '<span class="nfx-sb-corona"></span>' +
+      '<span class="nfx-sb-corona2"></span>' +
+      '<span class="nfx-sb-rays"></span>' +
+      '<span class="nfx-sb-haze"></span>' +
+      '<span class="nfx-sb-ghost g1">' + text + '</span>' +
+      '<span class="nfx-sb-ghost g2">' + text + '</span>' +
+      '<span class="nfx-sb-text">' + text + '</span>' +
+      '<span class="nfx-sb-spark">✦</span>' +
+      '<span class="nfx-sb-spark s2">✧</span>' +
+      '<span class="nfx-sb-spark s3">★</span>' +
+      '<span class="nfx-sb-spark s4">✦</span>';
+  }
+
+  /* ── Expose globally so dispatchers can call ── */
+  window.playSolarEclipse   = playSolarEclipse;
+  window.applySunburstCrown = applySunburstCrown;
+
+  /* ── Auto-hook into existing intro/name-fx dispatchers ── */
+  var _origPlayIntro = window.playIntro;
+  window.playIntro = function(val, name) {
+    if (val === 'solar_eclipse') return playSolarEclipse(name);
+    if (typeof _origPlayIntro === 'function') return _origPlayIntro.apply(this, arguments);
+  };
+
+  var _origApplyNameEffect = window.applyNameEffect;
+  window.applyNameEffect = function(el, val) {
+    if (val === 'sunburst_crown') return applySunburstCrown(el);
+    if (typeof _origApplyNameEffect === 'function') return _origApplyNameEffect.apply(this, arguments);
+  };
+
+})();
   // ── MOBILE OPTIMIZATION: inject responsive CSS for all pages ──
   (function(){
     if(document.getElementById('mobile-opt-style'))return;
