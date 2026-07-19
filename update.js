@@ -253,10 +253,17 @@
     s.textContent = `
       #ck-sun-btn{
         position:fixed;
+<<<<<<< HEAD
         top:70px;
         right:16px;
         width:48px;
         height:48px;
+=======
+        top:14px;
+        right:16px;
+        width:80px;
+        height:80px;
+>>>>>>> 4d3e0ff012da9c0a400faf1ea745c28bcbd0c8e0
         border-radius:50%;
         z-index:2147483647;
         background:transparent;
