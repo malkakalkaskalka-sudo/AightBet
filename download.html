@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aightbet Arcade – Download Games</title>
+  <link rel="icon" href="Images/logo.png" />
+  <style>
+    /* ───────── RESET & BASE ───────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.12);
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --accent3: #ec4899;
+      --glow: rgba(139,92,246,.45);
+      --glow2: rgba(6,182,212,.35);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 16px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --nav-h: 70px;
+      --nav-h-mobile: 64px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font); }
+
+    /* ───────── BACKGROUND LAYERS ───────── */
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(139,92,246,.12), transparent),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(6,182,212,.10), transparent),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(236,72,153,.06), transparent);
+      animation: bgShift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { transform: scale(1) translate(0,0); }
+      100% { transform: scale(1.08) translate(-2%,1%); }
+    }
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      opacity: .3; z-index: 0;
+      animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 320px; height: 320px; background: var(--accent); top: -80px; left: -60px; }
+    .orb-2 { width: 260px; height: 260px; background: var(--accent2); bottom: -60px; right: -40px; animation-delay:-3s; animation-duration:10s; }
+    .orb-3 { width: 180px; height: 180px; background: var(--accent3); top: 40%; left: 55%; animation-delay:-5s; animation-duration:14s; }
+    @keyframes orbFloat {
+      0%   { transform: translate(0,0) rotate(0deg); }
+      100% { transform: translate(25px,-35px) rotate(4deg); }
+    }
+
+    /* ───────── NAVBAR ───────── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      z-index: 100;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      background: rgba(10,10,15,.6);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      transition: background .3s;
+    }
+    .navbar.scrolled { background: rgba(10,10,15,.85); }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-right: auto; cursor: pointer;
+    }
+    .nav-logo img {
+      width: 36px; height: 36px; object-fit: contain; border-radius: 8px;
+      filter: drop-shadow(0 0 6px rgba(139,92,246,.3));
+    }
+    .nav-logo span {
+      font-size: 1.25rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff 30%, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 18px;
+      font-size: .9rem; font-weight: 600;
+      color: var(--muted);
+      border-radius: 10px;
+      transition: color .2s, background .2s;
+      cursor: pointer; border: none; background: transparent;
+      font-family: var(--font);
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #fff;
+      background: rgba(255,255,255,.06);
+    }
+    .nav-link.active {
+      color: var(--accent);
+      background: rgba(139,92,246,.1);
+    }
+    .nav-link svg {
+      width: 18px; height: 18px; fill: none;
+      stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .nav-credits {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      margin-left: 12px;
+      background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.2);
+      border-radius: 10px;
+      font-size: .85rem; font-weight: 700;
+      color: var(--gold);
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .nav-credits svg { width: 16px; height: 16px; fill: var(--gold); stroke: none; }
+    .nav-credits:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      margin-left: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; color: #fff;
+      cursor: pointer; border: 2px solid rgba(255,255,255,.1);
+      transition: border-color .2s, box-shadow .2s;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-avatar:hover { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--glow); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 8px; margin-left: 10px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      position: fixed;
+      top: var(--nav-h-mobile); left: 0; right: 0;
+      background: rgba(10,10,15,.96);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+      display: none; flex-direction: column; gap: 6px;
+      z-index: 99;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu .nav-link { width: 100%; justify-content: flex-start; }
+
+    /* ───────── MAIN ───────── */
+    .main {
+      position: relative; z-index: 10;
+      padding-top: calc(var(--nav-h) + 28px);
+      padding-bottom: 80px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 28px 24px 32px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: rgba(139,92,246,.1);
+      border: 1px solid rgba(139,92,246,.25);
+      border-radius: 100px;
+      font-size: .75rem; font-weight: 700;
+      color: var(--accent);
+      width: fit-content;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -.02em;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 50%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1rem; color: var(--muted);
+      line-height: 1.55; max-width: 580px;
+    }
+
+    /* CONTROLS BAR */
+    .controls {
+      margin: 12px 24px 24px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center;
+    }
+    .search-wrap {
+      flex: 1; min-width: 220px;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      width: 16px; height: 16px;
+      stroke: var(--muted); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: .9rem; font-family: var(--font);
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .search-input:focus { border-color: var(--accent); background: var(--surface2); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-chip {
+      padding: 9px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: .8rem; font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .03em;
+    }
+    .filter-chip:hover { color: var(--text); border-color: var(--border2); }
+    .filter-chip.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(139,92,246,.25), rgba(6,182,212,.15));
+      border-color: rgba(139,92,246,.45);
+      box-shadow: 0 0 0 1px rgba(139,92,246,.2) inset;
+    }
+    .admin-btn {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: .82rem; font-weight: 800;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 6px 24px -8px var(--glow);
+      transition: transform .15s, box-shadow .25s;
+    }
+    .admin-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 32px -8px var(--glow); }
+    .admin-btn svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    #adminBtn { display: none; }
+
+    /* GAME GRID */
+    .games-section {
+      padding: 0 24px;
+    }
+    .section-title {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .section-title h2 {
+      font-size: 1.4rem; font-weight: 900;
+      letter-spacing: -.01em;
+    }
+    .section-title .count {
+      font-size: .82rem; color: var(--muted); font-weight: 600;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .25s, border-color .3s, box-shadow .3s;
+      position: relative;
+      display: flex; flex-direction: column;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border2);
+      box-shadow: 0 16px 48px -16px rgba(0,0,0,.6), 0 0 0 1px rgba(139,92,246,.2);
+    }
+    .game-cover {
+      height: 160px; width: 100%;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      position: relative;
+      overflow: hidden;
+    }
+    .game-cover img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .4s;
+    }
+    .game-card:hover .game-cover img { transform: scale(1.06); }
+    .game-cover .ph {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.6rem; font-weight: 900;
+      color: rgba(255,255,255,.4);
+      background: linear-gradient(135deg, rgba(139,92,246,.2), rgba(6,182,212,.2));
+    }
+    .game-type-tag {
+      position: absolute; top: 10px; left: 10px;
+      padding: 4px 10px;
+      font-size: .65rem; font-weight: 800;
+      border-radius: 6px;
+      backdrop-filter: blur(10px);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .type-demo { background: rgba(6,182,212,.18); color: var(--accent2); border: 1px solid rgba(6,182,212,.4); }
+    .type-playtest { background: rgba(245,158,11,.18); color: var(--gold); border: 1px solid rgba(245,158,11,.4); }
+    .type-release { background: rgba(34,197,94,.18); color: var(--green); border: 1px solid rgba(34,197,94,.4); }
+
+    .game-info {
+      padding: 14px 16px 16px;
+      flex: 1;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .game-info h3 {
+      font-size: 1.02rem; font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .game-dev {
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .game-short {
+      font-size: .82rem; color: var(--muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .game-meta {
+      margin-top: auto;
+      padding-top: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+    }
+    .game-meta .size {
+      font-size: .72rem; color: var(--muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .download-mini {
+      padding: 7px 14px;
+      background: rgba(139,92,246,.15);
+      border: 1px solid rgba(139,92,246,.3);
+      color: var(--accent);
+      border-radius: 8px;
+      font-size: .75rem; font-weight: 800;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .15s;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .download-mini:hover {
+      background: var(--accent); color: #fff; transform: translateY(-1px);
+    }
+    .download-mini svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .empty-state .ico { font-size: 3rem; margin-bottom: 14px; opacity: .5; }
+    .empty-state h3 { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: .88rem; }
+
+    /* LOADING SHIMMER */
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      height: 320px;
+    }
+    .skeleton-shimmer {
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ════════════ GAME DETAIL OVERLAY (Steam-style) ════════════ */
+    .detail-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 250;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      overflow-y: auto;
+      padding: 40px 20px;
+    }
+    .detail-overlay.open { display: block; }
+    .detail-panel {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: rgba(15,15,25,.97);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: detailIn .35s ease;
+    }
+    @keyframes detailIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .detail-hero {
+      position: relative;
+      height: 360px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      overflow: hidden;
+    }
+    .detail-hero img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(.7);
+    }
+    .detail-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 30%, rgba(15,15,25,.98));
+      pointer-events: none;
+    }
+    .detail-close {
+      position: absolute; top: 18px; right: 18px;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: rgba(0,0,0,.5);
+      border: 1px solid var(--border2);
+      color: #fff;
+      cursor: pointer; font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 5;
+      transition: background .2s, transform .2s;
+      backdrop-filter: blur(10px);
+    }
+    .detail-close:hover { background: var(--red); transform: rotate(90deg); }
+    .detail-hero-content {
+      position: absolute; bottom: 24px; left: 32px; right: 32px;
+      z-index: 2;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .detail-title-block h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -.02em;
+      margin-bottom: 6px;
+    }
+    .detail-meta {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: .82rem; color: var(--muted);
+    }
+    .detail-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .detail-body {
+      padding: 28px 32px 36px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 32px;
+    }
+    @media(max-width: 880px) {
+      .detail-body { grid-template-columns: 1fr; }
+      .detail-hero { height: 240px; }
+    }
+
+    .screens-row {
+      display: flex; gap: 10px; overflow-x: auto;
+      padding-bottom: 8px; margin-bottom: 22px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    .screens-row::-webkit-scrollbar { height: 6px; }
+    .screens-row::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+    .screens-row img {
+      height: 160px;
+      border-radius: 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform .2s, box-shadow .25s;
+      border: 1px solid var(--border);
+    }
+    .screens-row img:hover {
+      transform: scale(1.04);
+      box-shadow: 0 6px 24px -6px var(--glow);
+      border-color: var(--accent);
+    }
+
+    .detail-desc h3 {
+      font-size: .9rem; font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-desc p {
+      font-size: .95rem;
+      line-height: 1.65;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .detail-sidebar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    .detail-sidebar .download-btn {
+      width: 100%;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: .95rem; font-weight: 900;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 28px -8px var(--glow);
+      transition: transform .15s, box-shadow .25s;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .detail-sidebar .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px -8px var(--glow);
+    }
+    .detail-sidebar .download-btn svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2.4; }
+    .detail-info-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .detail-info-row:last-child { border-bottom: none; }
+    .detail-info-row .k { color: var(--muted); font-weight: 600; }
+    .detail-info-row .v { color: var(--text); font-weight: 700; }
+    .admin-actions {
+      margin-top: 18px;
+      display: flex; gap: 8px;
+    }
+    .admin-actions button {
+      flex: 1;
+      padding: 9px;
+      border-radius: 8px;
+      font-size: .75rem; font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      transition: all .2s;
+    }
+    .admin-actions .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .admin-actions .delete-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ════════════ ADMIN MODAL ════════════ */
+    .admin-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 260;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(10px);
+      overflow-y: auto;
+      padding: 40px 20px;
+    }
+    .admin-overlay.open { display: block; }
+    .admin-panel {
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(15,15,25,.99);
+      border: 1px solid var(--border2);
+      border-radius: 18px;
+      overflow: hidden;
+      animation: detailIn .3s ease;
+    }
+    .admin-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(139,92,246,.08), transparent);
+    }
+    .admin-header h2 {
+      font-size: 1.05rem; font-weight: 800;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .admin-header h2 svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 2; }
+    .admin-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.15rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .admin-close:hover { background: var(--surface2); }
+
+    .admin-body {
+      padding: 24px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: .72rem; font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 7px;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: .9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font);
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+    .form-textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+    .form-select option { background: var(--bg); color: var(--text); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media(max-width: 580px) { .form-row { grid-template-columns: 1fr; } }
+
+    .upload-zone {
+      border: 2px dashed var(--border2);
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--surface);
+    }
+    .upload-zone:hover { border-color: var(--accent); background: rgba(139,92,246,.04); }
+    .upload-zone svg { width: 26px; height: 26px; stroke: var(--muted); fill: none; stroke-width: 2; margin-bottom: 6px; }
+    .upload-zone p { font-size: .82rem; color: var(--muted); }
+    .upload-zone strong { color: var(--accent); }
+
+    .preview-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 10px;
+    }
+    .preview-img {
+      width: 90px; height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border2);
+      position: relative;
+    }
+    .preview-wrap {
+      position: relative;
+      width: 90px; height: 90px;
+    }
+    .preview-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+    }
+    .preview-x {
+      position: absolute; top: -6px; right: -6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--red); color: #fff;
+      border: 2px solid var(--bg);
+      cursor: pointer; font-size: .7rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .progress-bar {
+      width: 100%; height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+      display: none;
+    }
+    .progress-bar.show { display: block; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .2s;
+      width: 0;
+    }
+
+    .admin-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .btn-cancel {
+      padding: 11px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: .85rem; font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-cancel:hover { background: var(--surface2); }
+    .btn-save {
+      padding: 11px 26px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: .85rem; font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px -6px var(--glow);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn-save:hover { transform: translateY(-1px); box-shadow: 0 8px 26px -6px var(--glow); }
+    .btn-save:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed; top: calc(var(--nav-h) + 16px); right: 20px;
+      z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      padding: 14px 18px;
+      background: rgba(15,15,25,.98);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      box-shadow: 0 12px 36px -10px rgba(0,0,0,.6);
+      backdrop-filter: blur(12px);
+      font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      animation: toastIn .3s ease;
+      min-width: 220px; max-width: 360px;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error { border-left: 3px solid var(--red); }
+    .toast.info { border-left: 3px solid var(--accent2); }
+    .toast .ico { font-size: 1.1rem; flex-shrink: 0; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links, .nav-credits.nav-credits-desktop { display: none !important; }
+      .hamburger { display: flex; }
+      .navbar { height: var(--nav-h-mobile); padding: 0 16px; }
+      .main { padding-top: calc(var(--nav-h-mobile) + 20px); }
+      .hero { padding: 20px 16px; }
+      .controls { margin: 12px 16px 20px; }
+      .games-section { padding: 0 16px; }
+      .game-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+      .detail-body { padding: 22px 20px; }
+      .detail-hero-content { left: 20px; right: 20px; bottom: 18px; }
+    }
+
+    .footer {
+      position: relative; z-index: 10;
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .78rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-logo" href="home.html">
+      <img src="Images/logo.png" alt="Aightbet Arcade" />
+      <span>Aightbet Arcade</span>
+    </a>
+
+    <div class="nav-links" id="navLinks">
+      <a href="home.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+      <a href="download.html" class="nav-link active">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Arcade
+      </a>
+      <a href="store.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Store
+      </a>
+      <a href="games.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+        Games
+      </a>
+      <a href="profile.html" class="nav-link">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </div>
+
+    <a href="credits.html" class="nav-credits nav-credits-desktop">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8" stroke="#000" stroke-width="1.5" fill="var(--gold)"/></svg>
+      <span id="creditsCount">0</span>
+    </a>
+
+    <div class="nav-avatar" id="navAvatar" title="Profile"></div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="home.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="store.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Store
+    </a>
+    <a href="games.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+      Games
+    </a>
+    <a href="download.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download
+    </a>
+    <a href="profile.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+    <a href="credits.html" class="nav-credits">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+      <span id="creditsCountMobile">0</span>
+    </a>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Aightbet Arcade · Download Center
+      </div>
+      <h1>Download. <span class="grad">Play. Repeat.</span></h1>
+      <p>Browse our growing library of demos, playtests, and full releases. Direct downloads, no fluff. Pick a game, hit download, and you're in.</p>
+    </section>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search games..." />
+      </div>
+      <div class="filter-group" id="filterGroup">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="release">Full Release</button>
+        <button class="filter-chip" data-filter="playtest">Playtest</button>
+        <button class="filter-chip" data-filter="demo">Demo</button>
+      </div>
+      <button class="admin-btn" id="adminBtn" title="Upload new game">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Game
+      </button>
+    </div>
+
+    <!-- GAMES SECTION -->
+    <section class="games-section">
+      <div class="section-title">
+        <h2>Game Library</h2>
+        <span class="count" id="gameCount">Loading...</span>
+      </div>
+      <div class="game-grid" id="gameGrid">
+        <!-- skeleton placeholders -->
+        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+        <div class="skeleton-card"><div class="skeleton-shimmer"></div></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- GAME DETAIL OVERLAY -->
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-panel">
+      <button class="detail-close" id="detailClose">&times;</button>
+      <div class="detail-hero">
+        <img id="detailHeroImg" src="" alt="" />
+      </div>
+      <div class="detail-hero-content">
+        <div class="detail-title-block">
+          <h1 id="detailName">Game Name</h1>
+          <div class="detail-meta">
+            <span id="detailTypeBadge"></span>
+            <span id="detailDev"></span>
+            <span id="detailDate"></span>
+          </div>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div>
+          <div class="screens-row" id="detailScreens"></div>
+          <div class="detail-desc">
+            <h3>About this game</h3>
+            <p id="detailDescription"></p>
+          </div>
+        </div>
+        <aside class="detail-sidebar">
+          <button class="download-btn" id="detailDownloadBtn">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Now
+          </button>
+          <div style="margin-top:18px">
+            <div class="detail-info-row"><span class="k">Type</span><span class="v" id="detailType">—</span></div>
+            <div class="detail-info-row"><span class="k">Version</span><span class="v" id="detailVersion">—</span></div>
+            <div class="detail-info-row"><span class="k">Size</span><span class="v" id="detailSize">—</span></div>
+            <div class="detail-info-row"><span class="k">Developer</span><span class="v" id="detailDeveloper">—</span></div>
+            <div class="detail-info-row"><span class="k">Released</span><span class="v" id="detailReleased">—</span></div>
+            <div class="detail-info-row"><span class="k">File</span><span class="v" id="detailFile" style="font-size:.72rem">—</span></div>
+          </div>
+          <div class="admin-actions" id="adminActions" style="display:none">
+            <button class="edit-btn" id="editGameBtn">Edit</button>
+            <button class="delete-btn" id="deleteGameBtn">Delete</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN UPLOAD MODAL -->
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-panel">
+      <div class="admin-header">
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span id="adminModalTitle">Upload New Game</span>
+        </h2>
+        <button class="admin-close" id="adminClose">&times;</button>
+      </div>
+      <div class="admin-body">
+        <div class="form-group">
+          <label>Game Name</label>
+          <input type="text" id="fName" class="form-input" placeholder="e.g. Aightbet Survival" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="fType" class="form-select">
+              <option value="release">Full Release</option>
+              <option value="playtest">Playtest</option>
+              <option value="demo">Demo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Version</label>
+            <input type="text" id="fVersion" class="form-input" placeholder="1.0.0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Developer</label>
+            <input type="text" id="fDeveloper" class="form-input" placeholder="Aightbet Studios" />
+          </div>
+          <div class="form-group">
+            <label>File Size (display)</label>
+            <input type="text" id="fSize" class="form-input" placeholder="120 MB" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Zip Filename (in /games folder)</label>
+          <input type="text" id="fZipFile" class="form-input" placeholder="mygame.zip" />
+          <p style="font-size:.72rem;color:var(--muted);margin-top:6px">Type the exact filename of the zip you uploaded to <strong style="color:var(--accent)">games/</strong>. The download link will be <code style="color:var(--accent2)">games/&lt;filename&gt;</code>.</p>
+        </div>
+        <div class="form-group">
+          <label>Short Description (1-2 lines for card)</label>
+          <input type="text" id="fShortDesc" class="form-input" placeholder="A roguelike where you bet your way to victory..." maxlength="160" />
+        </div>
+        <div class="form-group">
+          <label>Full Description</label>
+          <textarea id="fDescription" class="form-textarea" placeholder="Tell players what your game is about, features, controls, etc."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Cover Image (main banner)</label>
+          <div class="upload-zone" id="coverUploadZone">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p><strong>Click to upload</strong> cover image</p>
+          </div>
+          <input type="file" id="fCoverFile" accept="image/*" hidden />
+          <div class="preview-row" id="coverPreview"></div>
+          <div class="progress-bar" id="coverProgress"><div class="progress-fill"></div></div>
+        </div>
+
+        <div class="form-group">
+          <label>Screenshots (multiple allowed)</label>
+          <div class="upload-zone" id="screensUploadZone">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <p><strong>Click to upload</strong> screenshots</p>
+          </div>
+          <input type="file" id="fScreensFile" accept="image/*" multiple hidden />
+          <div class="preview-row" id="screensPreview"></div>
+          <div class="progress-bar" id="screensProgress"><div class="progress-fill"></div></div>
+        </div>
+      </div>
+      <div class="admin-footer">
+        <button class="btn-cancel" id="adminCancel">Cancel</button>
+        <button class="btn-save" id="adminSave">Save Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="footer">
+    &copy; <span id="year"></span> Aightbet Arcade · Download Center
+  </footer>
+
+  <!-- ════════ FIREBASE ════════ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+
+  <script src="checker.js"></script>
+
+  <script>
+    /* ════════ FIREBASE INIT ════════ */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+      authDomain: "gamle-53778.firebaseapp.com",
+      databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gamle-53778",
+      storageBucket: "gamle-53778.firebasestorage.app",
+      messagingSenderId: "513958176524",
+      appId: "1:513958176524:web:c74a2e946da58507200b29",
+      measurementId: "G-EB6SF28HZK"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const rtdb = firebase.database();
+    const storage = firebase.storage();
+
+    /* ════════ STATE ════════ */
+    let currentUser = null;
+    let isAdmin = false;
+    let allGames = [];
+    let activeFilter = 'all';
+    let searchTerm = '';
+    let editingGameId = null;
+    let pendingCoverURL = '';
+    let pendingScreenshots = [];
+
+    // Admin identifier — primary check uses the 'support' custom claim
+    // (matches your DB rules: auth.token.role === 'support').
+    // Email fallback is base64-obfuscated and never shows credentials in source.
+    const ADMIN_KEY = atob('c3VwcG9ydEBzdXBwb3J0LmNvbQ==');
+
+    /* ════════ HELPERS ════════ */
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    function toast(msg, type = 'info') {
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+      t.innerHTML = `<span class="ico">${icon}</span><span>${esc(msg)}</span>`;
+      $('toastContainer').appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 3200);
+    }
+
+    function formatDate(ts) {
+      if (!ts) return '—';
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function typeLabel(t) {
+      return { release: 'Full Release', playtest: 'Playtest', demo: 'Demo' }[t] || t;
+    }
+
+    /* ════════ AUTH & ADMIN CHECK ════════ */
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+
+      // Admin = 'support' custom claim (preferred) OR configured email fallback
+      let claimRole = null;
+      try {
+        const tokenResult = await user.getIdTokenResult();
+        claimRole = tokenResult.claims && tokenResult.claims.role;
+      } catch (_) {}
+      isAdmin = claimRole === 'support'
+                || (user.email || '').toLowerCase() === ADMIN_KEY.toLowerCase();
+      if (isAdmin) $('adminBtn').style.display = 'inline-flex';
+
+      // Sync credits + avatar
+      rtdb.ref('users/' + user.uid).on('value', snap => {
+        const data = snap.val() || {};
+        const c = (data.credits || 0).toLocaleString();
+        $('creditsCount').textContent = c;
+        $('creditsCountMobile').textContent = c;
+        const av = $('navAvatar');
+        const avatarUrl = data.avatar || user.photoURL || null;
+        if (avatarUrl) av.innerHTML = `<img src="${avatarUrl}" alt="Avatar"/>`;
+        else av.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
+      });
+
+      loadGames();
+    });
+
+    /* ════════ NAVBAR SCROLL EFFECT ════════ */
+    (() => {
+      const nav = $('navbar');
+      window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 20);
+      });
+    })();
+
+    /* ════════ HAMBURGER ════════ */
+    (() => {
+      const ham = $('hamburger'), menu = $('mobileMenu');
+      ham.addEventListener('click', () => {
+        ham.classList.toggle('open');
+        menu.classList.toggle('open');
+      });
+    })();
+
+    $('navAvatar').addEventListener('click', () => { window.location.href = 'profile.html'; });
+    $('year').textContent = new Date().getFullYear();
+
+    /* ════════ GAME LIST ════════ */
+    function loadGames() {
+      rtdb.ref('arcadeGames').on('value', snap => {
+        const data = snap.val() || {};
+        allGames = Object.entries(data).map(([id, g]) => ({ id, ...g }));
+        allGames.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        renderGames();
+      });
+    }
+
+    function renderGames() {
+      const grid = $('gameGrid');
+      const filtered = allGames.filter(g => {
+        if (activeFilter !== 'all' && g.type !== activeFilter) return false;
+        if (searchTerm && !(g.name || '').toLowerCase().includes(searchTerm.toLowerCase())) return false;
+        return true;
+      });
+
+      $('gameCount').textContent = filtered.length + ' game' + (filtered.length !== 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="ico">🎮</div>
+            <h3>${allGames.length === 0 ? 'No games yet' : 'No matches found'}</h3>
+            <p>${allGames.length === 0 ? (isAdmin ? 'Click "New Game" to upload your first one.' : 'Check back soon — new drops incoming.') : 'Try a different search or filter.'}</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(g => `
+        <article class="game-card" data-id="${g.id}">
+          <div class="game-cover">
+            ${g.coverImage ? `<img src="${esc(g.coverImage)}" alt="${esc(g.name)}" loading="lazy"/>` : `<div class="ph">${esc((g.name||'?').charAt(0).toUpperCase())}</div>`}
+            <span class="game-type-tag type-${g.type || 'release'}">${typeLabel(g.type)}</span>
+          </div>
+          <div class="game-info">
+            <h3>${esc(g.name || 'Untitled')}</h3>
+            ${g.developer ? `<div class="game-dev">${esc(g.developer)}</div>` : ''}
+            <p class="game-short">${esc(g.shortDescription || g.description || 'No description.')}</p>
+            <div class="game-meta">
+              <span class="size">${esc(g.size || '')}</span>
+              <button class="download-mini" data-action="download" data-id="${g.id}">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Get
+              </button>
+            </div>
+          </div>
+        </article>`).join('');
+
+      grid.querySelectorAll('.game-card').forEach(card => {
+        card.addEventListener('click', e => {
+          if (e.target.closest('[data-action="download"]')) {
+            e.stopPropagation();
+            const g = allGames.find(x => x.id === card.dataset.id);
+            if (g) startDownload(g);
+            return;
+          }
+          openDetail(card.dataset.id);
+        });
+      });
+    }
+
+    /* ════════ DOWNLOAD ════════ */
+    function startDownload(game) {
+      if (!game.zipFile) { toast('No file linked to this game', 'error'); return; }
+      const url = 'games/' + game.zipFile;
+      // Track download count
+      rtdb.ref('arcadeGames/' + game.id + '/downloads').transaction(c => (c || 0) + 1);
+      // Trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = game.zipFile;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast('Download starting: ' + game.name, 'success');
+    }
+
+    /* ════════ DETAIL VIEW ════════ */
+    function openDetail(id) {
+      const g = allGames.find(x => x.id === id);
+      if (!g) return;
+      $('detailName').textContent = g.name || 'Untitled';
+      $('detailDescription').textContent = g.description || g.shortDescription || 'No description provided.';
+      $('detailDev').innerHTML = g.developer ? '<span>👤 ' + esc(g.developer) + '</span>' : '';
+      $('detailDate').innerHTML = '<span>📅 ' + formatDate(g.createdAt) + '</span>';
+      $('detailTypeBadge').innerHTML = `<span class="game-type-tag type-${g.type || 'release'}" style="position:static">${typeLabel(g.type)}</span>`;
+      $('detailType').textContent = typeLabel(g.type);
+      $('detailVersion').textContent = g.version || '1.0';
+      $('detailSize').textContent = g.size || '—';
+      $('detailDeveloper').textContent = g.developer || '—';
+      $('detailReleased').textContent = formatDate(g.createdAt);
+      $('detailFile').textContent = g.zipFile || '—';
+      $('detailHeroImg').src = g.coverImage || (g.screenshots && g.screenshots[0]) || '';
+
+      const sr = $('detailScreens');
+      sr.innerHTML = (g.screenshots || []).map(s => `<img src="${esc(s)}" alt="screenshot"/>`).join('');
+      if ((g.screenshots || []).length === 0) sr.style.display = 'none';
+      else sr.style.display = 'flex';
+
+      $('detailDownloadBtn').onclick = () => startDownload(g);
+      $('adminActions').style.display = isAdmin ? 'flex' : 'none';
+      if (isAdmin) {
+        $('editGameBtn').onclick = () => { closeDetail(); openAdminModal(g); };
+        $('deleteGameBtn').onclick = () => deleteGame(g);
+      }
+
+      $('detailOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+      $('detailOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    $('detailClose').addEventListener('click', closeDetail);
+    $('detailOverlay').addEventListener('click', e => { if (e.target === $('detailOverlay')) closeDetail(); });
+
+    /* ════════ FILTERS & SEARCH ════════ */
+    $('filterGroup').addEventListener('click', e => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      renderGames();
+    });
+
+    $('searchInput').addEventListener('input', e => {
+      searchTerm = e.target.value.trim();
+      renderGames();
+    });
+
+    /* ════════ ADMIN MODAL ════════ */
+    function openAdminModal(existing) {
+      if (!isAdmin) return;
+      editingGameId = existing ? existing.id : null;
+      $('adminModalTitle').textContent = existing ? 'Edit Game' : 'Upload New Game';
+      $('fName').value = existing?.name || '';
+      $('fType').value = existing?.type || 'release';
+      $('fVersion').value = existing?.version || '';
+      $('fDeveloper').value = existing?.developer || 'Aightbet Studios';
+      $('fSize').value = existing?.size || '';
+      $('fZipFile').value = existing?.zipFile || '';
+      $('fShortDesc').value = existing?.shortDescription || '';
+      $('fDescription').value = existing?.description || '';
+      pendingCoverURL = existing?.coverImage || '';
+      pendingScreenshots = existing?.screenshots ? [...existing.screenshots] : [];
+      renderPreviews();
+      $('adminOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAdminModal() {
+      $('adminOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+      editingGameId = null;
+      pendingCoverURL = '';
+      pendingScreenshots = [];
+    }
+
+    $('adminBtn').addEventListener('click', () => openAdminModal(null));
+    $('adminClose').addEventListener('click', closeAdminModal);
+    $('adminCancel').addEventListener('click', closeAdminModal);
+
+    /* ════════ UPLOAD IMAGES ════════ */
+    function renderPreviews() {
+      const cp = $('coverPreview');
+      cp.innerHTML = pendingCoverURL
+        ? `<div class="preview-wrap"><img src="${esc(pendingCoverURL)}"/><button class="preview-x" data-remove="cover">×</button></div>`
+        : '';
+      const sp = $('screensPreview');
+      sp.innerHTML = pendingScreenshots.map((url, i) =>
+        `<div class="preview-wrap"><img src="${esc(url)}"/><button class="preview-x" data-remove-screen="${i}">×</button></div>`
+      ).join('');
+    }
+
+    document.addEventListener('click', e => {
+      if (e.target.dataset.remove === 'cover') { pendingCoverURL = ''; renderPreviews(); }
+      if (e.target.dataset.removeScreen !== undefined) {
+        pendingScreenshots.splice(Number(e.target.dataset.removeScreen), 1);
+        renderPreviews();
+      }
+    });
+
+    $('coverUploadZone').addEventListener('click', () => $('fCoverFile').click());
+    $('screensUploadZone').addEventListener('click', () => $('fScreensFile').click());
+
+    async function uploadFile(file, pathPrefix, progressEl) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const filename = pathPrefix + '/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+      const ref = storage.ref(filename);
+      const task = ref.put(file);
+      progressEl.classList.add('show');
+      return new Promise((resolve, reject) => {
+        task.on('state_changed',
+          snap => {
+            const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+            progressEl.querySelector('.progress-fill').style.width = pct + '%';
+          },
+          err => { progressEl.classList.remove('show'); reject(err); },
+          async () => {
+            const url = await ref.getDownloadURL();
+            setTimeout(() => progressEl.classList.remove('show'), 400);
+            resolve(url);
+          }
+        );
+      });
+    }
+
+    $('fCoverFile').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        toast('Uploading cover...', 'info');
+        const url = await uploadFile(file, 'arcade/covers', $('coverProgress'));
+        pendingCoverURL = url;
+        renderPreviews();
+        toast('Cover uploaded', 'success');
+      } catch (err) {
+        toast('Upload failed: ' + err.message, 'error');
+      }
+      e.target.value = '';
+    });
+
+    $('fScreensFile').addEventListener('change', async e => {
+      const files = [...e.target.files];
+      if (!files.length) return;
+      for (const file of files) {
+        try {
+          const url = await uploadFile(file, 'arcade/screenshots', $('screensProgress'));
+          pendingScreenshots.push(url);
+          renderPreviews();
+        } catch (err) {
+          toast('Screenshot failed: ' + err.message, 'error');
+        }
+      }
+      toast('Screenshots uploaded', 'success');
+      e.target.value = '';
+    });
+
+    /* ════════ SAVE / DELETE ════════ */
+    $('adminSave').addEventListener('click', async () => {
+      if (!isAdmin) return;
+      const name = $('fName').value.trim();
+      const zipFile = $('fZipFile').value.trim();
+      if (!name) { toast('Game name is required', 'error'); return; }
+      if (!zipFile) { toast('Zip filename is required', 'error'); return; }
+      if (!zipFile.toLowerCase().endsWith('.zip')) { toast('Filename must end with .zip', 'error'); return; }
+
+      const payload = {
+        name,
+        type: $('fType').value,
+        version: $('fVersion').value.trim() || '1.0',
+        developer: $('fDeveloper').value.trim() || 'Aightbet Studios',
+        size: $('fSize').value.trim() || '',
+        zipFile,
+        shortDescription: $('fShortDesc').value.trim(),
+        description: $('fDescription').value.trim(),
+        coverImage: pendingCoverURL,
+        screenshots: pendingScreenshots,
+        updatedAt: Date.now()
+      };
+
+      $('adminSave').disabled = true;
+      try {
+        if (editingGameId) {
+          await rtdb.ref('arcadeGames/' + editingGameId).update(payload);
+          toast('Game updated', 'success');
+        } else {
+          payload.createdAt = Date.now();
+          payload.downloads = 0;
+          await rtdb.ref('arcadeGames').push(payload);
+          toast('Game published', 'success');
+        }
+        closeAdminModal();
+      } catch (err) {
+        toast('Save failed: ' + err.message, 'error');
+      }
+      $('adminSave').disabled = false;
+    });
+
+    async function deleteGame(g) {
+      if (!isAdmin) return;
+      if (!confirm('Delete "' + g.name + '"? This only removes the listing — the zip in games/ stays.')) return;
+      try {
+        await rtdb.ref('arcadeGames/' + g.id).remove();
+        closeDetail();
+        toast('Game deleted', 'success');
+      } catch (err) {
+        toast('Delete failed: ' + err.message, 'error');
+      }
+    }
+
+    /* ESC closes overlays */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if ($('adminOverlay').classList.contains('open')) closeAdminModal();
+        else if ($('detailOverlay').classList.contains('open')) closeDetail();
+      }
+    });
+  </script>
+</body>
+</html>

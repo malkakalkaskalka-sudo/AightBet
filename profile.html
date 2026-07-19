@@ -203,6 +203,17 @@
     .rec-dl-btn:hover{background:rgba(239,68,68,.18);transform:translateY(-1px)}
     .rec-del-btn{padding:8px 10px;font-size:.78rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;white-space:nowrap;flex-shrink:0}
     .rec-del-btn:hover{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2)}
+
+    /* ── Aightbet FM launch button ─────────────────────── */
+    .fm-launch{margin-top:16px;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(6,182,212,.10));border:1px solid rgba(139,92,246,.28);cursor:pointer;transition:transform .15s,box-shadow .25s,border-color .2s;text-decoration:none}
+    .fm-launch:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 30px -10px var(--glow)}
+    .fm-launch-icon{width:46px;height:46px;border-radius:12px;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;border:1px solid var(--border2)}
+    .fm-launch-icon img{width:100%;height:100%;object-fit:cover}
+    .fm-launch-text{flex:1;min-width:0}
+    .fm-launch-title{font-size:1rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+    .fm-launch-sub{font-size:.76rem;color:var(--muted);margin-top:2px}
+    .fm-launch-arrow{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;transition:transform .2s}
+    .fm-launch:hover .fm-launch-arrow{transform:translateX(3px)}
   </style>
 </head>
 <body>
@@ -301,6 +312,29 @@
     </div>
   </label>
 </div>
+          <div class="theme-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div>
+              <div class="theme-row-label">
+                <svg viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>
+                Mini Player On Every Page
+              </div>
+              <div class="theme-row-sub">On: the little music bar shows on every page. Off: it only shows on the home page.</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="musicBarToggle"/>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"><svg viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg></div>
+            </label>
+          </div>
+          <!-- Aightbet FM -->
+          <a href="music.html" class="fm-launch" data-testid="aightbet-fm-button">
+            <div class="fm-launch-icon"><img src="Images/logo.png" alt="Aightbet FM"/></div>
+            <div class="fm-launch-text">
+              <div class="fm-launch-title">Aightbet FM</div>
+              <div class="fm-launch-sub">Stream &amp; upload tracks &middot; community radio</div>
+            </div>
+            <svg class="fm-launch-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
           <div id="slqmBtnRow" style="margin-top:12px;display:none">
             <button class="slqm-btn visible" id="slqmBtn">⚡⚡ Super Low Quality Mode</button>
           </div>
@@ -424,44 +458,45 @@ let currentUser=null;
 auth.onAuthStateChanged(u=>{
   if(!u){ location.href='index.html'; return; }
   currentUser=u;
-  const userRef=rtdb.ref('users/'+u.uid);
+  const base='users/'+u.uid;
 
-  userRef.on('value', snap=>{
-    const data = snap.val() || {};
-    const name = data.nickname || u.displayName || 'Player';
-    const email= data.email || u.email || 'No email';
-    const credits = (data.credits || 0).toLocaleString();
-    const joined = data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
-    const avatarUrl = data.avatar || u.photoURL || null;
-    const theme = data.theme || localStorage.getItem('aightbet-theme') || 'dark';
-
-    // text
-    document.getElementById('profileName').textContent = name;
-    document.getElementById('profileEmail').textContent = email;
-    document.getElementById('profileCredits').textContent = credits;
-    document.getElementById('profileJoined').textContent = joined;
-    document.getElementById('creditsCount').textContent = credits;
-    document.getElementById('creditsCountMobile').textContent = credits;
-
-    // avatars
+  /* Targeted reads only — avoids downloading heavy user fields (recordings
+     audio, games, cosmetics, etc.) just to paint the profile header. */
+  let pName = u.displayName || 'Player', pAvatar = u.photoURL || null;
+  function paintIdentity(){
+    document.getElementById('profileName').textContent = pName;
     const navAv=document.getElementById('navAvatar');
     const profAv=document.getElementById('profileAvatar');
-    if(avatarUrl){
-      navAv.innerHTML=`<img src="${avatarUrl}"/>`;
-      profAv.innerHTML=`<img src="${avatarUrl}"/>`;
+    if(pAvatar){
+      navAv.innerHTML=`<img src="${pAvatar}"/>`;
+      profAv.innerHTML=`<img src="${pAvatar}"/>`;
     }else{
-      const initial = (name||'?').charAt(0).toUpperCase();
+      const initial = (pName||'?').charAt(0).toUpperCase();
       navAv.textContent = initial;
       profAv.textContent = initial;
     }
+  }
+  paintIdentity();
 
-    // theme
+  // Credits stay live (small + changes often)
+  rtdb.ref(base+'/credits').on('value', s=>{
+    const credits = (s.val() || 0).toLocaleString();
+    document.getElementById('profileCredits').textContent = credits;
+    document.getElementById('creditsCount').textContent = credits;
+    document.getElementById('creditsCountMobile').textContent = credits;
+  });
+  rtdb.ref(base+'/nickname').once('value').then(s=>{ pName = s.val() || u.displayName || 'Player'; paintIdentity(); });
+  rtdb.ref(base+'/avatar').once('value').then(s=>{ const a=s.val(); if(a){ pAvatar=a; paintIdentity(); } });
+  rtdb.ref(base+'/email').once('value').then(s=>{ document.getElementById('profileEmail').textContent = s.val() || u.email || 'No email'; });
+  rtdb.ref(base+'/createdAt').once('value').then(s=>{ const v=s.val(); document.getElementById('profileJoined').textContent = v ? new Date(v).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—'; });
+  rtdb.ref(base+'/theme').once('value').then(s=>{
+    const theme = s.val() || localStorage.getItem('aightbet-theme') || 'dark';
     applyTheme(theme,false);
     const toggle=document.getElementById('themeToggle');
     if(toggle) toggle.checked = theme === 'light';
-
-    // lqm
-    const lqmOn = data.lqm ?? (localStorage.getItem('aightbet-lqm') === 'true');
+  });
+  rtdb.ref(base+'/lqm').once('value').then(s=>{
+    const lqmOn = s.val() ?? (localStorage.getItem('aightbet-lqm') === 'true');
     applyLQM(lqmOn, false);
     const lqmToggle=document.getElementById('lqmToggle');
     if(lqmToggle) lqmToggle.checked = !!lqmOn;
@@ -489,6 +524,24 @@ document.getElementById('themeToggle')?.addEventListener('change',e=>{
     } else {
       localStorage.setItem(MUSIC_KEY, 'off');
       if(audio){ audio.pause(); }
+    }
+  });
+})();
+// Mini player visibility toggle (every page vs home only)
+(function(){
+  var KEY='aightbet-musicbar';
+  var tog=document.getElementById('musicBarToggle');
+  if(!tog) return;
+  tog.checked = (localStorage.getItem(KEY) || 'all') !== 'home';   // default: every page
+  tog.addEventListener('change', function(){
+    localStorage.setItem(KEY, tog.checked ? 'all' : 'home');
+    var bar=document.getElementById('fm-mini-bar');
+    if(tog.checked){
+      if(!bar && window.__fmBuildBar) window.__fmBuildBar();
+      showToast('Mini player will now show on every page.', 'success', 2600);
+    } else {
+      if(bar) bar.remove();   // profile isn't the home page, so hide it now
+      showToast('Mini player now only shows on the home page.', 'success', 3000);
     }
   });
 })();
@@ -832,7 +885,7 @@ document.getElementById('navAvatar').addEventListener('click',()=>{location.href
   function loadRecordings(uid){
     window.__recUid = uid;
 
-    firebase.database().ref('users/' + uid + '/recordings').on('value', function(snap){
+    firebase.database().ref('users/' + uid + '/recordings').once('value').then(function(snap){
       var allItems = [];
       var data = snap.val() || {};
       Object.keys(data).forEach(function(k){

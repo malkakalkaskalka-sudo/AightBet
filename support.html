@@ -13,7 +13,7 @@
 
     .bg-gradient{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.08),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(6,182,212,.06),transparent)}
     .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
-
+ 
     .login-overlay{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
     .login-overlay.hidden{opacity:0;pointer-events:none}
     .login-card{background:var(--surface);backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:16px;padding:40px 32px;max-width:400px;width:90%;text-align:center}
@@ -285,6 +285,33 @@
     .tm-msglist .tm-msg{padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;font-size:.8rem}
     .tm-msglist .tm-msg .tm-h{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-bottom:4px}
     .tm-msglist .tm-msg.seen{opacity:.65}
+
+    /* LYRICS EDITOR */
+    .le-line{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:5px;transition:border-color .2s}
+    .le-line:hover{border-color:var(--border2)}
+    .le-time-input{padding:7px 10px;font-size:.8rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;outline:none;font-family:monospace;width:100%;text-align:center}
+    .le-time-input:focus{border-color:var(--accent)}
+    .le-text-input{padding:7px 10px;font-size:.85rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;outline:none;font-family:var(--font);width:100%}
+    .le-text-input:focus{border-color:var(--accent)}
+    .le-rm{padding:4px 9px;font-size:.65rem;font-weight:700;color:var(--red);background:none;border:1px solid rgba(239,68,68,.2);border-radius:6px;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap}
+    .le-rm:hover{background:rgba(239,68,68,.1)}
+    .le-add{padding:8px 14px;font-size:.78rem;font-weight:700;color:var(--accent);background:rgba(139,92,246,.08);border:1px dashed rgba(139,92,246,.3);border-radius:8px;cursor:pointer;font-family:var(--font);transition:all .15s;width:100%;margin-top:6px;text-align:center}
+    .le-add:hover{background:rgba(139,92,246,.15)}
+    .le-toolbar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+    .le-preview{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.8rem;color:var(--muted);max-height:180px;overflow-y:auto;margin-top:10px;line-height:1.6}
+    .lyric-req-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border-color .2s}
+    .lyric-req-card:hover{border-color:var(--border2)}
+    .lyric-req-card.has-lyrics{border-left:3px solid var(--green)}
+    .lyric-req-card.pending-req{border-left:3px solid var(--gold)}
+    .lrc-info{flex:1;min-width:0}
+    .lrc-title{font-size:.88rem;font-weight:700}
+    .lrc-meta{font-size:.7rem;color:var(--muted);margin-top:2px}
+    .lrc-status{padding:3px 8px;border-radius:5px;font-size:.65rem;font-weight:700;text-transform:uppercase}
+    .lrc-status.has{background:rgba(34,197,94,.12);color:var(--green)}
+    .lrc-status.req{background:rgba(245,158,11,.12);color:var(--gold)}
+    .lrc-status.none{background:rgba(255,255,255,.06);color:var(--muted)}
+    .le-bulk-input{width:100%;padding:10px;font-size:.82rem;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;outline:none;font-family:monospace;resize:vertical;min-height:120px;line-height:1.5}
+    .le-bulk-input:focus{border-color:var(--accent)}
   </style>
 </head>
 <body>
@@ -319,6 +346,8 @@
       <button class="dash-tab" data-tab="bugs">Bugs <span class="tab-badge" id="bugBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="features">Features <span class="tab-badge" id="featBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="users">Users</button>
+      <button class="dash-tab" data-tab="music">Music</button>
+      <button class="dash-tab" data-tab="songreqs">Song Requests <span class="tab-badge" id="songReqBadge" style="display:none">0</span></button>
       <button class="dash-tab" data-tab="rigged">Rigged Drops</button>
       <button class="dash-tab" data-tab="messages">Messages</button>
       <button class="dash-tab" data-tab="targeted">Targeted Msg</button>
@@ -347,6 +376,9 @@
     let allModeration={},allIpBans={},allTargetedMessages={},allModerationLog={},allFeatureRequests={};
     let selectedTargetedUid=null;
     let activeModerationUid=null,activeModSubtab='actions';
+    let allMusicSongs={},allAuthors={},allPlaylists={},musicSubtab='songs';
+    let allLyricRequests={},allSongLyrics={},allLyricFixRequests={};
+    let allSongRequests={};
 
     function toast(m,t='error'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3500);}
     function timeAgo(ts){if(!ts)return'—';const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
@@ -358,8 +390,8 @@
       err.textContent='';
       try{
         const cred=await auth.signInWithEmailAndPassword(email,pass);
-        const snap=await rtdb.ref('supportAccounts/'+cred.user.uid).once('value');
-        if(!snap.val()){await auth.signOut();err.textContent='Access denied.';return;}
+        const token=await cred.user.getIdTokenResult();
+        if(token.claims.role!=='support'){await auth.signOut();err.textContent='Access denied.';return;}
         authed=true;document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('dashboard').classList.add('active');loadDashboard();
       }catch(e){err.textContent='Invalid credentials. Access denied.';}
     });
@@ -415,6 +447,8 @@
       else if(activeTab==='history') renderHistory(c);
       else if(activeTab==='targeted') renderTargeted(c);
       else if(activeTab==='features') renderFeatures(c);
+      else if(activeTab==='music') renderMusic(c);
+      else if(activeTab==='songreqs') renderSongRequests(c);
     }
 function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
     /* Map of which tabs depend on which data slice. Listener firings will
@@ -543,6 +577,24 @@ function esc(s) { var d = document.createElement('div'); d.textContent = s || ''
         renderStats();
         renderIfTabDepends('features');
       }, err=>{ console.error('featureRequests read error:', err); });
+
+      /* MUSIC listeners */
+      rtdb.ref('songs').on('value', s=>{ allMusicSongs=s.val()||{}; if(activeTab==='music') scheduleRender(); }, err=>{ console.error('songs read error:', err); });
+      rtdb.ref('authors').on('value', s=>{ allAuthors=s.val()||{}; if(activeTab==='music') scheduleRender(); }, err=>{ console.error('authors read error:', err); });
+      rtdb.ref('playlists').on('value', s=>{ allPlaylists=s.val()||{}; if(activeTab==='music') scheduleRender(); }, err=>{ console.error('playlists read error:', err); });
+      /* LYRIC REQUESTS listener */
+      rtdb.ref('lyricRequests').on('value', s=>{ allLyricRequests=s.val()||{}; if(activeTab==='music'&&musicSubtab==='lyrics') scheduleRender(); }, err=>{});
+      rtdb.ref('songLyrics').on('value', s=>{ allSongLyrics=s.val()||{}; if(activeTab==='music'&&musicSubtab==='lyrics') scheduleRender(); }, err=>{});
+      /* LYRIC FIX REQUESTS listener */
+      rtdb.ref('lyricFixRequests').on('value', s=>{ allLyricFixRequests=s.val()||{}; if(activeTab==='music'&&musicSubtab==='lyrics') scheduleRender(); }, err=>{});
+      /* SONG REQUESTS listener */
+      rtdb.ref('songRequests').on('value', s=>{
+        allSongRequests=s.val()||{};
+        const pending=Object.values(allSongRequests).filter(r=>r&&(r.status||'pending')==='pending').length;
+        const badge=document.getElementById('songReqBadge');
+        if(badge){ if(pending>0){badge.textContent=pending;badge.style.display='flex';}else{badge.style.display='none';} }
+        if(activeTab==='songreqs') scheduleRender();
+      }, err=>{});
     }
 
     function getUserName(uid){const d=allUsers[uid]||{};return d.username||d.nickname||d.displayName||d.email||(uid?uid.substring(0,8):'Unknown');}
@@ -2395,6 +2447,657 @@ function escapeHTML(s) {
     };
 
     
+
+    /* ════════════════ MUSIC MANAGEMENT ════════════════ */
+    const M_MAX_AUDIO = 9*1024*1024, M_MAX_COVER = 500*1024, M_MAX_DUR = 300;
+    let mAudioData=null, mAudioDur=0, mCoverData=null, mAuthorImg=null, mPlCover=null, mEditImg=null;
+
+    function mFmt(s){ if(!s||isNaN(s))return'—'; const m=Math.floor(s/60),r=Math.floor(s%60); return m+':'+String(r).padStart(2,'0'); }
+    function mReadImage(file, cb){ if(file.size>M_MAX_COVER){toast('Image too big (max 500 KB)');return;} const r=new FileReader(); r.onload=()=>cb(r.result); r.readAsDataURL(file); }
+    function mReadAudio(file, cb){
+      if(file.size>M_MAX_AUDIO){toast('Audio too big (max 9 MB)');return;}
+      const url=URL.createObjectURL(file); const probe=new Audio(); probe.preload='metadata'; probe.src=url;
+      probe.addEventListener('loadedmetadata',()=>{ URL.revokeObjectURL(url);
+        if(probe.duration>M_MAX_DUR+0.5){toast('Track longer than 5 minutes');return;}
+        const r=new FileReader(); r.onload=()=>cb(r.result, Math.round(probe.duration), file.name); r.readAsDataURL(file);
+      });
+      probe.addEventListener('error',()=>{URL.revokeObjectURL(url);toast('Could not read audio file');});
+    }
+
+    window.mPickAudio=function(input){ const f=input.files[0]; if(!f)return; mReadAudio(f,(d,dur,name)=>{ mAudioData=d; mAudioDur=dur; const t=document.getElementById('mAudioLabel'); if(t)t.textContent=name+' · '+mFmt(dur); }); };
+    window.mPickCover=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mCoverData=d; const t=document.getElementById('mCoverLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>'; }); };
+    window.mPickAuthorImg=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mAuthorImg=d; const t=document.getElementById('mAuthorImgLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:50%;object-fit:cover"/>'; }); };
+    window.mPickPlCover=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mPlCover=d; const t=document.getElementById('mPlCoverLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>'; }); };
+
+    window.setMusicSubtab=function(t){ musicSubtab=t; renderMusic(document.getElementById('dashContent')); };
+
+    /* ══════════════════════ SONG REQUESTS TAB ══════════════════════ */
+    function renderSongRequests(c){
+      const filter = window.__srFilter || 'pending';
+      let rows = Object.values(allSongRequests).map(r=>({...r}));
+      const counts = {
+        pending: rows.filter(r=>(r.status||'pending')==='pending').length,
+        accepted: rows.filter(r=>r.status==='accepted').length,
+        denied: rows.filter(r=>r.status==='denied').length,
+        all: rows.length,
+      };
+      if(filter !== 'all') rows = rows.filter(r=>(r.status||'pending')===filter);
+      rows.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+
+      let h = `
+        <div class="mod-grid">
+          <div class="mod-stat"><div class="ms-label">Pending</div><div class="ms-num gold">${counts.pending}</div></div>
+          <div class="mod-stat"><div class="ms-label">Added</div><div class="ms-num green">${counts.accepted}</div></div>
+          <div class="mod-stat"><div class="ms-label">Declined</div><div class="ms-num red">${counts.denied}</div></div>
+          <div class="mod-stat"><div class="ms-label">Total</div><div class="ms-num">${counts.all}</div></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <select class="mm-select" id="srFilter" style="width:auto;min-width:160px">
+            <option value="pending">Pending only</option>
+            <option value="accepted">Added</option>
+            <option value="denied">Declined</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">${rows.length} request${rows.length===1?'':'s'}</div>
+      `;
+
+      if(!rows.length){
+        h += `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><div class="es-title">No song requests</div><div style="font-size:.8rem">When users request songs, they'll appear here.</div></div>`;
+      } else {
+        rows.forEach(r=>{
+          const status = r.status||'pending';
+          const isPending = status==='pending';
+          const u = allUsers[r.requestedBy]||{};
+          const nm = r.requestedByName || u.username || u.nickname || u.displayName || 'Unknown';
+          const av = u.avatar||u.photoURL;
+          const borderColor = status==='pending'?'var(--gold)':status==='accepted'?'var(--green)':'var(--red)';
+          h += `<div class="appeal-card" style="border-left:3px solid ${borderColor}">
+            <div class="ac-header">
+              <div class="ac-av">${av?`<img src="${escapeHTML(av)}"/>`:(nm[0]||'?').toUpperCase()}</div>
+              <div class="ac-info">
+                <div class="ac-name">${escapeHTML(nm)}</div>
+                <div class="ac-meta">${r.requestedBy?r.requestedBy.substring(0,12)+'…':''} · ${timeAgo(r.requestedAt)}</div>
+              </div>
+              <span class="ac-status ${status==='accepted'?'approved':status}">${status==='accepted'?'Added':status==='denied'?'Declined':'Pending'}</span>
+            </div>
+            <div style="font-size:.95rem;font-weight:800;margin-bottom:4px">${escapeHTML(r.title||'(no title)')}</div>
+            <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">by <strong style="color:var(--text)">${escapeHTML(r.author||'Unknown')}</strong></div>
+            ${r.note?`<div class="ac-text">${escapeHTML(r.note)}</div>`:''}
+            <div class="ac-actions" style="margin-top:10px">
+              ${isPending?`
+                <button class="r-btn approve" onclick="handleSongRequest('${r.id}','accepted')">Mark Added</button>
+                <button class="r-btn deny" onclick="handleSongRequest('${r.id}','denied')">Decline</button>
+              `:`
+                <button class="r-btn" onclick="handleSongRequest('${r.id}','pending')">Reopen</button>
+              `}
+              <button class="r-btn delete" onclick="deleteSongRequest('${r.id}')">Delete</button>
+            </div>
+          </div>`;
+        });
+      }
+
+      c.innerHTML = h;
+      const sf = document.getElementById('srFilter');
+      if(sf){ sf.value=filter; sf.addEventListener('change',function(){ window.__srFilter=this.value; renderSongRequests(c); }); }
+    }
+
+    window.handleSongRequest = async function(id, status){
+      try{
+        await rtdb.ref('songRequests/'+id+'/status').set(status);
+        // Notify the user
+        const r = allSongRequests[id];
+        if(r && r.requestedBy){
+          await rtdb.ref('users/'+r.requestedBy+'/notifications').push({
+            type:'songRequest', status, title: r.title||'Your song request',
+            message: status==='accepted'?`"${r.title}" has been added to Aightbet FM!`:`Your request for "${r.title}" was declined.`,
+            at: Date.now(), read: false
+          });
+        }
+        toast(status==='accepted'?'Marked as added!':status==='denied'?'Request declined':'Reopened','success');
+      }catch(e){ toast('Error: '+e.message); }
+    };
+
+    window.deleteSongRequest = async function(id){
+      if(!confirm('Delete this song request?')) return;
+      try{ await rtdb.ref('songRequests/'+id).remove(); toast('Deleted','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+
+    function mAuthorOptions(selected){
+      const ids=Object.keys(allAuthors);
+      let h='<option value="">— No artist —</option>';
+      ids.forEach(id=>{ const a=allAuthors[id]||{}; h+='<option value="'+id+'"'+(selected===id?' selected':'')+'>'+escapeHTML(a.name||'Unnamed')+'</option>'; });
+      return h;
+    }
+    function mSongCountForAuthor(id){ return Object.values(allMusicSongs).filter(s=>s&&s.authorId===id).length; }
+
+    function renderMusic(c){
+      if(isUserTyping)return;
+      const songs=Object.entries(allMusicSongs).map(([id,s])=>({id,...s})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      const authors=Object.entries(allAuthors).map(([id,a])=>({id,...a})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      const playlists=Object.entries(allPlaylists).map(([id,p])=>({id,...p}));
+      const officialPl=playlists.filter(p=>p.official).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+      const tabs=`<div class="mm-tabs" style="margin-bottom:16px">
+        <button class="mm-tab ${musicSubtab==='songs'?'active':''}" onclick="setMusicSubtab('songs')">Songs (${songs.length})</button>
+        <button class="mm-tab ${musicSubtab==='artists'?'active':''}" onclick="setMusicSubtab('artists')">Artists (${authors.length})</button>
+        <button class="mm-tab ${musicSubtab==='playlists'?'active':''}" onclick="setMusicSubtab('playlists')">Playlists (${officialPl.length})</button>
+        <button class="mm-tab ${musicSubtab==='lyrics'?'active':''}" onclick="setMusicSubtab('lyrics')">Lyrics ${(function(){ const pending=Object.values(allLyricRequests).filter(r=>r&&r.status==='pending').length; let fixPending=0; Object.values(allLyricFixRequests).forEach(g=>{ if(g&&typeof g==='object') Object.values(g).forEach(fr=>{ if(fr&&fr.status==='pending') fixPending++; }); }); const total=pending+fixPending; return total>0?`<span style="display:inline-block;padding:1px 6px;border-radius:9px;background:var(--gold);color:#000;font-size:.6rem;margin-left:3px">${total}</span>`:''; })()}</button>
+      </div>`;
+
+      let h=tabs;
+
+      if(musicSubtab==='songs'){
+        h+=`<div class="setting-card">
+          <div class="setting-title"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Upload a Song</div>
+          <div class="setting-desc">Upload audio and optionally publish it under an artist. It appears on Aightbet FM instantly.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px dashed var(--border2);border-radius:10px;cursor:pointer"><span id="mAudioLabel" style="font-size:.78rem;color:var(--muted);flex:1">Choose audio (max 5 min, 9 MB)</span><input type="file" accept="audio/*" style="display:none" onchange="mPickAudio(this)"/></label>
+            <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px dashed var(--border2);border-radius:10px;cursor:pointer"><span id="mCoverLabel" style="font-size:.78rem;color:var(--muted)">Cover (optional)</span><input type="file" accept="image/*" style="display:none" onchange="mPickCover(this)"/></label>
+          </div>
+          <input class="maint-input" id="mSongTitle" placeholder="Song name *" maxlength="60"/>
+          <input class="maint-input" id="mSongAlbum" placeholder="Album (optional)" maxlength="60"/>
+          <textarea class="maint-input" id="mSongDesc" placeholder="Description (optional)" maxlength="300" style="min-height:60px;resize:vertical"></textarea>
+          <select class="rig-select" id="mSongAuthor" style="margin-top:8px">${mAuthorOptions('')}</select>
+          <button class="maint-save" onclick="mAddSong()" style="margin-top:10px">Publish Song</button>
+        </div>`;
+        h+=`<div class="setting-title" style="margin:18px 0 8px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>All Songs (${songs.length})</div>`;
+        if(!songs.length){ h+=`<div class="empty-state"><div class="es-title">No songs yet</div></div>`; }
+        else {
+          songs.forEach(s=>{
+            const cov=s.cover?`<img src="${s.cover}" style="width:42px;height:42px;border-radius:8px;object-fit:cover"/>`:`<div style="width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2))"></div>`;
+            h+=`<div class="user-row">${cov}<div class="user-info"><div class="user-name">${escapeHTML(s.title||'Untitled')}</div><div class="user-email">by ${escapeHTML(s.posterName||'Unknown')} · ${mFmt(s.duration)}</div></div>
+              <select class="rig-select" style="width:auto;min-width:150px;margin:0" onchange="mAssignSong('${s.id}',this.value)">${mAuthorOptions(s.authorId||'')}</select>
+              <div class="user-actions"><button class="r-btn delete" onclick="mDeleteSong('${s.id}')">Delete</button></div></div>`;
+          });
+        }
+      }
+
+      else if(musicSubtab==='artists'){
+        h+=`<div class="setting-card">
+          <div class="setting-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>Add an Artist</div>
+          <div class="setting-desc">Create an artist that users can tap to hear all of that artist's tracks.</div>
+          <div style="margin-top:10px"><label style="display:inline-flex;align-items:center;gap:10px;padding:10px;border:1.5px dashed var(--border2);border-radius:10px;cursor:pointer"><span id="mAuthorImgLabel" style="font-size:.78rem;color:var(--muted)">Artist photo (optional)</span><input type="file" accept="image/*" style="display:none" onchange="mPickAuthorImg(this)"/></label></div>
+          <input class="maint-input" id="mAuthorName" placeholder="Artist name *" maxlength="60"/>
+          <textarea class="maint-input" id="mAuthorBio" placeholder="Short bio (optional)" maxlength="300" style="min-height:60px;resize:vertical"></textarea>
+          <button class="maint-save" onclick="mAddAuthor()" style="margin-top:10px">Add Artist</button>
+        </div>`;
+        h+=`<div class="setting-title" style="margin:18px 0 8px">Artists (${authors.length})</div>`;
+        if(!authors.length){ h+=`<div class="empty-state"><div class="es-title">No artists yet</div></div>`; }
+        else {
+          authors.forEach(a=>{
+            const img=a.image?`<img src="${a.image}" style="width:42px;height:42px;border-radius:50%;object-fit:cover"/>`:`<div class="user-av">${(a.name||'?')[0].toUpperCase()}</div>`;
+            h+=`<div class="user-row">${img}<div class="user-info"><div class="user-name">${escapeHTML(a.name||'Unnamed')}</div><div class="user-email">${mSongCountForAuthor(a.id)} track(s)${a.bio?' · '+escapeHTML(a.bio):''}</div></div>
+              <div class="user-actions"><button class="r-btn view" onclick="mEditAuthor('${a.id}')">Edit</button><button class="r-btn delete" onclick="mDeleteAuthor('${a.id}')">Delete</button></div></div>`;
+          });
+        }
+      }
+
+      else if(musicSubtab==='playlists'){
+        h+=`<div class="setting-card">
+          <div class="setting-title"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Create Official Playlist</div>
+          <div class="setting-desc">Official playlists are public and featured on the music home page.</div>
+          <div style="margin-top:10px"><label style="display:inline-flex;align-items:center;gap:10px;padding:10px;border:1.5px dashed var(--border2);border-radius:10px;cursor:pointer"><span id="mPlCoverLabel" style="font-size:.78rem;color:var(--muted)">Cover (optional)</span><input type="file" accept="image/*" style="display:none" onchange="mPickPlCover(this)"/></label></div>
+          <input class="maint-input" id="mPlName" placeholder="Playlist name *" maxlength="60"/>
+          <textarea class="maint-input" id="mPlDesc" placeholder="Description (optional)" maxlength="300" style="min-height:60px;resize:vertical"></textarea>
+          <select class="rig-select" id="mPlAuthor" style="margin-top:8px"><option value="">— Standalone playlist (not an album) —</option>${Object.entries(allAuthors).map(([id,a])=>`<option value="${id}">Album of ${escapeHTML(a.name||'Unnamed')}</option>`).join('')}</select>
+          <button class="maint-save" onclick="mCreatePlaylist()" style="margin-top:10px">Create Playlist</button>
+        </div>`;
+        h+=`<div class="setting-title" style="margin:18px 0 8px">Official Playlists (${officialPl.length})</div>`;
+        if(!officialPl.length){ h+=`<div class="empty-state"><div class="es-title">No official playlists yet</div></div>`; }
+        else {
+          officialPl.forEach(p=>{
+            const n=p.songs?Object.keys(p.songs).length:0;
+            const cov=p.image?`<img src="${p.image}" style="width:42px;height:42px;border-radius:8px;object-fit:cover"/>`:`<div style="width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2))"></div>`;
+            const albumOf = p.authorId&&allAuthors[p.authorId]?` · Album of ${escapeHTML(allAuthors[p.authorId].name)}`:'';
+            h+=`<div class="user-row">${cov}<div class="user-info"><div class="user-name">${escapeHTML(p.name||'Untitled')}</div><div class="user-email">${n} song(s)${albumOf}</div></div>
+              <select class="rig-select" style="width:auto;min-width:150px;margin:0" onchange="mAssignPlaylist('${p.id}',this.value)"><option value="">— Standalone —</option>${Object.entries(allAuthors).map(([id,a])=>`<option value="${id}"${p.authorId===id?' selected':''}>Album of ${escapeHTML(a.name||'Unnamed')}</option>`).join('')}</select>
+              <div class="user-actions"><button class="r-btn view" onclick="mManagePlaylist('${p.id}')">Manage songs</button><button class="r-btn delete" onclick="mDeletePlaylist('${p.id}')">Delete</button></div></div>`;
+          });
+        }
+      }
+
+      else if(musicSubtab==='lyrics'){
+        const reqs = Object.entries(allLyricRequests).map(([id,r])=>({id,...r})).sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+        const pendingReqs = reqs.filter(r=>r.status==='pending');
+
+        // Flatten fix requests: lyricFixRequests/{songId}/{pushKey}
+        const fixReqsAll = [];
+        Object.entries(allLyricFixRequests||{}).forEach(([songId,grp])=>{
+          if(grp && typeof grp==='object'){
+            Object.entries(grp).forEach(([rid,fr])=>{
+              if(fr && typeof fr==='object') fixReqsAll.push({rid, songId, ...fr});
+            });
+          }
+        });
+        const pendingFixReqs = fixReqsAll.filter(r=>r.status==='pending').sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+
+        h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <div class="mod-stat" style="flex:1;min-width:100px"><div class="ms-label">Requests</div><div class="ms-num gold">${pendingReqs.length}</div></div>
+          <div class="mod-stat" style="flex:1;min-width:100px"><div class="ms-label">Fix Requests</div><div class="ms-num gold">${pendingFixReqs.length}</div></div>
+          <div class="mod-stat" style="flex:1;min-width:100px"><div class="ms-label">With Lyrics</div><div class="ms-num green">${Object.keys(allSongLyrics).length}</div></div>
+          <div class="mod-stat" style="flex:1;min-width:100px"><div class="ms-label">Total Songs</div><div class="ms-num">${songs.length}</div></div>
+        </div>`;
+
+        // Pending FIX requests section
+        if(pendingFixReqs.length){
+          h+=`<div class="setting-title" style="margin:0 0 10px">Lyrics Fix Requests (${pendingFixReqs.length})</div>`;
+          pendingFixReqs.forEach(r=>{
+            const s = allMusicSongs[r.songId]||{};
+            const cov = s.cover ? `<img src="${s.cover}" style="width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0"/>` : `<div style="width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0"></div>`;
+            const reporter = escapeHTML(r.requestedByName || getUserName(r.requestedBy) || 'Unknown');
+            h+=`<div class="lyric-req-card pending-req" style="align-items:flex-start;flex-wrap:wrap">
+              ${cov}
+              <div class="lrc-info" style="flex:1;min-width:0">
+                <div class="lrc-title">${escapeHTML(r.songTitle||s.title||'Untitled')}</div>
+                <div class="lrc-meta">by ${escapeHTML(s.posterName||r.posterName||'Unknown')} · reported by ${reporter} · ${timeAgo(r.requestedAt||0)}</div>
+                <div style="margin-top:8px;padding:10px 12px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:8px;font-size:.82rem;color:#fde68a;white-space:pre-wrap;word-break:break-word;line-height:1.5">${escapeHTML(r.note||'(no description)')}</div>
+              </div>
+              <span class="lrc-status req" style="background:rgba(251,191,36,.14);color:#fbbf24;border-color:rgba(251,191,36,.35)">Fix</span>
+              <div class="user-actions" style="flex-wrap:wrap">
+                <button class="r-btn view" onclick="mEditLyrics('${r.songId}','${escapeHTML(s.title||r.songTitle||'Untitled')}')">Edit Lyrics</button>
+                <button class="r-btn approve" onclick="mResolveLyricFix('${r.songId}','${r.rid}')">Mark Resolved</button>
+                <button class="r-btn deny" onclick="mDismissLyricFix('${r.songId}','${r.rid}')">Dismiss</button>
+              </div>
+            </div>`;
+          });
+        }
+
+        // Pending requests section
+        if(pendingReqs.length){
+          h+=`<div class="setting-title" style="margin:18px 0 10px">Pending Lyrics Requests (${pendingReqs.length})</div>`;
+          pendingReqs.forEach(r=>{
+            const s = allMusicSongs[r.songId]||{};
+            const hasCover = s.cover;
+            const cov = hasCover ? `<img src="${s.cover}" style="width:42px;height:42px;border-radius:8px;object-fit:cover"/>` : `<div style="width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2))"></div>`;
+            h+=`<div class="lyric-req-card pending-req">${cov}
+              <div class="lrc-info">
+                <div class="lrc-title">${escapeHTML(r.songTitle||s.title||'Untitled')}</div>
+                <div class="lrc-meta">by ${escapeHTML(s.posterName||r.posterName||'Unknown')} · requested ${timeAgo(r.requestedAt||0)}</div>
+              </div>
+              <span class="lrc-status req">Pending</span>
+              <div class="user-actions">
+                <button class="r-btn view" onclick="mEditLyrics('${r.songId}','${escapeHTML(s.title||r.songTitle||'Untitled')}')">Add Lyrics</button>
+                <button class="r-btn deny" onclick="mDismissLyricReq('${r.songId}')">Dismiss</button>
+              </div>
+            </div>`;
+          });
+        }
+
+        // All songs with lyrics status
+        h+=`<div class="setting-title" style="margin:18px 0 10px">All Songs — Lyrics Status</div>`;
+        if(!songs.length){ h+=`<div class="empty-state"><div class="es-title">No songs</div></div>`; }
+        else {
+          songs.forEach(s=>{
+            const hasLyrics = !!(allSongLyrics[s.id] && allSongLyrics[s.id].lines && allSongLyrics[s.id].lines.length);
+            const hasPending = !!(allLyricRequests[s.id] && allLyricRequests[s.id].status==='pending');
+            const cov = s.cover ? `<img src="${s.cover}" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>` : `<div style="width:38px;height:38px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2))"></div>`;
+            const statusLabel = hasLyrics ? `<span class="lrc-status has">Has Lyrics</span>` : hasPending ? `<span class="lrc-status req">Requested</span>` : `<span class="lrc-status none">No Lyrics</span>`;
+            h+=`<div class="lyric-req-card ${hasLyrics?'has-lyrics':''}">${cov}
+              <div class="lrc-info">
+                <div class="lrc-title">${escapeHTML(s.title||'Untitled')}</div>
+                <div class="lrc-meta">by ${escapeHTML(s.posterName||'Unknown')} · ${mFmt(s.duration)}</div>
+              </div>
+              ${statusLabel}
+              <div class="user-actions">
+                <button class="r-btn ${hasLyrics?'view':'approve'}" onclick="mEditLyrics('${s.id}','${escapeHTML(s.title||'Untitled')}')">${hasLyrics?'Edit':'Add'}</button>
+                ${hasLyrics?`<button class="r-btn delete" onclick="mDeleteLyrics('${s.id}')">Delete</button>`:''}
+              </div>
+            </div>`;
+          });
+        }
+      }
+
+      c.innerHTML=h;
+    }
+
+    /* ── Artist actions ── */
+    window.mAddAuthor=async function(){
+      const name=document.getElementById('mAuthorName').value.trim();
+      if(!name){toast('Enter an artist name');return;}
+      try{
+        const ref=rtdb.ref('authors').push();
+        await ref.set({ name, bio:document.getElementById('mAuthorBio').value.trim()||null, image:mAuthorImg||null, createdAt:Date.now(), createdBy:auth.currentUser.uid });
+        mAuthorImg=null; toast('Artist added','success');
+      }catch(e){toast('Error: '+e.message);}
+    };
+    window.mEditAuthor=function(id){
+      const a=allAuthors[id]||{}; mEditImg=null;
+      const box=document.getElementById('modalBox');
+      box.innerHTML=`<h3>Edit Artist<button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3>
+        <label style="display:inline-flex;align-items:center;gap:10px;padding:10px;border:1.5px dashed var(--border2);border-radius:10px;cursor:pointer;margin-bottom:10px"><span id="mEditImgLabel" style="font-size:.78rem;color:var(--muted)">${a.image?'<img src="'+a.image+'" style="width:38px;height:38px;border-radius:50%;object-fit:cover"/>':'Change photo'}</span><input type="file" accept="image/*" style="display:none" onchange="mPickEditImg(this)"/></label>
+        <input class="maint-input" id="mEditName" value="${escapeHTML(a.name||'')}" placeholder="Artist name" maxlength="60"/>
+        <textarea class="maint-input" id="mEditBio" placeholder="Bio" maxlength="300" style="min-height:60px;resize:vertical">${escapeHTML(a.bio||'')}</textarea>
+        <button class="maint-save" onclick="mSaveAuthor('${id}')" style="margin-top:10px">Save</button>`;
+      document.getElementById('modalOverlay').classList.add('open');
+    };
+    window.mPickEditImg=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mEditImg=d; const t=document.getElementById('mEditImgLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:50%;object-fit:cover"/>'; }); };
+    window.mSaveAuthor=async function(id){
+      const name=document.getElementById('mEditName').value.trim();
+      if(!name){toast('Enter a name');return;}
+      const upd={ name, bio:document.getElementById('mEditBio').value.trim()||null };
+      if(mEditImg) upd.image=mEditImg;
+      try{ await rtdb.ref('authors/'+id).update(upd); document.getElementById('modalOverlay').classList.remove('open'); toast('Artist updated','success'); }
+      catch(e){toast('Error: '+e.message);}
+    };
+    window.mDeleteAuthor=async function(id){
+      if(!confirm('Delete this artist? Their songs stay but become unassigned.'))return;
+      try{
+        const upd={};
+        Object.entries(allMusicSongs).forEach(([sid,s])=>{ if(s&&s.authorId===id) upd['songs/'+sid+'/authorId']=null; });
+        upd['authors/'+id]=null;
+        await rtdb.ref().update(upd);
+        toast('Artist deleted','success');
+      }catch(e){toast('Error: '+e.message);}
+    };
+
+    /* ── Song actions ── */
+    window.mAddSong=async function(){
+      const title=document.getElementById('mSongTitle').value.trim();
+      if(!mAudioData){toast('Choose an audio file');return;}
+      if(!title){toast('Enter a song name');return;}
+      const authorId=document.getElementById('mSongAuthor').value||null;
+      const author=authorId?allAuthors[authorId]:null;
+      try{
+        const ref=rtdb.ref('songs').push();
+        await rtdb.ref('songAudio/'+ref.key).set(mAudioData);
+        const cv=mCoverData||(author&&author.image)||null;
+        if(cv) await rtdb.ref('songCover/'+ref.key).set(cv);
+        await ref.set({
+          title, album:document.getElementById('mSongAlbum').value.trim()||'Single', description:document.getElementById('mSongDesc').value.trim()||'',
+          duration:mAudioDur,
+          authorId, posterUid:auth.currentUser.uid,
+          posterName: author? author.name : 'Aightbet FM',
+          posterAvatar: author? (author.image||null) : null,
+          cover: cv||null,
+          createdAt:Date.now()
+        });
+        mAudioData=null; mCoverData=null; mAudioDur=0;
+        toast('Song published','success');
+      }catch(e){toast('Error: '+(e.message||'').slice(0,80));}
+    };
+    window.mAssignSong=async function(id, authorId){
+      const author=authorId?allAuthors[authorId]:null;
+      try{
+        const upd={ authorId: authorId||null };
+        if(author){ upd.posterName=author.name; if(author.image) upd.posterAvatar=author.image; }
+        await rtdb.ref('songs/'+id).update(upd);
+        toast(authorId?'Assigned to artist':'Unassigned','success');
+      }catch(e){toast('Error: '+e.message);}
+    };
+    window.mDeleteSong=async function(id){
+      if(!confirm('Delete this song?'))return;
+      try{ await rtdb.ref().update({['songs/'+id]:null,['songAudio/'+id]:null,['songCover/'+id]:null,['songLyrics/'+id]:null,['lyricRequests/'+id]:null,['lyricFixRequests/'+id]:null}); toast('Song deleted','success'); }
+      catch(e){toast('Error: '+e.message);}
+    };
+
+    /* ── Playlist actions ── */
+    window.mCreatePlaylist=async function(){
+      const name=document.getElementById('mPlName').value.trim();
+      if(!name){toast('Enter a playlist name');return;}
+      try{
+        await rtdb.ref('playlists').push({
+          name, description:document.getElementById('mPlDesc').value.trim()||'', image:mPlCover||null,
+          official:true, public:true, authorId:(document.getElementById('mPlAuthor')?document.getElementById('mPlAuthor').value||null:null), ownerUid:auth.currentUser.uid, ownerName:'Aightbet FM', songs:{}, createdAt:Date.now()
+        });
+        mPlCover=null; toast('Playlist created','success');
+      }catch(e){toast('Error: '+e.message);}
+    };
+    window.mDeletePlaylist=async function(id){
+      if(!confirm('Delete this playlist?'))return;
+      try{ await rtdb.ref('playlists/'+id).remove(); toast('Playlist deleted','success'); }
+      catch(e){toast('Error: '+e.message);}
+    };
+    window.mAssignPlaylist=async function(id, authorId){
+      try{ await rtdb.ref('playlists/'+id+'/authorId').set(authorId||null); toast(authorId?'Set as album of artist':'Made standalone','success'); }
+      catch(e){toast('Error: '+e.message);}
+    };
+    window.mManagePlaylist=function(id){
+      const p=allPlaylists[id]||{}; const inPl=p.songs||{};
+      const songs=Object.entries(allMusicSongs).map(([sid,s])=>({sid,...s})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      let body=`<h3>Manage: ${escapeHTML(p.name||'Playlist')}<button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></h3>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Tap a song to add or remove it from this playlist.</div>`;
+      if(!songs.length){ body+=`<div class="mm-empty">No songs available.</div>`; }
+      songs.forEach(s=>{
+        const has=!!inPl[s.sid];
+        const cov=s.cover?`<img src="${s.cover}" style="width:36px;height:36px;border-radius:6px;object-fit:cover"/>`:`<div style="width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2))"></div>`;
+        body+=`<div class="user-row" style="cursor:pointer" onclick="mTogglePlaylistSong('${id}','${s.sid}')">${cov}<div class="user-info"><div class="user-name">${escapeHTML(s.title||'Untitled')}</div><div class="user-email">${escapeHTML(s.posterName||'Unknown')}</div></div>
+          <button class="r-btn ${has?'delete':'approve'}">${has?'Remove':'Add'}</button></div>`;
+      });
+      document.getElementById('modalBox').innerHTML=body;
+      document.getElementById('modalOverlay').classList.add('open');
+    };
+    window.mTogglePlaylistSong=async function(pid, sid){
+      const p=allPlaylists[pid]||{}; const has=p.songs&&p.songs[sid];
+      try{
+        if(has){ await rtdb.ref('playlists/'+pid+'/songs/'+sid).remove(); }
+        else { await rtdb.ref('playlists/'+pid+'/songs/'+sid).set(Date.now()); }
+        if(!allPlaylists[pid].songs) allPlaylists[pid].songs={};
+        if(has) delete allPlaylists[pid].songs[sid]; else allPlaylists[pid].songs[sid]=Date.now();
+        mManagePlaylist(pid);
+      }catch(e){toast('Error: '+e.message);}
+    };
+
+    /* ════════ LYRICS EDITOR ════════ */
+    // lyricsEditorLines = [{time: seconds, text: string}, ...]
+    let _lyricsEditorSongId = null;
+    let _lyricsEditorLines = [];
+    // An audio element for preview in the editor
+    let _leAudio = null;
+
+    function mFmtTime(s){ if(!s && s!==0) return''; const m=Math.floor(s/60),r=Math.floor(s%60),ms=Math.round((s%1)*100); return m+':'+String(r).padStart(2,'0')+'.'+String(ms).padStart(2,'0'); }
+    function mParseTime(str){ if(!str) return null; const parts=str.trim().split(':'); if(parts.length===2){ const [min,sec]=parts; return parseFloat(min)*60+parseFloat(sec); } return parseFloat(str); }
+
+    window.mEditLyrics = async function(songId, songTitle){
+      _lyricsEditorSongId = songId;
+      const existing = allSongLyrics[songId];
+      _lyricsEditorLines = existing && existing.lines ? existing.lines.map(l=>({...l})) : [];
+      const s = allMusicSongs[songId]||{};
+
+      // Load audio for preview
+      _leAudio = null;
+      try{
+        const snap = await rtdb.ref('songAudio/'+songId).once('value');
+        const src = snap.val() || s.audio;
+        if(src){ _leAudio = new Audio(); _leAudio.src = src; _leAudio.preload='auto'; }
+      }catch(e){}
+
+      renderLyricsEditor(songId, songTitle);
+      document.getElementById('modalOverlay').classList.add('open');
+    };
+
+    function renderLyricsEditor(songId, songTitle){
+      const box = document.getElementById('modalBox');
+      const lines = _lyricsEditorLines;
+      const hasDuration = _leAudio && _leAudio.duration > 0;
+
+      box.innerHTML = `
+        <h3 style="margin-bottom:10px">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;vertical-align:middle;margin-right:6px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Lyrics — ${escapeHTML(songTitle||'Untitled')}
+          <button class="modal-close" onclick="if(_leAudio){_leAudio.pause();}document.getElementById('modalOverlay').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </h3>
+
+        <!-- Bulk import -->
+        <details style="margin-bottom:12px">
+          <summary style="font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;padding:4px 0">Bulk import (paste plain text lyrics, one line per row)</summary>
+          <textarea class="le-bulk-input" id="leBulkText" placeholder="Line 1&#10;Line 2&#10;Line 3&#10;..."></textarea>
+          <button class="r-btn approve" style="margin-top:6px" onclick="leBulkImport()">Import Lines (timestamps start at 0:00)</button>
+        </details>
+
+        <!-- Audio controls -->
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;margin-bottom:12px">
+          <button class="r-btn view" id="lePlayBtn" onclick="leTogglePlay()" style="min-width:56px">▶ Play</button>
+          <div style="flex:1">
+            <input type="range" id="leSeek" min="0" max="100" value="0" style="width:100%;height:4px;cursor:pointer;accent-color:var(--accent)" oninput="leScrub(this.value)"/>
+          </div>
+          <span id="leTime" style="font-size:.72rem;color:var(--muted);font-family:monospace;min-width:50px;text-align:right">0:00</span>
+          <button class="r-btn" onclick="leStampCurrentLine()" title="Stamp current time to next un-timed line" style="white-space:nowrap">⏱ Stamp</button>
+        </div>
+
+        <!-- Line editor -->
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);display:grid;grid-template-columns:90px 1fr auto;gap:8px;padding:0 10px;margin-bottom:6px">
+          <span>Time (m:ss.cs)</span><span>Lyric line</span><span></span>
+        </div>
+        <div id="leLineList">
+          ${lines.map((l,i)=>`
+            <div class="le-line" id="le-line-${i}">
+              <input class="le-time-input" id="le-t-${i}" value="${mFmtTime(l.time||0)}" placeholder="0:00.00" onchange="leUpdateLine(${i},'time',this.value)" onclick="leJumpTo(${i})"/>
+              <input class="le-text-input" id="le-x-${i}" value="${escapeHTML(l.text||'')}" placeholder="Lyric line..." oninput="leUpdateLine(${i},'text',this.value)"/>
+              <button class="le-rm" onclick="leRemoveLine(${i})">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="le-add" onclick="leAddLine()">+ Add line</button>
+
+        <!-- Save -->
+        <div style="display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <button class="mm-btn purple" onclick="leSaveLyrics()">Save Lyrics</button>
+          <button class="mm-btn red" onclick="mDeleteLyrics('${songId}');document.getElementById('modalOverlay').classList.remove('open')">Delete All</button>
+        </div>
+      `;
+
+      // Wire up audio
+      if(_leAudio){
+        _leAudio.addEventListener('timeupdate', leTimeUpdate);
+        _leAudio.addEventListener('ended', ()=>{ const b=document.getElementById('lePlayBtn'); if(b) b.textContent='▶ Play'; });
+      }
+    }
+
+    function leTimeUpdate(){
+      if(!_leAudio) return;
+      const t = _leAudio.currentTime, d = _leAudio.duration||1;
+      const el = document.getElementById('leTime');
+      const sk = document.getElementById('leSeek');
+      if(el) el.textContent = mFmtTime(t);
+      if(sk) sk.value = (t/d)*100;
+      // Highlight the active line
+      _lyricsEditorLines.forEach((l,i)=>{
+        const node = document.getElementById('le-line-'+i);
+        if(!node) return;
+        const next = _lyricsEditorLines[i+1];
+        const active = t >= (l.time||0) && (!next || t < (next.time||0));
+        node.style.borderColor = active ? 'var(--accent)' : '';
+        node.style.background = active ? 'rgba(139,92,246,.1)' : '';
+      });
+    }
+
+    window.leTogglePlay = function(){
+      if(!_leAudio) return;
+      const btn = document.getElementById('lePlayBtn');
+      if(_leAudio.paused){ _leAudio.play().catch(()=>{}); if(btn) btn.textContent='⏸ Pause'; }
+      else { _leAudio.pause(); if(btn) btn.textContent='▶ Play'; }
+    };
+    window.leScrub = function(val){
+      if(!_leAudio||!_leAudio.duration) return;
+      _leAudio.currentTime = (val/100)*_leAudio.duration;
+    };
+    window.leJumpTo = function(i){
+      if(!_leAudio) return;
+      const t = _lyricsEditorLines[i] && _lyricsEditorLines[i].time;
+      if(t >= 0) _leAudio.currentTime = t;
+    };
+    window.leStampCurrentLine = function(){
+      if(!_leAudio) return;
+      const t = _leAudio.currentTime;
+      // Find next line that has empty or 0 time after last stamped line
+      let idx = -1;
+      for(let i=0; i<_lyricsEditorLines.length; i++){
+        if(!_lyricsEditorLines[i].time || _lyricsEditorLines[i].time === 0){
+          // Also stamp if it's the next unset one
+          if(idx === -1) idx = i;
+          break;
+        }
+      }
+      // Alternatively just stamp the line right after current audio position
+      // Find last line whose time <= current
+      let stampIdx = 0;
+      for(let i=0; i<_lyricsEditorLines.length; i++){
+        if((_lyricsEditorLines[i].time||0) <= t) stampIdx = i+1;
+      }
+      stampIdx = Math.min(stampIdx, _lyricsEditorLines.length-1);
+      if(stampIdx < 0) return;
+      _lyricsEditorLines[stampIdx].time = Math.round(t*100)/100;
+      const inp = document.getElementById('le-t-'+stampIdx);
+      if(inp) inp.value = mFmtTime(_lyricsEditorLines[stampIdx].time);
+      toast('Stamped line '+(stampIdx+1)+' at '+mFmtTime(t),'success');
+    };
+    window.leUpdateLine = function(i, field, val){
+      if(!_lyricsEditorLines[i]) return;
+      if(field==='time'){ const t=mParseTime(val); if(t!==null&&!isNaN(t)) _lyricsEditorLines[i].time=Math.max(0,t); }
+      else { _lyricsEditorLines[i].text = val; }
+    };
+    window.leAddLine = function(){
+      const lastTime = _lyricsEditorLines.length ? (_lyricsEditorLines[_lyricsEditorLines.length-1].time||0)+3 : 0;
+      _lyricsEditorLines.push({time: Math.round(lastTime*100)/100, text:''});
+      const songId = _lyricsEditorSongId;
+      const s = allMusicSongs[songId]||{};
+      renderLyricsEditor(songId, s.title||'Untitled');
+    };
+    window.leRemoveLine = function(i){
+      _lyricsEditorLines.splice(i,1);
+      const songId = _lyricsEditorSongId;
+      const s = allMusicSongs[songId]||{};
+      renderLyricsEditor(songId, s.title||'Untitled');
+    };
+    window.leBulkImport = function(){
+      const raw = (document.getElementById('leBulkText')||{}).value||'';
+      const rows = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(!rows.length){ toast('Paste some lines first'); return; }
+      const interval = 3; // default 3 seconds between lines
+      _lyricsEditorLines = rows.map((text,i)=>({time: Math.round(i*interval*100)/100, text}));
+      const songId = _lyricsEditorSongId;
+      const s = allMusicSongs[songId]||{};
+      renderLyricsEditor(songId, s.title||'Untitled');
+      toast('Imported '+rows.length+' lines — adjust timestamps as needed','success');
+    };
+    window.leSaveLyrics = async function(){
+      if(!_lyricsEditorSongId){ toast('No song selected'); return; }
+      // Collect current input values (user might not have fired onchange)
+      const lines = _lyricsEditorLines.map((l,i)=>{
+        const ti = document.getElementById('le-t-'+i);
+        const xi = document.getElementById('le-x-'+i);
+        const t = ti ? mParseTime(ti.value) : l.time;
+        const x = xi ? xi.value : l.text;
+        return { time: (!isNaN(t)&&t>=0)?Math.round(t*100)/100:0, text: x||'' };
+      }).filter(l=>l.text.trim());
+      lines.sort((a,b)=>a.time-b.time);
+      try{
+        await rtdb.ref('songLyrics/'+_lyricsEditorSongId).set({ lines, updatedAt: Date.now(), updatedBy: auth.currentUser.uid });
+        // Mark lyric request as fulfilled if exists
+        if(allLyricRequests[_lyricsEditorSongId]){
+          await rtdb.ref('lyricRequests/'+_lyricsEditorSongId+'/status').set('fulfilled');
+        }
+        if(_leAudio){ _leAudio.pause(); }
+        document.getElementById('modalOverlay').classList.remove('open');
+        toast('Lyrics saved ('+lines.length+' lines)','success');
+      }catch(e){ toast('Error saving lyrics: '+e.message); }
+    };
+    window.mDeleteLyrics = async function(songId){
+      if(!confirm('Delete all lyrics for this song?')) return;
+      try{ await rtdb.ref('songLyrics/'+songId).remove(); toast('Lyrics deleted','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+    window.mDismissLyricReq = async function(songId){
+      try{ await rtdb.ref('lyricRequests/'+songId+'/status').set('dismissed'); toast('Request dismissed','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+    window.mResolveLyricFix = async function(songId, rid){
+      try{ await rtdb.ref('lyricFixRequests/'+songId+'/'+rid+'/status').set('resolved');
+        await rtdb.ref('lyricFixRequests/'+songId+'/'+rid+'/resolvedAt').set(Date.now());
+        toast('Fix request resolved','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+    window.mDismissLyricFix = async function(songId, rid){
+      try{ await rtdb.ref('lyricFixRequests/'+songId+'/'+rid+'/status').set('dismissed');
+        toast('Fix request dismissed','success'); }
+      catch(e){ toast('Error: '+e.message); }
+    };
+    // Stop editor audio when modal closes
+    document.getElementById('modalOverlay').addEventListener('click', e=>{
+      if(e.target===document.getElementById('modalOverlay')&&_leAudio){ _leAudio.pause(); }
+    });
+
   </script>
 </body>
 </html>

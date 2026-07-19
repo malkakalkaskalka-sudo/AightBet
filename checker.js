@@ -41,6 +41,213 @@
   var exempt=['ban.html','maintenance.html','support.html','index.html','recorder.html'];
   if(exempt.indexOf(page)!==-1)return;
 
+
+/* ════════════════════════════════════════════════════════════
+   LIMITED PRIZE ITEMS — Solar Eclipse intro + Sunburst Crown FX
+   v2 — Absolutely UNHINGED visuals. Self-registering.
+   ════════════════════════════════════════════════════════════ */
+(function _registerLimitedPrizes(){
+
+  /* ── Shared CSS (injected once) ───────────────────────── */
+  if (!document.getElementById('ck-limited-prizes-css')) {
+    var css = document.createElement('style');
+    css.id = 'ck-limited-prizes-css';
+    css.textContent = `
+      /* ═════════ SOLAR ECLIPSE intro ═════════ */
+      @keyframes se-stage{0%{opacity:0}5%,94%{opacity:1}100%{opacity:0}}
+      .se-stage{position:fixed;inset:0;z-index:99998;background:radial-gradient(ellipse at center,#2a0700 0%,#0a0200 55%,#000 100%);overflow:hidden;pointer-events:none;animation:se-stage 5.8s ease forwards;perspective:1400px}
+
+      /* heat-haze repeating scanlines */
+      .se-warp{position:absolute;inset:-12%;background:repeating-linear-gradient(0deg,rgba(255,160,30,.045) 0,rgba(255,160,30,.045) 2px,transparent 2px,transparent 4px);mix-blend-mode:screen;animation:se-warp 5.8s linear infinite;opacity:.7}
+      @keyframes se-warp{0%{transform:translateY(0) skewX(0)}50%{transform:translateY(-14px) skewX(.7deg)}100%{transform:translateY(0) skewX(0)}}
+
+      /* horizon plasma glow */
+      .se-horizon{position:absolute;left:-10%;right:-10%;bottom:0;height:60%;background:radial-gradient(ellipse at 50% 100%,#ff5a00 0%,#7a1400 35%,transparent 72%);opacity:0;animation:se-horizon 5.8s ease forwards;mix-blend-mode:screen}
+      @keyframes se-horizon{0%{opacity:0;transform:scaleY(.15)}14%{opacity:1;transform:scaleY(1)}55%{opacity:.55}80%{opacity:.18}100%{opacity:0}}
+
+      /* THE SUN */
+      .se-sun{position:absolute;top:50%;left:50%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#ffe27a 18%,#ffb84a 42%,#ff7c2b 62%,#7a1400 86%,#000 100%);transform:translate(-50%,-50%) scale(0);box-shadow:0 0 260px 90px rgba(255,180,40,.95),0 0 520px 180px rgba(255,90,0,.55);animation:se-sun 5.8s cubic-bezier(.2,1.2,.4,1) forwards;filter:brightness(1.1)}
+      @keyframes se-sun{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0)}
+        12%{transform:translate(-50%,-50%) scale(2.6) rotate(60deg);box-shadow:0 0 340px 100px rgba(255,200,80,1),0 0 680px 220px rgba(255,90,0,.85)}
+        35%{transform:translate(-50%,-50%) scale(1.9) rotate(140deg)}
+        50%{transform:translate(-50%,-50%) scale(.6) rotate(260deg);background:radial-gradient(circle,#000 56%,#ffd166 62%,#ff7c2b 70%,transparent 82%);box-shadow:0 0 200px 50px #ffd166,0 0 420px 130px rgba(255,140,40,.9),inset 0 0 70px 14px #000}
+        62%{transform:translate(-50%,-50%) scale(.56) rotate(340deg);background:radial-gradient(circle,#000 60%,#ffe27a 64%,#ff3b0a 74%,transparent 86%);box-shadow:0 0 240px 60px #fff5b3,0 0 500px 160px #ff7c2b,inset 0 0 90px 18px #000}
+        80%{transform:translate(-50%,-50%) scale(.54) rotate(460deg)}
+        100%{transform:translate(-50%,-50%) scale(.52) rotate(560deg);opacity:0}
+      }
+
+      /* outer corona — rainbow plasma */
+      .se-corona{position:absolute;top:50%;left:50%;width:760px;height:760px;border-radius:50%;background:conic-gradient(from 0deg,#ffe27a,#ff7c2b,#fff,#ffd166,#ff3b0a,#ffe27a,#fff5b3,#ff7c2b,#ffe27a);transform:translate(-50%,-50%) scale(0) rotate(0);filter:blur(3px) saturate(1.7);mix-blend-mode:screen;animation:se-corona 5.8s ease-out forwards;opacity:0}
+      @keyframes se-corona{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:0}
+        36%{transform:translate(-50%,-50%) scale(1.6) rotate(200deg);opacity:.85}
+        52%{transform:translate(-50%,-50%) scale(3) rotate(420deg);opacity:1;filter:blur(2px) saturate(2.2)}
+        72%{transform:translate(-50%,-50%) scale(3.9) rotate(760deg);opacity:.85}
+        100%{transform:translate(-50%,-50%) scale(5) rotate(1120deg);opacity:0}
+      }
+      /* inner counter-spin corona */
+      .se-corona2{position:absolute;top:50%;left:50%;width:560px;height:560px;border-radius:50%;background:conic-gradient(from 90deg,transparent 0deg,#fff 10deg,transparent 32deg,#ffe27a 90deg,transparent 112deg,#ff3b0a 180deg,transparent 200deg,#ffd166 270deg,transparent 292deg,#fff 350deg,transparent 360deg);transform:translate(-50%,-50%) scale(0) rotate(0);filter:blur(5px);mix-blend-mode:screen;animation:se-corona2 5.8s ease-out forwards;opacity:0}
+      @keyframes se-corona2{
+        0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:0}
+        42%{transform:translate(-50%,-50%) scale(2.2) rotate(-380deg);opacity:.95}
+        66%{transform:translate(-50%,-50%) scale(3.2) rotate(-760deg);opacity:.7}
+        100%{transform:translate(-50%,-50%) scale(4.2) rotate(-1120deg);opacity:0}
+      }
+
+      /* shockwave rings */
+      .se-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:6px solid #fff;transform:translate(-50%,-50%) scale(0);width:320px;height:320px;animation:se-ring 3.4s cubic-bezier(.1,.7,.3,1) forwards;mix-blend-mode:screen}
+      .se-ring-1{animation-delay:.55s;border-color:#ffe27a;box-shadow:0 0 60px #ffe27a}
+      .se-ring-2{animation-delay:.90s;border-color:#ff7c2b;box-shadow:0 0 80px #ff7c2b}
+      .se-ring-3{animation-delay:1.20s;border-color:#fff5b3;box-shadow:0 0 100px #fff}
+      .se-ring-4{animation-delay:1.55s;border-color:#ff3b0a;box-shadow:0 0 70px #ff3b0a;animation-duration:3.8s}
+      .se-ring-5{animation-delay:1.90s;border-color:#fff;box-shadow:0 0 120px #fff,0 0 200px #ffd166;animation-duration:4.2s}
+      @keyframes se-ring{0%{transform:translate(-50%,-50%) scale(0);opacity:1;border-width:8px}100%{transform:translate(-50%,-50%) scale(16);opacity:0;border-width:.5px}}
+
+      /* solar prominence flares — 8 plasma jets */
+      .se-flare{position:absolute;top:50%;left:50%;width:7px;height:0;background:linear-gradient(180deg,transparent 0%,#ff3b0a 35%,#ffe27a 70%,#fff 100%);transform-origin:50% 100%;opacity:0;filter:blur(2px);mix-blend-mode:screen;animation:se-flare 5.8s ease-out forwards}
+      .se-flare:nth-child(1){animation-delay:.5s;transform:translate(-50%,-100%) rotate(0deg)}
+      .se-flare:nth-child(2){animation-delay:.6s;transform:translate(-50%,-100%) rotate(45deg)}
+      .se-flare:nth-child(3){animation-delay:.7s;transform:translate(-50%,-100%) rotate(90deg)}
+      .se-flare:nth-child(4){animation-delay:.8s;transform:translate(-50%,-100%) rotate(135deg)}
+      .se-flare:nth-child(5){animation-delay:.9s;transform:translate(-50%,-100%) rotate(180deg)}
+      .se-flare:nth-child(6){animation-delay:1.0s;transform:translate(-50%,-100%) rotate(225deg)}
+      .se-flare:nth-child(7){animation-delay:1.1s;transform:translate(-50%,-100%) rotate(270deg)}
+      .se-flare:nth-child(8){animation-delay:1.2s;transform:translate(-50%,-100%) rotate(315deg)}
+      @keyframes se-flare{0%{opacity:0;height:0}20%{opacity:1;height:560px}42%{opacity:.85;height:620px}72%{opacity:.35;height:360px}100%{opacity:0;height:0}}
+
+      /* white-out + chromatic */
+      .se-flash{position:absolute;inset:0;background:radial-gradient(circle at center,#fff 0%,#ffe27a 38%,transparent 78%);opacity:0;mix-blend-mode:screen;animation:se-flash 5.8s steps(1) forwards}
+      @keyframes se-flash{0%,42%{opacity:0}45%,49%{opacity:1}52%,77%{opacity:0}79%,82%{opacity:.9}84%,100%{opacity:0}}
+      .se-chroma{position:absolute;inset:0;mix-blend-mode:screen;opacity:0;background:linear-gradient(90deg,rgba(255,0,80,.22),transparent 50%,rgba(0,220,255,.22));animation:se-chroma 5.8s ease forwards}
+      @keyframes se-chroma{0%,30%{opacity:0}45%,75%{opacity:1}100%{opacity:0}}
+
+      /* the name itself */
+      .se-name{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.4) rotate(-6deg);font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:clamp(2.2rem,8vw,6rem);letter-spacing:.22em;color:transparent;background:linear-gradient(135deg,#fff 0%,#fff5b3 22%,#ffe27a 42%,#ff7c2b 65%,#ff3b0a 85%,#fff 100%);background-size:320% 100%;-webkit-background-clip:text;background-clip:text;text-shadow:0 0 60px rgba(255,200,80,.95),0 0 120px rgba(255,90,0,.7);opacity:0;animation:se-name 5.8s cubic-bezier(.22,1,.36,1) forwards;white-space:nowrap;text-align:center;filter:drop-shadow(0 0 14px #ffd166) drop-shadow(0 0 36px #ff7c2b)}
+      @keyframes se-name{
+        0%,50%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-6deg);background-position:0% 50%}
+        62%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(0deg);background-position:50% 50%}
+        72%{opacity:1;transform:translate(-50%,-50%) scale(.98) rotate(0deg)}
+        86%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0deg);background-position:100% 50%}
+        100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(0deg);background-position:220% 50%}
+      }
+
+      /* shake */
+      @keyframes se-shake{
+        0%,100%{transform:translate(0,0)}
+        10%{transform:translate(-9px,5px)}20%{transform:translate(8px,-6px)}
+        30%{transform:translate(-7px,-5px)}40%{transform:translate(6px,6px)}
+        50%{transform:translate(-5px,-3px)}60%{transform:translate(5px,4px)}
+        70%{transform:translate(-3px,3px)}80%{transform:translate(3px,-4px)}90%{transform:translate(-2px,2px)}
+      }
+
+      /* ═════════ SUNBURST CROWN name fx ═════════ */
+      .nfx-sunburst{position:relative;display:inline-block;isolation:isolate;padding:6px 26px;line-height:1.2}
+
+      .nfx-sunburst .nfx-sb-corona{position:absolute;inset:-100% -50%;z-index:-3;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg,#ffe27a 18deg,#ff7c2b 50deg,transparent 78deg,transparent 130deg,#ffd166 160deg,#fff5b3 190deg,transparent 220deg,transparent 280deg,#ff3b0a 305deg,#ffe27a 335deg,transparent 360deg);filter:blur(9px) saturate(1.7);animation:nfx-sb-spin 7s linear infinite;opacity:.95;pointer-events:none}
+      @keyframes nfx-sb-spin{to{transform:rotate(360deg)}}
+
+      .nfx-sunburst .nfx-sb-corona2{position:absolute;inset:-65% -28%;z-index:-3;border-radius:50%;background:conic-gradient(from 180deg,transparent 0deg,#fff 12deg,transparent 36deg,#ffd166 90deg,transparent 120deg,#ff7c2b 200deg,transparent 240deg,#fff5b3 300deg,transparent 330deg);filter:blur(6px) saturate(1.5);animation:nfx-sb-spin-rev 5s linear infinite;opacity:.9;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-spin-rev{to{transform:rotate(-360deg)}}
+
+      .nfx-sunburst .nfx-sb-rays{position:absolute;inset:-85% -32%;z-index:-3;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,200,80,0) 0deg,rgba(255,220,120,.5) 3deg,rgba(255,200,80,0) 9deg);animation:nfx-sb-pulse 2.4s ease-in-out infinite;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-pulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.9;transform:scale(1.1)}}
+
+      .nfx-sunburst .nfx-sb-haze{position:absolute;inset:-32% -18%;z-index:-2;background:radial-gradient(ellipse at center,rgba(255,200,80,.55) 0%,rgba(255,90,0,.25) 40%,transparent 72%);filter:blur(16px);animation:nfx-sb-haze 3s ease-in-out infinite alternate;pointer-events:none;mix-blend-mode:screen}
+      @keyframes nfx-sb-haze{from{opacity:.6;transform:scale(.95)}to{opacity:1;transform:scale(1.12)}}
+
+      .nfx-sunburst .nfx-sb-text{position:relative;background:linear-gradient(120deg,#fff 0%,#fff5b3 18%,#ffe27a 32%,#ffd166 48%,#ff7c2b 65%,#ff3b0a 80%,#ffe27a 92%,#fff 100%);background-size:320% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:900;letter-spacing:.04em;text-shadow:0 0 24px rgba(255,210,80,.9),0 0 48px rgba(255,120,40,.6);filter:drop-shadow(0 0 10px rgba(255,200,80,.75)) drop-shadow(0 0 24px rgba(255,120,40,.6)) drop-shadow(0 0 38px rgba(255,60,0,.4));animation:nfx-sb-shimmer 3s linear infinite,nfx-sb-glow 1.6s ease-in-out infinite}
+      @keyframes nfx-sb-shimmer{0%{background-position:0% 50%}100%{background-position:320% 50%}}
+      @keyframes nfx-sb-glow{
+        0%,100%{filter:drop-shadow(0 0 10px rgba(255,200,80,.75)) drop-shadow(0 0 24px rgba(255,120,40,.6)) drop-shadow(0 0 38px rgba(255,60,0,.4))}
+        50%{filter:drop-shadow(0 0 22px #ffe27a) drop-shadow(0 0 44px #ffb84a) drop-shadow(0 0 76px #ff3b0a)}
+      }
+
+      .nfx-sunburst .nfx-sb-spark{position:absolute;top:50%;left:50%;font-size:.9em;color:#fffbe0;text-shadow:0 0 14px #ffd166,0 0 28px #ff7c2b,0 0 46px #fff5b3;animation:nfx-sb-orbit 4s linear infinite;pointer-events:none;z-index:-1;will-change:transform}
+      .nfx-sunburst .nfx-sb-spark.s2{animation-duration:5.5s;animation-direction:reverse;font-size:.7em}
+      .nfx-sunburst .nfx-sb-spark.s3{animation-duration:6.8s;font-size:.6em;color:#ffe27a;text-shadow:0 0 14px #ff3b0a,0 0 28px #ffd166}
+      .nfx-sunburst .nfx-sb-spark.s4{animation-duration:3.2s;animation-direction:reverse;font-size:.55em}
+      @keyframes nfx-sb-orbit{
+        0%{transform:translate(-50%,-50%) rotate(0deg) translateX(64px) rotate(0deg);opacity:1}
+        50%{opacity:.4}
+        100%{transform:translate(-50%,-50%) rotate(360deg) translateX(64px) rotate(-360deg);opacity:1}
+      }
+
+      .nfx-sunburst .nfx-sb-ghost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px 26px;pointer-events:none;font-weight:900;letter-spacing:.04em;animation:nfx-sb-ghost 2.6s ease-in-out infinite;z-index:-1}
+      .nfx-sunburst .nfx-sb-ghost.g1{color:rgba(255,80,30,.55);transform:translate(3px,0);mix-blend-mode:screen;filter:blur(.5px)}
+      .nfx-sunburst .nfx-sb-ghost.g2{color:rgba(255,220,80,.45);transform:translate(-3px,0);mix-blend-mode:screen;filter:blur(.5px)}
+      @keyframes nfx-sb-ghost{0%,100%{transform:translate(2px,0)}50%{transform:translate(-2px,0)}}
+    `;
+    document.head.appendChild(css);
+  }
+
+  /* ── SOLAR ECLIPSE intro player ───────────────────────── */
+  function playSolarEclipse(displayName) {
+    var nm = (displayName || window.userName || 'PLAYER').toString().toUpperCase();
+    var stage = document.createElement('div');
+    stage.className = 'se-stage';
+    stage.innerHTML =
+      '<div class="se-warp"></div>' +
+      '<div class="se-horizon"></div>' +
+      '<div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div>' +
+      '<div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div><div class="se-flare"></div>' +
+      '<div class="se-corona"></div>' +
+      '<div class="se-corona2"></div>' +
+      '<div class="se-sun"></div>' +
+      '<div class="se-ring se-ring-1"></div>' +
+      '<div class="se-ring se-ring-2"></div>' +
+      '<div class="se-ring se-ring-3"></div>' +
+      '<div class="se-ring se-ring-4"></div>' +
+      '<div class="se-ring se-ring-5"></div>' +
+      '<div class="se-chroma"></div>' +
+      '<div class="se-flash"></div>' +
+      '<div class="se-name">' + nm + '</div>';
+    document.body.appendChild(stage);
+    document.body.style.animation = 'se-shake .14s steps(2) 22';
+    setTimeout(function(){
+      stage.remove();
+      document.body.style.animation = '';
+    }, 5900);
+  }
+
+  /* ── SUNBURST CROWN name effect applier ───────────────── */
+  function applySunburstCrown(el) {
+    if (!el) return;
+    if (el.classList.contains('nfx-sunburst')) return;
+    el.classList.add('nfx-sunburst');
+    var text = el.textContent;
+    el.innerHTML =
+      '<span class="nfx-sb-corona"></span>' +
+      '<span class="nfx-sb-corona2"></span>' +
+      '<span class="nfx-sb-rays"></span>' +
+      '<span class="nfx-sb-haze"></span>' +
+      '<span class="nfx-sb-ghost g1">' + text + '</span>' +
+      '<span class="nfx-sb-ghost g2">' + text + '</span>' +
+      '<span class="nfx-sb-text">' + text + '</span>' +
+      '<span class="nfx-sb-spark">✦</span>' +
+      '<span class="nfx-sb-spark s2">✧</span>' +
+      '<span class="nfx-sb-spark s3">★</span>' +
+      '<span class="nfx-sb-spark s4">✦</span>';
+  }
+
+  /* ── Expose globally so dispatchers can call ── */
+  window.playSolarEclipse   = playSolarEclipse;
+  window.applySunburstCrown = applySunburstCrown;
+
+  /* ── Auto-hook into existing intro/name-fx dispatchers ── */
+  var _origPlayIntro = window.playIntro;
+  window.playIntro = function(val, name) {
+    if (val === 'solar_eclipse') return playSolarEclipse(name);
+    if (typeof _origPlayIntro === 'function') return _origPlayIntro.apply(this, arguments);
+  };
+
+  var _origApplyNameEffect = window.applyNameEffect;
+  window.applyNameEffect = function(el, val) {
+    if (val === 'sunburst_crown') return applySunburstCrown(el);
+    if (typeof _origApplyNameEffect === 'function') return _origApplyNameEffect.apply(this, arguments);
+  };
+
+})();
   // ── MOBILE OPTIMIZATION: inject responsive CSS for all pages ──
   (function(){
     if(document.getElementById('mobile-opt-style'))return;
@@ -1654,105 +1861,664 @@ updateRecFabVisibility(); // run once on load
 // BG MUSIC
 // ══════════════════════════════════════════════════════
 (function(){
+  /* ── Persistent media cache (IndexedDB) — shared across all pages.
+     Once a song's audio/cover is fetched it is stored locally, so replays
+     and reloads never re-download from the database. New songs still come
+     from the DB the first time, then get cached too. ── */
+  if(!window.FMCache){
+    window.FMCache = (function(){
+      var DBN='AightbetFMCache', _db=null;
+      function open(){
+        return new Promise(function(res,rej){
+          if(_db){ res(_db); return; }
+          try{
+            var r=indexedDB.open(DBN,1);
+            r.onupgradeneeded=function(e){ var db=e.target.result;
+              if(!db.objectStoreNames.contains('audio')) db.createObjectStore('audio');
+              if(!db.objectStoreNames.contains('cover')) db.createObjectStore('cover');
+              if(!db.objectStoreNames.contains('meta'))  db.createObjectStore('meta');
+            };
+            r.onsuccess=function(e){ _db=e.target.result; res(_db); };
+            r.onerror=function(){ rej(r.error); };
+          }catch(e){ rej(e); }
+        });
+      }
+      function get(store,key){ return open().then(function(db){ return new Promise(function(res){ try{ var rq=db.transaction(store,'readonly').objectStore(store).get(key); rq.onsuccess=function(){ res(rq.result===undefined?null:rq.result); }; rq.onerror=function(){ res(null); }; }catch(e){ res(null); } }); }).catch(function(){ return null; }); }
+      function put(store,key,val){ return open().then(function(db){ return new Promise(function(res){ try{ var tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val,key); tx.oncomplete=function(){ res(true); }; tx.onerror=function(){ res(false); }; }catch(e){ res(false); } }); }).catch(function(){ return false; }); }
+      return {
+        getAudio:function(id){ return get('audio',id); }, putAudio:function(id,v){ return put('audio',id,v); },
+        getCover:function(id){ return get('cover',id); }, putCover:function(id,v){ return put('cover',id,v); },
+        getMeta:function(k){ return get('meta',k); },     putMeta:function(k,v){ return put('meta',k,v); }
+      };
+    })();
+  }
+
   var MUSIC_KEY  = 'aightbet-bgmusic';
   var PLAYER_ID  = 'aightbet-bgmusic-player';
-  var KEY_SRC    = 'aightbet-music-src';
+  var KEY_ID     = 'aightbet-music-id';
   var KEY_TIME   = 'aightbet-music-time';
-  var KEY_IDX    = 'aightbet-music-idx';
+  var KEY_PAUSED = 'aightbet-music-paused';
 
   if(document.getElementById(PLAYER_ID)) return;
   if(localStorage.getItem(MUSIC_KEY) === 'off') return;
 
-  var tracks = [
-   { src:'bg/track1.mp3', title:'“Pink + White” – Frank Ocean',  album:'Blond', art:'bg/art/track1.jpg' },
-    { src:'bg/track2.mp3', title:'“Weightless” – Marconi Union',     album:'Weightless (Ambient Transmissions Vol. 2)', art:'bg/art/track2.jpg' },
-    { src:'bg/track3.mp3', title:'“Sunset Lover” – Petit Biscuit',   album:'Presence', art:'bg/art/track3.jpg' },
-    { src:'bg/track4.mp3', title:'“Awake” – Tycho',   album:'Awake', art:'bg/art/track4.jpg' },
-    { src:'bg/track5.mp3', title:'“Night Owl” – Galimatias',   album:'Urban Flora', art:'bg/art/track5.jpg' },
-  ];
-
-  // Resolve starting track
-  var savedSrc  = localStorage.getItem(KEY_SRC);
-  var savedTime = parseFloat(localStorage.getItem(KEY_TIME) || '0');
-  var savedIdx  = parseInt(localStorage.getItem(KEY_IDX)  || '0', 10);
-  var idx = 0;
-
-  if(savedSrc){
-    for(var i = 0; i < tracks.length; i++){
-      if(tracks[i].src === savedSrc){ idx = i; break; }
-    }
-  } else if(savedIdx > 0 && savedIdx < tracks.length){
-    idx = savedIdx;
-  }
+  /* Tracks are pulled live from the Aightbet FM library (Firebase `songs`).
+     Each track: { id, src, title, album, art }. The little music bar widget
+     reads window._musicPlayer.tracks / getIdx / setIdx as before. */
+  var tracks   = [];
+  var idx      = 0;
+  var pendingSeek = 0;
+  var isReady  = false;
+  var readyCbs = [];
 
   var audio = document.createElement('audio');
   audio.id     = PLAYER_ID;
   audio.loop   = false;
   audio.volume = 0.25;
-  audio.src    = tracks[idx].src;
-
-  // Save current state immediately so widget reads can trust it
-  function saveState(){
-    localStorage.setItem(KEY_SRC,  tracks[idx].src);
-    localStorage.setItem(KEY_IDX,  idx);
-    localStorage.setItem(KEY_TIME, audio.currentTime);
-  }
-
-  // Restore timestamp
-  if(savedTime > 0){
-    audio.addEventListener('canplay', function restore(){
-      audio.currentTime = savedTime;
-      audio.removeEventListener('canplay', restore);
-    }, { once: true });
-  }
-
-  // Auto-advance to next track
-  audio.addEventListener('ended', function(){
-    idx = (idx + 1) % tracks.length;
-    audio.src = tracks[idx].src;
-    saveState();
-    audio.play().catch(function(){});
-  });
-
-  // Save on unload
-  window.addEventListener('pagehide', saveState);
-  window.addEventListener('beforeunload', saveState);
-
-  // Save every second while playing
-  setInterval(saveState, 1000);
-
-  // Expose helpers so the widget can call them without its own idx getting out of sync
-  window._musicPlayer = {
-    tracks: tracks,
-    getIdx: function(){ return idx; },
-    setIdx: function(i){
-      idx = ((i % tracks.length) + tracks.length) % tracks.length;
-      audio.src = tracks[idx].src;
-      saveState();
-    },
-    getAudio: function(){ return audio; },
-    saveState: saveState
-  };
-
+  try{
+    var _savedVol = parseFloat(localStorage.getItem('aightbet-music-vol'));
+    if(!isNaN(_savedVol) && _savedVol >= 0 && _savedVol <= 1) audio.volume = _savedVol;
+  }catch(e){}
   document.body.appendChild(audio);
 
-  function tryPlay(){
-    audio.play().catch(function(){
-      function onGesture(){
-        audio.play().catch(function(){});
-        document.removeEventListener('click',   onGesture);
-        document.removeEventListener('keydown', onGesture);
+  function findById(id){ for(var i=0;i<tracks.length;i++){ if(tracks[i].id===id) return i; } return -1; }
+  function replaceTracks(list){
+    tracks.length = 0;
+    for(var i=0;i<list.length;i++) tracks.push(list[i]);
+    window._musicPlayer.tracks = tracks;
+  }
+  function saveState(){
+    try{
+      if(tracks[idx]) localStorage.setItem(KEY_ID, tracks[idx].id || '');
+      /* While a resume seek is in flight (pendingSeek > 0) the audio element's
+         currentTime is still 0/stale — don't overwrite the saved position with
+         it, or we'd lose where the user actually left off. */
+      if(pendingSeek <= 0 && (audio.currentTime || 0) > 0){
+        localStorage.setItem(KEY_TIME, audio.currentTime);
       }
-      document.addEventListener('click',   onGesture);
-      document.addEventListener('keydown', onGesture);
+      /* IMPORTANT: KEY_PAUSED is NOT written here. Browsers auto-pause audio
+         on page unload, which would falsely persist "user paused" and stop
+         the next page from autoplaying. Paused state is only written via
+         setUserPaused() at explicit user actions (toggle, play, next, etc.) */
+    }catch(e){}
+  }
+  function setUserPaused(paused){
+    try{ localStorage.setItem(KEY_PAUSED, paused ? '1' : '0'); }catch(e){}
+  }
+  function resolveSrc(t, cb){
+    if(!t){ cb(null); return; }
+    if(t.src){ cb(t.src); return; }
+    if(t._cached){ cb(t._cached); return; }
+    function fromDb(){
+      try{
+        firebase.database().ref('songAudio/'+t.id).once('value').then(function(snap){
+          var dd = snap.val();
+          if(dd){ t._cached = dd; if(window.FMCache) window.FMCache.putAudio(t.id, dd); cb(dd); return; }
+          firebase.database().ref('songs/'+t.id+'/audio').once('value').then(function(s2){   // legacy inline audio
+            var d2 = s2.val(); if(d2){ t._cached = d2; if(window.FMCache) window.FMCache.putAudio(t.id, d2); } cb(d2 || null);
+          }).catch(function(){ cb(null); });
+        }).catch(function(){ cb(null); });
+      }catch(e){ cb(null); }
+    }
+    if(window.FMCache){
+      window.FMCache.getAudio(t.id).then(function(c){ if(c){ t._cached = c; cb(c); } else fromDb(); }).catch(fromDb);
+    } else fromDb();
+  }
+  function loadTrack(i, autoplay){
+    if(!tracks.length) return;
+    idx = ((i % tracks.length) + tracks.length) % tracks.length;
+    var t = tracks[idx];
+    /* If we're (re)loading the saved track and haven't seeked to it yet,
+       restore the saved playback position so swap-overs from cache→fresh
+       (or Next/Prev landing back on the saved track) resume in place. */
+    if(t && localStorage.getItem(KEY_ID) === t.id && pendingSeek <= 0){
+      var st = parseFloat(localStorage.getItem(KEY_TIME) || '0');
+      if(st > 0) pendingSeek = st;
+    }
+    saveState();
+    resolveSrc(t, function(src){
+      if(tracks[idx] !== t) return;            // index moved on while loading
+      if(!src){ if(autoplay && tracks.length > 1) loadTrack(idx + 1, true); return; }
+      audio.src = src;
+      if(autoplay) audio.play().catch(function(){});
+      if(tracks.length > 1){ var nx = tracks[(idx + 1) % tracks.length]; if(nx && nx !== t) resolveSrc(nx, function(){}); } // warm next
     });
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', tryPlay);
-  } else {
-    tryPlay();
+  audio.addEventListener('ended', function(){ if(tracks.length) loadTrack(idx + 1, true); });
+  audio.addEventListener('canplay', function(){ if(pendingSeek>0){ try{ audio.currentTime = pendingSeek; }catch(e){} pendingSeek = 0; } });
+  audio.addEventListener('play', saveState);
+  audio.addEventListener('pause', saveState);
+  window.addEventListener('pagehide', saveState);
+  window.addEventListener('beforeunload', saveState);
+  setInterval(saveState, 1500);
+
+  /* Public API — keeps the existing little-bar widget working, plus new helpers */
+  window._musicPlayer = {
+    tracks:  tracks,
+    getIdx:  function(){ return idx; },
+    setIdx:  function(i){ var wasPlaying = !audio.paused; loadTrack(i, wasPlaying); },
+    getAudio:function(){ return audio; },
+    saveState: saveState,
+    isReady: function(){ return isReady; },
+    onReady: function(cb){ if(isReady){ try{cb();}catch(e){} } else readyCbs.push(cb); },
+    next:    function(){ setUserPaused(false); loadTrack(idx + 1, true); },
+    prev:    function(){ setUserPaused(false); loadTrack(idx - 1, true); },
+    toggle:  function(){ if(audio.paused){ setUserPaused(false); audio.play().catch(function(){}); } else { setUserPaused(true); audio.pause(); } },
+    playId:  function(id){ var i = findById(id); if(i >= 0){ setUserPaused(false); loadTrack(i, true); } },
+    playTracks: function(list, i){ if(list && list.length){ setUserPaused(false); replaceTracks(list); loadTrack(i || 0, true); } }
+  };
+
+  function tryPlay(shouldPlay){
+    if(!tracks.length || window._musicPlayerNoAutoplay) return;
+    resolveSrc(tracks[idx], function(src){
+      if(window._musicPlayerNoAutoplay) return;
+      if(src && !audio.src) audio.src = src;
+      if(shouldPlay === false) return;   // just load + seek, stay paused as it was left
+      audio.play().catch(function(){
+        function onGesture(){
+          if(!window._musicPlayerNoAutoplay) audio.play().catch(function(){});
+          document.removeEventListener('click',   onGesture);
+          document.removeEventListener('keydown', onGesture);
+        }
+        document.addEventListener('click',   onGesture);
+        document.addEventListener('keydown', onGesture);
+      });
+    });
   }
+
+  function buildTracks(arr){
+    var savedId = localStorage.getItem(KEY_ID);
+    var hasSaved = savedId && arr.some(function(t){ return t.id===savedId; });
+    /* If the user was last listening to a song that isn't in the 30-most-recent
+       window (or in the cached list), fetch that specific song directly from
+       Firebase and prepend it so the bar can resume it across pages. */
+    if(savedId && !hasSaved){
+      try{
+        if(typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length){
+          firebase.database().ref('songs/'+savedId).once('value').then(function(snap){
+            var s = snap.val();
+            if(s){
+              arr.unshift({ id:savedId, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) });
+            }
+            _finalizeBuild(arr);
+          }).catch(function(){ _finalizeBuild(arr); });
+          return;
+        }
+      }catch(e){}
+    }
+    _finalizeBuild(arr);
+  }
+
+  function _finalizeBuild(arr){
+    var prevId = tracks[idx] ? tracks[idx].id : null;
+    var curId  = prevId || localStorage.getItem(KEY_ID);
+    replaceTracks(arr);
+    var fi = curId ? findById(curId) : -1;
+    idx = fi >= 0 ? fi : 0;
+    if(!isReady){
+      var savedTime   = parseFloat(localStorage.getItem(KEY_TIME) || '0');
+      var savedPaused = localStorage.getItem(KEY_PAUSED) === '1';
+      pendingSeek = savedTime > 0 ? savedTime : 0;
+      isReady = true;
+      readyCbs.forEach(function(cb){ try{ cb(); }catch(e){} });
+      readyCbs.length = 0;
+      if(tracks[idx]) resolveSrc(tracks[idx], function(){}); // warm current so first play is instant
+      tryPlay(!savedPaused);
+    } else if(tracks[idx] && tracks[idx].id !== prevId){
+      /* Track list refreshed and the saved song is now found — swap audio.src
+         to the correct track without losing play state. */
+      var wasPlaying = !audio.paused;
+      loadTrack(idx, wasPlaying);
+    }
+    try{ window.dispatchEvent(new Event('aightbet-music-ready')); }catch(e){}
+    updateBar();
+  }
+
+  function songsToTracks(data){
+    var arr = [];
+    Object.keys(data || {}).forEach(function(k){
+      var s = data[k] || {};
+      arr.push({ id:k, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) });
+    });
+    arr.sort(function(a,b){ return (b.createdAt || 0) - (a.createdAt || 0); });
+    return arr;
+  }
+
+  var _fbTries = 0;
+  function loadSongs(){
+    /* 1) Instant: build the bar from the cached track list (no network wait).
+       Skip the cached path if the user's last-played song isn't in the cache —
+       otherwise the bar would briefly start the wrong song before the fresh
+       database load corrects it. */
+    if(window.FMCache && !isReady){
+      window.FMCache.getMeta('barTracks').then(function(cached){
+        if(!isReady && cached && cached.length){
+          var sid = localStorage.getItem(KEY_ID);
+          if(!sid || cached.some(function(t){ return t.id===sid; })) buildTracks(cached);
+        }
+      }).catch(function(){});
+    }
+    /* 2) Fresh: refresh from the database in the background, then re-cache */
+    try{
+      if(typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length){
+        if(_fbTries++ < 30) setTimeout(loadSongs, 400);
+        return;
+      }
+      var db = firebase.database();
+      firebase.auth().onAuthStateChanged(function(u){
+        if(!u) return; // songs require auth to read
+        db.ref('songs').orderByChild('createdAt').limitToLast(30).once('value').then(function(snap){
+          var arr = songsToTracks(snap.val() || {});
+          buildTracks(arr);
+          if(window.FMCache) window.FMCache.putMeta('barTracks', arr.map(function(t){ return { id:t.id, title:t.title, album:t.album, createdAt:t.createdAt }; }));
+        }).catch(function(e){ /* read denied / offline */ });
+      });
+    }catch(e){ if(_fbTries++ < 30) setTimeout(loadSongs, 600); }
+  }
+
+  /* ── Cover art for the bar (cached / lazy) ── */
+  function getArt(t, cb){
+    if(!t){ cb(null); return; }
+    if(t.art){ cb(t.art); return; }
+    if(t._art !== undefined){ cb(t._art); return; }
+    function done(d){ t._art = d || null; cb(t._art); }
+    function db(){
+      try{
+        firebase.database().ref('songCover/'+t.id).once('value').then(function(s){
+          var d = s.val(); if(d){ if(window.FMCache) window.FMCache.putCover(t.id, d); done(d); return; }
+          firebase.database().ref('songs/'+t.id+'/cover').once('value').then(function(s2){ done(s2.val()); }).catch(function(){ done(null); });
+        }).catch(function(){ done(null); });
+      }catch(e){ done(null); }
+    }
+    if(window.FMCache){ window.FMCache.getCover(t.id).then(function(c){ if(c){ done(c); } else db(); }).catch(db); } else db();
+  }
+
+  /* ════════ Visible mini music bar ════════ */
+  var ICON_NOTE  = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  var ICON_PLAY  = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  var ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+  var ICON_PREV  = '<svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16zM5 19V5h2v14H5z"/></svg>';
+  var ICON_NEXT  = '<svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4zm12 1h2v14h-2V5z"/></svg>';
+  var ICON_LIB   = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+  var ICON_CHEV_DOWN = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var ICON_CHEV_UP   = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round"><polyline points="18 15 12 9 6 15"/></svg>';
+  function volIcon(level){
+    if(level<=0) return '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>';
+    if(level===1) return '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M16 9.5a4.5 4.5 0 0 1 0 5"/></svg>';
+    return '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M16 9.5a4.5 4.5 0 0 1 0 5"/><path d="M19.5 7a8 8 0 0 1 0 10"/></svg>';
+  }
+  function fmtTime(s){ if(!isFinite(s) || s<0) s=0; s=Math.floor(s); var m=Math.floor(s/60), sec=s%60; return m+':'+(sec<10?'0':'')+sec; }
+
+  function updateProgress(){
+    var bar = document.getElementById('fm-mini-bar'); if(!bar) return;
+    var fill = bar.querySelector('.fmb-progress-fill'), thumb = bar.querySelector('.fmb-progress-thumb'),
+        curEl = bar.querySelector('.fmb-time-cur'), durEl = bar.querySelector('.fmb-time-dur');
+    if(!fill) return;
+    var d = audio.duration, c = audio.currentTime || 0;
+    var pct = (d && isFinite(d) && d > 0) ? Math.min(100, (c / d) * 100) : 0;
+    fill.style.width = pct + '%';
+    if(thumb) thumb.style.left = pct + '%';
+    if(curEl) curEl.textContent = fmtTime(c);
+    if(durEl) durEl.textContent = fmtTime(d && isFinite(d) ? d : 0);
+  }
+
+  function updateBar(){
+    var bar = document.getElementById('fm-mini-bar'); if(!bar) return;
+    var t = tracks[idx];
+    var titleEl = bar.querySelector('.fmb-title'), subEl = bar.querySelector('.fmb-sub'),
+        artEl = bar.querySelector('.fmb-art'), playEl = bar.querySelector('.fmb-play');
+    if(t){
+      titleEl.textContent = t.title || 'Untitled';
+      subEl.textContent   = t.album || 'Aightbet FM';
+      if(bar._artId !== t.id){ bar._artId = t.id; artEl.innerHTML = ICON_NOTE; getArt(t, function(src){ if(bar._artId === t.id) artEl.innerHTML = src ? '<img src="'+src+'"/>' : ICON_NOTE; }); }
+    }else{
+      titleEl.textContent = 'Nothing playing';
+      subEl.textContent   = 'Tap to open Aightbet FM';
+      artEl.innerHTML = ICON_NOTE; bar._artId = null;
+    }
+    playEl.innerHTML = audio.paused ? ICON_PLAY : ICON_PAUSE;
+    bar.classList.toggle('playing', !audio.paused);
+    updateProgress();
+  }
+
+  function buildBarUI(){
+    if(document.getElementById('fm-mini-bar')) return;
+    var path = (location.pathname || '').toLowerCase();
+    if(/music\.html$/.test(path)) return;                  // the full FM page is its own player
+    var setting = localStorage.getItem('aightbet-musicbar') || 'all';
+    var isHome  = /home\.html$/.test(path);
+    if(setting === 'home' && !isHome) return;              // home-only mode
+
+    var st = document.createElement('style');
+    st.textContent =
+      '#fm-mini-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99990;display:flex;flex-direction:column;padding:10px 16px 12px;background:linear-gradient(180deg,rgba(28,24,42,.92),rgba(16,14,24,.92));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.13);border-radius:24px;box-shadow:0 16px 44px -12px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.07);max-width:min(440px,92vw);font-family:"Segoe UI",system-ui,sans-serif;animation:fmbIn .4s cubic-bezier(.2,.9,.3,1.2);transition:padding .3s ease,border-radius .3s ease}'+
+      '@keyframes fmbIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}'+
+      '#fm-mini-bar .fmb-row{display:flex;align-items:center;gap:12px;width:100%}'+
+      '#fm-mini-bar .fmb-art{position:relative;width:44px;height:44px;border-radius:50%;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 10px -2px rgba(0,0,0,.5);transition:width .3s,height .3s}'+
+      '#fm-mini-bar .fmb-art img{width:100%;height:100%;object-fit:cover}'+
+      '#fm-mini-bar .fmb-art::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid #8b5cf6;opacity:0;pointer-events:none}'+
+      '#fm-mini-bar.playing .fmb-art::before{animation:fmbPulse 1.8s ease-out infinite}'+
+      '@keyframes fmbPulse{0%{transform:scale(.82);opacity:.65}100%{transform:scale(1.4);opacity:0}}'+
+      '#fm-mini-bar .fmb-meta{min-width:0;cursor:pointer;max-width:140px}'+
+      '#fm-mini-bar .fmb-title{font-size:.82rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+      '#fm-mini-bar .fmb-sub{font-size:.7rem;color:#9aa0b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}'+
+      '#fm-mini-bar .fmb-ctrls{display:flex;align-items:center;gap:2px;margin-left:auto}'+
+      '#fm-mini-bar button{background:none;border:none;cursor:pointer;color:#cbd5e1;display:flex;align-items:center;justify-content:center;padding:6px;border-radius:50%;transition:color .15s,background .15s,transform .15s}'+
+      '#fm-mini-bar button:hover{color:#fff;background:rgba(255,255,255,.08)}'+
+      '#fm-mini-bar button:active{transform:scale(.92)}'+
+      '#fm-mini-bar button svg{width:18px;height:18px;fill:currentColor;stroke:none}'+
+      '#fm-mini-bar .fmb-play{width:36px;height:36px;background:#fff;color:#12101c;box-shadow:0 3px 12px -2px rgba(255,255,255,.3);margin:0 2px}'+
+      '#fm-mini-bar .fmb-play:hover{background:#fff;color:#12101c;transform:scale(1.06)}'+
+      '#fm-mini-bar .fmb-play svg{width:17px;height:17px}'+
+      '#fm-mini-bar .fmb-lib,#fm-mini-bar .fmb-vol,#fm-mini-bar .fmb-min{color:#9aa0b0}'+
+      '#fm-mini-bar .fmb-lib svg,#fm-mini-bar .fmb-vol svg{fill:none;stroke:currentColor;stroke-width:2}'+
+      '#fm-mini-bar .fmb-vol.active{color:#fff;background:rgba(255,255,255,.08)}'+
+      '#fm-mini-bar .fmb-vol-wrap{position:relative}'+
+      '#fm-mini-bar .fmb-vol-pop{position:absolute;bottom:48px;left:50%;transform:translateX(-50%) translateY(6px);background:rgba(24,22,36,.97);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:10px 12px;box-shadow:0 16px 36px -10px rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;display:flex;align-items:center}'+
+      '#fm-mini-bar .fmb-vol-pop.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}'+
+      '#fm-mini-bar .fmb-vol-range{-webkit-appearance:none;appearance:none;width:90px;height:4px;border-radius:4px;background:rgba(255,255,255,.18);outline:none;cursor:pointer}'+
+      '#fm-mini-bar .fmb-vol-range::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(139,92,246,.4),0 2px 5px rgba(0,0,0,.4);cursor:pointer}'+
+      '#fm-mini-bar .fmb-vol-range::-moz-range-thumb{width:13px;height:13px;border:none;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(139,92,246,.4);cursor:pointer}'+
+      '#fm-mini-bar .fmb-progress-row{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px}'+
+      '#fm-mini-bar .fmb-time-cur,#fm-mini-bar .fmb-time-dur{font-size:.62rem;color:#9aa0b0;font-weight:600;flex-shrink:0;min-width:28px;text-align:center;font-variant-numeric:tabular-nums}'+
+      '#fm-mini-bar .fmb-progress-track{flex:1;position:relative;height:14px;display:flex;align-items:center;cursor:pointer;touch-action:none;user-select:none}'+
+      '#fm-mini-bar .fmb-progress-line{position:relative;width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,.15);overflow:hidden}'+
+      '#fm-mini-bar .fmb-progress-fill{position:absolute;left:0;top:0;height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,#8b5cf6,#06b6d4)}'+
+      '#fm-mini-bar .fmb-progress-thumb{position:absolute;top:50%;left:0%;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.4);transform:translate(-50%,-50%);opacity:0;transition:opacity .15s}'+
+      '#fm-mini-bar .fmb-progress-track:hover .fmb-progress-thumb,#fm-mini-bar .fmb-progress-track.dragging .fmb-progress-thumb{opacity:1}'+
+      '#fm-mini-bar .fmb-progress-track.dragging .fmb-progress-fill{background:linear-gradient(90deg,#a78bfa,#22d3ee)}'+
+      '#fm-mini-bar.mini{padding:7px;border-radius:50%}'+
+      '#fm-mini-bar.mini .fmb-row{gap:0}'+
+      '#fm-mini-bar.mini .fmb-meta,#fm-mini-bar.mini .fmb-ctrls,#fm-mini-bar.mini .fmb-progress-row{display:none}'+
+      '#fm-mini-bar.mini .fmb-art{width:46px;height:46px}'+
+      '#fm-lib-pop{position:fixed;inset:0;z-index:99991;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:0 0 96px}'+
+      '#fm-lib-pop.open{display:flex;animation:fmbIn .25s ease}'+
+      '#fm-lib-pop .flp-panel{width:min(440px,94vw);max-height:64vh;display:flex;flex-direction:column;background:rgba(20,18,30,.97);border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 24px 60px -12px rgba(0,0,0,.8);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif}'+
+      '#fm-lib-pop .flp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px}'+
+      '#fm-lib-pop .flp-head h3{font-size:1.05rem;font-weight:800;color:#fff;margin:0}'+
+      '#fm-lib-pop .flp-x{background:none;border:none;color:#9aa0b0;cursor:pointer;padding:4px}'+
+      '#fm-lib-pop .flp-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2}'+
+      '#fm-lib-pop .flp-tabs{display:flex;gap:6px;padding:0 18px 12px}'+
+      '#fm-lib-pop .flp-tab{flex:1;padding:8px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#9aa0b0;font-size:.78rem;font-weight:700;cursor:pointer}'+
+      '#fm-lib-pop .flp-tab.on{background:#8b5cf6;color:#fff;border-color:transparent}'+
+      '#fm-lib-pop .flp-body{overflow-y:auto;padding:4px 12px 14px;flex:1}'+
+      '#fm-lib-pop .flp-row{display:flex;align-items:center;gap:11px;padding:8px;border-radius:11px;cursor:pointer}'+
+      '#fm-lib-pop .flp-row:hover{background:rgba(255,255,255,.06)}'+
+      '#fm-lib-pop .flp-art{width:42px;height:42px;border-radius:8px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center}'+
+      '#fm-lib-pop .flp-art.round{border-radius:50%}'+
+      '#fm-lib-pop .flp-art img{width:100%;height:100%;object-fit:cover}'+
+      '#fm-lib-pop .flp-art.liked{background:linear-gradient(135deg,#7c3aed,#ec4899)}'+
+      '#fm-lib-pop .flp-meta{flex:1;min-width:0}'+
+      '#fm-lib-pop .flp-name{font-size:.86rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+      '#fm-lib-pop .flp-sub{font-size:.72rem;color:#9aa0b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+      '#fm-lib-pop .flp-like{background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0}'+
+      '#fm-lib-pop .flp-empty{text-align:center;color:#9aa0b0;font-size:.82rem;padding:30px 10px}'+
+      '@media(max-width:560px){#fm-mini-bar{bottom:12px;padding:8px 12px 10px}#fm-mini-bar .fmb-meta{max-width:92px}#fm-mini-bar .fmb-ctrls{gap:0}#fm-mini-bar button{padding:5px}}'+
+      '@media(max-width:380px){#fm-mini-bar .fmb-time-cur,#fm-mini-bar .fmb-time-dur{display:none}}';
+    document.head.appendChild(st);
+
+    var bar = document.createElement('div');
+    bar.id = 'fm-mini-bar';
+    bar.innerHTML =
+      '<div class="fmb-row">'+
+        '<div class="fmb-art"></div>'+
+        '<div class="fmb-meta"><div class="fmb-title">Loading…</div><div class="fmb-sub">Aightbet FM</div></div>'+
+        '<div class="fmb-ctrls">'+
+          '<button class="fmb-prev" title="Previous">'+ICON_PREV+'</button>'+
+          '<button class="fmb-play" title="Play / Pause">'+ICON_PLAY+'</button>'+
+          '<button class="fmb-next" title="Next">'+ICON_NEXT+'</button>'+
+          '<div class="fmb-vol-wrap">'+
+            '<button class="fmb-vol" title="Volume">'+volIcon(audio.volume<=0?0:(audio.volume<0.5?1:2))+'</button>'+
+            '<div class="fmb-vol-pop"><input type="range" class="fmb-vol-range" min="0" max="100" step="1" value="'+Math.round(audio.volume*100)+'"></div>'+
+          '</div>'+
+          '<button class="fmb-lib" title="Library">'+ICON_LIB+'</button>'+
+          '<button class="fmb-min" title="Minimize">'+ICON_CHEV_DOWN+'</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fmb-progress-row">'+
+        '<span class="fmb-time-cur">0:00</span>'+
+        '<div class="fmb-progress-track"><div class="fmb-progress-line"><div class="fmb-progress-fill"></div></div><div class="fmb-progress-thumb"></div></div>'+
+        '<span class="fmb-time-dur">0:00</span>'+
+      '</div>';
+    (document.body || document.documentElement).appendChild(bar);
+
+    bar.querySelector('.fmb-prev').addEventListener('click', function(){ window._musicPlayer && window._musicPlayer.prev(); });
+    bar.querySelector('.fmb-next').addEventListener('click', function(){ window._musicPlayer && window._musicPlayer.next(); });
+    bar.querySelector('.fmb-play').addEventListener('click', function(){ window._musicPlayer && window._musicPlayer.toggle(); });
+    bar.querySelector('.fmb-lib').addEventListener('click', function(){ openLibPopup(); });
+    function goFM(){ location.href = 'music.html'; }
+
+    /* minimize / expand */
+    var volPop = bar.querySelector('.fmb-vol-pop'), volBtn = bar.querySelector('.fmb-vol');
+    function setMini(on){
+      bar.classList.toggle('mini', on);
+      try{ localStorage.setItem('aightbet-musicbar-mini', on ? '1' : '0'); }catch(e){}
+      var minBtn = bar.querySelector('.fmb-min');
+      if(minBtn){ minBtn.innerHTML = on ? ICON_CHEV_UP : ICON_CHEV_DOWN; minBtn.title = on ? 'Expand' : 'Minimize'; }
+      if(on){ volPop.classList.remove('open'); volBtn.classList.remove('active'); }
+    }
+    bar.querySelector('.fmb-min').addEventListener('click', function(e){ e.stopPropagation(); setMini(!bar.classList.contains('mini')); });
+    bar.querySelector('.fmb-art').addEventListener('click', function(){ if(bar.classList.contains('mini')) setMini(false); else goFM(); });
+    bar.querySelector('.fmb-meta').addEventListener('click', goFM);
+    try{ if(localStorage.getItem('aightbet-musicbar-mini') === '1') setMini(true); }catch(e){}
+
+    /* volume */
+    var volRange = bar.querySelector('.fmb-vol-range');
+    function refreshVolIcon(){ volBtn.innerHTML = volIcon(audio.volume<=0 ? 0 : (audio.volume<0.5 ? 1 : 2)); }
+    volBtn.addEventListener('click', function(e){ e.stopPropagation(); var open = volPop.classList.toggle('open'); volBtn.classList.toggle('active', open); });
+    volRange.addEventListener('input', function(){
+      var v = volRange.value / 100; audio.volume = v;
+      try{ localStorage.setItem('aightbet-music-vol', v); }catch(e){}
+      refreshVolIcon();
+    });
+    document.addEventListener('click', function(e){ if(!e.target.closest('.fmb-vol-wrap')){ volPop.classList.remove('open'); volBtn.classList.remove('active'); } });
+
+    /* progress / seek */
+    var track = bar.querySelector('.fmb-progress-track');
+    var dragging = false;
+    function ratioFromEvent(e){
+      var rect = track.getBoundingClientRect();
+      var x = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      return Math.min(1, Math.max(0, (x - rect.left) / rect.width));
+    }
+    function seekTo(ratio){
+      if(!audio.duration || !isFinite(audio.duration)) return;
+      audio.currentTime = ratio * audio.duration;
+      updateProgress();
+    }
+    track.addEventListener('pointerdown', function(e){ dragging = true; track.classList.add('dragging'); seekTo(ratioFromEvent(e)); });
+    window.addEventListener('pointermove', function(e){ if(dragging) seekTo(ratioFromEvent(e)); });
+    window.addEventListener('pointerup', function(){ if(dragging){ dragging = false; track.classList.remove('dragging'); } });
+
+    audio.addEventListener('play', updateBar);
+    audio.addEventListener('pause', updateBar);
+    audio.addEventListener('loadstart', updateBar);
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('loadedmetadata', updateProgress);
+    window.addEventListener('aightbet-music-ready', updateBar);
+    updateBar();
+  }
+
+  /* ════════ Library popup (songs / playlists / artists, with likes) ════════ */
+  var lib = { loaded:false, songs:{}, authors:{}, playlists:{}, likedP:{}, likedA:{}, likedS:{}, tab:'playlists' };
+  function esc2(s){ return (''+(s==null?'':s)).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function loadLibrary(cb){
+    try{
+      var db = firebase.database(), u = firebase.auth().currentUser;
+      Promise.all([
+        db.ref('songs').once('value'),
+        db.ref('authors').once('value'),
+        db.ref('playlists').once('value'),
+        u ? db.ref('users/'+u.uid+'/likedPlaylists').once('value') : Promise.resolve(null),
+        u ? db.ref('users/'+u.uid+'/likedAuthors').once('value')   : Promise.resolve(null),
+        u ? db.ref('users/'+u.uid+'/likedSongs').once('value')    : Promise.resolve(null)
+      ]).then(function(r){
+        lib.songs     = (r[0]&&r[0].val()) || {};
+        lib.authors   = (r[1]&&r[1].val()) || {};
+        lib.playlists = (r[2]&&r[2].val()) || {};
+        lib.likedP    = (r[3]&&r[3].val()) || {};
+        lib.likedA    = (r[4]&&r[4].val()) || {};
+        lib.likedS    = (r[5]&&r[5].val()) || {};
+        lib.loaded = true; cb && cb();
+      }).catch(function(){ cb && cb(); });
+    }catch(e){ cb && cb(); }
+  }
+  function refreshLikes(cb){
+    var u = firebase.auth().currentUser; if(!u){ cb && cb(); return; }
+    var db = firebase.database();
+    Promise.all([ db.ref('users/'+u.uid+'/likedPlaylists').once('value'), db.ref('users/'+u.uid+'/likedAuthors').once('value'), db.ref('users/'+u.uid+'/likedSongs').once('value') ]).then(function(r){
+      lib.likedP = (r[0]&&r[0].val()) || {}; lib.likedA = (r[1]&&r[1].val()) || {}; lib.likedS = (r[2]&&r[2].val()) || {}; cb && cb();
+    }).catch(function(){ cb && cb(); });
+  }
+
+  function makeTrack(id){ var s = lib.songs[id] || {}; return { id:id, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) }; }
+  function songIdsSorted(){ return Object.keys(lib.songs).sort(function(a,b){ return ((lib.songs[b]||{}).createdAt||0) - ((lib.songs[a]||{}).createdAt||0); }); }
+  function playSongId(id){ var ids = songIdsSorted(); var i = ids.indexOf(id); if(window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), i<0?0:i); }
+  function playPlaylistId(pid){ var p = lib.playlists[pid]||{}; var obj = p.songs||{}; var ids = Object.keys(obj).filter(function(k){ return lib.songs[k]; }).sort(function(a,b){ return (obj[a]||0)-(obj[b]||0); }); if(ids.length && window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), 0); }
+  function playAuthorId(aid){ var ids = Object.keys(lib.songs).filter(function(k){ return (lib.songs[k]||{}).authorId===aid; }).sort(function(a,b){ return ((lib.songs[b]||{}).createdAt||0)-((lib.songs[a]||{}).createdAt||0); }); if(ids.length && window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), 0); }
+  function playLikedSongs(){ var ids = songIdsSorted().filter(function(id){ return lib.likedS[id]; }); if(ids.length && window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), 0); }
+
+  function toggleLikeP(pid){ var u = firebase.auth().currentUser; if(!u) return; var ref = firebase.database().ref('users/'+u.uid+'/likedPlaylists/'+pid); if(lib.likedP[pid]){ ref.remove(); delete lib.likedP[pid]; } else { ref.set(Date.now()); lib.likedP[pid]=Date.now(); } renderLibPop(); }
+  function toggleLikeA(aid){ var u = firebase.auth().currentUser; if(!u) return; var ref = firebase.database().ref('users/'+u.uid+'/likedAuthors/'+aid); if(lib.likedA[aid]){ ref.remove(); delete lib.likedA[aid]; } else { ref.set(Date.now()); lib.likedA[aid]=Date.now(); } renderLibPop(); }
+
+  function popHeart(on){ return '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:'+(on?'#ec4899':'#9aa0b0')+';fill:'+(on?'#ec4899':'none')+';stroke-width:2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'; }
+  var ICON_HEART_FILL = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#fff;stroke:none"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+  function libArt(img, round){ return '<div class="flp-art'+(round?' round':'')+'">'+(img?'<img src="'+img+'"/>':ICON_NOTE)+'</div>'; }
+
+  function renderLibPop(){
+    var body = document.getElementById('fm-lib-body'); if(!body) return;
+    var uid = (firebase.auth().currentUser||{}).uid;
+    var html = '';
+    if(lib.tab==='playlists'){
+      var likedSongIds = Object.keys(lib.likedS).filter(function(id){ return lib.songs[id]; });
+      html += '<div class="flp-row" data-playliked="1">'+
+        '<div class="flp-art liked">'+ICON_HEART_FILL+'</div>'+
+        '<div class="flp-meta"><div class="flp-name">Liked Songs</div><div class="flp-sub">'+likedSongIds.length+' song'+(likedSongIds.length===1?'':'s')+'</div></div></div>';
+      var pls = Object.keys(lib.playlists).map(function(id){ return Object.assign({id:id}, lib.playlists[id]); })
+        .filter(function(p){ return p.official || p.public || (uid && p.ownerUid===uid); })
+        .sort(function(a,b){ var al=lib.likedP[a.id]?0:1, bl=lib.likedP[b.id]?0:1; if(al!==bl) return al-bl; return (b.createdAt||0)-(a.createdAt||0); });
+      if(!pls.length) html += '<div class="flp-empty">No playlists yet.</div>';
+      pls.forEach(function(p){
+        var n = p.songs?Object.keys(p.songs).length:0;
+        var sub = (p.official?'Official':(p.ownerName||'Playlist'))+' · '+n+' song'+(n===1?'':'s');
+        html += '<div class="flp-row" data-playpl="'+p.id+'">'+libArt(p.image,false)+
+          '<div class="flp-meta"><div class="flp-name">'+esc2(p.name||'Untitled')+'</div><div class="flp-sub">'+esc2(sub)+'</div></div>'+
+          '<button class="flp-like" data-likep="'+p.id+'">'+popHeart(!!lib.likedP[p.id])+'</button></div>';
+      });
+    } else if(lib.tab==='artists'){
+      var au = Object.keys(lib.authors).map(function(id){ return Object.assign({id:id}, lib.authors[id]); })
+        .sort(function(a,b){ var al=lib.likedA[a.id]?0:1, bl=lib.likedA[b.id]?0:1; if(al!==bl) return al-bl; return (a.name||'').localeCompare(b.name||''); });
+      if(!au.length) html = '<div class="flp-empty">No artists yet.</div>';
+      au.forEach(function(a){
+        var cnt = Object.keys(lib.songs).filter(function(k){ return (lib.songs[k]||{}).authorId===a.id; }).length;
+        html += '<div class="flp-row" data-playauthor="'+a.id+'">'+libArt(a.image,true)+
+          '<div class="flp-meta"><div class="flp-name">'+esc2(a.name||'Unknown')+'</div><div class="flp-sub">'+cnt+' track'+(cnt===1?'':'s')+'</div></div>'+
+          '<button class="flp-like" data-likea="'+a.id+'">'+popHeart(!!lib.likedA[a.id])+'</button></div>';
+      });
+    } else {
+      var ids = songIdsSorted();
+      if(!ids.length) html = '<div class="flp-empty">No songs yet.</div>';
+      ids.forEach(function(id){ var s = lib.songs[id]||{};
+        html += '<div class="flp-row" data-playsong="'+id+'">'+libArt(s.cover,false)+
+          '<div class="flp-meta"><div class="flp-name">'+esc2(s.title||'Untitled')+'</div><div class="flp-sub">'+esc2(s.album||s.posterName||'Aightbet FM')+'</div></div></div>';
+      });
+    }
+    body.innerHTML = html;
+  }
+  function updateTabs(pop){ Array.prototype.forEach.call(pop.querySelectorAll('.flp-tab'), function(t){ t.classList.toggle('on', t.getAttribute('data-tab')===lib.tab); }); }
+  function closeLibPop(){ var p = document.getElementById('fm-lib-pop'); if(p) p.classList.remove('open'); }
+  function createLibPop(){
+    var pop = document.createElement('div'); pop.id = 'fm-lib-pop';
+    pop.innerHTML =
+      '<div class="flp-panel">'+
+        '<div class="flp-head"><h3>Your Library</h3><button class="flp-x" title="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'+
+        '<div class="flp-tabs"><button class="flp-tab" data-tab="playlists">Playlists</button><button class="flp-tab" data-tab="artists">Artists</button><button class="flp-tab" data-tab="songs">Songs</button></div>'+
+        '<div class="flp-body" id="fm-lib-body"></div>'+
+      '</div>';
+    document.body.appendChild(pop);
+    pop.addEventListener('click', function(e){ if(e.target===pop) closeLibPop(); });
+    pop.querySelector('.flp-x').addEventListener('click', closeLibPop);
+    Array.prototype.forEach.call(pop.querySelectorAll('.flp-tab'), function(t){ t.addEventListener('click', function(){ lib.tab = t.getAttribute('data-tab'); updateTabs(pop); renderLibPop(); }); });
+    pop.querySelector('#fm-lib-body').addEventListener('click', function(e){
+      var lp=e.target.closest('[data-likep]');     if(lp){ e.stopPropagation(); toggleLikeP(lp.getAttribute('data-likep')); return; }
+      var la=e.target.closest('[data-likea]');     if(la){ e.stopPropagation(); toggleLikeA(la.getAttribute('data-likea')); return; }
+      var ps=e.target.closest('[data-playsong]');  if(ps){ playSongId(ps.getAttribute('data-playsong')); closeLibPop(); return; }
+      var pp=e.target.closest('[data-playpl]');    if(pp){ playPlaylistId(pp.getAttribute('data-playpl')); closeLibPop(); return; }
+      var pa=e.target.closest('[data-playauthor]');if(pa){ playAuthorId(pa.getAttribute('data-playauthor')); closeLibPop(); return; }
+      var pk=e.target.closest('[data-playliked]'); if(pk){ playLikedSongs(); closeLibPop(); return; }
+    });
+    updateTabs(pop);
+    return pop;
+  }
+  function openLibPopup(){
+    var pop = document.getElementById('fm-lib-pop') || createLibPop();
+    pop.classList.add('open');
+    if(lib.loaded){ renderLibPop(); refreshLikes(function(){ renderLibPop(); }); }
+    else { var b=document.getElementById('fm-lib-body'); if(b) b.innerHTML='<div class="flp-empty">Loading…</div>'; loadLibrary(function(){ renderLibPop(); }); }
+  }
+
+  /* ── INSTANT RESUME from local IndexedDB cache ──────────────────
+     Tries to start the saved song from local cache before Firebase has
+     even finished auth + library load. On repeat visits this brings the
+     bar from "silent for a long time" to "playing within a few hundred ms". */
+  function instantResume(){
+    try{
+      if(window._musicPlayerNoAutoplay) return;
+      if(!window.FMCache || audio.src || isReady) return;
+      var savedId = localStorage.getItem(KEY_ID);
+      if(!savedId) return;
+      var savedPaused = localStorage.getItem(KEY_PAUSED) === '1';
+      var savedTime   = parseFloat(localStorage.getItem(KEY_TIME) || '0');
+      window.FMCache.getAudio(savedId).then(function(audioData){
+        if(!audioData || audio.src || isReady) return; // already resolved through fresh path
+        audio.src = audioData;
+        if(savedTime > 0) pendingSeek = savedTime;
+        if(!savedPaused){
+          audio.play().catch(function(){
+            function onGesture(){
+              if(!window._musicPlayerNoAutoplay) audio.play().catch(function(){});
+              document.removeEventListener('click',   onGesture);
+              document.removeEventListener('keydown', onGesture);
+            }
+            document.addEventListener('click',   onGesture);
+            document.addEventListener('keydown', onGesture);
+          });
+        }
+        /* Seed a stub track so the bar UI shows something while the full
+           library list streams in from Firebase. */
+        if(!tracks.length){
+          tracks.push({ id:savedId, src:audioData, _cached:audioData, title:'…', album:'Aightbet FM', art:null, createdAt:0 });
+          window._musicPlayer.tracks = tracks;
+          idx = 0;
+          try{
+            window.FMCache.getCover(savedId).then(function(c){
+              if(c && tracks[0] && tracks[0].id===savedId){ tracks[0].art = c; if(typeof updateBar==='function') updateBar(); }
+            }).catch(function(){});
+            window.FMCache.getMeta('barTracks').then(function(meta){
+              if(meta && meta.length){
+                for(var i=0;i<meta.length;i++){
+                  if(meta[i].id===savedId && tracks[0] && tracks[0].id===savedId){
+                    tracks[0].title = meta[i].title || tracks[0].title;
+                    tracks[0].album = meta[i].album || tracks[0].album;
+                    break;
+                  }
+                }
+                if(typeof updateBar==='function') updateBar();
+              }
+            }).catch(function(){});
+          }catch(e){}
+          if(typeof updateBar==='function') updateBar();
+        }
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  window.__fmBuildBar = buildBarUI;
+  if(document.body) buildBarUI(); else document.addEventListener('DOMContentLoaded', buildBarUI);
+  instantResume();
+  loadSongs();
 })();
   
 })();
