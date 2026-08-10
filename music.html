@@ -1216,38 +1216,46 @@ async function resolveAudio(s){
 
   const live = songMap[s.id] || s;
 
-  // NEW: Firebase Storage URL
+  // NEW: Firebase Storage
   if(live.audioUrl){
     return live.audioUrl;
   }
 
-  // OLD legacy format
+  // OLD legacy inline audio
   if(live.audio){
     return live.audio;
   }
 
+  // Browser cache
   if(audioCache[s.id]){
     return audioCache[s.id];
   }
 
-  // OLD RTDB location - temporary fallback
+  // OLD RTDB audio fallback
   try{
+
     if(window.FMCache){
+
       const c = await window.FMCache.getAudio(s.id);
 
       if(c){
         audioCache[s.id] = c;
         return c;
       }
+
     }
+
   }catch(e){}
 
   try{
 
-    const snap = await rtdb.ref('songAudio/' + s.id).once('value');
+    const snap =
+      await rtdb.ref('songAudio/' + s.id).once('value');
+
     const d = snap.val();
 
     if(d){
+
       audioCache[s.id] = d;
 
       try{
@@ -1261,11 +1269,12 @@ async function resolveAudio(s){
 
   }catch(e){
 
-    console.error('Failed to load legacy audio:', e);
+    console.error('Failed to load audio:', e);
     return null;
 
   }
 }
+
 
   /* Covers load lazily as cards scroll into view, so the library paints
      instantly. Legacy songs keep cover inline; new ones live in songCover/. */
