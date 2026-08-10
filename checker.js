@@ -1905,10 +1905,14 @@ updateRecFabVisibility(); // run once on load
   /* Tracks are pulled live from the Aightbet FM library (Firebase `songs`).
      Each track: { id, src, title, album, art }. The little music bar widget
      reads window._musicPlayer.tracks / getIdx / setIdx as before. */
-  var tracks   = [];
-  var idx      = 0;
-  var pendingSeek = 0;
-  var isReady  = false;
+ var tracks   = [];
+var idx      = 0;
+var pendingSeek = 0;
+var isReady  = false;
+
+// Prevent old async audio loads from taking control
+// after the user has selected another song.
+var switchToken = 0;
   var readyCbs = [];
 
   var audio = document.createElement('audio');
@@ -1945,45 +1949,162 @@ updateRecFabVisibility(); // run once on load
   function setUserPaused(paused){
     try{ localStorage.setItem(KEY_PAUSED, paused ? '1' : '0'); }catch(e){}
   }
-  function resolveSrc(t, cb){
-    if(!t){ cb(null); return; }
-    if(t.src){ cb(t.src); return; }
-    if(t._cached){ cb(t._cached); return; }
-    function fromDb(){
-      try{
-        firebase.database().ref('songAudio/'+t.id).once('value').then(function(snap){
-          var dd = snap.val();
-          if(dd){ t._cached = dd; if(window.FMCache) window.FMCache.putAudio(t.id, dd); cb(dd); return; }
-          firebase.database().ref('songs/'+t.id+'/audio').once('value').then(function(s2){   // legacy inline audio
-            var d2 = s2.val(); if(d2){ t._cached = d2; if(window.FMCache) window.FMCache.putAudio(t.id, d2); } cb(d2 || null);
-          }).catch(function(){ cb(null); });
-        }).catch(function(){ cb(null); });
-      }catch(e){ cb(null); }
-    }
-    if(window.FMCache){
-      window.FMCache.getAudio(t.id).then(function(c){ if(c){ t._cached = c; cb(c); } else fromDb(); }).catch(fromDb);
-    } else fromDb();
+ function resolveSrc(t, cb){
+  if(!t){ cb(null); return; }
+
+  // Direct URL already supplied
+  if(t.src){
+    cb(t.src);
+    return;
   }
-  function loadTrack(i, autoplay){
-    if(!tracks.length) return;
-    idx = ((i % tracks.length) + tracks.length) % tracks.length;
-    var t = tracks[idx];
-    /* If we're (re)loading the saved track and haven't seeked to it yet,
-       restore the saved playback position so swap-overs from cache→fresh
-       (or Next/Prev landing back on the saved track) resume in place. */
-    if(t && localStorage.getItem(KEY_ID) === t.id && pendingSeek <= 0){
-      var st = parseFloat(localStorage.getItem(KEY_TIME) || '0');
-      if(st > 0) pendingSeek = st;
-    }
-    saveState();
-    resolveSrc(t, function(src){
-      if(tracks[idx] !== t) return;            // index moved on while loading
-      if(!src){ if(autoplay && tracks.length > 1) loadTrack(idx + 1, true); return; }
-      audio.src = src;
-      if(autoplay) audio.play().catch(function(){});
-      if(tracks.length > 1){ var nx = tracks[(idx + 1) % tracks.length]; if(nx && nx !== t) resolveSrc(nx, function(){}); } // warm next
-    });
+
+  // Browser cache
+  if(t._cached){
+    cb(t._cached);
+    return;
   }
+
+  function fromDb(){
+    try{
+      // New Storage-based audio URL
+      if(t.audioUrl){
+        t._cached = t.audioUrl;
+        if(window.FMCache) window.FMCache.putAudio(t.id, t.audioUrl);
+        cb(t.audioUrl);
+        return;
+      }
+
+      // Existing songAudio database location
+      firebase.database().ref('songAudio/'+t.id).once('value').then(function(snap){
+        var dd = snap.val();
+
+        if(dd){
+          t._cached = dd;
+          if(window.FMCache) window.FMCache.putAudio(t.id, dd);
+          cb(dd);
+          return;
+        }
+
+        // Legacy songs/{id}/audio
+        firebase.database().ref('songs/'+t.id+'/audio').once('value').then(function(s2){
+          var d2 = s2.val();
+
+          if(d2){
+            t._cached = d2;
+            if(window.FMCache) window.FMCache.putAudio(t.id, d2);
+          }
+
+          cb(d2 || null);
+        }).catch(function(){
+          cb(null);
+        });
+
+      }).catch(function(){
+        cb(null);
+      });
+
+    }catch(e){
+      cb(null);
+    }
+  }
+
+  // IndexedDB first
+  if(window.FMCache){
+    window.FMCache.getAudio(t.id)
+      .then(function(c){
+        if(c){
+          t._cached = c;
+          cb(c);
+        }else{
+          fromDb();
+        }
+      })
+      .catch(fromDb);
+  }else{
+    fromDb();
+  }
+}
+ function loadTrack(i, autoplay){
+
+  if(!tracks.length) return;
+
+  // Every manual/automatic track change gets a new token.
+  var myToken = ++switchToken;
+
+  var newIdx = ((i % tracks.length) + tracks.length) % tracks.length;
+  var t = tracks[newIdx];
+
+  // Set the selected track immediately.
+  idx = newIdx;
+
+  if(t && localStorage.getItem(KEY_ID) === t.id && pendingSeek <= 0){
+
+    var st = parseFloat(
+      localStorage.getItem(KEY_TIME) || '0'
+    );
+
+    if(st > 0){
+      pendingSeek = st;
+    }
+  }
+
+  saveState();
+
+  resolveSrc(t, function(src){
+
+    // A newer song was selected while this one was loading.
+    // Ignore this old request completely.
+    if(myToken !== switchToken){
+      return;
+    }
+
+    // Track list changed while loading.
+    if(tracks[idx] !== t){
+      return;
+    }
+
+    if(!src){
+
+      if(
+        autoplay &&
+        tracks.length > 1 &&
+        myToken === switchToken
+      ){
+        loadTrack(idx + 1, true);
+      }
+
+      return;
+    }
+
+    // Final safety check before changing the audio.
+    if(myToken !== switchToken){
+      return;
+    }
+
+    audio.src = src;
+
+    if(autoplay){
+      audio.play().catch(function(){});
+    }
+
+    // Warm the next track, but DON'T let it control playback.
+    if(tracks.length > 1){
+
+      var nextIdx = (idx + 1) % tracks.length;
+      var nx = tracks[nextIdx];
+
+      if(nx && nx !== t){
+
+        resolveSrc(nx, function(){
+          // Intentionally nothing.
+          // This is only a cache warm-up.
+        });
+
+      }
+    }
+
+  });
+}
 
   audio.addEventListener('ended', function(){ if(tracks.length) loadTrack(idx + 1, true); });
   audio.addEventListener('canplay', function(){ if(pendingSeek>0){ try{ audio.currentTime = pendingSeek; }catch(e){} pendingSeek = 0; } });
@@ -2006,7 +2127,25 @@ updateRecFabVisibility(); // run once on load
     prev:    function(){ setUserPaused(false); loadTrack(idx - 1, true); },
     toggle:  function(){ if(audio.paused){ setUserPaused(false); audio.play().catch(function(){}); } else { setUserPaused(true); audio.pause(); } },
     playId:  function(id){ var i = findById(id); if(i >= 0){ setUserPaused(false); loadTrack(i, true); } },
-    playTracks: function(list, i){ if(list && list.length){ setUserPaused(false); replaceTracks(list); loadTrack(i || 0, true); } }
+    playTracks: function(list, i){
+
+  if(!list || !list.length) return;
+
+  // Invalidate every previous async request.
+  ++switchToken;
+
+  setUserPaused(false);
+
+  replaceTracks(list);
+
+  var requestedIndex =
+    Math.max(0, Math.min(
+      Number.isFinite(i) ? i : 0,
+      list.length - 1
+    ));
+
+  loadTrack(requestedIndex, true);
+}
   };
 
   function tryPlay(shouldPlay){
@@ -2039,7 +2178,7 @@ updateRecFabVisibility(); // run once on load
           firebase.database().ref('songs/'+savedId).once('value').then(function(snap){
             var s = snap.val();
             if(s){
-              arr.unshift({ id:savedId, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) });
+              arr.unshift({ id:savedId, src:(s.audioUrl || s.audio || null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) });
             }
             _finalizeBuild(arr);
           }).catch(function(){ _finalizeBuild(arr); });
@@ -2050,40 +2189,83 @@ updateRecFabVisibility(); // run once on load
     _finalizeBuild(arr);
   }
 
-  function _finalizeBuild(arr){
-    var prevId = tracks[idx] ? tracks[idx].id : null;
-    var curId  = prevId || localStorage.getItem(KEY_ID);
-    replaceTracks(arr);
-    var fi = curId ? findById(curId) : -1;
-    idx = fi >= 0 ? fi : 0;
-    if(!isReady){
-      var savedTime   = parseFloat(localStorage.getItem(KEY_TIME) || '0');
-      var savedPaused = localStorage.getItem(KEY_PAUSED) === '1';
-      pendingSeek = savedTime > 0 ? savedTime : 0;
-      isReady = true;
-      readyCbs.forEach(function(cb){ try{ cb(); }catch(e){} });
-      readyCbs.length = 0;
-      if(tracks[idx]) resolveSrc(tracks[idx], function(){}); // warm current so first play is instant
-      tryPlay(!savedPaused);
-    } else if(tracks[idx] && tracks[idx].id !== prevId){
-      /* Track list refreshed and the saved song is now found — swap audio.src
-         to the correct track without losing play state. */
-      var wasPlaying = !audio.paused;
-      loadTrack(idx, wasPlaying);
+ function _finalizeBuild(arr){
+
+  var prevId = tracks[idx] ? tracks[idx].id : null;
+  var curId  = prevId || localStorage.getItem(KEY_ID);
+
+  replaceTracks(arr);
+
+  var fi = curId ? findById(curId) : -1;
+  idx = fi >= 0 ? fi : 0;
+
+  if(!isReady){
+
+    var savedTime =
+      parseFloat(localStorage.getItem(KEY_TIME) || '0');
+
+    var savedPaused =
+      localStorage.getItem(KEY_PAUSED) === '1';
+
+    pendingSeek = savedTime > 0 ? savedTime : 0;
+
+    isReady = true;
+
+    readyCbs.forEach(function(cb){
+      try{
+        cb();
+      }catch(e){}
+    });
+
+    readyCbs.length = 0;
+
+    if(tracks[idx]){
+      resolveSrc(tracks[idx], function(){});
     }
-    try{ window.dispatchEvent(new Event('aightbet-music-ready')); }catch(e){}
+
+    tryPlay(!savedPaused);
+
+  }else{
+
+    // Firebase refreshed the song list.
+    // NEVER reload the audio here.
+    // The user may have selected another song.
+
     updateBar();
   }
 
+  try{
+    window.dispatchEvent(
+      new Event('aightbet-music-ready')
+    );
+  }catch(e){}
+  
+  updateBar();
+}
+
   function songsToTracks(data){
-    var arr = [];
-    Object.keys(data || {}).forEach(function(k){
-      var s = data[k] || {};
-      arr.push({ id:k, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) });
+  var arr = [];
+
+  Object.keys(data || {}).forEach(function(k){
+    var s = data[k] || {};
+
+    arr.push({
+      id: k,
+      src: s.audioUrl || s.audio || null,
+      audioUrl: s.audioUrl || null,
+      title: s.title || 'Untitled',
+      album: s.album || (s.posterName || 'Aightbet FM'),
+      art: s.cover || null,
+      createdAt: s.createdAt || 0
     });
-    arr.sort(function(a,b){ return (b.createdAt || 0) - (a.createdAt || 0); });
-    return arr;
-  }
+  });
+
+  arr.sort(function(a,b){
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+
+  return arr;
+}
 
   var _fbTries = 0;
   function loadSongs(){
@@ -2373,7 +2555,19 @@ updateRecFabVisibility(); // run once on load
     }).catch(function(){ cb && cb(); });
   }
 
-  function makeTrack(id){ var s = lib.songs[id] || {}; return { id:id, src:(s.audio||null), title:(s.title||'Untitled'), album:(s.album||(s.posterName||'Aightbet FM')), art:(s.cover||null), createdAt:(s.createdAt||0) }; }
+ function makeTrack(id){
+  var s = lib.songs[id] || {};
+
+  return {
+    id: id,
+    src: (s.audioUrl || s.audio || null),
+    audioUrl: (s.audioUrl || null),
+    title: (s.title || 'Untitled'),
+    album: (s.album || (s.posterName || 'Aightbet FM')),
+    art: (s.cover || null),
+    createdAt: (s.createdAt || 0)
+  };
+}
   function songIdsSorted(){ return Object.keys(lib.songs).sort(function(a,b){ return ((lib.songs[b]||{}).createdAt||0) - ((lib.songs[a]||{}).createdAt||0); }); }
   function playSongId(id){ var ids = songIdsSorted(); var i = ids.indexOf(id); if(window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), i<0?0:i); }
   function playPlaylistId(pid){ var p = lib.playlists[pid]||{}; var obj = p.songs||{}; var ids = Object.keys(obj).filter(function(k){ return lib.songs[k]; }).sort(function(a,b){ return (obj[a]||0)-(obj[b]||0); }); if(ids.length && window._musicPlayer) window._musicPlayer.playTracks(ids.map(makeTrack), 0); }
