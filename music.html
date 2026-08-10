@@ -587,6 +587,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
   
   <script>
@@ -604,6 +605,7 @@
   try{ firebase.analytics(); }catch(e){}
   const auth = firebase.auth();
   const rtdb = firebase.database();
+  const storage = firebase.storage();
   </script>
   <script src="checker.js"></script>
   <script>
@@ -1208,20 +1210,62 @@
 
   /* Audio is loaded lazily (only when a track plays) so the library lists
      instantly. Legacy songs keep audio inline; new ones live in songAudio/. */
-  const audioCache = {};
-  async function resolveAudio(s){
-    const live = songMap[s.id] || s;
-    if(live.audio) return live.audio;                 // legacy inline audio
-    if(audioCache[s.id]) return audioCache[s.id];
-    try{ if(window.FMCache){ const c = await window.FMCache.getAudio(s.id); if(c){ audioCache[s.id]=c; return c; } } }catch(e){}
-    try{
-      const snap = await rtdb.ref('songAudio/'+s.id).once('value');
-      const d = snap.val();
-      if(d){ audioCache[s.id] = d; try{ window.FMCache && window.FMCache.putAudio(s.id, d); }catch(e){} }
-      return d;
-    }catch(e){ return null; }
+ const audioCache = {};
+
+async function resolveAudio(s){
+
+  const live = songMap[s.id] || s;
+
+  // NEW: Firebase Storage URL
+  if(live.audioUrl){
+    return live.audioUrl;
   }
-  let playToken = 0;
+
+  // OLD legacy format
+  if(live.audio){
+    return live.audio;
+  }
+
+  if(audioCache[s.id]){
+    return audioCache[s.id];
+  }
+
+  // OLD RTDB location - temporary fallback
+  try{
+    if(window.FMCache){
+      const c = await window.FMCache.getAudio(s.id);
+
+      if(c){
+        audioCache[s.id] = c;
+        return c;
+      }
+    }
+  }catch(e){}
+
+  try{
+
+    const snap = await rtdb.ref('songAudio/' + s.id).once('value');
+    const d = snap.val();
+
+    if(d){
+      audioCache[s.id] = d;
+
+      try{
+        window.FMCache &&
+        window.FMCache.putAudio(s.id, d);
+      }catch(e){}
+
+    }
+
+    return d;
+
+  }catch(e){
+
+    console.error('Failed to load legacy audio:', e);
+    return null;
+
+  }
+}
 
   /* Covers load lazily as cards scroll into view, so the library paints
      instantly. Legacy songs keep cover inline; new ones live in songCover/. */

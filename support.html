@@ -365,9 +365,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script>
     firebase.initializeApp({apiKey:"AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",authDomain:"gamle-53778.firebaseapp.com",databaseURL:"https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",projectId:"gamle-53778",storageBucket:"gamle-53778.firebasestorage.app",messagingSenderId:"513958176524",appId:"1:513958176524:web:c74a2e946da58507200b29"});
-    const auth=firebase.auth(),rtdb=firebase.database();
+    const auth = firebase.auth();
+const rtdb = firebase.database();
+const storage = firebase.storage();
 
     let authed=false,allUsers={},allReports={},allPosts={},allAppeals={},allMessages={},allSupportChats={},allBugReports={},activeTab='reports';
     let settingsLoaded=false;
@@ -2450,26 +2453,180 @@ function escapeHTML(s) {
 
     /* ════════════════ MUSIC MANAGEMENT ════════════════ */
     const M_MAX_AUDIO = 9*1024*1024, M_MAX_COVER = 500*1024, M_MAX_DUR = 300;
-    let mAudioData=null, mAudioDur=0, mCoverData=null, mAuthorImg=null, mPlCover=null, mEditImg=null;
+   let mAudioFile = null;
+let mAudioDur = 0;
+let mCoverData = null;
+let mAuthorImg = null;
+let mPlCover = null;
+let mEditImg = null;
 
     function mFmt(s){ if(!s||isNaN(s))return'—'; const m=Math.floor(s/60),r=Math.floor(s%60); return m+':'+String(r).padStart(2,'0'); }
     function mReadImage(file, cb){ if(file.size>M_MAX_COVER){toast('Image too big (max 500 KB)');return;} const r=new FileReader(); r.onload=()=>cb(r.result); r.readAsDataURL(file); }
-    function mReadAudio(file, cb){
-      if(file.size>M_MAX_AUDIO){toast('Audio too big (max 9 MB)');return;}
-      const url=URL.createObjectURL(file); const probe=new Audio(); probe.preload='metadata'; probe.src=url;
-      probe.addEventListener('loadedmetadata',()=>{ URL.revokeObjectURL(url);
-        if(probe.duration>M_MAX_DUR+0.5){toast('Track longer than 5 minutes');return;}
-        const r=new FileReader(); r.onload=()=>cb(r.result, Math.round(probe.duration), file.name); r.readAsDataURL(file);
-      });
-      probe.addEventListener('error',()=>{URL.revokeObjectURL(url);toast('Could not read audio file');});
+   function mReadAudio(file, cb){
+  if(file.size > M_MAX_AUDIO){
+    toast('Audio too big (max 9 MB)');
+    return;
+  }
+
+  const url = URL.createObjectURL(file);
+  const probe = new Audio();
+  probe.preload = 'metadata';
+  probe.src = url;
+
+  probe.addEventListener('loadedmetadata', () => {
+    URL.revokeObjectURL(url);
+
+    if(probe.duration > M_MAX_DUR + 0.5){
+      toast('Track longer than 5 minutes');
+      return;
     }
 
-    window.mPickAudio=function(input){ const f=input.files[0]; if(!f)return; mReadAudio(f,(d,dur,name)=>{ mAudioData=d; mAudioDur=dur; const t=document.getElementById('mAudioLabel'); if(t)t.textContent=name+' · '+mFmt(dur); }); };
-    window.mPickCover=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mCoverData=d; const t=document.getElementById('mCoverLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>'; }); };
+    cb(file, Math.round(probe.duration), file.name);
+  });
+
+  probe.addEventListener('error', () => {
+    URL.revokeObjectURL(url);
+    toast('Could not read audio file');
+  });
+}
+
+window.mPickAudio = function(input){
+  const f = input.files[0];
+  if(!f) return;
+
+  mReadAudio(f, (file, dur, name) => {
+    mAudioFile = file;
+    mAudioDur = dur;
+
+    const t = document.getElementById('mAudioLabel');
+    if(t) t.textContent = name + ' · ' + mFmt(dur);
+  });
+};
+
+window.mPickCover=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mCoverData=d; const t=document.getElementById('mCoverLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>'; }); };
     window.mPickAuthorImg=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mAuthorImg=d; const t=document.getElementById('mAuthorImgLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:50%;object-fit:cover"/>'; }); };
     window.mPickPlCover=function(input){ const f=input.files[0]; if(!f)return; mReadImage(f,d=>{ mPlCover=d; const t=document.getElementById('mPlCoverLabel'); if(t)t.innerHTML='<img src="'+d+'" style="width:38px;height:38px;border-radius:7px;object-fit:cover"/>'; }); };
 
+/* ════════ MIGRATE OLD MUSIC TO STORAGE ════════ */
+
+window.mMigrateSongsToStorage = async function(){
+
+  if(!confirm(
+    'Migrate all old music from Realtime Database to Firebase Storage?'
+  )){
+    return;
+  }
+
+  try{
+
+    const snap = await rtdb.ref('songs').once('value');
+    const songs = snap.val() || {};
+
+    const ids = Object.keys(songs);
+
+    if(!ids.length){
+      toast('No songs found');
+      return;
+    }
+
+    let migrated = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    for(const id of ids){
+
+      const song = songs[id] || {};
+
+      // Already migrated
+      if(song.audioUrl){
+        skipped++;
+        continue;
+      }
+
+      let oldAudio = song.audio || null;
+
+      // Old audio stored under songAudio/{id}
+      if(!oldAudio){
+        const audioSnap =
+          await rtdb.ref('songAudio/' + id).once('value');
+
+        oldAudio = audioSnap.val();
+      }
+
+      if(!oldAudio){
+        console.warn('No audio found for:', id);
+        skipped++;
+        continue;
+      }
+
+      try{
+
+        // Convert old Base64/data URL into a Blob
+        const response = await fetch(oldAudio);
+        const blob = await response.blob();
+
+        // Upload to Firebase Storage
+        const audioRef =
+          storage.ref('songs/audio/' + id);
+
+        await audioRef.put(blob, {
+          contentType: blob.type || 'audio/mpeg'
+        });
+
+        // Get Storage download URL
+        const audioUrl =
+          await audioRef.getDownloadURL();
+
+        // Save Storage URL in RTDB
+        await rtdb.ref('songs/' + id).update({
+          audioUrl: audioUrl
+        });
+
+        // ONLY delete old audio after successful upload
+        await rtdb.ref('songAudio/' + id).remove();
+
+        // Remove legacy inline audio if present
+        if(song.audio){
+          await rtdb.ref('songs/' + id + '/audio').remove();
+        }
+
+        migrated++;
+
+        console.log('Migrated:', id);
+
+      }catch(err){
+
+        failed++;
+
+        console.error(
+          'Failed to migrate ' + id,
+          err
+        );
+
+      }
+    }
+
+    toast(
+      `Migration complete: ${migrated} migrated, ${skipped} skipped, ${failed} failed.`,
+      failed ? 'error' : 'success',
+      7000
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+    toast(
+      'Migration failed: ' + (err.message || '').slice(0,100),
+      'error',
+      7000
+    );
+
+  }
+};
     window.setMusicSubtab=function(t){ musicSubtab=t; renderMusic(document.getElementById('dashContent')); };
+
+    
 
     /* ══════════════════════ SONG REQUESTS TAB ══════════════════════ */
     function renderSongRequests(c){
@@ -2601,6 +2758,11 @@ function escapeHTML(s) {
           <textarea class="maint-input" id="mSongDesc" placeholder="Description (optional)" maxlength="300" style="min-height:60px;resize:vertical"></textarea>
           <select class="rig-select" id="mSongAuthor" style="margin-top:8px">${mAuthorOptions('')}</select>
           <button class="maint-save" onclick="mAddSong()" style="margin-top:10px">Publish Song</button>
+          <button class="maint-save"
+        onclick="mMigrateSongsToStorage()"
+        style="margin-top:10px">
+  Migrate Old Music to Storage
+</button>
         </div>`;
         h+=`<div class="setting-title" style="margin:18px 0 8px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>All Songs (${songs.length})</div>`;
         if(!songs.length){ h+=`<div class="empty-state"><div class="es-title">No songs yet</div></div>`; }
@@ -2793,30 +2955,82 @@ function escapeHTML(s) {
     };
 
     /* ── Song actions ── */
-    window.mAddSong=async function(){
-      const title=document.getElementById('mSongTitle').value.trim();
-      if(!mAudioData){toast('Choose an audio file');return;}
-      if(!title){toast('Enter a song name');return;}
-      const authorId=document.getElementById('mSongAuthor').value||null;
-      const author=authorId?allAuthors[authorId]:null;
-      try{
-        const ref=rtdb.ref('songs').push();
-        await rtdb.ref('songAudio/'+ref.key).set(mAudioData);
-        const cv=mCoverData||(author&&author.image)||null;
-        if(cv) await rtdb.ref('songCover/'+ref.key).set(cv);
-        await ref.set({
-          title, album:document.getElementById('mSongAlbum').value.trim()||'Single', description:document.getElementById('mSongDesc').value.trim()||'',
-          duration:mAudioDur,
-          authorId, posterUid:auth.currentUser.uid,
-          posterName: author? author.name : 'Aightbet FM',
-          posterAvatar: author? (author.image||null) : null,
-          cover: cv||null,
-          createdAt:Date.now()
-        });
-        mAudioData=null; mCoverData=null; mAudioDur=0;
-        toast('Song published','success');
-      }catch(e){toast('Error: '+(e.message||'').slice(0,80));}
-    };
+   window.mAddSong = async function(){
+
+  const title = document.getElementById('mSongTitle').value.trim();
+
+  if(!mAudioFile){
+    toast('Choose an audio file');
+    return;
+  }
+
+  if(!title){
+    toast('Enter a song name');
+    return;
+  }
+
+  const authorId = document.getElementById('mSongAuthor').value || null;
+  const author = authorId ? allAuthors[authorId] : null;
+
+  try{
+
+    // Create song ID first
+    const ref = rtdb.ref('songs').push();
+    const songId = ref.key;
+
+    // Upload audio to Firebase Storage
+    const audioRef = storage.ref('songs/audio/' + songId);
+
+    const uploadSnap = await audioRef.put(mAudioFile, {
+      contentType: mAudioFile.type || 'audio/mpeg'
+    });
+
+    // Get public/download URL
+    const audioUrl = await uploadSnap.ref.getDownloadURL();
+
+    // Cover can stay the way you currently handle it for now
+    const cv = mCoverData || (author && author.image) || null;
+
+    if(cv){
+      await rtdb.ref('songCover/' + songId).set(cv);
+    }
+
+    // Store ONLY metadata in RTDB
+    await ref.set({
+      title,
+      album: document.getElementById('mSongAlbum').value.trim() || 'Single',
+      description: document.getElementById('mSongDesc').value.trim() || '',
+      duration: mAudioDur,
+
+      audioUrl: audioUrl,
+
+      authorId,
+      posterUid: auth.currentUser.uid,
+      posterName: author ? author.name : 'Aightbet FM',
+      posterAvatar: author ? (author.image || null) : null,
+
+      cover: cv || null,
+
+      createdAt: Date.now()
+    });
+
+    // Reset
+    mAudioFile = null;
+    mCoverData = null;
+    mAudioDur = 0;
+
+    const audioLabel = document.getElementById('mAudioLabel');
+    if(audioLabel) audioLabel.textContent = 'Choose audio (max 5 min, 9 MB)';
+
+    toast('Song published', 'success');
+
+  }catch(e){
+
+    console.error(e);
+    toast('Error: ' + (e.message || '').slice(0,80));
+
+  }
+};
     window.mAssignSong=async function(id, authorId){
       const author=authorId?allAuthors[authorId]:null;
       try{
