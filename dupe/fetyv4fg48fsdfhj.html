@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffeaf1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Mūsu mazie plāni ♡</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--pink:#d97894;--pink2:#c86683;--text:#593541;--soft:#9b727f;--border:#edcbd5;--white:rgba(255,255,255,.86)}
+html,body{width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+body{min-height:100dvh;overflow-x:hidden;background:radial-gradient(circle at 8% 8%,rgba(255,177,202,.55),transparent 30%),radial-gradient(circle at 92% 15%,rgba(255,220,231,.78),transparent 35%),radial-gradient(circle at 50% 110%,rgba(236,166,191,.5),transparent 42%),linear-gradient(145deg,#fff7f9,#ffeaf1 48%,#ffe0ea)}
+body:before{content:"";position:fixed;width:520px;height:520px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:rgba(255,255,255,.35);filter:blur(90px);pointer-events:none}
+.bg-heart{position:fixed;z-index:1;color:#d47792;opacity:.25;pointer-events:none;user-select:none;animation:float 7s ease-in-out infinite,fade 7s ease-in-out infinite}
+.h1{left:7%;top:14%;font-size:23px}.h2{left:17%;top:72%;font-size:15px;animation-delay:2s}.h3{left:29%;top:9%;font-size:11px;animation-delay:4s}.h4{right:8%;top:18%;font-size:18px;animation-delay:1s}.h5{right:16%;top:73%;font-size:26px;animation-delay:3s}.h6{right:32%;bottom:9%;font-size:12px;animation-delay:5s}.h7{left:6%;bottom:30%;font-size:13px;animation-delay:2.5s}.h8{right:6%;bottom:35%;font-size:12px;animation-delay:4.5s}.h9{left:35%;bottom:15%;font-size:18px;animation-delay:1.5s}
+@keyframes float{0%,100%{transform:translate3d(0,8px,0) rotate(-5deg)}50%{transform:translate3d(7px,-20px,0) rotate(6deg)}}
+@keyframes fade{0%,100%{opacity:.12}50%{opacity:.32}}
+.sparkle{position:fixed;width:3px;height:3px;border-radius:50%;background:white;box-shadow:0 0 8px white;opacity:.5;animation:twinkle 4s ease-in-out infinite;pointer-events:none}.s1{left:13%;top:42%}.s2{left:27%;top:82%;animation-delay:1s}.s3{right:15%;top:43%;animation-delay:2s}.s4{right:28%;bottom:18%;animation-delay:3s}.s5{left:51%;top:8%;animation-delay:1.5s}
+@keyframes twinkle{0%,100%{transform:scale(.5);opacity:.15}50%{transform:scale(1.6);opacity:.8}}
+.app{position:relative;z-index:5;width:100%;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom))}
+.screen{width:min(100%,440px);display:none;animation:screenIn .45s ease both}.screen.active{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.card{width:100%;padding:30px 20px 24px;text-align:center;border-radius:30px;border:1px solid rgba(255,255,255,.9);background:linear-gradient(145deg,rgba(255,255,255,.89),rgba(255,248,251,.75));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 30px 80px rgba(130,70,90,.16),0 8px 25px rgba(180,100,125,.08),inset 0 1px 0 rgba(255,255,255,.95)}
+.main-heart{display:inline-block;font-family:Georgia,serif;font-size:42px;line-height:1;color:var(--pink);text-shadow:0 7px 20px rgba(214,111,139,.22);animation:heartbeat 2.4s ease-in-out infinite;margin-bottom:9px}@keyframes heartbeat{0%,100%{transform:scale(1)}12%{transform:scale(1.12)}24%{transform:scale(1)}38%{transform:scale(1.06)}52%{transform:scale(1)}}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(30px,8vw,38px);font-weight:500;letter-spacing:-.5px;margin-bottom:10px}.subtitle{max-width:310px;margin:0 auto 26px;font-size:14px;line-height:1.7;color:var(--soft)}
+label{display:block;text-align:left;margin-bottom:8px;font-size:13px;font-weight:600;color:#76515d}
+.input-wrap{position:relative}input,textarea{width:100%;border:1px solid var(--border);border-radius:17px;outline:none;background:rgba(255,255,255,.84);color:var(--text);font-family:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s}input{min-height:54px;padding:0 52px 0 17px}textarea{min-height:90px;padding:15px 16px;resize:vertical}input:focus,textarea:focus{border-color:#d991a5;box-shadow:0 0 0 4px rgba(217,145,165,.11)}input::placeholder,textarea::placeholder{color:#c5a5af}
+.show-password{position:absolute;right:13px;top:50%;transform:translateY(-50%);border:0;background:none;box-shadow:none;width:auto;height:auto;padding:7px;color:#bd8b99;font-size:20px;cursor:pointer}
+.primary{width:100%;min-height:54px;margin-top:16px;border:0;border-radius:17px;background:linear-gradient(135deg,#dc8ca2,#c96d88);color:white;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 9px 22px rgba(201,109,136,.24);transition:transform .15s,box-shadow .2s}.primary:active{transform:scale(.985)}.primary:disabled{opacity:.7;cursor:wait}
+.error{min-height:20px;margin-top:11px;color:#bd5f78;font-size:13px}.footer{margin-top:20px;font-size:12px;letter-spacing:.2px;color:#b18b96}.footer span{color:var(--pink)}
+.question-card{padding:40px 23px 29px}.question-heart{font-size:44px;color:var(--pink);margin-bottom:10px}.question-card h2{font-family:Georgia,serif;font-size:30px;font-weight:500;margin-bottom:9px}.question-card p{color:var(--soft);line-height:1.7;font-size:15px;margin-bottom:26px}.yesno{position:relative;display:flex;gap:12px;justify-content:center;min-height:58px}.yesno button{min-height:54px;border-radius:17px;border:0;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}.yes{flex:1;background:linear-gradient(135deg,#dc8ca2,#c96d88);color:#fff;box-shadow:0 9px 22px rgba(201,109,136,.24)}.no{flex:1;background:rgba(255,255,255,.75);border:1px solid var(--border)!important;color:#8f6673;--no-x:0px;--no-y:0px;transform:translate3d(var(--no-x),var(--no-y),0);transition:transform .22s ease,opacity .22s ease;touch-action:none}.no.runaway{transition:transform 1.25s cubic-bezier(.22,.61,.36,1);will-change:transform}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;padding:0 2px}.back{border:0;background:transparent;color:#9b6576;font-size:14px;font-family:inherit;padding:8px 3px;cursor:pointer}.step{font-size:12px;color:#b18b96}
+.flow-title{font-family:Georgia,serif;font-size:31px;font-weight:500;margin-bottom:7px}.flow-intro{color:var(--soft);font-size:14px;line-height:1.6;margin-bottom:18px}
+.calendar-wrap{border:1px solid rgba(237,203,213,.95);border-radius:23px;background:rgba(255,255,255,.62);padding:13px 12px 11px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.month-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.month-title{font-family:Georgia,serif;font-size:19px}.month-btn{width:35px;height:35px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.76);color:#9f6475;font-size:18px;cursor:pointer}.month-btn:active{transform:scale(.95)}
+.weekdays,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekday{font-size:10px;font-weight:700;color:#b18b96;padding-bottom:2px}.day{aspect-ratio:1/1;border:0;border-radius:14px;background:transparent;color:#684452;font-family:inherit;font-size:13px;cursor:pointer;position:relative}.day.muted{color:#d2b8c0}.day:not(.muted):active{transform:scale(.94)}.day.selected{background:linear-gradient(135deg,#e8a8b9,#d27c99);color:#fff;box-shadow:0 7px 14px rgba(201,109,136,.2)}.day.today:after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;border-radius:50%;background:#d57e98;transform:translateX(-50%)}.day.selected.today:after{background:#fff}
+.selected-date{margin:12px 2px 0;text-align:center;font-size:13px;color:#8f6673}.selected-date strong{color:#6b4350}
+.time-section{margin-top:17px}.section-mini{font-size:12px;color:#9b727f;text-align:left;margin-bottom:9px;font-weight:700}.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.time-chip{min-height:45px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.68);color:#76515d;font-family:inherit;font-size:13px;cursor:pointer}.time-chip.selected{background:#f1c7d3;border-color:#d991a5;color:#633949}.custom-time-wrap{display:none;margin-top:9px}.custom-time-wrap.show{display:block}.custom-time-wrap input{padding:0 15px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.theme-choice{min-height:66px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.68);color:#76515d;font-family:inherit;font-size:13px;cursor:pointer;text-align:left;padding:11px 12px;display:flex;align-items:center;gap:9px;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}.theme-choice:active{transform:scale(.985)}.theme-choice.selected{background:#f4cbd7;border-color:#d991a5;color:#663b49;box-shadow:0 6px 16px rgba(201,109,136,.12)}.theme-choice .emoji{font-size:21px;flex:0 0 auto}.theme-choice .theme-text{display:flex;flex-direction:column;gap:2px}.theme-choice .theme-name{font-weight:650}.theme-choice .theme-hint{font-size:10px;color:#b18b96}.theme-choice.selected .theme-hint{color:#8b5968}.detail-kicker{margin-top:16px;margin-bottom:8px;font-size:12px;color:#9b727f;text-align:left;font-weight:700}.exact-wrap input{padding-right:15px}.saved-note{font-size:13px;color:#9b727f;line-height:1.65;margin-top:-6px;margin-bottom:4px}.success .big{animation:heartbeat 2.2s ease-in-out infinite}.success .tiny-love{font-family:Georgia,serif;color:#b57f8e;font-size:16px;margin-top:4px}.choice{min-height:60px;border:1px solid var(--border);border-radius:17px;background:rgba(255,255,255,.68);color:#76515d;font-family:inherit;font-size:13px;cursor:pointer;text-align:left;padding:10px 12px;display:flex;align-items:center;gap:8px}.choice.selected{background:#f4cbd7;border-color:#d991a5;color:#663b49;box-shadow:0 5px 14px rgba(201,109,136,.1)}.choice .emoji{font-size:20px}.field{margin-top:15px;text-align:left}.field input,.field textarea{padding-left:15px;padding-right:15px}.optional{font-weight:500;color:#b28d98}.tiny-note{font-size:11px;color:#b18b96;line-height:1.5;margin-top:8px;text-align:center}
+.summary{margin-top:14px;padding:15px;border-radius:19px;background:rgba(255,255,255,.64);border:1px solid var(--border);text-align:left}.summary-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed rgba(217,145,165,.35)}.summary-row:last-child{border-bottom:0}.summary-icon{width:24px;text-align:center}.summary-label{font-size:11px;color:#b18b96;display:block;margin-bottom:1px}.summary-value{font-size:14px;color:#67404d;line-height:1.4}
+.success{text-align:center}.success .big{font-size:52px;color:var(--pink);margin-bottom:10px}.success h2{font-family:Georgia,serif;font-size:31px;font-weight:500;margin-bottom:10px}.success p{color:var(--soft);line-height:1.7;font-size:14px;margin-bottom:22px}.plan-list{text-align:left;margin-top:20px}.plan-item{padding:15px;border:1px solid var(--border);background:rgba(255,255,255,.6);border-radius:17px;margin-bottom:10px}.plan-item strong{display:block;font-family:Georgia,serif;font-size:18px;margin-bottom:5px}.plan-item small{color:#9b727f;line-height:1.5}.home{text-align:center}.home h2{font-family:Georgia,serif;font-size:31px;font-weight:500;margin-bottom:8px}.home p{color:var(--soft);font-size:14px;line-height:1.6}.logout{margin-top:12px;border:0;background:transparent;color:#a77885;font-family:inherit;font-size:12px;padding:10px;cursor:pointer}
+@media(max-width:360px){.card{padding:27px 17px 21px}.flow-title,.planner h2,.home h2,.success h2{font-size:28px}.calendar-wrap{padding-left:9px;padding-right:9px}.weekdays,.days{gap:4px}.day{border-radius:12px;font-size:12px}.choice-grid{gap:8px}.time-grid{gap:7px}}
+@media(max-height:680px){.card{padding-top:23px;padding-bottom:19px}.question-card{padding-top:29px}.calendar-wrap{padding-top:9px}.time-section{margin-top:12px}.flow-intro{margin-bottom:13px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg-heart h1">♡</div><div class="bg-heart h2">♥</div><div class="bg-heart h3">♡</div><div class="bg-heart h4">♡</div><div class="bg-heart h5">♥</div><div class="bg-heart h6">♡</div><div class="bg-heart h7">♥</div><div class="bg-heart h8">♡</div><div class="bg-heart h9">♡</div>
+<div class="sparkle s1"></div><div class="sparkle s2"></div><div class="sparkle s3"></div><div class="sparkle s4"></div><div class="sparkle s5"></div>
+<main class="app">
+<!-- LOGIN -->
+<section id="loginScreen" class="screen active"><div class="card"><div class="main-heart">♡</div><h1>Mūsu mazie plāni</h1><p class="subtitle">Vieta mūsu nākamajiem<br>piedzīvojumiem kopā. ♡</p><form id="loginForm"><label for="password">Ievadi mūsu slepeno paroli</label><div class="input-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Kaut kas, ko zinām tikai mēs..." required><button type="button" class="show-password" id="showPassword">♡</button></div><button class="primary" id="loginButton" type="submit">Atvērt mūsu plānus ♡</button><div class="error" id="loginError"></div></form><p class="footer">radīts tikai <span>mums abiem</span> ♡</p></div></section>
+<!-- QUESTION -->
+<section id="questionScreen" class="screen"><div class="card question-card"><div class="question-heart">♡</div><h2>Vai vēlies saplānot<br>mūsu nākamo randiņu?</h2><p>Es gribu zināt, ko Tu izdomāsi...<br>Varbūt mums priekšā ir kas īpašs. ♡</p><div class="yesno"><button class="yes" id="yesButton">Jā, protams! ♡</button><button class="no" id="noButton">Nē</button></div></div></section>
+<!-- AVAILABILITY -->
+<section id="availabilityScreen" class="screen"><div class="card"><div class="topbar"><button class="back" id="backFromAvailability">← Atpakaļ</button><span class="step">1 / 3</span></div><h2 class="flow-title">Kad Tu esi brīva? ♡</h2><p class="flow-intro">Atrodi dienu, kad varētu nozagt mazliet laika tikai mums. ✨</p><div class="calendar-wrap"><div class="month-row"><button class="month-btn" id="prevMonth" aria-label="Iepriekšējais mēnesis">‹</button><div class="month-title" id="monthTitle"></div><button class="month-btn" id="nextMonth" aria-label="Nākamais mēnesis">›</button></div><div class="weekdays"><div class="weekday">P</div><div class="weekday">O</div><div class="weekday">T</div><div class="weekday">C</div><div class="weekday">P</div><div class="weekday">S</div><div class="weekday">Sv</div></div><div class="days" id="calendarDays"></div><div class="selected-date" id="selectedDateText">Izvēlies dienu ♡</div></div><div class="time-section"><div class="section-mini">Un ap cikiem? ♡</div><div class="time-grid" id="timeGrid"><button type="button" class="time-chip" data-time="11:00">11:00</button><button type="button" class="time-chip" data-time="13:00">13:00</button><button type="button" class="time-chip" data-time="15:00">15:00</button><button type="button" class="time-chip" data-time="17:00">17:00</button><button type="button" class="time-chip" data-time="19:00">19:00</button><button type="button" class="time-chip" data-time="custom">Cits laiks</button></div><div class="custom-time-wrap" id="customTimeWrap"><input id="customTime" type="time" aria-label="Izvēlies citu laiku"></div></div><button class="primary" id="availabilityNext" type="button">Turpināt ♡</button><div class="error" id="availabilityError"></div></div></section>
+<!-- DETAILS -->
+<section id="detailsScreen" class="screen"><div class="card"><div class="topbar"><button class="back" id="backFromDetails">← Atpakaļ</button><span class="step">2 / 3</span></div><h2 class="flow-title">Ko Tu gribētu darīt? ♡</h2><p class="flow-intro">Izvēlies vienu vai vairākas noskaņas mūsu nākamajam randiņam. 🌷</p><div class="detail-kicker">Kāda veida plāns? ♡</div><div class="theme-grid" id="activities"><button type="button" class="theme-choice" data-value="🍽️ Ēšana"><span class="emoji">🍽️</span><span class="theme-text"><span class="theme-name">Ēšana</span><span class="theme-hint">Kaut kas garšīgs</span></span></button><button type="button" class="theme-choice" data-value="🚶 Pastaiga"><span class="emoji">🚶</span><span class="theme-text"><span class="theme-name">Pastaiga</span><span class="theme-hint">Izstaigājamies kopā</span></span></button><button type="button" class="theme-choice" data-value="🎯 Aktivitāte"><span class="emoji">🎯</span><span class="theme-text"><span class="theme-name">Aktivitāte</span><span class="theme-hint">Kaut kas jautrs</span></span></button><button type="button" class="theme-choice" data-value="🛍️ Iepirkšanās"><span class="emoji">🛍️</span><span class="theme-text"><span class="theme-name">Iepirkšanās</span><span class="theme-hint">Pa veikaliem kopā</span></span></button><button type="button" class="theme-choice" data-value="🎬 Izklaide"><span class="emoji">🎬</span><span class="theme-text"><span class="theme-name">Izklaide</span><span class="theme-hint">Kino, spēles u.c.</span></span></button><button type="button" class="theme-choice" data-value="☕ Kafejnīca"><span class="emoji">☕</span><span class="theme-text"><span class="theme-name">Kafejnīca</span><span class="theme-hint">Kaut kur mierīgi</span></span></button><button type="button" class="theme-choice" data-value="🌿 Daba"><span class="emoji">🌿</span><span class="theme-text"><span class="theme-name">Daba</span><span class="theme-hint">Laiks ārā</span></span></button><button type="button" class="theme-choice" data-value="✨ Pārsteigums"><span class="emoji">✨</span><span class="theme-text"><span class="theme-name">Pārsteigums</span><span class="theme-hint">Izdomāsim kopā</span></span></button></div><div class="field"><label for="exactPlan">Kas tieši? <span class="optional">(ja zini)</span></label><div class="exact-wrap"><input id="exactPlan" type="text" maxlength="180" placeholder="Piem., bowlinga, suši, konkrēts veikals..." autocomplete="off"></div></div><div class="field"><label for="location">Kur? <span class="optional">(ja zini)</span></label><input id="location" type="text" maxlength="120" placeholder="Parks, kino, kafejnīca..." autocomplete="off"></div><div class="field"><label for="note">Mazs ziņojums ♡ <span class="optional">(pēc vēlēšanās)</span></label><textarea id="note" maxlength="500" placeholder="Kaut kas, ko gribi man pateikt..."></textarea></div><button class="primary" id="detailsNext" type="button">Paskatīties, kas sanāca ♡</button><div class="error" id="detailsError"></div></div></section>
+<!-- CONFIRM -->
+<section id="confirmScreen" class="screen"><div class="card"><div class="topbar"><button class="back" id="backFromConfirm">← Atpakaļ</button><span class="step">3 / 3</span></div><div class="main-heart">♡</div><h2 class="flow-title">Mūsu mazais plāns</h2><p class="flow-intro">Pārbaudi, vai viss izskatās pareizi. Tad tas nonāks mūsu mazajā slepenajā vietiņā. 💌</p><div class="summary"><div class="summary-row"><div class="summary-icon">📅</div><div><span class="summary-label">Diena</span><div class="summary-value" id="summaryDate"></div></div></div><div class="summary-row"><div class="summary-icon">🕐</div><div><span class="summary-label">Laiks</span><div class="summary-value" id="summaryTime"></div></div></div><div class="summary-row"><div class="summary-icon">🎀</div><div><span class="summary-label">Ko darīsim</span><div class="summary-value" id="summaryActivities"></div></div></div><div class="summary-row"><div class="summary-icon">📍</div><div><span class="summary-label">Kur</span><div class="summary-value" id="summaryLocation"></div></div></div><div class="summary-row" id="summaryNoteRow"><div class="summary-icon">💌</div><div><span class="summary-label">Ziņojums</span><div class="summary-value" id="summaryNote"></div></div></div></div><button class="primary" id="savePlan" type="button">Jā, saglabājam ♡</button><div class="error" id="planError"></div></div></section>
+<!-- SUCCESS -->
+<section id="successScreen" class="screen"><div class="card success"><div class="big">♡</div><h2>Viss saglabāts! ♡</h2><p class="saved-note">Nevaru sagaidīt, kad Tevi satikšu :))<br>Mūsu mazais plāns jau ir drošībā. 💌</p><div class="tiny-love">līdz mūsu nākamajam piedzīvojumam ♡</div><button class="primary" id="viewPlans">Apskatīt mūsu plānus</button></div></section>
+<!-- HOME -->
+<section id="homeScreen" class="screen"><div class="card home"><div class="main-heart">♡</div><h2>Mūsu mazie plāni</h2><p id="homeIntro">Mūsu nākamie piedzīvojumi vienuviet. ♡</p><div class="plan-list" id="planList"></div><button class="primary" id="newPlanButton">Izveidot vēl vienu plānu ♡</button><button class="logout" id="logoutButton">Iziet no konta</button></div></section>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  getAuth,
+  signInWithCustomToken,
+  onAuthStateChanged,
+  setPersistence,
+  inMemoryPersistence,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  onValue,
+  query,
+  orderByChild,
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAySAfeYOX9yKTVBZTXdmGSx4eIAofY0ro",
+  authDomain: "gamle-53778.firebaseapp.com",
+  databaseURL: "https://gamle-53778-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "gamle-53778",
+  storageBucket: "gamle-53778.firebasestorage.app",
+  messagingSenderId: "513958176524",
+  appId: "1:513958176524:web:c74a2e946da58507200b29",
+  measurementId: "G-EB6SF28HZK",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const AUTH_ENDPOINT = "https://europe-west1-gamle-53778.cloudfunctions.net/authenticate";
+const YOUR_UID = "ylzOEIC4a8VBLGcEjKdFjpgIQxe2";
+const HER_UID = "CqSiAnYyK0U85r7xHFzotiGw1gw2";
+
+const screens = {
+  login: document.getElementById("loginScreen"),
+  question: document.getElementById("questionScreen"),
+  availability: document.getElementById("availabilityScreen"),
+  details: document.getElementById("detailsScreen"),
+  confirm: document.getElementById("confirmScreen"),
+  success: document.getElementById("successScreen"),
+  home: document.getElementById("homeScreen"),
+};
+
+let currentUser = null;
+let plans = [];
+let selectedDate = "";
+let selectedTime = "";
+let calendarMonth = new Date();
+calendarMonth.setDate(1);
+
+function isAllowedUser(uid) {
+  return uid === YOUR_UID || uid === HER_UID;
+}
+
+function showScreen(name) {
+  if (name === "question") {
+    resetNoButton();
+  }
+
+  Object.values(screens).forEach(function (screen) {
+    screen.classList.remove("active");
+  });
+
+  screens[name].classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+const persistenceReady = setPersistence(auth, inMemoryPersistence).catch(function (error) {
+  console.error("Persistence error:", error);
+});
+
+// ------------------------------------------------------------
+// Login
+
+document.getElementById("showPassword").addEventListener("click", function () {
+  const input = document.getElementById("password");
+  const button = document.getElementById("showPassword");
+
+  if (input.type === "password") {
+    input.type = "text";
+    button.textContent = "♥";
+  } else {
+    input.type = "password";
+    button.textContent = "♡";
+  }
+});
+
+document.getElementById("loginForm").addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const passwordInput = document.getElementById("password");
+  const errorBox = document.getElementById("loginError");
+  const button = document.getElementById("loginButton");
+  const password = passwordInput.value;
+
+  errorBox.textContent = "";
+
+  if (!password) {
+    errorBox.textContent = "Ievadi mūsu slepeno paroli. ♡";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Pārbaudām paroli... ♡";
+
+  try {
+    // Make absolutely sure Firebase is using memory-only persistence before signing in.
+    await persistenceReady;
+
+    const response = await fetch(AUTH_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ password: password })
+    });
+
+    let result = {};
+    try {
+      result = await response.json();
+    } catch (jsonError) {
+      result = {};
+    }
+
+    if (!response.ok || !result.token) {
+      if (response.status === 401) {
+        throw new Error("INVALID_PASSWORD");
+      }
+      throw new Error(result.error || "AUTH_SERVER_ERROR");
+    }
+
+    const credential = await signInWithCustomToken(auth, result.token);
+    const loggedIn = credential.user;
+
+    if (!isAllowedUser(loggedIn.uid)) {
+      await signOut(auth);
+      throw new Error("UNAUTHORIZED");
+    }
+
+    currentUser = loggedIn;
+    loadPlans();
+
+    if (loggedIn.uid === HER_UID) {
+      showScreen("question");
+    } else {
+      showScreen("home");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+
+    if (error.message === "INVALID_PASSWORD") {
+      errorBox.textContent = "Parole nav pareiza. Mēģini vēlreiz ♡";
+    } else if (error.message === "UNAUTHORIZED") {
+      errorBox.textContent = "Šī piekļuve nav atļauta. ♡";
+    } else {
+      errorBox.textContent = "Neizdevās izveidot savienojumu. Pārbaudi internetu un mēģini vēlreiz. ♡";
+    }
+  } finally {
+    button.disabled = false;
+    button.textContent = "Atvērt mūsu plānus ♡";
+  }
+});
+
+// ------------------------------------------------------------
+// Playful Nē button
+// ------------------------------------------------------------
+
+const noButton = document.getElementById("noButton");
+let noActivated = false;
+let noX = 0;
+let noY = 0;
+let noStartLeft = 0;
+let noStartTop = 0;
+
+function resetNoButton() {
+  noActivated = false;
+  noX = 0;
+  noY = 0;
+  noStartLeft = 0;
+  noStartTop = 0;
+  noButton.classList.remove("runaway");
+  noButton.style.removeProperty("--no-x");
+  noButton.style.removeProperty("--no-y");
+}
+
+function activateNoButton() {
+  const rect = noButton.getBoundingClientRect();
+
+  noStartLeft = rect.left;
+  noStartTop = rect.top;
+  noX = 0;
+  noY = 0;
+  noActivated = true;
+  noButton.classList.add("runaway");
+
+  noButton.style.setProperty("--no-x", "0px");
+  noButton.style.setProperty("--no-y", "0px");
+}
+
+function moveNoButton() {
+  if (!noActivated) {
+    // First touch only activates the behavior. Absolutely no movement.
+    activateNoButton();
+    return;
+  }
+
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = window.innerHeight;
+  const width = noButton.offsetWidth;
+  const height = noButton.offsetHeight;
+  const padding = 18;
+
+  const minX = padding - noStartLeft;
+  const maxX = Math.max(minX, viewportWidth - padding - width - noStartLeft);
+  const minY = padding - noStartTop;
+  const maxY = Math.max(minY, viewportHeight - padding - height - noStartTop);
+
+  const distance = 55 + Math.random() * 40;
+  const angle = Math.random() * Math.PI * 2;
+
+  let nextX = noX + Math.cos(angle) * distance;
+  let nextY = noY + Math.sin(angle) * distance;
+
+  nextX = Math.max(minX, Math.min(maxX, nextX));
+  nextY = Math.max(minY, Math.min(maxY, nextY));
+
+  // Prevent a nearly stationary move when the button is close to an edge.
+  if (Math.hypot(nextX - noX, nextY - noY) < 30) {
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const retryAngle = Math.random() * Math.PI * 2;
+      const retryDistance = 55 + Math.random() * 40;
+      const candidateX = Math.max(
+        minX,
+        Math.min(maxX, noX + Math.cos(retryAngle) * retryDistance)
+      );
+      const candidateY = Math.max(
+        minY,
+        Math.min(maxY, noY + Math.sin(retryAngle) * retryDistance)
+      );
+
+      if (Math.hypot(candidateX - noX, candidateY - noY) >= 30) {
+        nextX = candidateX;
+        nextY = candidateY;
+        break;
+      }
+    }
+  }
+
+  noX = nextX;
+  noY = nextY;
+  noButton.style.setProperty("--no-x", noX + "px");
+  noButton.style.setProperty("--no-y", noY + "px");
+}
+
+noButton.addEventListener("pointerdown", function (event) {
+  event.preventDefault();
+  moveNoButton();
+});
+
+document.getElementById("yesButton").addEventListener("click", function () {
+  resetNoButton();
+  resetFlow();
+  showScreen("availability");
+});
+
+// ------------------------------------------------------------
+// Calendar and time selection
+// ------------------------------------------------------------
+
+const monthNames = [
+  "Janvāris",
+  "Februāris",
+  "Marts",
+  "Aprīlis",
+  "Maijs",
+  "Jūnijs",
+  "Jūlijs",
+  "Augusts",
+  "Septembris",
+  "Oktobris",
+  "Novembris",
+  "Decembris",
+];
+
+const dayNames = [
+  "svētdien",
+  "pirmdien",
+  "otrdien",
+  "trešdien",
+  "ceturtdien",
+  "piektdien",
+  "sestdien",
+];
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+function ymd(date) {
+  return (
+    date.getFullYear() +
+    "-" +
+    String(date.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(date.getDate()).padStart(2, "0")
+  );
+}
+
+function parseYmd(value) {
+  const parts = value.split("-").map(Number);
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function formatDate(value) {
+  if (!value) return "";
+
+  const date = parseYmd(value);
+  return (
+    date.getDate() +
+    ". " +
+    monthNames[date.getMonth()].toLowerCase() +
+    " — " +
+    dayNames[date.getDay()]
+  );
+}
+
+function renderCalendar() {
+  const title = document.getElementById("monthTitle");
+  const daysContainer = document.getElementById("calendarDays");
+
+  title.textContent =
+    monthNames[calendarMonth.getMonth()] +
+    " " +
+    calendarMonth.getFullYear();
+
+  daysContainer.innerHTML = "";
+
+  const firstDay = new Date(
+    calendarMonth.getFullYear(),
+    calendarMonth.getMonth(),
+    1
+  );
+  const mondayStart = (firstDay.getDay() + 6) % 7;
+
+  for (let index = 0; index < 42; index += 1) {
+    const dateNumber = index - mondayStart + 1;
+    const cellDate = new Date(
+      calendarMonth.getFullYear(),
+      calendarMonth.getMonth(),
+      dateNumber
+    );
+
+    const isMuted = cellDate.getMonth() !== calendarMonth.getMonth();
+    const isPast = cellDate < today;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "day";
+
+    if (isMuted) button.classList.add("muted");
+    if (ymd(cellDate) === selectedDate) button.classList.add("selected");
+    if (ymd(cellDate) === ymd(today)) button.classList.add("today");
+
+    button.textContent = String(cellDate.getDate());
+
+    if (isMuted || isPast) {
+      button.disabled = true;
+      button.classList.add("muted");
+    } else {
+      button.addEventListener("click", function () {
+        selectedDate = ymd(cellDate);
+
+        document.getElementById("selectedDateText").innerHTML =
+          "Izvēlēta: <strong>" + formatDate(selectedDate) + "</strong> ♡";
+
+        renderCalendar();
+      });
+    }
+
+    daysContainer.appendChild(button);
+  }
+
+  const minimumMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const maximumMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 5,
+    1
+  );
+
+  const previousButton = document.getElementById("prevMonth");
+  const nextButton = document.getElementById("nextMonth");
+
+  previousButton.disabled = calendarMonth <= minimumMonth;
+  nextButton.disabled = calendarMonth >= maximumMonth;
+
+  previousButton.style.opacity = previousButton.disabled ? "0.45" : "1";
+  nextButton.style.opacity = nextButton.disabled ? "0.45" : "1";
+}
+
+function setDefaultMonthToSelected() {
+  if (!selectedDate) return;
+
+  const date = parseYmd(selectedDate);
+  calendarMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function resetFlow() {
+  selectedDate = "";
+  selectedTime = "";
+  calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  document.getElementById("selectedDateText").textContent = "Izvēlies dienu ♡";
+  document.getElementById("customTimeWrap").classList.remove("show");
+  document.getElementById("customTime").value = "";
+
+  document.querySelectorAll(".time-chip").forEach(function (chip) {
+    chip.classList.remove("selected");
+  });
+
+  document.querySelectorAll(".choice.selected").forEach(function (choice) {
+    choice.classList.remove("selected");
+  });
+
+  document.getElementById("exactPlan").value = "";
+  document.getElementById("location").value = "";
+  document.getElementById("note").value = "";
+  document.getElementById("availabilityError").textContent = "";
+  document.getElementById("detailsError").textContent = "";
+  document.getElementById("planError").textContent = "";
+
+  renderCalendar();
+}
+
+renderCalendar();
+
+document.getElementById("prevMonth").addEventListener("click", function () {
+  calendarMonth.setMonth(calendarMonth.getMonth() - 1);
+  renderCalendar();
+});
+
+document.getElementById("nextMonth").addEventListener("click", function () {
+  calendarMonth.setMonth(calendarMonth.getMonth() + 1);
+  renderCalendar();
+});
+
+document.querySelectorAll(".time-chip").forEach(function (chip) {
+  chip.addEventListener("click", function () {
+    document.querySelectorAll(".time-chip").forEach(function (item) {
+      item.classList.remove("selected");
+    });
+
+    chip.classList.add("selected");
+
+    if (chip.dataset.time === "custom") {
+      selectedTime = "";
+      document.getElementById("customTimeWrap").classList.add("show");
+      document.getElementById("customTime").focus();
+    } else {
+      document.getElementById("customTimeWrap").classList.remove("show");
+      document.getElementById("customTime").value = "";
+      selectedTime = chip.dataset.time;
+    }
+  });
+});
+
+document.getElementById("customTime").addEventListener("input", function (event) {
+  selectedTime = event.target.value;
+});
+
+// ------------------------------------------------------------
+// Flow navigation
+// ------------------------------------------------------------
+
+document.getElementById("backFromAvailability").addEventListener("click", function () {
+  showScreen("question");
+});
+
+document.getElementById("availabilityNext").addEventListener("click", function () {
+  const errorBox = document.getElementById("availabilityError");
+  errorBox.textContent = "";
+
+  if (!selectedDate) {
+    errorBox.textContent = "Izvēlies dienu, mana mīļā. ♡";
+    return;
+  }
+
+  if (!selectedTime) {
+    errorBox.textContent = "Izvēlies arī laiku. ♡";
+    return;
+  }
+
+  showScreen("details");
+});
+
+document.querySelectorAll(".theme-choice").forEach(function (choice) {
+  choice.addEventListener("click", function () {
+    choice.classList.toggle("selected");
+  });
+});
+
+document.getElementById("backFromDetails").addEventListener("click", function () {
+  setDefaultMonthToSelected();
+  renderCalendar();
+  showScreen("availability");
+});
+
+document.getElementById("detailsNext").addEventListener("click", function () {
+  const errorBox = document.getElementById("detailsError");
+  errorBox.textContent = "";
+
+  const activities = Array.from(
+    document.querySelectorAll(".theme-choice.selected")
+  ).map(function (choice) {
+    return choice.dataset.value;
+  });
+
+  if (!activities.length) {
+    errorBox.textContent = "Izvēlies vismaz vienu noskaņu mūsu randiņam. ♡";
+    return;
+  }
+
+  const exactPlan = document.getElementById("exactPlan").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const note = document.getElementById("note").value.trim();
+
+  document.getElementById("summaryDate").textContent = formatDate(selectedDate);
+  document.getElementById("summaryTime").textContent = selectedTime;
+  document.getElementById("summaryActivities").textContent =
+    exactPlan ? activities.join(" · ") + " — " + exactPlan : activities.join(" · ");
+  document.getElementById("summaryLocation").textContent =
+    location || "Kur nu mūs aizvedīs dzīve ♡";
+  document.getElementById("summaryNote").textContent =
+    note || "Bez ziņojuma — tikai mūsu diena ♡";
+  document.getElementById("summaryNoteRow").style.display = "flex";
+
+  showScreen("confirm");
+});
+
+document.getElementById("backFromConfirm").addEventListener("click", function () {
+  showScreen("details");
+});
+
+// ------------------------------------------------------------
+// Save to Firebase
+// ------------------------------------------------------------
+
+document.getElementById("savePlan").addEventListener("click", async function () {
+  const button = document.getElementById("savePlan");
+  const errorBox = document.getElementById("planError");
+  const exactPlan = document.getElementById("exactPlan").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const note = document.getElementById("note").value.trim();
+  const activities = Array.from(
+    document.querySelectorAll(".choice.selected")
+  ).map(function (choice) {
+    return choice.dataset.value;
+  });
+
+  errorBox.textContent = "";
+
+  if (!currentUser || !isAllowedUser(currentUser.uid)) {
+    errorBox.textContent = "Sesija vairs nav derīga. Ielogojies vēlreiz.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saglabājam mūsu plānu... ♡";
+
+  try {
+    const planRef = push(ref(db, "ourPlans"));
+
+    await set(planRef, {
+      title: "Mūsu randiņš ♡",
+      date: selectedDate,
+      time: selectedTime,
+      location: location,
+      activities: activities,
+      exactPlan: exactPlan,
+      note: note,
+      createdBy: currentUser.uid,
+      createdAt: Date.now(),
+    });
+
+    showScreen("success");
+  } catch (error) {
+    console.error("Save error:", error);
+    errorBox.textContent =
+      "Neizdevās saglabāt plānu. Pārbaudi Firebase Rules.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Jā, saglabājam ♡";
+  }
+});
+
+// ------------------------------------------------------------
+// Plans / home
+// ------------------------------------------------------------
+
+function loadPlans() {
+  if (!currentUser || !isAllowedUser(currentUser.uid)) return;
+
+  const plansQuery = query(ref(db, "ourPlans"), orderByChild("date"));
+
+  onValue(plansQuery, function (snapshot) {
+    plans = [];
+
+    snapshot.forEach(function (child) {
+      plans.push({ id: child.key, ...child.val() });
+    });
+
+    plans.sort(function (a, b) {
+      return String(a.date).localeCompare(String(b.date));
+    });
+
+    renderPlans();
+  });
+}
+
+function renderPlans() {
+  const list = document.getElementById("planList");
+
+  if (!plans.length) {
+    list.innerHTML =
+      '<div class="plan-item"><strong>Pagaidām nekā nav ♡</strong><small>Varbūt ir laiks izveidot mūsu pirmo plānu?</small></div>';
+    return;
+  }
+
+  list.innerHTML = plans
+    .map(function (plan) {
+      const activityText =
+        Array.isArray(plan.activities) && plan.activities.length
+          ? plan.activities.join(" · ")
+          : "Vēl nav izvēlēts";
+
+      let html = '<div class="plan-item">';
+      html +=
+        '<strong>' +
+        escapeHTML(plan.title || "Mūsu plāns ♡") +
+        "</strong>";
+      html += "<small>📅 " + escapeHTML(plan.date || "");
+
+      if (plan.time) {
+        html += " · 🕐 " + escapeHTML(plan.time);
+      }
+
+      if (plan.location) {
+        html += "<br>📍 " + escapeHTML(plan.location);
+      }
+
+      html += "<br>🎀 " + escapeHTML(activityText);
+
+      if (plan.exactPlan) {
+        html += "<br>✨ " + escapeHTML(plan.exactPlan);
+      }
+
+      if (plan.note) {
+        html += "<br>💌 " + escapeHTML(plan.note);
+      }
+
+      html += "</small></div>";
+      return html;
+    })
+    .join("");
+}
+
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+document.getElementById("viewPlans").addEventListener("click", function () {
+  showScreen("home");
+});
+
+document.getElementById("newPlanButton").addEventListener("click", function () {
+  resetFlow();
+  showScreen("availability");
+});
+
+document.getElementById("logoutButton").addEventListener("click", async function () {
+  await signOut(auth);
+  currentUser = null;
+  document.getElementById("password").value = "";
+  showScreen("login");
+});
+
+onAuthStateChanged(auth, function (user) {
+  if (!user) {
+    currentUser = null;
+    return;
+  }
+
+  if (!isAllowedUser(user.uid)) {
+    signOut(auth).catch(console.error);
+    return;
+  }
+
+  currentUser = user;
+  loadPlans();
+
+  if (user.uid === HER_UID) {
+    showScreen("question");
+  } else {
+    showScreen("home");
+  }
+});
+</script>
+</body>
+</html>
