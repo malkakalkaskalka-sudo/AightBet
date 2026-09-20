@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="googlebot" content="noindex, nofollow, noarchive">
+  <meta name="theme-color" content="#0b0710">
+  <title>just for you ♡</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="grain"></div>
+
+    <section class="content">
+      <p class="eyebrow">Maza Dziesmiņa Priekš tevis</p>
+
+      <div class="art-wrap">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="album" id="album">
+          <img src="cover.jpg" alt="Song artwork" onerror="this.style.display='none'; document.querySelector('.fallback-art').style.display='flex';">
+          <div class="fallback-art">
+            <span>♡</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="title-area">
+        <h1>Tikai Priekš Tevis</h1>
+        <p>Justīne ♡</p>
+      </div>
+
+      <div class="player">
+        <div class="progress-area" id="progressArea">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-dot" id="progressDot"></div>
+          </div>
+        </div>
+
+        <div class="times">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+
+        <button class="play" id="playButton" aria-label="Play song">
+          <span class="play-icon">▶</span>
+          <span class="pause-icon">Ⅱ</span>
+        </button>
+      </div>
+
+      <p class="message">Es izveidoju šo dziesmu kad domāju par tevi.</p>
+
+      <div class="tiny-heart">♡</div>
+    </section>
+
+    <audio id="audio" preload="metadata">
+      <!-- Put your song in this folder and change the filename if needed. -->
+      <source src="song.mp3" type="audio/mpeg">
+    </audio>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
