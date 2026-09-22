@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="lv" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#1c0f1f">
+<title>Mūsu mazā spēle ♡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg-1:#1c0f1f;--bg-2:#33163a;--bg-3:#4a1836;
+  --card:#fff9f4;--card-line:#f1ddd0;
+  --ink:#2c1b26;--muted:#8d7583;
+  --rose:#ff6f8f;--rose-deep:#df3f6c;
+  --gold:#ffd074;--gold-deep:#dd9f34;
+  --violet:#a07bff;--violet-deep:#7c4eee;
+  --teal:#5fd4c4;--teal-deep:#2fae9c;
+  --sky:#7cc4ff;--sky-deep:#3f95e6;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  height:100svh;overflow:hidden;overscroll-behavior:none;position:relative;
+  font-family:var(--sans);color:var(--ink);
+  background:
+    radial-gradient(circle at 12% 6%, #6c2a56 0%, transparent 48%),
+    radial-gradient(circle at 92% 12%, #3a2a66 0%, transparent 42%),
+    radial-gradient(circle at 85% 90%, #431f52 0%, transparent 46%),
+    linear-gradient(165deg,var(--bg-1),var(--bg-2) 52%,var(--bg-3));
+  background-attachment:fixed;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+.aurora{position:fixed;inset:-10%;z-index:0;pointer-events:none;filter:blur(60px);opacity:.55}
+.aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen;opacity:.5;animation:drift 22s ease-in-out infinite}
+.aurora i:nth-child(1){width:46vmax;height:46vmax;left:-14%;top:-10%;background:radial-gradient(circle,var(--rose-deep),transparent 65%);animation-duration:26s}
+.aurora i:nth-child(2){width:40vmax;height:40vmax;right:-16%;top:6%;background:radial-gradient(circle,var(--violet-deep),transparent 65%);animation-duration:31s;animation-delay:-6s}
+.aurora i:nth-child(3){width:36vmax;height:36vmax;left:18%;bottom:-18%;background:radial-gradient(circle,var(--gold-deep),transparent 68%);animation-duration:24s;animation-delay:-12s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4%,-5%) scale(1.08)}}
+
+h1,h2{font-family:var(--serif);margin:0}
+button{font:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
+
+#app{position:relative;z-index:1;height:100%}
+.screen{
+  display:none;height:100%;padding:calc(22px + var(--safe-t)) 18px calc(22px + var(--safe-b));
+  align-items:center;justify-content:center;
+}
+.screen.active{display:flex;animation:screenIn .45s cubic-bezier(.2,.8,.2,1)}
+
+.card{
+  width:min(100%,430px);text-align:center;position:relative;padding:38px 24px 28px;
+  border-radius:30px;background:var(--card);
+  border:1px solid var(--card-line);
+  box-shadow:0 40px 80px -24px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.7) inset;
+  overflow:hidden;
+}
+.card::after{
+  content:"";position:absolute;top:-90px;right:-90px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,111,143,.18), transparent 70%);pointer-events:none;
+}
+.card::before{
+  content:"";position:absolute;bottom:-90px;left:-90px;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle, rgba(160,123,255,.14), transparent 70%);pointer-events:none;
+}
+.mini{font-size:11px;letter-spacing:.16em;color:var(--rose-deep);font-weight:800;margin-bottom:10px;text-transform:uppercase}
+.card h1{font-size:clamp(38px,11vw,56px);font-weight:600;font-style:italic;line-height:1;margin-bottom:14px;color:var(--ink);letter-spacing:-.01em}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.6;margin:0 auto 26px;max-width:310px}
+
+.hicon{width:1em;height:1em;display:inline-block;vertical-align:-.12em}
+
+.people{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.person{
+  min-height:154px;border:1px solid var(--card-line);border-radius:24px;
+  background:linear-gradient(155deg,#fff,#fff2ea);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  color:var(--ink);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+  touch-action:manipulation;position:relative;overflow:hidden;
+}
+.person .hicon{width:40px;height:40px;color:var(--rose);filter:drop-shadow(0 4px 8px rgba(224,70,111,.25))}
+.person b{font-size:18px;font-weight:700;font-family:var(--serif)}
+.person small{font-size:12px;color:var(--muted);font-weight:600}
+.person .crown{position:absolute;top:10px;right:12px;font-size:15px;opacity:0;transform:translateY(-4px) scale(.6);transition:all .25s ease}
+.person.leading .crown{opacity:1;transform:translateY(0) scale(1)}
+.person:active{transform:scale(.95)}
+@media(hover:hover) and (pointer:fine){
+  .person:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(224,70,111,.18);border-color:var(--rose)}
+}
+
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 24px}
+.legend span{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  background:#fff;border:1px solid var(--card-line);border-radius:14px;padding:11px 5px;font-size:13px;font-weight:700;
+}
+.legend .hicon{width:16px;height:16px}
+.legend.small span{font-size:11.5px;padding:9px 4px}
+
+.primary{
+  width:100%;min-height:58px;border:0;border-radius:18px;
+  background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;
+  font-weight:800;letter-spacing:.02em;font-size:15px;font-family:var(--sans);
+  box-shadow:0 16px 32px -8px rgba(224,70,111,.55), inset 0 1px rgba(255,255,255,.3);
+  position:relative;overflow:hidden;transition:transform .15s ease;touch-action:manipulation;
+}
+.primary:active{transform:scale(.97)}
+.primary::after{
+  content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.35) 35%,transparent 50%);
+  transform:translateX(-120%);animation:sheen 3.2s ease-in-out infinite;
+}
+.textbtn{border:0;background:none;color:var(--muted);padding:15px;min-height:46px;font-size:14px;font-weight:600;transition:color .15s ease}
+.textbtn:active{color:var(--ink)}
+
+.loading{margin-top:16px;font-size:11.5px;color:var(--muted);min-height:1.2em;font-weight:600}
+
+.topbar{position:absolute;top:calc(12px + var(--safe-t));right:14px;z-index:6;display:flex;gap:8px}
+.iconbtn{
+  width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.16);
+  background:rgba(20,10,20,.45);backdrop-filter:blur(10px);color:#fff;
+  display:grid;place-items:center;font-size:16px;transition:transform .15s ease, background .15s ease;
+}
+.iconbtn:active{transform:scale(.88)}
+.iconbtn.muted{opacity:.5}
+
+/* Game screen */
+.hud{
+  position:absolute;z-index:5;top:calc(14px + var(--safe-t));left:14px;right:14px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;
+  padding:11px 16px;border-radius:22px;background:rgba(18,9,20,.52);
+  border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+}
+.hud .who{display:flex;flex-direction:column;align-items:flex-start}
+.hud .center{display:flex;flex-direction:column;align-items:center}
+.hud .comboWrap{display:flex;flex-direction:column;align-items:flex-end}
+.hud small{font-size:9px;letter-spacing:.13em;color:#ecd2e0;font-weight:800;opacity:.75}
+.hud strong{font-size:25px;color:#fff;font-variant-numeric:tabular-nums;line-height:1.1;transition:transform .12s ease;font-family:var(--serif)}
+.hud.bump strong{animation:hudBump .16s ease}
+#time.warn{color:var(--gold);animation:timeWarn .5s ease infinite}
+#combo{transition:color .2s ease}
+#combo.hot{color:var(--gold)}
+
+.bonusChip{
+  position:absolute;z-index:6;left:50%;top:calc(78px + var(--safe-t));transform:translateX(-50%) translateY(-10px) scale(.85);
+  padding:7px 16px;border-radius:99px;font-size:12px;font-weight:800;letter-spacing:.04em;color:#3a2306;
+  background:linear-gradient(135deg,var(--gold),var(--gold-deep));opacity:0;pointer-events:none;
+  box-shadow:0 10px 22px -6px rgba(221,159,52,.6);transition:all .25s cubic-bezier(.2,.9,.3,1.3);
+}
+.bonusChip.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+
+.arena{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.arena.shake{animation:shake .35s ease}
+
+.target{
+  position:absolute;width:64px;height:64px;border:0;background:transparent;padding:0;
+  display:grid;place-items:center;transform:translate(-50%,-50%) scale(1);
+  touch-action:none;animation:heartIn .22s cubic-bezier(.17,.84,.44,1);will-change:transform,opacity;
+}
+.target .hicon{width:100%;height:100%;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4))}
+.target.good .hicon{color:var(--rose)}
+.target.great .hicon{color:var(--gold)}
+.target.bad .hicon{color:var(--violet)}
+.target.star .hicon{color:var(--sky)}
+.target.clock .hicon{color:var(--teal)}
+.target.bomb .hicon{color:#ff9d6b}
+.target.great{filter:drop-shadow(0 0 14px rgba(255,208,116,.55))}
+.target.star{filter:drop-shadow(0 0 14px rgba(124,196,255,.6))}
+.target.clock{filter:drop-shadow(0 0 14px rgba(95,212,196,.55))}
+.target.bomb{filter:drop-shadow(0 0 14px rgba(255,157,107,.55))}
+.target.warn{animation:targetWarn .38s ease-in-out infinite}
+.target.tapped{animation:heartOut .18s ease forwards}
+.target:active{transform:translate(-50%,-50%) scale(.82)}
+
+.bottom{
+  position:absolute;left:16px;right:16px;bottom:calc(14px + var(--safe-b));
+  display:flex;flex-direction:column;gap:7px;z-index:4;
+}
+#hint{text-align:center;font-size:11px;letter-spacing:.07em;color:#f3dcea;font-weight:700;opacity:.9}
+.bar{height:8px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden;position:relative}
+.bar div{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:99px;transform-origin:left;transition:width .1s linear}
+.bar.pulse div{animation:barPulse .5s ease}
+
+.float{
+  position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:22px;font-family:var(--serif);
+  color:var(--gold);text-shadow:0 2px 12px rgba(0,0,0,.45);pointer-events:none;z-index:8;
+  animation:floatUp .65s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.float.bad{color:var(--violet)}
+.float.star{color:var(--sky)}
+.float.clock{color:var(--teal)}
+.float.bomb{color:#ff9d6b}
+
+.hitBurst{position:absolute;transform:translate(-50%,-50%);pointer-events:none;z-index:7}
+.hitBurst i{
+  position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);
+  left:0;top:0;transform:rotate(var(--a)) translateY(-26px);transform-origin:50% 26px;
+  animation:burst .4s ease-out forwards;
+}
+
+#countdown{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--serif);font-style:italic;font-size:110px;color:#fff;
+  text-shadow:0 12px 40px rgba(0,0,0,.45);pointer-events:none;
+}
+.countdownPulse{animation:countPulse .5s ease}
+
+.toastWrap{position:absolute;z-index:9;left:0;right:0;top:calc(120px + var(--safe-t));display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{
+  padding:8px 18px;border-radius:99px;background:rgba(20,10,22,.68);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font-size:12.5px;font-weight:700;backdrop-filter:blur(10px);
+  animation:toastIn .35s cubic-bezier(.2,.9,.3,1.2), toastOut .4s ease 1.6s forwards;
+}
+
+/* Result screen */
+.versus{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin:20px 0;padding:16px 5px;border-block:1px solid var(--card-line)}
+.versus div:not(.vs){display:flex;flex-direction:column;gap:4px}
+.versus span{font-size:11.5px;color:var(--muted);font-weight:600}
+.versus b{font-size:27px;color:var(--ink);font-family:var(--serif)}
+.vs{font-size:10px;color:#c9b3c0;letter-spacing:.1em;font-weight:800}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:99px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#5c3d0a;
+  font-size:11px;font-weight:800;letter-spacing:.03em;animation:badgeIn .45s cubic-bezier(.2,.9,.2,1);
+}
+.hidden{display:none!important}
+.saveStatus{font-size:11.5px!important;margin:0 auto 10px!important;color:var(--muted)!important;min-height:1.3em;font-weight:600}
+.resultCelebrate{animation:resultPop .5s cubic-bezier(.16,1,.3,1)}
+
+.statRow{display:flex;justify-content:center;gap:18px;margin:0 0 18px;font-size:11.5px;color:var(--muted);font-weight:700}
+.statRow b{color:var(--ink);font-size:15px;display:block;font-family:var(--serif)}
+
+.history{margin:0 0 22px;text-align:left}
+.history h3{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;text-align:center;font-weight:800}
+.history ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto}
+.history li{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;background:#fff;border:1px solid var(--card-line);border-radius:11px;padding:8px 12px}
+.history li b{font-family:var(--serif);color:var(--ink)}
+.history li span{color:var(--muted);font-weight:600}
+.history li.mine{background:linear-gradient(155deg,#fff,#fff0ea);border-color:var(--rose)}
+
+.paused-banner{
+  position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+  background:rgba(15,8,16,.75);backdrop-filter:blur(8px);color:#fff;font-family:var(--serif);font-style:italic;font-size:28px;text-align:center;
+}
+.paused-banner span{font-family:var(--sans);font-style:normal;font-size:12px;color:#ddb9cd;font-weight:600}
+.paused-banner.show{display:flex}
+
+.confettiWrap{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.confettiWrap i{position:absolute;top:-10px;width:8px;height:14px;border-radius:2px;animation:confettiFall linear forwards}
+
+@keyframes sheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes heartIn{from{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-10deg)}65%{transform:translate(-50%,-50%) scale(1.12) rotate(3deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
+@keyframes heartOut{to{opacity:0;transform:translate(-50%,-50%) scale(.3)}}
+@keyframes targetWarn{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-170%) scale(1.15)}}
+@keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateY(-6px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(-42px) scale(.4)}}
+@keyframes hudBump{50%{transform:scale(1.16)}}
+@keyframes countPulse{50%{transform:scale(1.15);opacity:.8}}
+@keyframes badgeIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes resultPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+@keyframes timeWarn{50%{opacity:.55}}
+@keyframes barPulse{0%{filter:brightness(1)}50%{filter:brightness(1.7)}100%{filter:brightness(1)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-6px) scale(.95)}}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
+
+@media(max-width:340px){
+  .card{padding-inline:16px}
+  .person{min-height:130px}
+  .target{width:56px;height:56px}
+  .hud strong{font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"><i></i><i></i><i></i></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="icon-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-10.3-9C-.5 8.1 1 3.8 5 3c2.3-.5 4.3.6 5.5 2.4C11.7 3.6 13.7 2.5 16 3c4 .8 5.5 5.1 3.3 9-2.8 4.4-10.3 9-10.3 9Z"/></symbol>
+  <symbol id="icon-heart-sparkle" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M11.2 21.4s-7-4.4-9.7-8.5C-.9 8.9.5 4.9 4.2 4.1c2.1-.5 4 .5 5.2 2.2C10.5 4.5 12.4 3.4 14.5 4c3.7.9 5 5 2.6 8.7-2.7 4.1-6 5-6 5"/>
+    <path fill="currentColor" d="M19.4 3.2l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9.9-2Z"/>
+  </symbol>
+  <symbol id="icon-heart-break" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 21s-7.5-4.6-10.3-9C-.5 8.1 1 3.8 5 3c2.3-.5 4.3.6 5.5 2.4C11.7 3.6 13.7 2.5 16 3c4 .8 5.5 5.1 3.3 9-2.8 4.4-10.3 9-10.3 9Z" opacity=".35"/>
+    <path fill="currentColor" d="M13 4l-2.6 5.2 2.6 2.3-2 5.5 3.3-6-2.7-2.4L13 4Z"/>
+  </symbol>
+  <symbol id="icon-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5l2.7 6.2 6.7.6-5.1 4.4 1.6 6.5L12 16.9l-5.9 3.3 1.6-6.5-5.1-4.4 6.7-.6L12 2.5Z"/></symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5.2l3.6 2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-bomb" viewBox="0 0 24 24"><circle cx="11.5" cy="14" r="7.3" fill="currentColor"/><path d="M14.8 8.2l2-2.6M17 3.2l2.4.9-.6 2.5-2.4-.4.6-3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<main id="app">
+
+<div class="topbar">
+  <button id="soundBtn" class="iconbtn" aria-label="skaņa">🔊</button>
+</div>
+
+<section id="pick" class="screen active">
+  <div class="card">
+    <div class="mini">Mazs laika kavēklis</div>
+    <h1>Kas tu esi?</h1>
+    <p>Izvēlies sevi un paskaties, vai vari pārspēt mūsu rekordu. ♡</p>
+    <div class="people">
+      <button class="person" data-player="justine">
+        <span class="crown">👑</span>
+        <svg class="hicon"><use href="#icon-heart"/></svg>
+        <b>Justīne</b><small id="jPick">0</small>
+      </button>
+      <button class="person" data-player="matiss">
+        <span class="crown">👑</span>
+        <svg class="hicon"><use href="#icon-heart"/></svg>
+        <b>Matīss</b><small id="mPick">0</small>
+      </button>
+    </div>
+    <div class="loading" id="loading" role="status">ielādējam mūsu rekordus...</div>
+  </div>
+</section>
+
+<section id="ready" class="screen">
+  <div class="card">
+    <div class="mini">Gatava/-s?</div>
+    <h1 id="hello"></h1>
+    <p>20 sekundes. Ķer sirsniņas pēc iespējas ātrāk — jo garāka sērija, jo lielāks combo. Uzmanies no violetajām un ķer retos varas piedevas! 🔥</p>
+    <div class="legend">
+      <span><svg class="hicon" style="color:var(--rose)"><use href="#icon-heart"/></svg><b>+1</b></span>
+      <span><svg class="hicon" style="color:var(--gold)"><use href="#icon-heart-sparkle"/></svg><b>+5</b></span>
+      <span><svg class="hicon" style="color:var(--violet)"><use href="#icon-heart-break"/></svg><b>&minus;2</b></span>
+      <span>combo <b>×2 .. ×8</b></span>
+    </div>
+    <div class="legend small">
+      <span><svg class="hicon" style="color:var(--sky)"><use href="#icon-star"/></svg><b>×2 bonuss</b></span>
+      <span><svg class="hicon" style="color:var(--teal)"><use href="#icon-clock"/></svg><b>+2 sek</b></span>
+      <span><svg class="hicon" style="color:#ff9d6b"><use href="#icon-bomb"/></svg><b>notīra sliktos</b></span>
+      <span>🔥 <b>sērijas bonuss</b></span>
+    </div>
+    <button id="start" class="primary">SĀKT SPĒLI</button>
+    <button id="back" class="textbtn">mainīt spēlētāju</button>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <header class="hud">
+    <div class="who"><small>REZULTĀTS</small><strong id="score">0</strong></div>
+    <div class="center"><small>LAIKS</small><strong id="time">20.0</strong></div>
+    <div class="comboWrap"><small>COMBO</small><strong id="combo">×1</strong></div>
+  </header>
+  <div id="bonusChip" class="bonusChip">×2 BONUSS AKTĪVS</div>
+  <div id="toastWrap" class="toastWrap"></div>
+  <div id="arena" class="arena"><div id="countdown"></div></div>
+  <div class="bottom"><span id="hint">ĶER! ♡</span><div id="bar" class="bar"><div id="barFill"></div></div></div>
+  <div id="pausedBanner" class="paused-banner">Pauze<span>pieskaries, lai turpinātu</span></div>
+</section>
+
+<section id="result" class="screen">
+  <div class="card">
+    <div id="resultMini" class="mini">LAIKS BEIDZIES</div>
+    <h1 id="finalScore">0</h1>
+    <p id="resultText">sirsniņas savāktas</p>
+    <div id="best" class="badge hidden">JAUNS REKORDS ✨</div>
+    <div class="statRow">
+      <div><b id="statHits">0</b>trāpījumi</div>
+      <div><b id="statAcc">0%</b>precizitāte</div>
+      <div><b id="statCombo">×1</b labels>labākais combo</div>
+    </div>
+    <div class="versus">
+      <div><span>Justīne</span><b id="jResult">0</b></div>
+      <div class="vs">VS</div>
+      <div><span>Matīss</span><b id="mResult">0</b></div>
+    </div>
+    <div id="historyBox" class="history hidden">
+      <h3>Pēdējie mēģinājumi</h3>
+      <ul id="historyList"></ul>
+    </div>
+    <p id="saveStatus" class="saveStatus" role="status">Saglabājam rezultātu... ♡</p>
+    <button id="again" class="primary">VĒLREIZ</button>
+    <button id="switch" class="textbtn">mainīt spēlētāju</button>
+  </div>
+</section>
+</main>
+
+<script>
+(() => {
+"use strict";
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const GAME_MS = 20000;
+const MAX_TARGETS = 7;
+const NAMES = { justine: "Justīne", matiss: "Matīss" };
+const state = { justine: 0, matiss: 0 };
+const LS_KEY = "coupleGame.scores.v1";
+
+let player = null;
+let score = 0, streak = 0, combo = 1, bestCombo = 1, hits = 0, misses = 0;
+let doubleUntil = 0;
+let running = false, started = false;
+let endAt = 0, pausedRemaining = 0;
+let spawnTimer = null, countdownTimer = null, raf = null;
+const targets = new Set();
+const shownMilestones = new Set();
+
+/* ---------------- sound ---------------- */
+let actx = null, muted = localStorage.getItem("coupleGame.muted") === "1";
+function ensureAudio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function tone(freq, dur, type, gain){
+  if (muted || !actx) return;
+  try{
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.value = 0;
+    o.connect(g); g.connect(actx.destination);
+    const now = actx.currentTime;
+    g.gain.linearRampToValueAtTime(gain||0.09, now+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now+dur);
+    o.start(now); o.stop(now+dur+0.02);
+  }catch(e){}
+}
+function sfxGood(c){ tone(520 + c*30, .12, "triangle"); }
+function sfxGreat(){ tone(720, .09, "triangle"); setTimeout(()=>tone(980, .14, "triangle"),60); }
+function sfxBad(){ tone(160, .22, "sawtooth", .07); }
+function sfxPower(){ tone(600,.08,"sine"); setTimeout(()=>tone(900,.08,"sine"),70); setTimeout(()=>tone(1200,.12,"sine"),140); }
+function sfxRecord(){ [660,880,1100,1320].forEach((f,i)=>setTimeout(()=>tone(f,.18,"triangle",.1), i*90)); }
+$("#soundBtn").onclick = () => {
+  muted = !muted; localStorage.setItem("coupleGame.muted", muted?"1":"0");
+  $("#soundBtn").textContent = muted ? "🔇" : "🔊";
+  $("#soundBtn").classList.toggle("muted", muted);
+};
+$("#soundBtn").textContent = muted ? "🔇" : "🔊";
+$("#soundBtn").classList.toggle("muted", muted);
+
+/* ---------------- persistence (db capability, falls back to localStorage) ---------------- */
+let dbApi = null, scoresDoc = null, historyCol = null;
+function localLoad(){
+  try{ const raw = localStorage.getItem(LS_KEY); if(raw){ const d = JSON.parse(raw); state.justine = Number(d.justine)||0; state.matiss = Number(d.matiss)||0; } }catch(e){}
+}
+function localSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function localHistoryAdd(entry){
+  try{
+    const raw = localStorage.getItem(LS_KEY+".history");
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(entry);
+    localStorage.setItem(LS_KEY+".history", JSON.stringify(list.slice(0,6)));
+    renderHistory(list.slice(0,6));
+  }catch(e){}
+}
+
+async function initPersistence(){
+  localLoad();
+  renderScores();
+  try{
+    if (window.claude && window.claude.use){
+      dbApi = await window.claude.use("db");
+    }
+  }catch(e){ dbApi = null; }
+
+  if (dbApi){
+    scoresDoc = dbApi.doc("coupleGame/scores");
+    historyCol = scoresDoc.collection("history");
+    scoresDoc.onSnapshot(snap => {
+      const d = (snap && snap.exists && snap.data && snap.data()) || {};
+      if (typeof d.justine === "number") state.justine = d.justine;
+      if (typeof d.matiss === "number") state.matiss = d.matiss;
+      renderScores();
+    }, err => { console.error(err); });
+    historyCol.orderBy("t","desc").limit(6).onSnapshot(snap => {
+      const list = (snap.docs||[]).map(d => d.data ? d.data() : d);
+      renderHistory(list);
+    }, err => { console.error(err); });
+    $("#loading").textContent = "rekordi sinhronizēti ♡";
+  } else {
+    const raw = localStorage.getItem(LS_KEY+".history");
+    renderHistory(raw ? JSON.parse(raw) : []);
+    $("#loading").textContent = "rekordi ielādēti (šai ierīcei) ♡";
+  }
+}
+
+async function saveScore(newScore){
+  const old = state[player] || 0;
+  const isBest = newScore > old;
+  if (isBest) state[player] = newScore;
+  renderScores();
+
+  const entry = { player, score: newScore, t: Date.now() };
+  if (dbApi && scoresDoc){
+    try{
+      if (isBest){
+        await scoresDoc.set({ [player]: newScore, updatedAt: Date.now() });
+      }
+      await historyCol.add(entry);
+      $("#saveStatus").textContent = isBest ? "Rekords saglabāts ♡" : ("Tavs rekords paliek " + old + " ♡");
+      return isBest;
+    }catch(e){
+      console.error(e);
+      $("#saveStatus").textContent = "Rezultātu neizdevās saglabāt (bet tas paliek atmiņā šai sesijai)";
+      return isBest;
+    }
+  } else {
+    localSave();
+    localHistoryAdd(entry);
+    $("#saveStatus").textContent = isBest ? "Rekords saglabāts šai ierīcei ♡" : ("Tavs rekords paliek " + old + " ♡");
+    return isBest;
+  }
+}
+
+function renderScores(){
+  $("#jPick").textContent = state.justine;
+  $("#mPick").textContent = state.matiss;
+  $("#jResult").textContent = state.justine;
+  $("#mResult").textContent = state.matiss;
+  const jLead = state.justine > state.matiss, mLead = state.matiss > state.justine;
+  $$('.person[data-player="justine"]')[0]?.classList.toggle("leading", jLead);
+  $$('.person[data-player="matiss"]')[0]?.classList.toggle("leading", mLead);
+}
+
+function renderHistory(list){
+  const box = $("#historyBox"), ul = $("#historyList");
+  if (!list || !list.length){ box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  ul.innerHTML = list.map(e => {
+    const name = NAMES[e.player] || e.player;
+    const mine = e.player === player ? "mine" : "";
+    const when = e.t ? new Date(e.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : "";
+    return `<li class="${mine}"><span>${when}</span><b>${name} · ${e.score}</b></li>`;
+  }).join("");
+}
+
+/* ---------------- toasts ---------------- */
+function toast(msg){
+  const wrap = $("#toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 2100);
+}
+function checkMilestone(){
+  const tiers = [25,50,80,120,170,230];
+  for (const t of tiers){
+    if (score >= t && !shownMilestones.has(t)){
+      shownMilestones.add(t);
+      toast(t >= 120 ? "🔥 " + t + "+! Neapstājies!" : "✨ " + t + "+ sirsniņas!");
+    }
+  }
+}
+
+/* ---------------- navigation ---------------- */
+function show(id){ $$(".screen").forEach(x => x.classList.toggle("active", x.id === id)); }
+
+$$(".person").forEach(b => b.addEventListener("click", () => {
+  player = b.dataset.player;
+  $("#hello").textContent = NAMES[player];
+  show("ready");
+}));
+$("#back").onclick = () => show("pick");
+$("#switch").onclick = () => { resetRound(); show("pick"); };
+$("#start").onclick = () => { ensureAudio(); if (!started) countIn(); };
+$("#again").onclick = () => { ensureAudio(); if (!started) countIn(); };
+
+function clearAllTimers(){
+  clearInterval(countdownTimer); countdownTimer = null;
+  clearInterval(spawnTimer); spawnTimer = null;
+  cancelAnimationFrame(raf); raf = null;
+}
+function resetRound(){
+  clearAllTimers();
+  running = false; started = false;
+  targets.forEach(t => t.remove());
+  targets.clear();
+  shownMilestones.clear();
+  $("#toastWrap").innerHTML = "";
+  $("#bonusChip").classList.remove("show");
+}
+
+function countIn(){
+  resetRound();
+  started = true;
+  show("game");
+  $("#pausedBanner").classList.remove("show");
+  score = 0; streak = 0; combo = 1; bestCombo = 1; hits = 0; misses = 0; doubleUntil = 0;
+  hud();
+  $("#barFill").style.width = "100%";
+  $("#time").textContent = (GAME_MS/1000).toFixed(1);
+  $("#time").classList.remove("warn");
+
+  let n = 3;
+  const cd = $("#countdown");
+  cd.textContent = n;
+  countdownTimer = setInterval(() => {
+    n--;
+    cd.textContent = n > 0 ? n : (n === 0 ? "♡" : "");
+    cd.classList.remove("countdownPulse"); void cd.offsetWidth; cd.classList.add("countdownPulse");
+    tone(440 + (3-n)*40, .08, "sine", .05);
+    if (n < 0){
+      clearInterval(countdownTimer); countdownTimer = null;
+      cd.textContent = "";
+      running = true;
+      endAt = performance.now() + GAME_MS;
+      for (let i = 0; i < 3; i++) spawn();
+      spawnTimer = setInterval(maintainPopulation, 250);
+      tick();
+    }
+  }, 520);
+}
+
+function hud(){
+  $("#score").textContent = score;
+  $("#combo").textContent = "×" + combo;
+  $("#combo").classList.toggle("hot", combo >= 5);
+  const h = $(".hud");
+  h.classList.remove("bump"); void h.offsetWidth; h.classList.add("bump");
+  const chip = $("#bonusChip");
+  const active = performance.now() < doubleUntil;
+  chip.classList.toggle("show", active);
+}
+
+function arenaRect(){ return $("#arena").getBoundingClientRect(); }
+
+function pickPosition(){
+  const r = arenaRect();
+  const padX = 40, topPad = 92, bottomPad = 96;
+  const w = Math.max(1, r.width - padX*2);
+  const h = Math.max(1, r.height - topPad - bottomPad);
+  let best = null, bestDist = -1;
+  for (let attempt = 0; attempt < 6; attempt++){
+    const x = padX + Math.random()*w;
+    const y = topPad + Math.random()*h;
+    let minDist = Infinity;
+    targets.forEach(t => {
+      const tx = parseFloat(t.style.left), ty = parseFloat(t.style.top);
+      const d = Math.hypot(tx-x, ty-y);
+      if (d < minDist) minDist = d;
+    });
+    if (minDist === Infinity) return { x, y };
+    if (minDist > bestDist){ bestDist = minDist; best = { x, y }; }
+    if (minDist > 90) return { x, y };
+  }
+  return best || { x: padX + w/2, y: topPad + h/2 };
+}
+
+function difficultyT(){
+  const remain = Math.max(0, endAt - performance.now());
+  return 1 - Math.min(1, remain / GAME_MS);
+}
+
+function maintainPopulation(){
+  if (!running) return;
+  const t = difficultyT();
+  const target = Math.min(MAX_TARGETS, 2 + Math.floor(t*5));
+  if (targets.size < target) spawn();
+}
+
+const KINDS = [
+  { kind:"great", symbol:"#icon-heart-sparkle", value:5, weight: t => 0.07 + t*0.05 },
+  { kind:"bad",   symbol:"#icon-heart-break",   value:-2, weight: t => 0.15 + t*0.08 },
+  { kind:"star",  symbol:"#icon-star",          value:2, weight: () => 0.035 },
+  { kind:"clock", symbol:"#icon-clock",         value:2, weight: () => 0.03 },
+  { kind:"bomb",  symbol:"#icon-bomb",          value:4, weight: () => 0.025 },
+];
+
+function spawn(){
+  if (!running || targets.size >= MAX_TARGETS) return;
+  const t = difficultyT();
+  const r = Math.random();
+  let kind = "good", symbol = "#icon-heart", value = 1;
+  let acc = 0;
+  for (const k of KINDS){
+    acc += k.weight(t);
+    if (r < acc){ kind = k.kind; symbol = k.symbol; value = k.value; break; }
+  }
+
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "target " + kind;
+  b.innerHTML = `<svg class="hicon"><use href="${symbol}"/></svg>`;
+  b.dataset.v = value;
+  b.dataset.kind = kind;
+
+  const { x, y } = pickPosition();
+  b.style.left = x + "px";
+  b.style.top = y + "px";
+
+  b.addEventListener("pointerdown", hit, { once:true });
+  $("#arena").appendChild(b);
+  targets.add(b);
+
+  const life = Math.max(650, 1500 - difficultyT()*700 - streak*4);
+  const warnAt = Math.max(0, life - 420);
+  const warnTimer = setTimeout(() => { if (targets.has(b)) b.classList.add("warn"); }, warnAt);
+  const timer = setTimeout(() => {
+    clearTimeout(warnTimer);
+    if (targets.has(b)){
+      targets.delete(b);
+      b.remove();
+      if (running && kind !== "bad"){
+        if (kind === "good" || kind === "great"){ misses++; }
+        streak = 0; combo = 1; hud();
+      }
+    }
+  }, life);
+  b._expireTimer = timer;
+  b._warnTimer = warnTimer;
+}
+
+function clearBadOnScreen(){
+  let cleared = 0;
+  [...targets].forEach(t => {
+    if (t.dataset.kind === "bad"){
+      clearTimeout(t._expireTimer); clearTimeout(t._warnTimer);
+      targets.delete(t);
+      burstAt(t.style.left, t.style.top, true);
+      t.classList.add("tapped");
+      setTimeout(() => t.remove(), 180);
+      cleared++;
+    }
+  });
+  return cleared;
+}
+
+function hit(e){
+  if (!running) return;
+  const b = e.currentTarget;
+  if (!targets.has(b)) return;
+  targets.delete(b);
+  clearTimeout(b._expireTimer);
+  clearTimeout(b._warnTimer);
+
+  const kind = b.dataset.kind;
+  const v = Number(b.dataset.v);
+  const isDouble = performance.now() < doubleUntil;
+  const mult = isDouble ? 2 : 1;
+  let gained = 0;
+
+  if (kind === "bad"){
+    score = Math.max(0, score + v);
+    streak = 0; combo = 1;
+    $("#arena").classList.remove("shake"); void $("#arena").offsetWidth; $("#arena").classList.add("shake");
+    if (navigator.vibrate) navigator.vibrate(25);
+    sfxBad();
+  } else if (kind === "star"){
+    doubleUntil = performance.now() + 4000;
+    gained = v * mult;
+    score += gained;
+    hits++;
+    sfxPower();
+    toast("★ ×2 bonuss uz 4 sekundēm!");
+  } else if (kind === "clock"){
+    endAt += 2000;
+    gained = v * mult;
+    score += gained;
+    hits++;
+    const barEl = $("#bar"); barEl.classList.remove("pulse"); void barEl.offsetWidth; barEl.classList.add("pulse");
+    sfxPower();
+    toast("⏱ +2 sekundes!");
+  } else if (kind === "bomb"){
+    const cleared = clearBadOnScreen();
+    gained = v * mult;
+    score += gained;
+    hits++;
+    sfxPower();
+    if (cleared > 0) toast("💣 notīrīti " + cleared + " sliktie!");
+  } else {
+    streak++;
+    combo = Math.min(8, 1 + Math.floor(streak/4));
+    bestCombo = Math.max(bestCombo, combo);
+    gained = v * combo * mult;
+    score += gained;
+    hits++;
+    if (kind === "great") sfxGreat(); else sfxGood(combo);
+  }
+
+  const f = document.createElement("div");
+  f.className = "float" + (kind === "bad" ? " bad" : (kind !== "good" && kind !== "great" ? " " + kind : ""));
+  f.textContent = (kind === "bad") ? v : "+" + gained;
+  f.style.left = b.style.left; f.style.top = b.style.top;
+  $("#arena").appendChild(f);
+  setTimeout(() => f.remove(), 600);
+
+  burstAt(b.style.left, b.style.top, kind !== "bad");
+
+  b.classList.add("tapped");
+  setTimeout(() => b.remove(), 180);
+
+  hud();
+  checkMilestone();
+  if (kind !== "bad" && navigator.vibrate) navigator.vibrate(kind === "good" ? 8 : 14);
+
+  if (running) maintainPopulation();
+}
+
+function burstAt(left, top, good){
+  const burst = document.createElement("div");
+  burst.className = "hitBurst";
+  burst.style.left = left; burst.style.top = top;
+  const n = 6;
+  for (let i = 0; i < n; i++){
+    const p = document.createElement("i");
+    p.style.setProperty("--a", (i*(360/n)) + "deg");
+    if (!good) p.style.background = "var(--violet)";
+    burst.appendChild(p);
+  }
+  $("#arena").appendChild(burst);
+  setTimeout(() => burst.remove(), 420);
+}
+
+function tick(){
+  if (!running) return;
+  const left = Math.max(0, endAt - performance.now());
+  $("#time").textContent = (left/1000).toFixed(1);
+  $("#time").classList.toggle("warn", left < 5000);
+  $("#barFill").style.width = (left/GAME_MS*100) + "%";
+  $("#bonusChip").classList.toggle("show", performance.now() < doubleUntil);
+  if (left <= 0){ finish(); return; }
+  raf = requestAnimationFrame(tick);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!started) return;
+  if (document.hidden){
+    if (running){
+      running = false;
+      pausedRemaining = Math.max(0, endAt - performance.now());
+      clearInterval(spawnTimer); spawnTimer = null;
+      cancelAnimationFrame(raf); raf = null;
+      $("#pausedBanner").classList.add("show");
+    }
+  }
+});
+$("#pausedBanner").addEventListener("pointerdown", () => {
+  if (!started || running) return;
+  $("#pausedBanner").classList.remove("show");
+  running = true;
+  endAt = performance.now() + pausedRemaining;
+  spawnTimer = setInterval(maintainPopulation, 250);
+  tick();
+});
+
+function confettiBurst(){
+  const wrap = document.createElement("div");
+  wrap.className = "confettiWrap";
+  const colors = ["#ff6f8f","#ffd074","#a07bff","#5fd4c4","#ffffff"];
+  for (let i = 0; i < 46; i++){
+    const p = document.createElement("i");
+    p.style.left = Math.random()*100 + "%";
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = (2.2 + Math.random()*1.6) + "s";
+    p.style.animationDelay = (Math.random()*0.4) + "s";
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 4200);
+}
+
+async function finish(){
+  running = false; started = false;
+  clearAllTimers();
+  targets.forEach(t => t.remove());
+  targets.clear();
+
+  const totalAttempts = hits + misses;
+  const acc = totalAttempts ? Math.round((hits/totalAttempts)*100) : 100;
+  $("#statHits").textContent = hits;
+  $("#statAcc").textContent = acc + "%";
+  $("#statCombo").textContent = "×" + bestCombo;
+
+  const fs = $("#finalScore");
+  fs.textContent = score;
+  fs.classList.remove("resultCelebrate"); void fs.offsetWidth; fs.classList.add("resultCelebrate");
+  $("#saveStatus").textContent = "Saglabājam rezultātu... ♡";
+  show("result");
+
+  const isBest = await saveScore(score);
+  $("#best").classList.toggle("hidden", !isBest);
+  $("#resultMini").textContent = isBest ? "JAUNS REKORDS ♡" : "LAIKS BEIDZIES";
+  if (isBest){ confettiBurst(); sfxRecord(); }
+}
+
+initPersistence();
+})();
+</script>
+</body>
+</html>
